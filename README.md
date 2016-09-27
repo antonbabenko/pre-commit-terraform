@@ -1,4 +1,4 @@
-# pre-commit-terraform hooks
+# pre-commit-terraform hook
 
 Single [pre-commit](http://pre-commit.com/) hook which runs `terraform fmt` on `*.tf` files.
 

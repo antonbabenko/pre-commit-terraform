@@ -1,6 +1,7 @@
 -   id: terraform_fmt
     name: Terraform fmt
     description: Rewrites all Terraform configuration files to a canonical format.
-    entry: tffmthook.sh
+    entry: terrraform_fmt.sh
     language: script
     files: \.tf$
+    exclude: \.terraform\/.*$
