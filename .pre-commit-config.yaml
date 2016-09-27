@@ -1,0 +1,8 @@
+-   repo: git://github.com/pre-commit/pre-commit-hooks
+    sha: v0.4.2
+    hooks:
+      -   id: check-yaml
+      -   id: end-of-file-fixer
+      -   id: trailing-whitespace
+      -   id: check-case-conflict
+      -   id: check-merge-conflict
