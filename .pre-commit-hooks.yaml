@@ -4,4 +4,4 @@
   entry: terraform_fmt.sh
   language: script
   files: (\.tf|\.tfvars)$
-  exclude: \.terraform\/.*$
+#  exclude: \.terraform\/.*$
