@@ -6,5 +6,5 @@ for file in "$@"; do
   echo `dirname $file`
   echo "=======111"
 
-  terraform fmt `dirname $file`
+  terraform fmt "$file"
 done
