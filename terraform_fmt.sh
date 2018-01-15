@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 for file in "$@"; do
-  terraform fmt `dirname $file`
+  terraform fmt "$file"
 done
