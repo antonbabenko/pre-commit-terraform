@@ -12,5 +12,11 @@ done
 for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   pushd "$path_uniq" > /dev/null
   terraform validate -check-variables=true
+
+  if [[ $? != 0 ]]; then
+    echo
+    echo "Failed path: $path_uniq"
+    echo "================================"
+  fi
   popd > /dev/null
 done
