@@ -2,14 +2,18 @@
 
 [![Github tag](https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg)](https://github.com/antonbabenko/pre-commit-terraform/releases) ![](https://img.shields.io/maintenance/yes/2018.svg) [![Help Contribute to Open Source](https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg)](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
 
-Single [pre-commit](http://pre-commit.com/) hook which runs `terraform fmt` on Terraform configuration files (both `*.tf` and `*.tfvars`).
+Several [pre-commit](http://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) in a good shape:
+* `terraform_fmt` - Rewrites all Terraform configuration files to a canonical format.
+* `terraform_validate_no_variables` - Validates all Terraform configuration files without checking whether all required variables were set.
+* `terraform_validate_with_variables` - Validates all Terraform configuration files and checks whether all required variables were specified. This is an optional check, because it will not work if variables are being set dynamically (eg, when using [Terragrunt](https://github.com/gruntwork-io/terragrunt)). Use `terraform_validate_no_variables` hook instead.
 
 An example `.pre-commit-config.yaml`:
 
 ```yaml
 - repo: git://github.com/antonbabenko/pre-commit-terraform
-  sha: v1.3.0
+  sha: v1.4.0
   hooks:
+    - id: terraform_validate_no_variables
     - id: terraform_fmt
 ```
 
