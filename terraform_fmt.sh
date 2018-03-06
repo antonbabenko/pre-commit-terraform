@@ -3,9 +3,8 @@ set -e
 
 declare -a paths
 declare -a tfvars_files
-index=0
 
-echo "$@"
+index=0
 
 for file_with_path in "$@"; do
   paths[index]=$(dirname "$file_with_path")
@@ -17,8 +16,6 @@ for file_with_path in "$@"; do
   let "index+=1"
 done
 
-echo "${tfvars_files[@]}"
-
 for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   pushd "$path_uniq" > /dev/null
   terraform fmt
@@ -27,7 +24,5 @@ done
 
 # terraform.tfvars are excluded by `terraform fmt`
 for tfvars_file in "${tfvars_files[@]}"; do
-  echo "tfvars_file = ${tfvars_file}"
-  echo
   terraform fmt "$tfvars_file"
 done
