@@ -4,8 +4,8 @@ set -e
 declare -a paths
 index=0
 
-echo "aa"
-exit 1
+echo "$@"
+
 for file_with_path in "$@"; do
   paths[index]=$(dirname "$file_with_path")
   let "index+=1"
