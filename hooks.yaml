@@ -3,7 +3,7 @@
   description: Rewrites all Terraform configuration files to a canonical format.
   entry: terraform_fmt.sh
   language: script
-  files: (\.tf|\.tfvars)$
+  files: (\.tfvars)$
   exclude: \.terraform\/.*$
 
 - id: terraform_validate_no_variables
