@@ -13,7 +13,7 @@ An example `.pre-commit-config.yaml`:
 
 ```yaml
 - repo: git://github.com/antonbabenko/pre-commit-terraform
-  sha: v1.5.0
+  sha: v1.6.0
   hooks:
     - id: terraform_fmt
 ```
