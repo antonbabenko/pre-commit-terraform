@@ -23,5 +23,6 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
 
   pushd "$path_uniq" > /dev/null
   terraform-docs md ./ > README.md
+  sed -i '$d' README.md
   popd > /dev/null
 done
