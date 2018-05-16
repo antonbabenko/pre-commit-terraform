@@ -27,6 +27,7 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   pushd "$path_uniq" > /dev/null
 
   if [[ ! -f "$text_file" ]]; then
+    popd > /dev/null
     continue
   fi
 
