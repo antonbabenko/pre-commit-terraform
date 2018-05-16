@@ -27,6 +27,8 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
 
   sed -i -n '/BEGINNING OF TERRAFORM-DOCS HOOK/{p;:a;N;/END OF TERRAFORM-DOCS HOOK/!ba;s/.*\n/I_WANT_TO_BE_REPLACED\n/};p' README.md
 
+  echo "$DOCS" > temp.txt
+  sed -i -e "/I_WANT_TO_BE_REPLACED/r temp.txt" -e "//d" README.md
 #  DOCS=`echo ${DOCS} | tr '\n' "\\n"`
 #  sed -i "s/I_WANT_TO_BE_REPLACED/${DOCS}/" README.md
 
