@@ -27,7 +27,7 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
 
   terraform-docs md ./ > "$tmp_file"
 
-  sed -i -n '/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/{p;:a;N;/END OF PRE-COMMIT-TERRAFORM DOCS HOOK/!ba;s/.*\n/r $tmp_file\n/};p' README.md
+  sed -i -n -e '/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/{p;:a;N;/END OF PRE-COMMIT-TERRAFORM DOCS HOOK/!ba;s/.*\n/r $tmp_file\n/};p' README.md
 
 #  sed -i -e "/I_WANT_TO_BE_REPLACED/r $tmp_file" -e "//d" README.md
 
