@@ -23,9 +23,11 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
 
   pushd "$path_uniq" > /dev/null
   DOCS=$(terraform-docs md ./)
-  perl -s0pe 's/(<!-- BEGINNING OF TERRAFORM-DOCS HOOK -->).*(<!-- END OF TERRAFORM-DOCS HOOK -->)/\1\n$replacement\n\2/s' -- -replacement="$DOCS" README.md
+#  perl -s0pe 's/(<!-- BEGINNING OF TERRAFORM-DOCS HOOK -->).*(<!-- END OF TERRAFORM-DOCS HOOK -->)/\1\n$replacement\n\2/s' -- -replacement="$DOCS" README.md
 
-  echo "DONE!? $path_uniq"
+  sed -i -n "/BEGINNING OF TERRAFORM\-DOCS HOOK/{p;:a;N;/END OF TERRAFORM\-DOCS HOOK/\!ba;s/.*\n/$DOCS\n/};p" README.md
+
+#  echo "DONE!? $path_uniq"
   cat README.md
   popd > /dev/null
 done
