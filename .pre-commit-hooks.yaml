@@ -8,7 +8,7 @@
 
 - id: terraform_docs
   name: Terraform Docs
-  description: Creates readme for terraform modules.
+  description: Inserts input and output documentation into README.md (using terraform-docs).
   entry: terraform_docs.sh
   language: script
   files: (\.tf)$
