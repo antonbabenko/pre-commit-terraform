@@ -18,20 +18,20 @@ for file_with_path in "$@"; do
   let "index+=1"
 done
 
+readonly tmp_file="tmp_$(date | md5).txt"
+
 for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
   pushd "$path_uniq" > /dev/null
-  DOCS=$(terraform-docs md ./)
-#  perl -s0pe 's/(<!-- BEGINNING OF TERRAFORM-DOCS HOOK -->).*(<!-- END OF TERRAFORM-DOCS HOOK -->)/\1\n$replacement\n\2/s' -- -replacement="$DOCS" README.md
 
-  sed -i -n '/BEGINNING OF TERRAFORM-DOCS HOOK/{p;:a;N;/END OF TERRAFORM-DOCS HOOK/!ba;s/.*\n/I_WANT_TO_BE_REPLACED\n/};p' README.md
+  terraform-docs md ./ > "$tmp_file"
 
-  echo "$DOCS" > temp.txt
-  sed -i -e "/I_WANT_TO_BE_REPLACED/r temp.txt" -e "//d" README.md
-#  DOCS=`echo ${DOCS} | tr '\n' "\\n"`
-#  sed -i "s/I_WANT_TO_BE_REPLACED/${DOCS}/" README.md
+  sed -i -n '/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/{p;:a;N;/END OF PRE-COMMIT-TERRAFORM DOCS HOOK/!ba;s/.*\n/I_WANT_TO_BE_REPLACED\n/};p' README.md
 
-  cat README.md
+  sed -i -e "/I_WANT_TO_BE_REPLACED/r $tmp_file" -e "//d" README.md
+
+  rm -f "$tmp_file"
+
   popd > /dev/null
 done
