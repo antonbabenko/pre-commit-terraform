@@ -27,8 +27,10 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
 
   terraform-docs md ./ > "$tmp_file"
 
+  # Replace content between markers with the placeholder - http://fahdshariff.blogspot.no/2012/12/sed-mutli-line-replacement-between-two.html
   sed -i -n '/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/{p;:a;N;/END OF PRE-COMMIT-TERRAFORM DOCS HOOK/!ba;s/.*\n/I_WANT_TO_BE_REPLACED\n/};p' README.md
 
+  # Replace placeholder with the content of the file - https://stackoverflow.com/a/31057013/550451
   sed -i -e "/I_WANT_TO_BE_REPLACED/r $tmp_file" -e "//d" README.md
 
   rm -f "$tmp_file"
