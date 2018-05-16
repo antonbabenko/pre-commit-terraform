@@ -27,7 +27,7 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
 
   which sed
 
-  sed -i -n "/BEGINNING OF TERRAFORM\-DOCS HOOK/{p;:a;N;/END OF TERRAFORM\-DOCS HOOK/\!ba;s/.*\n/$DOCS\n/};p" README.md
+  sed -i -n "/BEGINNING OF TERRAFORM\-DOCS HOOK/{p;:a;N;/END OF TERRAFORM\-DOCS HOOK/\\!ba;s/.*\n/$DOCS\n/};p" README.md
 
 #  echo "DONE!? $path_uniq"
   cat README.md
