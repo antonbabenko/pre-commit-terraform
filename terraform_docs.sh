@@ -18,7 +18,7 @@ for file_with_path in "$@"; do
   let "index+=1"
 done
 
-readonly tmp_file="tmp_$(date | md5).txt"
+readonly tmp_file=$(mktemp)
 readonly text_file="README.md"
 
 for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
