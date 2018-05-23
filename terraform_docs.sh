@@ -22,8 +22,15 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
   pushd "$path_uniq" > /dev/null
-  DOCS=$(terraform-docs md ./)
-  perl -s0pe 's/(<!-- BEGINNING OF TERRAFORM-DOCS HOOK -->).*(<!-- END OF TERRAFORM-DOCS HOOK -->)/\1\n$replacement\n\2/s' -- -replacement="$DOCS" README.md
-  sed -i '$d' README.md
+  if [[ -f README.md ]]; then
+    DOCS=$(terraform-docs md ./)
+    perl -i -s0pe 's/(<!-- BEGINNING OF TERRAFORM-DOCS HOOK -->).*(<!-- END OF TERRAFORM-DOCS HOOK -->)/\1$replacement\n\2/s' -- -replacement="$DOCS" README.md
+  else
+    echo -n "<!-- BEGINNING OF TERRAFORM-DOCS HOOK -->" > README.md
+    terraform-docs md ./ >> README.md
+    echo "<!-- END OF TERRAFORM-DOCS HOOK -->" >> README.md
+    echo "Creating README.md, please git add."
+    exit 1
+  fi
   popd > /dev/null
 done
