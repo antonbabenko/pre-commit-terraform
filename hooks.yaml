@@ -7,7 +7,7 @@
   exclude: \.terraform\/.*$
 
 - id: terraform_docs
-  name: Terraform Docs
+  name: Terraform docs
   description: Inserts input and output documentation into README.md (using terraform-docs).
   entry: terraform_docs.sh
   language: script

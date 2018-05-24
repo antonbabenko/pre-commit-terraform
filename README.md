@@ -20,7 +20,7 @@ Several [pre-commit](http://pre-commit.com/) hooks to keep Terraform configurati
 
 ```yaml
 - repo: git://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.7.0
+  rev: v1.7.3
   hooks:
     - id: terraform_fmt
     - id: terraform_docs
