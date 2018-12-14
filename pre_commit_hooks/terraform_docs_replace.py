@@ -25,7 +25,6 @@ def main(argv=None):
     dirs = []
     for filename in args.filenames:
         if (os.path.realpath(filename) not in dirs and \
-                len(os.path.realpath(filename).strip()) > 0 and \
                 (filename.endswith(".tf") or filename.endswith(".tfvars"))):
             dirs.append(os.path.dirname(filename))
 
@@ -40,7 +39,7 @@ def main(argv=None):
             if args.aggregate:
                 procArgs.append('--with-aggregate-type-defaults')
             procArgs.append('md')
-            procArgs.append(dir)
+            procArgs.append("./{dir}".format(dir=dir))
             procArgs.append("| sed -e '$ d' -e 'N;/^\\n$/D;P;D'")
             procArgs.append('>')
             procArgs.append("./{dir}/{dest}".format(dir=dir,dest=args.dest))
