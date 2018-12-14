@@ -8,8 +8,7 @@ setup(
     url='https://github.com/antonbabenko/pre-commit-terraform',
     version_format='{tag}+{gitsha}',
 
-    author='Andrew Roth',
-    author_email='roth.andy@gmail.com',
+    author='Contributors',
 
     classifiers=[
         'License :: OSI Approved :: MIT License',
