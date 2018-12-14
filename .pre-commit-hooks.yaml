@@ -23,6 +23,14 @@
   files: (\.tf)$
   exclude: \.terraform\/.*$
 
+- id: terraform_docs_replace
+  name: Terraform docs (overwrite README.md)
+  language: python
+  entry: terraform_docs_replace
+  files: (\.tf)$
+  exclude: \.terraform\/.*$
+  description: Overwrite content of README.md with terraform-docs
+
 - id: terraform_validate_no_variables
   name: Terraform validate without variables
   description: Validates all Terraform configuration files without checking whether all required variables were set (basic check).
