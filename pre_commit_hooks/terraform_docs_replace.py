@@ -11,6 +11,9 @@ def main(argv=None):
                        README.md file each time."""
     )
     parser.add_argument(
+        '--dest', dest='dest', default='README.md',
+    )
+    parser.add_argument(
         '--sort-inputs-by-required', dest='sort', action='store_true',
     )
     parser.add_argument(
@@ -21,7 +24,9 @@ def main(argv=None):
 
     dirs = []
     for filename in args.filenames:
-        if os.path.realpath(filename) not in dirs:
+        if (os.path.realpath(filename) not in dirs and \
+                len(os.path.realpath(filename).strip()) > 0 and \
+                (filename.endswith(".tf") or filename.endswith(".tfvars"))):
             dirs.append(os.path.dirname(filename))
 
     retval = 0
@@ -38,7 +43,7 @@ def main(argv=None):
             procArgs.append(dir)
             procArgs.append("| sed -e '$ d' -e 'N;/^\\n$/D;P;D'")
             procArgs.append('>')
-            procArgs.append('{}/README.md'.format(dir))
+            procArgs.append("./{dir}/{dest}".format(dir=dir,dest=args.dest))
             subprocess.check_call(" ".join(procArgs), shell=True)
         except subprocess.CalledProcessError as e:
             print(e)
