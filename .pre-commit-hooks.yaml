@@ -23,6 +23,14 @@
   files: (\.tf)$
   exclude: \.terraform\/.*$
 
+- id: terraform_docs_replace
+  name: Generate documentation for Terraform modules
+  language: python
+  entry: terraform_docs_replace
+  files: (\.tf)$
+  exclude: \.terraform\/.*$
+  description: Generates README.md files for Terraform modules
+
 - id: terraform_validate_no_variables
   name: Terraform validate without variables
   description: Validates all Terraform configuration files without checking whether all required variables were set (basic check).
