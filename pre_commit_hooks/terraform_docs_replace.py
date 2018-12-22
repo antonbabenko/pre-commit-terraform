@@ -2,7 +2,7 @@ import argparse
 import os
 import subprocess
 import sys
-
+import re
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
@@ -40,10 +40,17 @@ def main(argv=None):
                 procArgs.append('--with-aggregate-type-defaults')
             procArgs.append('md')
             procArgs.append("./{dir}".format(dir=dir))
-            procArgs.append("| sed -e '$ d' -e 'N;/^\\n$/D;P;D'")
             procArgs.append('>')
             procArgs.append("./{dir}/{dest}".format(dir=dir,dest=args.dest))
             subprocess.check_call(" ".join(procArgs), shell=True)
+
+            # Remove extra blank lines
+            content = ''
+            with open("./{dir}/{dest}".format(dir=dir,dest=args.dest), 'r') as theFile:
+                content=theFile.read()
+            content = re.sub(r"^\s*$^\s*$","", content, 0, re.MULTILINE)
+            with open("./{dir}/{dest}".format(dir=dir,dest=args.dest), 'w') as theFile:
+                theFile.write(content)
         except subprocess.CalledProcessError as e:
             print(e)
             retval = 1
