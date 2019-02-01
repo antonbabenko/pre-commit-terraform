@@ -15,12 +15,17 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
   pushd "$path_uniq" > /dev/null
+
+  set +e
   terraform validate -check-variables=false
 
   if [[ "$?" -ne 0 ]]; then
-    echo
-    echo "Failed path: $path_uniq"
-    echo "================================"
+    >&2 echo
+    >&2 echo "Failed path: $path_uniq"
+    >&2 echo "================================"
+    exit 1
   fi
+  
+  set -e
   popd > /dev/null
 done
