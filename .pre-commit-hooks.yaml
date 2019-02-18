@@ -9,6 +9,7 @@
 - id: terraform_docs
   name: Terraform docs
   description: Inserts input and output documentation into README.md (using terraform-docs).
+  require_serial: true
   entry: terraform_docs.sh
   args: [--args=--with-aggregate-type-defaults]
   language: script
@@ -18,6 +19,7 @@
 - id: terraform_docs_without_aggregate_type_defaults
   name: Terraform docs (without aggregate type defaults)
   description: Inserts input and output documentation into README.md (using terraform-docs).
+  require_serial: true
   entry: terraform_docs.sh
   language: script
   files: (\.tf)$
@@ -25,11 +27,12 @@
 
 - id: terraform_docs_replace
   name: Terraform docs (overwrite README.md)
-  language: python
+  description: Overwrite content of README.md with terraform-docs
+  require_serial: true
   entry: terraform_docs_replace
+  language: python
   files: (\.tf)$
   exclude: \.terraform\/.*$
-  description: Overwrite content of README.md with terraform-docs
 
 - id: terraform_validate_no_variables
   name: Terraform validate without variables
