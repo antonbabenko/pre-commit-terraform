@@ -3,9 +3,16 @@
 
 
 
+<a name="v1.10.0"></a>
+## [v1.10.0] - 2019-02-21
+
+- Add exit code for 'terraform validate' so pre-commit check fails ([#34](https://github.com/antonbabenko/pre-commit-terraform/issues/34))
+
+
 <a name="v1.9.0"></a>
 ## [v1.9.0] - 2019-02-18
 
+- Added CHANGELOG.md
 - Added chglog (hi [@robinbowes](https://github.com/robinbowes) :))
 - Merge pull request [#33](https://github.com/antonbabenko/pre-commit-terraform/issues/33) from chrisgilmerproj/run_terraform_docs_in_serial
 - Require terraform-docs runs in serial to avoid pre-commit doing parallel operations on similar file paths
@@ -124,7 +131,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.10.0...HEAD
+[v1.10.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.9.0...v1.10.0
 [v1.9.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.8.1...v1.9.0
 [v1.8.1]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.8.0...v1.8.1
 [v1.8.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.7.4...v1.8.0
