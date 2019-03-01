@@ -27,6 +27,6 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   popd > /dev/null
 done
 
-if [[ -n "${error}" ]] ; then
+if [[ "${error}" -ne 0 ]] ; then
   exit 1
 fi
