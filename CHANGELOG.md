@@ -3,9 +3,16 @@
 
 
 
+<a name="v1.11.0"></a>
+## [v1.11.0] - 2019-03-01
+
+- fix check for errors at the end ([#35](https://github.com/antonbabenko/pre-commit-terraform/issues/35))
+
+
 <a name="v1.10.0"></a>
 ## [v1.10.0] - 2019-02-21
 
+- Bump new version
 - Add exit code for 'terraform validate' so pre-commit check fails ([#34](https://github.com/antonbabenko/pre-commit-terraform/issues/34))
 
 
@@ -131,7 +138,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.11.0...HEAD
+[v1.11.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.10.0...v1.11.0
 [v1.10.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.9.0...v1.10.0
 [v1.9.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.8.1...v1.9.0
 [v1.8.1]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.8.0...v1.8.1
