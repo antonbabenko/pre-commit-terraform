@@ -8,9 +8,17 @@ ERROR=0
 
 # main code entrypoint
 main() {
+  preflight_check
   get_uniq_dirs "$@"
   process_dirs
   exit "$ERROR"
+}
+
+preflight_check() {
+  [[ ${BASH_VERSINFO[0]} -ge 4 ]] || (
+    printf "\nError: Bash 4 or greater required\n\n" >&2
+    exit 1
+  )
 }
 
 # reduce the command line args to a list of valid, uniq dirs
