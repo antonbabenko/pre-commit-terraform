@@ -21,10 +21,10 @@ Step into the repository you want to have the pre-commit hooks installed and run
 ```bash
 cat <<EOF > .pre-commit-config.yaml
 - repo: git://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.11.0
+  rev: v1.12.0
   hooks:
     - id: terraform_fmt
-    - id: terraform_docs
+    # - id: terraform_docs # terraform-docs is not working with Terraform 0.12 yet (read note in README)
 EOF
 ```
 
@@ -72,6 +72,8 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
     ```
 
 1. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
+
+1. `terraform-docs` is not working with Terraform 0.12 yet (see [issue #62](https://github.com/segmentio/terraform-docs/issues/62)), so remember to disable `terraform_docs`, `terraform_docs_replace` and `terraform_docs_without_aggregate_type_defaults` hooks in your `.pre-commit-config.yaml`
 
 ## Notes for developers
 
