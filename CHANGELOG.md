@@ -3,9 +3,18 @@
 
 
 
+<a name="v1.12.0"></a>
+## [v1.12.0] - 2019-05-27
+
+- Added note about incompatibility of terraform-docs with Terraform 0.12 ([#41](https://github.com/antonbabenko/pre-commit-terraform/issues/41))
+- Fixed broken "maintained badge"
+- Update README.md ([#36](https://github.com/antonbabenko/pre-commit-terraform/issues/36))
+
+
 <a name="v1.11.0"></a>
 ## [v1.11.0] - 2019-03-01
 
+- Updated changelog
 - fix check for errors at the end ([#35](https://github.com/antonbabenko/pre-commit-terraform/issues/35))
 
 
@@ -138,7 +147,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.12.0...HEAD
+[v1.12.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.11.0...v1.12.0
 [v1.11.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.10.0...v1.11.0
 [v1.10.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.9.0...v1.10.0
 [v1.9.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.8.1...v1.9.0
