@@ -4,6 +4,8 @@ set -e
 declare -a paths
 declare -a tfvars_files
 
+TERRAFORM=${TERRAFORM:=terraform}
+
 index=0
 
 for file_with_path in "$@"; do
@@ -22,7 +24,7 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
   pushd "$path_uniq" > /dev/null
-  terraform fmt
+  ${TERRAFORM} fmt
   popd > /dev/null
 done
 
@@ -30,5 +32,5 @@ done
 for tfvars_file in "${tfvars_files[@]}"; do
   tfvars_file="${tfvars_file//__REPLACED__SPACE__/ }"
 
-  terraform fmt "$tfvars_file"
+  ${TERRAFORM} fmt "$tfvars_file"
 done
