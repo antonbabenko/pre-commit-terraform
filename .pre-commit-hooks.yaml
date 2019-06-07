@@ -27,25 +27,17 @@
 
 - id: terraform_docs_replace
   name: Terraform docs (overwrite README.md)
-  description: Overwrite content of README.md with terraform-docs
+  description: Overwrite content of README.md with terraform-docs.
   require_serial: true
   entry: terraform_docs_replace
   language: python
   files: (\.tf)$
   exclude: \.terraform\/.*$
 
-- id: terraform_validate_no_variables
+- id: terraform_validate
   name: Terraform validate without variables
-  description: Validates all Terraform configuration files without checking whether all required variables were set (basic check).
-  entry: terraform_validate_no_variables.sh
-  language: script
-  files: (\.tf|\.tfvars)$
-  exclude: \.terraform\/.*$
-
-- id: terraform_validate_with_variables
-  name: Terraform validate with variables
-  description: Validates all Terraform configuration files and checks whether all required variables were specified.
-  entry: terraform_validate_with_variables.sh
+  description: Validates all Terraform configuration files.
+  entry: terraform_validate.sh
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
