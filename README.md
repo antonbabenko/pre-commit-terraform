@@ -6,10 +6,10 @@
 
 ### Step 1
 
-On MacOSX install the pre-commit package
+On MacOSX install the `pre-commit` and `awk` (required for Terraform 0.12) package
 
 ```bash
-brew install pre-commit
+brew install pre-commit awk
 ```
 
 For other operating systems check the [official documentation](http://pre-commit.com/#install)
@@ -21,10 +21,10 @@ Step into the repository you want to have the pre-commit hooks installed and run
 ```bash
 cat <<EOF > .pre-commit-config.yaml
 - repo: git://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.12.0
+  rev: v1.13.0
   hooks:
     - id: terraform_fmt
-    # - id: terraform_docs # terraform-docs is not working with Terraform 0.12 yet (read note in README)
+    - id: terraform_docs
 EOF
 ```
 
@@ -73,7 +73,7 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 
 1. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
 
-1. `terraform-docs` is not working with Terraform 0.12 yet (see [issue #62](https://github.com/segmentio/terraform-docs/issues/62)), so remember to disable `terraform_docs`, `terraform_docs_replace` and `terraform_docs_without_aggregate_type_defaults` hooks in your `.pre-commit-config.yaml`
+1. `terraform-docs` works with Terraform 0.12 but support is hackish (it requires `awk` to be installed) and may contain bugs. You can follow the native support of Terraform 0.12 in `terraform-docs` in [issue #62](https://github.com/segmentio/terraform-docs/issues/62).
 
 ## Notes for developers
 
