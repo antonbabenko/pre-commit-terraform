@@ -30,7 +30,7 @@ main() {
   if [[ "$hack_terraform_docs" == "1" ]]; then
     which awk 2>&1 >/dev/null || ( echo "awk is required for terraform-docs hack to work with Terraform 0.12"; exit 1)
 
-    tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}terraform-docs-XXXXXXXXXX")
+    tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
     terraform_docs_awk "$tmp_file_awk"
     terraform_docs "$tmp_file_awk" "$args" "$files"
     rm -f "$tmp_file_awk"
@@ -79,7 +79,7 @@ terraform_docs() {
     terraform-docs $args md ./ > "$tmp_file"
   else
     # Can't append extension for mktemp, so renaming instead
-    tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}terraform-docs-XXXXXXXXXX")
+    tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
     mv "$tmp_file_docs" "$tmp_file_docs.tf"
     tmp_file_docs_tf="$tmp_file_docs.tf"
 
