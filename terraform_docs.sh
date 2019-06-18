@@ -30,10 +30,10 @@ main() {
   if [[ "$hack_terraform_docs" == "1" ]]; then
     which awk 2>&1 >/dev/null || ( echo "awk is required for terraform-docs hack to work with Terraform 0.12"; exit 1)
 
-    TMP_AWK_FILE="$(mktemp --tmpdir terraform-docs-XXXXXXXXXX.awk)"
-    terraform_docs_awk $TMP_AWK_FILE
-    terraform_docs "$TMP_AWK_FILE" "$args" "$files"
-    rm -f "$TMP_AWK_FILE"
+    tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}terraform-docs-XXXXXXXXXX")
+    terraform_docs_awk "$tmp_file_awk"
+    terraform_docs "$tmp_file_awk" "$args" "$files"
+    rm -f "$tmp_file_awk"
   else
     terraform_docs "0" "$args" "$files"
   fi
@@ -78,10 +78,14 @@ terraform_docs() {
   if [[ "$terraform_docs_awk_file" == "0" ]]; then
     terraform-docs $args md ./ > "$tmp_file"
   else
-    TMP_FILE="$(mktemp --tmpdir terraform-docs-XXXXXXXXXX.tf)"
-    awk -f "$terraform_docs_awk_file" ./*.tf > "$TMP_FILE"
-    terraform-docs $args md "$TMP_FILE" > "$tmp_file"
-    rm -f "$TMP_FILE"
+    # Can't append extension for mktemp, so renaming instead
+    tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}terraform-docs-XXXXXXXXXX")
+    mv "$tmp_file_docs" "$tmp_file_docs.tf"
+    tmp_file_docs_tf="$tmp_file_docs.tf"
+
+    awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
+    terraform-docs $args md "$tmp_file_docs_tf" > "$tmp_file"
+    rm -f "$tmp_file_docs_tf"
   fi
 
     # Replace content between markers with the placeholder - https://stackoverflow.com/questions/1212799/how-do-i-extract-lines-between-two-line-delimiters-in-perl#1212834
@@ -105,17 +109,21 @@ terraform_docs_awk() {
 # https://github.com/segmentio/terraform-docs/
 # https://github.com/segmentio/terraform-docs/issues/62
 
+# Script was originally found here: https://github.com/cloudposse/build-harness/blob/master/bin/terraform-docs.awk
+
 {
-  if ( /\{/ ) {
+  if ( $0 ~ /\{/ ) {
     braceCnt++
   }
 
-  if ( /\}/ ) {
+  if ( $0 ~ /\}/ ) {
     braceCnt--
   }
 
   # [START] variable or output block started
-  if ($0 ~ /(variable|output) "(.*?)"/) {
+  if ($0 ~ /^[[:space:]]*(variable|output)[[:space:]][[:space:]]*"(.*?)"/) {
+    # Normalize the braceCnt (should be 1 now)
+    braceCnt = 1
     # [CLOSE] "default" block
     if (blockDefCnt > 0) {
       blockDefCnt = 0
@@ -126,9 +134,11 @@ terraform_docs_awk() {
 
   # [START] multiline default statement started
   if (blockCnt > 0) {
-    if ($1 == "default") {
-      print $0
-      if ($NF ~ /[\[\(\{]/) {
+    if ($0 ~ /^[[:space:]][[:space:]]*(default)[[:space:]][[:space:]]*=/) {
+      if ($3 ~ "null") {
+        print "  default = \"null\""
+      } else {
+        print $0
         blockDefCnt++
         blockDefStart=1
       }
@@ -136,19 +146,21 @@ terraform_docs_awk() {
   }
 
   # [PRINT] single line "description"
-  if (blockDefCnt == 0) {
-    if ($1 == "description") {
-      # [CLOSE] "default" block
-      if (blockDefCnt > 0) {
-        blockDefCnt = 0
+  if (blockCnt > 0) {
+    if (blockDefCnt == 0) {
+      if ($0 ~ /^[[:space:]][[:space:]]*description[[:space:]][[:space:]]*=/) {
+        # [CLOSE] "default" block
+        if (blockDefCnt > 0) {
+          blockDefCnt = 0
+        }
+        print $0
       }
-      print $0
     }
   }
 
   # [PRINT] single line "type"
   if (blockCnt > 0) {
-    if ($1 == "type" ) {
+    if ($0 ~ /^[[:space:]][[:space:]]*type[[:space:]][[:space:]]*=/ ) {
       # [CLOSE] "default" block
       if (blockDefCnt > 0) {
         blockDefCnt = 0
