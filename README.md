@@ -75,7 +75,7 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 ## Notes for developers
 
 1. Python hooks are supported now too. All you have to do is:
-    1. add a line to the `console_sripts` array in `entry_points` in `setup.py`
+    1. add a line to the `console_scripts` array in `entry_points` in `setup.py`
     1. Put your python script in the `pre_commit_hooks` folder
 
 Enjoy the clean and documented code!
