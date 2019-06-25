@@ -169,7 +169,12 @@ terraform_docs_awk() {
       if (type ~ "object") {
         print "  type = \"object\""
       } else {
-        print "  type = \"" $3 "\""
+        # legacy quoted types: "string", "list", and "map"
+        if ($3 ~ /^[[:space:]]*"(.*?)"[[:space:]]*$/) {
+          print "  type = " $3
+        } else {
+          print "  type = \"" $3 "\""
+        }
       }
     }
   }
