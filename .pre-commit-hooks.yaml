@@ -41,3 +41,11 @@
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
+
+- id: terragrunt_fmt
+  name: Terragrunt fmt
+  description: Rewrites all Terragrunt configuration files to a canonical format.
+  entry: terragrunt_fmt.sh
+  language: script
+  files: (\.hcl)$
+  exclude: \.terraform\/.*$
