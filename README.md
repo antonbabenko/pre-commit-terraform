@@ -52,6 +52,7 @@ There are several [pre-commit](http://pre-commit.com/) hooks to keep Terraform c
 * `terraform_docs` - Inserts input and output documentation into `README.md`. Recommended.
 * `terraform_docs_without_aggregate_type_defaults` - Inserts input and output documentation into `README.md` without aggregate type defaults.
 * `terraform_docs_replace` - Runs `terraform-docs` and pipes the output directly to README.md
+* `terraform_tflint` - Validates all Terraform configuration files with [TFLint](https://github.com/wata727/tflint).
 * `terragrunt_fmt` - Rewrites all Terragrunt configuration files (`*.hcl`) to a canonical format.
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
