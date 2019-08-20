@@ -21,7 +21,7 @@ Step into the repository you want to have the pre-commit hooks installed and run
 ```bash
 cat <<EOF > .pre-commit-config.yaml
 - repo: git://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.15.0
+  rev: v1.18.0
   hooks:
     - id: terraform_fmt
     - id: terraform_docs
@@ -46,13 +46,13 @@ pre-commit run -a
 
 ## Available Hooks
 
-There are several [pre-commit](http://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) in a good shape:
+There are several [pre-commit](http://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) and Terragrunt configurations (`*.hcl`) in a good shape:
 * `terraform_fmt` - Rewrites all Terraform configuration files to a canonical format.
 * `terraform_validate` - Validates all Terraform configuration files.
 * `terraform_docs` - Inserts input and output documentation into `README.md`. Recommended.
 * `terraform_docs_without_aggregate_type_defaults` - Inserts input and output documentation into `README.md` without aggregate type defaults.
 * `terraform_docs_replace` - Runs `terraform-docs` and pipes the output directly to README.md
-* `terragrunt_fmt` - Rewrites all Terragrunt configuration files to a canonical format.
+* `terragrunt_fmt` - Rewrites all Terragrunt configuration files (`*.hcl`) to a canonical format.
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
