@@ -3,9 +3,25 @@
 
 
 
+<a name="v1.18.0"></a>
+## [v1.18.0] - 2019-08-20
+
+- Updated README with terragrunt_fmt hook
+- Formatter for Terragrunt HCL files ([#60](https://github.com/antonbabenko/pre-commit-terraform/issues/60))
+
+
+<a name="v1.17.0"></a>
+## [v1.17.0] - 2019-06-25
+
+- Updated CHANGELOG
+- Fixed enquoted types in terraform_docs (fixed [#52](https://github.com/antonbabenko/pre-commit-terraform/issues/52))
+- Fix typo in README ([#51](https://github.com/antonbabenko/pre-commit-terraform/issues/51))
+
+
 <a name="v1.16.0"></a>
 ## [v1.16.0] - 2019-06-18
 
+- Updated CHANGELOG
 - Add slash to mktemp dir (fixed [#50](https://github.com/antonbabenko/pre-commit-terraform/issues/50))
 
 
@@ -176,7 +192,9 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.16.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.18.0...HEAD
+[v1.18.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.17.0...v1.18.0
+[v1.17.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.16.0...v1.17.0
 [v1.16.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.15.0...v1.16.0
 [v1.15.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.14.0...v1.15.0
 [v1.14.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.13.0...v1.14.0
