@@ -11,13 +11,13 @@ for file_with_path in "$@"; do
   if [[ "$file_with_path" == *".tfvars" ]]; then
     tfvars_files+=("$file_with_path")
   fi
-  (( ++index ))
+  ((++index))
 done
 
 for path_uniq in "${paths[@]}"; do
-  pushd "$path_uniq" > /dev/null
+  pushd "$path_uniq" >/dev/null
   terraform fmt
-  popd > /dev/null
+  popd >/dev/null
 done
 
 # terraform.tfvars are excluded by `terraform fmt`

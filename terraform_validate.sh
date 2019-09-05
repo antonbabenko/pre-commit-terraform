@@ -8,7 +8,7 @@ error=0
 
 for file_with_path in "$@"; do
   paths[index]=$(dirname "$file_with_path")
-  (( ++index ))
+  ((++index))
 done
 
 for path_uniq in "${paths[@]}"; do

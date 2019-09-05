@@ -1,10 +1,10 @@
 repos:
-- repo: git://github.com/pre-commit/pre-commit-hooks
-  rev: v2.2.3
-  hooks:
-    - id: check-yaml
-    - id: end-of-file-fixer
-    - id: trailing-whitespace
-    - id: check-case-conflict
-    - id: check-merge-conflict
-    - id: check-executables-have-shebangs
+  - repo: git://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs

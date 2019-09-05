@@ -1,7 +1,6 @@
 from setuptools import find_packages
 from setuptools import setup
 
-
 setup(
     name='pre-commit-terraform',
     description='Pre-commit hooks for terraform_docs_replace',

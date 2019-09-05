@@ -7,11 +7,11 @@ index=0
 
 for file_with_path in "$@"; do
   paths[index]=$(dirname "$file_with_path")
-  (( index++ ))
+  ((++index))
 done
 
 for path_uniq in "${paths[@]}"; do
-  pushd "$path_uniq" > /dev/null
+  pushd "$path_uniq" >/dev/null
   terragrunt hclfmt
-  popd > /dev/null
+  popd >/dev/null
 done
