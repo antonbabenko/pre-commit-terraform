@@ -6,7 +6,7 @@ declare -a paths
 index=0
 error=0
 
-if [[ $1 =~ -var-file* ]]; then
+if [[ $1 =~ -var-file=.+ ]]; then
   argument=$1
   shift
 fi

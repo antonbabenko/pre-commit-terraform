@@ -50,6 +50,7 @@ pre-commit run --all-files
 
 There are several [pre-commit](http://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) and Terragrunt configurations (`*.hcl`) in a good shape:
 * `terraform_fmt` - Rewrites all Terraform configuration files to a canonical format.
+  * ignore tfvars files: `args: ['-ignore-tfvars']`
 * `terraform_validate` - Validates all Terraform configuration files.
   * validate with a variable file: `args: ['-var-file=dev.tfvars']`
 * `terraform_tflint` - Validates all Terraform configuration files with [TFLint](https://github.com/wata727/tflint).
@@ -95,6 +96,7 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 1. Python hooks are supported now too. All you have to do is:
     1. Add a line to the `console_scripts` array in `entry_points` in `setup.py`
     1. Put your python script in the `pre_commit_hooks` folder
+1. Install the repo's hooks using `pre-commit install`
 
 Enjoy the clean and documented code!
 
