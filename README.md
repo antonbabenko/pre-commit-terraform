@@ -25,6 +25,8 @@ cat <<EOF > .pre-commit-config.yaml
   hooks:
     - id: terraform_fmt
     - id: terraform_docs
+    - id: terraform_validate
+      args: ['-var-file=terraform/dev.tfvars']
 EOF
 ```
 
@@ -49,10 +51,12 @@ pre-commit run --all-files
 There are several [pre-commit](http://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) and Terragrunt configurations (`*.hcl`) in a good shape:
 * `terraform_fmt` - Rewrites all Terraform configuration files to a canonical format.
 * `terraform_validate` - Validates all Terraform configuration files.
+  * validate with a variable file: `args: ['-var-file=dev.tfvars']`
+* `terraform_tflint` - Validates all Terraform configuration files with [TFLint](https://github.com/wata727/tflint).
+  * lint with a variable file: `args: ['-var-file=staging.tfvars']`
 * `terraform_docs` - Runs `terraform-docs` and inserts input and output documentation into `README.md`. Recommended.
 * `terraform_docs_without_aggregate_type_defaults` - Sames as above without aggregate type defaults.
 * `terraform_docs_replace` - Runs `terraform-docs` and pipes the output directly to README.md
-* `terraform_tflint` - Validates all Terraform configuration files with [TFLint](https://github.com/wata727/tflint).
 * `terragrunt_fmt` - Rewrites all Terragrunt configuration files (`*.hcl`) to a canonical format.
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
@@ -79,7 +83,8 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
         args: ['--with-aggregate-type-defaults', '--sort-inputs-by-required', '--dest=TEST.md']
     ```
 
-1. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`.
+1. It is possible to pass additional arguments to shell scripts when using `terraform_docs`, `terraform_docs_without_aggregate_type_defaults`
+   `terraform_validate` and `terraform_tflint`.
    Send pull-request with the new hook if there is something missing.
 
 1. `terraform-docs` works with Terraform 0.12 but support is hackish (it requires `awk` to be installed) and may contain bugs.
