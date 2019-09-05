@@ -21,7 +21,7 @@ Step into the repository you want to have the pre-commit hooks installed and run
 ```bash
 cat <<EOF > .pre-commit-config.yaml
 - repo: git://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.18.0
+  rev: v1.19.0
   hooks:
     - id: terraform_fmt
     - id: terraform_docs
@@ -41,7 +41,7 @@ pre-commit install
 After pre-commit hook has been installed you can run it manually on all files in the repository
 
 ```bash
-pre-commit run -a
+pre-commit run --all-files
 ```
 
 ## Available Hooks

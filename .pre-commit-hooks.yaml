@@ -39,7 +39,7 @@
   description: Validates all Terraform configuration files.
   entry: terraform_validate.sh
   language: script
-  files: (\.tf|\.tfvars)$
+  files: (\.tf)$
   exclude: \.terraform\/.*$
 
 - id: terraform_tflint
@@ -47,7 +47,7 @@
   description: Validates all Terraform configuration files with TFLint.
   entry: terraform_tflint.sh
   language: script
-  files: (\.tf|\.tfvars)$
+  files: (\.tf)$
   exclude: \.terraform\/.*$
 
 - id: terragrunt_fmt

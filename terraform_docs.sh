@@ -9,6 +9,7 @@ main() {
 
   declare args
   declare files
+  declare hack_terraform_docs
 
   for argv; do
     case $argv in
@@ -25,10 +26,10 @@ main() {
     esac
   done
 
-  local hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12)
+  hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12)
 
   if [[ "$hack_terraform_docs" == "1" ]]; then
-    which awk 2>&1 >/dev/null || ( echo "awk is required for terraform-docs hack to work with Terraform 0.12"; exit 1)
+    command -v awk > /dev/null 2>&1 || ( echo "awk is required for terraform-docs hack to work with Terraform 0.12"; exit 1)
 
     tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
     terraform_docs_awk "$tmp_file_awk"
@@ -51,22 +52,19 @@ terraform_docs() {
   index=0
 
   for file_with_path in $files; do
-    file_with_path="${file_with_path// /__REPLACED__SPACE__}"
-
     paths[index]=$(dirname "$file_with_path")
 
     if [[ "$file_with_path" == *".tfvars" ]]; then
       tfvars_files+=("$file_with_path")
     fi
 
-    ((index+=1))
+    (( ++index ))
   done
 
   readonly tmp_file=$(mktemp)
   readonly text_file="README.md"
 
-  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
-    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
+  for path_uniq in "${paths[@]}"; do
 
     pushd "$path_uniq" > /dev/null
 
@@ -76,7 +74,7 @@ terraform_docs() {
     fi
 
   if [[ "$terraform_docs_awk_file" == "0" ]]; then
-    terraform-docs $args md ./ > "$tmp_file"
+    terraform-docs "$args" md ./ > "$tmp_file"
   else
     # Can't append extension for mktemp, so renaming instead
     tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
@@ -84,7 +82,7 @@ terraform_docs() {
     tmp_file_docs_tf="$tmp_file_docs.tf"
 
     awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
-    terraform-docs $args md "$tmp_file_docs_tf" > "$tmp_file"
+    terraform-docs "$args" md "$tmp_file_docs_tf" > "$tmp_file"
     rm -f "$tmp_file_docs_tf"
   fi
 
@@ -103,7 +101,7 @@ terraform_docs() {
 terraform_docs_awk() {
   readonly output_file=$1
 
-  cat <<"EOF" > $output_file
+  cat <<"EOF" > "$output_file"
 # This script converts Terraform 0.12 variables/outputs to something suitable for `terraform-docs`
 # As of terraform-docs v0.6.0, HCL2 is not supported. This script is a *dirty hack* to get around it.
 # https://github.com/segmentio/terraform-docs/
