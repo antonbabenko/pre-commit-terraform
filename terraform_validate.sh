@@ -2,24 +2,18 @@
 
 set -euo pipefail
 
-# global vars
-declare -A dirs_to_test
-ERROR=0
+[[ ${BASH_VERSINFO[0]} -ge 4 ]] || (
+  printf "\nError: Bash 4 or greater required\n\n" >&2
+  exit 1
+)
 
 # main code entrypoint
 main() {
-  preflight_check
   get_uniq_dirs "$@"
   process_dirs
   exit "$ERROR"
 }
 
-preflight_check() {
-  [[ ${BASH_VERSINFO[0]} -ge 4 ]] || (
-    printf "\nError: Bash 4 or greater required\n\n" >&2
-    exit 1
-  )
-}
 
 # reduce the command line args to a list of valid, uniq dirs
 get_uniq_dirs() {
@@ -68,5 +62,9 @@ process_dirs() {
     test_dir "$dir" || ERROR=1
   done
 }
+
+# global vars
+declare -A dirs_to_test
+ERROR=0
 
 main "$@"
