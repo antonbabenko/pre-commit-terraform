@@ -14,8 +14,8 @@ main() {
   exit "$ERROR"
 }
 
-
-# reduce the command line args to a list of valid, uniq dirs
+# reduce the command line args to a list of valid dirs
+# ensure unique by storing in associative array
 get_uniq_dirs() {
   local file
   local abs_file
@@ -44,6 +44,7 @@ test_dir() {
   local dir="$1" ; shift
   (
     cd "$dir"
+    # check for presence of tf files
     if stat -t -- *.tf >/dev/null 2>&1 ; then
       if ! terraform validate -check-variables=true ; then
         echo
