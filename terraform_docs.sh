@@ -153,7 +153,9 @@ terraform_docs_awk() {
         if (blockDefCnt > 0) {
           blockDefCnt = 0
         }
-        print $0
+        if ($blockDefCnt !~ /string$/) {
+          print $0
+        }
       }
     }
   }
