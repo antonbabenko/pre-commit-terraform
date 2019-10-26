@@ -120,81 +120,156 @@ terraform_docs_awk() {
     braceCnt--
   }
 
-  # [START] variable or output block started
-  if ($0 ~ /^[[:space:]]*(variable|output)[[:space:]][[:space:]]*"(.*?)"/) {
-    # Normalize the braceCnt (should be 1 now)
-    braceCnt = 1
-    # [CLOSE] "default" block
-    if (blockDefCnt > 0) {
-      blockDefCnt = 0
-    }
-    blockCnt++
-    print $0
-  }
 
-  # [START] multiline default statement started
-  if (blockCnt > 0) {
-    if ($0 ~ /^[[:space:]][[:space:]]*(default)[[:space:]][[:space:]]*=/) {
-      if ($3 ~ "null") {
-        print "  default = \"null\""
-      } else {
-        print $0
-        blockDefCnt++
-        blockDefStart=1
-      }
-    }
-  }
-
-  # [PRINT] single line "description"
-  if (blockCnt > 0) {
-    if (blockDefCnt == 0) {
-      if ($0 ~ /^[[:space:]][[:space:]]*description[[:space:]][[:space:]]*=/) {
-        # [CLOSE] "default" block
-        if (blockDefCnt > 0) {
-          blockDefCnt = 0
-        }
-        print $0
-      }
-    }
-  }
-
-  # [PRINT] single line "type"
-  if (blockCnt > 0) {
-    if ($0 ~ /^[[:space:]][[:space:]]*type[[:space:]][[:space:]]*=/ ) {
-      # [CLOSE] "default" block
-      if (blockDefCnt > 0) {
-        blockDefCnt = 0
-      }
-      type=$3
-      if (type ~ "object") {
-        print "  type = \"object\""
-      } else {
-        # legacy quoted types: "string", "list", and "map"
-        if ($3 ~ /^[[:space:]]*"(.*?)"[[:space:]]*$/) {
-          print "  type = " $3
-        } else {
-          print "  type = \"" $3 "\""
-        }
-      }
-    }
-  }
-
-  # [CLOSE] variable/output block
-  if (blockCnt > 0) {
+  # ----------------------------------------------------------------------------------------------
+  # variable|output "..." {
+  # ----------------------------------------------------------------------------------------------
+  # [END] variable/output block
+  if (blockCnt > 0 && blockTypeCnt == 0 && blockDefaultCnt == 0) {
     if (braceCnt == 0 && blockCnt > 0) {
       blockCnt--
       print $0
     }
   }
+  # [START] variable or output block started
+  if ($0 ~ /^[[:space:]]*(variable|output)[[:space:]][[:space:]]*"(.*?)"/) {
+    # Normalize the braceCnt and block (should be 1 now)
+    braceCnt = 1
+    blockCnt = 1
+    # [CLOSE] "default" and "type" block
+    blockDefaultCnt = 0
+    blockTypeCnt = 0
+    # Print variable|output line
+    print $0
+  }
 
-  # [PRINT] Multiline "default" statement
-  if (blockCnt > 0 && blockDefCnt > 0) {
-    if (blockDefStart == 1) {
-      blockDefStart = 0
-    } else {
+
+  # ----------------------------------------------------------------------------------------------
+  # default = ...
+  # ----------------------------------------------------------------------------------------------
+  # [END] multiline "default" continues/ends
+  if (blockCnt > 0 && blockTypeCnt == 0 && blockDefaultCnt > 0) {
+      print $0
+      # Count opening blocks
+      blockDefaultCnt += gsub(/\(/, "")
+      blockDefaultCnt += gsub(/\[/, "")
+      blockDefaultCnt += gsub(/\{/, "")
+      # Count closing blocks
+      blockDefaultCnt -= gsub(/\)/, "")
+      blockDefaultCnt -= gsub(/\]/, "")
+      blockDefaultCnt -= gsub(/\}/, "")
+  }
+  # [START] multiline "default" statement started
+  if (blockCnt > 0 && blockTypeCnt == 0 && blockDefaultCnt == 0) {
+    if ($0 ~ /^[[:space:]][[:space:]]*(default)[[:space:]][[:space:]]*=/) {
+      if ($3 ~ "null") {
+        print "  default = \"null\""
+      } else {
+        print $0
+        # Count opening blocks
+        blockDefaultCnt += gsub(/\(/, "")
+        blockDefaultCnt += gsub(/\[/, "")
+        blockDefaultCnt += gsub(/\{/, "")
+        # Count closing blocks
+        blockDefaultCnt -= gsub(/\)/, "")
+        blockDefaultCnt -= gsub(/\]/, "")
+        blockDefaultCnt -= gsub(/\}/, "")
+      }
+    }
+  }
+
+
+  # ----------------------------------------------------------------------------------------------
+  # type  = ...
+  # ----------------------------------------------------------------------------------------------
+  # [END] multiline "type" continues/ends
+  if (blockCnt > 0 && blockTypeCnt > 0 && blockDefaultCnt == 0) {
+    # The following 'print $0' would print multiline type definitions
+    #print $0
+    # Count opening blocks
+    blockTypeCnt += gsub(/\(/, "")
+    blockTypeCnt += gsub(/\[/, "")
+    blockTypeCnt += gsub(/\{/, "")
+    # Count closing blocks
+    blockTypeCnt -= gsub(/\)/, "")
+    blockTypeCnt -= gsub(/\]/, "")
+    blockTypeCnt -= gsub(/\}/, "")
+  }
+  # [START] multiline "type" statement started
+  if (blockCnt > 0 && blockTypeCnt == 0 && blockDefaultCnt == 0) {
+    if ($0 ~ /^[[:space:]][[:space:]]*(type)[[:space:]][[:space:]]*=/ ) {
+      if ($3 ~ "object") {
+        print "  type = \"object\""
+      } else {
+        # Convert multiline stuff into single line
+        if ($3 ~ /^[[:space:]]*list[[:space:]]*\([[:space:]]*$/) {
+          type = "list"
+        } else if ($3 ~ /^[[:space:]]*string[[:space:]]*\([[:space:]]*$/) {
+          type = "string"
+        } else if ($3 ~ /^[[:space:]]*map[[:space:]]*\([[:space:]]*$/) {
+          type = "map"
+        } else {
+          type = $3
+        }
+
+        # legacy quoted types: "string", "list", and "map"
+        if (type ~ /^[[:space:]]*"(.*?)"[[:space:]]*$/) {
+          print "  type = " type
+        } else {
+          print "  type = \"" type "\""
+        }
+      }
+      # Count opening blocks
+      blockTypeCnt += gsub(/\(/, "")
+      blockTypeCnt += gsub(/\[/, "")
+      blockTypeCnt += gsub(/\{/, "")
+      # Count closing blocks
+      blockTypeCnt -= gsub(/\)/, "")
+      blockTypeCnt -= gsub(/\]/, "")
+      blockTypeCnt -= gsub(/\}/, "")
+    }
+  }
+
+
+  # ----------------------------------------------------------------------------------------------
+  # description = ...
+  # ----------------------------------------------------------------------------------------------
+  # [PRINT] single line "description"
+  if (blockCnt > 0 && blockTypeCnt == 0 && blockDefaultCnt == 0) {
+    if ($0 ~ /^[[:space:]][[:space:]]*description[[:space:]][[:space:]]*=/) {
       print $0
     }
   }
+
+
+  # ----------------------------------------------------------------------------------------------
+  # value = ...
+  # ----------------------------------------------------------------------------------------------
+  ## [PRINT] single line "value"
+  #if (blockCnt > 0 && blockTypeCnt == 0 && blockDefaultCnt == 0) {
+  #  if ($0 ~ /^[[:space:]][[:space:]]*value[[:space:]][[:space:]]*=/) {
+  #    print $0
+  #  }
+  #}
+
+
+  # ----------------------------------------------------------------------------------------------
+  # Newlines, comments, everything else
+  # ----------------------------------------------------------------------------------------------
+  #if (blockTypeCnt == 0 && blockDefaultCnt == 0) {
+  # Comments with '#'
+  if ($0 ~ /^[[:space:]]*#/) {
+    print $0
+  }
+  # Comments with '//'
+  if ($0 ~ /^[[:space:]]*\/\//) {
+    print $0
+  }
+  # Newlines
+  if ($0 ~ /^[[:space:]]*$/) {
+    print $0
+  }
+  #}
 }
 EOF
 
