@@ -3,9 +3,19 @@
 
 
 
+<a name="v1.20.0"></a>
+## [v1.20.0] - 2019-11-02
+
+- Fixes [#65](https://github.com/antonbabenko/pre-commit-terraform/issues/65): terraform-docs should not fail if complex types contain 'description' keyword ([#73](https://github.com/antonbabenko/pre-commit-terraform/issues/73))
+- Added FUNDING.yml
+- Improve installation instructions and make README more readable ([#72](https://github.com/antonbabenko/pre-commit-terraform/issues/72))
+- Update rev in README.md ([#70](https://github.com/antonbabenko/pre-commit-terraform/issues/70))
+
+
 <a name="v1.19.0"></a>
 ## [v1.19.0] - 2019-08-20
 
+- Updated CHANGELOG
 - Updated README with terraform_tflint hook
 - Added support for TFLint with --deep parameter ([#53](https://github.com/antonbabenko/pre-commit-terraform/issues/53))
 
@@ -200,7 +210,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.19.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.20.0...HEAD
+[v1.20.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.19.0...v1.20.0
 [v1.19.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.18.0...v1.19.0
 [v1.18.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.17.0...v1.18.0
 [v1.17.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.16.0...v1.17.0
