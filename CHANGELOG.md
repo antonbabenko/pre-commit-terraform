@@ -1,7 +1,7 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
-
+- Changes TFLint hook to not use --deep by default but allow enabling it (along with other parameters) via `args` ([#71](https://github.com/antonbabenko/pre-commit-terraform/issues/71))
 
 <a name="v1.20.0"></a>
 ## [v1.20.0] - 2019-11-02
