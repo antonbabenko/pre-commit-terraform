@@ -1,11 +1,18 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
-- Changes TFLint hook to not use --deep by default but allow enabling it (along with other parameters) via `args` ([#71](https://github.com/antonbabenko/pre-commit-terraform/issues/71))
+
+
+<a name="v1.21.0"></a>
+## [v1.21.0] - 2019-11-16
+
+- use getopt for args in the tflint hook, following the approach in terraform-docs ([#75](https://github.com/antonbabenko/pre-commit-terraform/issues/75))
+
 
 <a name="v1.20.0"></a>
 ## [v1.20.0] - 2019-11-02
 
+- Updated CHANGELOG
 - Fixes [#65](https://github.com/antonbabenko/pre-commit-terraform/issues/65): terraform-docs should not fail if complex types contain 'description' keyword ([#73](https://github.com/antonbabenko/pre-commit-terraform/issues/73))
 - Added FUNDING.yml
 - Improve installation instructions and make README more readable ([#72](https://github.com/antonbabenko/pre-commit-terraform/issues/72))
@@ -210,7 +217,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.20.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.21.0...HEAD
+[v1.21.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.20.0...v1.21.0
 [v1.20.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.19.0...v1.20.0
 [v1.19.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.18.0...v1.19.0
 [v1.18.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.17.0...v1.18.0
