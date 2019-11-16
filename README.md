@@ -96,6 +96,17 @@ if they are present in `README.md`.
 
 1. `terraform-docs` works with Terraform 0.12 but support is hackish (it requires `awk` to be installed) and may contain bugs. You can follow the native support of Terraform 0.12 in `terraform-docs` in [issue #62](https://github.com/segmentio/terraform-docs/issues/62).
 
+## Notes about terraform_tflint hooks
+
+1. `terraform_tflint` supports custom arguments so you can enable module inspection, deep check mode etc.
+
+    1. Example:
+    ```yaml
+    hooks:
+      - id: terraform_tflint
+        args: ['--deep']
+    ```
+
 ## Notes for developers
 
 1. Python hooks are supported now too. All you have to do is:
