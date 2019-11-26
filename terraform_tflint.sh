@@ -28,7 +28,7 @@ main() {
 }
 
 tflint_() {
-  for file_with_path in "$@"; do
+  for file_with_path in $files; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     paths[index]=$(dirname "$file_with_path")
