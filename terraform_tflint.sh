@@ -7,7 +7,7 @@ main() {
   eval "set -- $argv"
 
   declare args
-  declare files
+  declare -a files
 
   for argv; do
     case $argv in
@@ -18,13 +18,13 @@ main() {
         ;;
       (--)
         shift
-        files="$@"
+        files=("$@")
         break
         ;;
     esac
   done
 
-  tflint_ "$args" "$files"
+  tflint_ "$args" "${files[@]}"
 }
 
 tflint_() {
