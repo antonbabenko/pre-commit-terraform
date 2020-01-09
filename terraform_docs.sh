@@ -76,7 +76,7 @@ terraform_docs() {
     fi
 
   if [[ "$terraform_docs_awk_file" == "0" ]]; then
-    terraform-docs $args md ./ > "$tmp_file"
+    terraform-docs md $args ./ > "$tmp_file"
   else
     # Can't append extension for mktemp, so renaming instead
     tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
@@ -84,7 +84,7 @@ terraform_docs() {
     tmp_file_docs_tf="$tmp_file_docs.tf"
 
     awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
-    terraform-docs $args md "$tmp_file_docs_tf" > "$tmp_file"
+    terraform-docs md $args "$tmp_file_docs_tf" > "$tmp_file"
     rm -f "$tmp_file_docs_tf"
   fi
 
