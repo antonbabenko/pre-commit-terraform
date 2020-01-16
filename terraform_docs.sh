@@ -29,6 +29,7 @@ main() {
   local terraform_docs_version=$(terraform-docs version | head -1 | egrep -o "([0-9]{1,}\.)+[0-9]{1,}")
 
   if [[ "$(check_terraform_docs_version "$terraform_docs_version")" == "1" ]]; then
+    which terraform-docs 2>&1 >/dev/null || ( echo "terraform-docs is required"; exit 1)
     terraform_docs "0" "$args" "$files"
 
   elif [[ "$hack_terraform_docs" == "1" ]]; then
