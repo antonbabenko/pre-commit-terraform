@@ -46,14 +46,14 @@ main() {
 }
 
 check_terraform_docs_version() {
-readonly currentver="$1"
+  readonly currentver="$1"
 
-requiredver="0.8.0"
- if [ "$(printf '%s\n' "$requiredver" "$currentver" | sort -V | head -n1)" = "$requiredver" ]; then
-        echo "1"
- else
-        echo "0"
- fi
+  requiredver="0.8.0"
+  if [ "$(printf '%s\n' "$requiredver" "$currentver" | sort -V | head -n1)" = "$requiredver" ]; then
+    echo "1"
+  else
+    echo "0"
+  fi
 }
 
 terraform_docs() {
