@@ -28,7 +28,7 @@ main() {
   local hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12)
 
   which terraform-docs 2>&1 >/dev/null || ( echo "terraform-docs is required"; exit 1)
-  local terraform_docs_version=$(terraform-docs version | head -1 | egrep -o "([0-9]{1,}\.)+[0-9]{1,}")
+  local terraform_docs_version=$(terraform-docs version | head -1 | grep -E -o "([0-9]{1,}\.)+[0-9]{1,}")
 
   if [[ "$(check_terraform_docs_version "$terraform_docs_version")" == "1" ]]; then
 
@@ -51,7 +51,7 @@ check_terraform_docs_version() {
   readonly currentver="$1"
 
   requiredver="0.8.0"
-  if [ "$(printf '%s\n' "$requiredver" "$currentver" | sort -V | head -n1)" = "$requiredver" ]; then
+  if [[ "$(printf '%s\n' "$requiredver" "$currentver" | sort -V | head -n1)" = "$requiredver" ]]; then
     echo "1"
   else
     echo "0"

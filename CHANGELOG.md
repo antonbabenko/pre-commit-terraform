@@ -1,7 +1,6 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
-- added support of different versions of terraform-docs
 
 <a name="v1.22.0"></a>
 ## [v1.22.0] - 2020-01-13
