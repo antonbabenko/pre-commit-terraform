@@ -1,17 +1,7 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
-<a name="v1.24.0"></a>
-## [v1.24.0] - 2020-01-15
-
-- returned back awk hacks and added support different versions of terraform-docs
-
-<a name="v1.23.0"></a>
-## [v1.23.0] - 2020-01-14
-
-- removed awk hacks in order to support terraform-docs 0.8.0
-
-
+- added support of different versions of terraform-docs
 
 <a name="v1.22.0"></a>
 ## [v1.22.0] - 2020-01-13
