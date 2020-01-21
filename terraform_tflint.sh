@@ -11,12 +11,12 @@ main() {
 
   for argv; do
     case $argv in
-      (-a|--args)
+      -a | --args)
         shift
         args="$1"
         shift
         ;;
-      (--)
+      --)
         shift
         files="$@"
         break
@@ -120,59 +120,73 @@ getopt() {
 
     while [[ $# -gt 0 ]]; do
       case $1 in
-        (-a|--alternative)
-          flags=a$flags ;;
-
-        (-h|--help)
-          _getopt_help
-          return 2  # as does GNU getopt
+        -a | --alternative)
+          flags=a$flags
           ;;
 
-        (-l|--longoptions)
+        -h | --help)
+          _getopt_help
+          return 2 # as does GNU getopt
+          ;;
+
+        -l | --longoptions)
           long="$long${long:+,}$2"
-          shift ;;
+          shift
+          ;;
 
-        (-n|--name)
+        -n | --name)
           name=$2
-          shift ;;
+          shift
+          ;;
 
-        (-o|--options)
+        -o | --options)
           short=$2
           have_short=true
-          shift ;;
+          shift
+          ;;
 
-        (-q|--quiet)
-          flags=q$flags ;;
+        -q | --quiet)
+          flags=q$flags
+          ;;
 
-        (-Q|--quiet-output)
-          flags=Q$flags ;;
+        -Q | --quiet-output)
+          flags=Q$flags
+          ;;
 
-        (-s|--shell)
+        -s | --shell)
           case $2 in
-            (sh|bash)
-              flags=${flags//t/} ;;
-            (csh|tcsh)
-              flags=t$flags ;;
-            (*)
+            sh | bash)
+              flags=${flags//t/}
+              ;;
+            csh | tcsh)
+              flags=t$flags
+              ;;
+            *)
               echo 'getopt: unknown shell after -s or --shell argument' >&2
               echo "Try \`getopt --help' for more information." >&2
-              return 2 ;;
+              return 2
+              ;;
           esac
-          shift ;;
-
-        (-u|--unquoted)
-          flags=u$flags ;;
-
-        (-T|--test)
-          return 4 ;;
-
-        (-V|--version)
-          echo "pure-getopt 1.4.3"
-          return 0 ;;
-
-        (--)
           shift
-          break ;;
+          ;;
+
+        -u | --unquoted)
+          flags=u$flags
+          ;;
+
+        -T | --test)
+          return 4
+          ;;
+
+        -V | --version)
+          echo "pure-getopt 1.4.3"
+          return 0
+          ;;
+
+        --)
+          shift
+          break
+          ;;
       esac
 
       shift
@@ -233,9 +247,9 @@ getopt() {
     # for use with _getopt_resolve_abbrev
     declare -a longarr
     _getopt_split longarr "$long"
-    longarr=( "${longarr[@]/#/--}" )
-    longarr=( "${longarr[@]%:}" )
-    longarr=( "${longarr[@]%:}" )
+    longarr=("${longarr[@]/#/--}")
+    longarr=("${longarr[@]%:}")
+    longarr=("${longarr[@]%:}")
 
     # Parse and collect options and parameters
     declare -a opts params
@@ -243,18 +257,19 @@ getopt() {
 
     while [[ $# -gt 0 ]]; do
       case $1 in
-        (--)
-          params=( "${params[@]}" "${@:2}" )
-          break ;;
+        --)
+          params=("${params[@]}" "${@:2}")
+          break
+          ;;
 
-        (--*=*)
+        --*=*)
           o=${1%%=*}
           if ! o=$(_getopt_resolve_abbrev "$o" "${longarr[@]}"); then
             error=1
           elif [[ ,"$long", == *,"${o#--}"::,* ]]; then
-            opts=( "${opts[@]}" "$o" "${1#*=}" )
+            opts=("${opts[@]}" "$o" "${1#*=}")
           elif [[ ,"$long", == *,"${o#--}":,* ]]; then
-            opts=( "${opts[@]}" "$o" "${1#*=}" )
+            opts=("${opts[@]}" "$o" "${1#*=}")
           elif [[ ,"$long", == *,"${o#--}",* ]]; then
             if $alt_recycled; then o=${o#-}; fi
             _getopt_err "$name: option '$o' doesn't allow an argument"
@@ -266,18 +281,18 @@ getopt() {
           alt_recycled=false
           ;;
 
-        (--?*)
+        --?*)
           o=$1
           if ! o=$(_getopt_resolve_abbrev "$o" "${longarr[@]}"); then
             error=1
           elif [[ ,"$long", == *,"${o#--}",* ]]; then
-            opts=( "${opts[@]}" "$o" )
+            opts=("${opts[@]}" "$o")
           elif [[ ,"$long", == *,"${o#--}::",* ]]; then
-            opts=( "${opts[@]}" "$o" '' )
+            opts=("${opts[@]}" "$o" '')
           elif [[ ,"$long", == *,"${o#--}:",* ]]; then
             if [[ $# -ge 2 ]]; then
               shift
-              opts=( "${opts[@]}" "$o" "$1" )
+              opts=("${opts[@]}" "$o" "$1")
             else
               if $alt_recycled; then o=${o#-}; fi
               _getopt_err "$name: option '$o' requires an argument"
@@ -290,7 +305,7 @@ getopt() {
           alt_recycled=false
           ;;
 
-        (-*)
+        -*)
           if [[ $flags == *a* ]]; then
             # Alternative parsing mode!
             # Try to handle as a long option if any of the following apply:
@@ -300,28 +315,32 @@ getopt() {
             #  4. There's a single letter and no short match
             o=${1::2} # temp for testing #4
             if [[ $1 == *=* || $1 == -?? || \
-                  ,$long, == *,"${1#-}"[:,]* || \
-                  ,$short, != *,"${o#-}"[:,]* ]]; then
-              o=$(_getopt_resolve_abbrev "${1%%=*}" "${longarr[@]}" 2>/dev/null)
+              ,$long, == *,"${1#-}"[:,]* || \
+              ,$short, != *,"${o#-}"[:,]* ]]; then
+              o=$(_getopt_resolve_abbrev "${1%%=*}" "${longarr[@]}" 2> /dev/null)
               case $? in
-                (0)
+                0)
                   # Unambiguous match. Let the long options parser handle
                   # it, with a flag to get the right error message.
                   set -- "-$1" "${@:2}"
                   alt_recycled=true
-                  continue ;;
-                (1)
+                  continue
+                  ;;
+                1)
                   # Ambiguous match, generate error and continue.
-                  _getopt_resolve_abbrev "${1%%=*}" "${longarr[@]}" >/dev/null
+                  _getopt_resolve_abbrev "${1%%=*}" "${longarr[@]}" > /dev/null
                   error=1
                   shift
-                  continue ;;
-                (2)
+                  continue
+                  ;;
+                2)
                   # No match, fall through to single-character check.
-                  true ;;
-                (*)
+                  true
+                  ;;
+                *)
                   echo "getopt: assertion failed (3)" >&2
-                  return 3 ;;
+                  return 3
+                  ;;
               esac
             fi
           fi
@@ -329,22 +348,22 @@ getopt() {
           o=${1::2}
           if [[ "$short" == *"${o#-}"::* ]]; then
             if [[ ${#1} -gt 2 ]]; then
-              opts=( "${opts[@]}" "$o" "${1:2}" )
+              opts=("${opts[@]}" "$o" "${1:2}")
             else
-              opts=( "${opts[@]}" "$o" '' )
+              opts=("${opts[@]}" "$o" '')
             fi
           elif [[ "$short" == *"${o#-}":* ]]; then
             if [[ ${#1} -gt 2 ]]; then
-              opts=( "${opts[@]}" "$o" "${1:2}" )
+              opts=("${opts[@]}" "$o" "${1:2}")
             elif [[ $# -ge 2 ]]; then
               shift
-              opts=( "${opts[@]}" "$o" "$1" )
+              opts=("${opts[@]}" "$o" "$1")
             else
               _getopt_err "$name: option requires an argument -- '${o#-}'"
               error=1
             fi
           elif [[ "$short" == *"${o#-}"* ]]; then
-            opts=( "${opts[@]}" "$o" )
+            opts=("${opts[@]}" "$o")
             if [[ ${#1} -gt 2 ]]; then
               set -- "$o" "-${1:2}" "${@:2}"
             fi
@@ -361,26 +380,28 @@ getopt() {
               fi
             fi
             error=1
-          fi ;;
+          fi
+          ;;
 
-        (*)
+        *)
           # GNU getopt in-place mode (leading dash on short options)
           # overrides POSIXLY_CORRECT
           if [[ $flags == *i* ]]; then
-            opts=( "${opts[@]}" "$1" )
+            opts=("${opts[@]}" "$1")
           elif [[ $flags == *p* ]]; then
-            params=( "${params[@]}" "$@" )
+            params=("${params[@]}" "$@")
             break
           else
-            params=( "${params[@]}" "$1" )
+            params=("${params[@]}" "$1")
           fi
+          ;;
       esac
 
       shift
     done
 
     if [[ $flags == *Q* ]]; then
-      true  # generate no output
+      true # generate no output
     else
       echo -n ' '
       if [[ $flags == *[cu]* ]]; then
@@ -417,33 +438,39 @@ getopt() {
     for a; do
       if [[ $q == "$a" ]]; then
         # Exact match. Squash any other partial matches.
-        matches=( "$a" )
+        matches=("$a")
         break
       elif [[ $flags == *a* && $q == -[^-]* && $a == -"$q" ]]; then
         # Exact alternative match. Squash any other partial matches.
-        matches=( "$a" )
+        matches=("$a")
         break
       elif [[ $a == "$q"* ]]; then
         # Abbreviated match.
-        matches=( "${matches[@]}" "$a" )
+        matches=("${matches[@]}" "$a")
       elif [[ $flags == *a* && $q == -[^-]* && $a == -"$q"* ]]; then
         # Abbreviated alternative match.
-        matches=( "${matches[@]}" "${a#-}" )
+        matches=("${matches[@]}" "${a#-}")
       fi
     done
     case ${#matches[@]} in
-      (0)
-        [[ $flags == *q* ]] || \
-        printf "$name: unrecognized option %s\\n" >&2 \
-          "$(_getopt_quote "$q")"
-        return 2 ;;
-      (1)
-        printf '%s' "${matches[0]}"; return 0 ;;
-      (*)
-        [[ $flags == *q* ]] || \
-        printf "$name: option %s is ambiguous; possibilities: %s\\n" >&2 \
-          "$(_getopt_quote "$q")" "$(_getopt_quote "${matches[@]}")"
-        return 1 ;;
+      0)
+        [[ $flags == *q* ]] ||
+          printf "$name: unrecognized option %s\\n" \
+            "$(_getopt_quote "$q")" >&2
+
+        return 2
+        ;;
+      1)
+        printf '%s' "${matches[0]}"
+        return 0
+        ;;
+      *)
+        [[ $flags == *q* ]] ||
+          printf "$name: option %s is ambiguous; possibilities: %s\\n" \
+            "$(_getopt_quote "$q")" "$(_getopt_quote "${matches[@]}")" >&2
+
+        return 1
+        ;;
     esac
   }
 
@@ -468,15 +495,18 @@ getopt() {
     declare s i c space
     for s; do
       echo -n "$space'"
-      for ((i=0; i<${#s}; i++)); do
+      for ((i = 0; i < ${#s}; i++)); do
         c=${s:i:1}
         case $c in
-          (\\|\'|!)
-            echo -n "'\\$c'" ;;
-          ($'\n')
-            echo -n "\\$c" ;;
-          (*)
-            echo -n "$c" ;;
+          \\ | \' | !)
+            echo -n "'\\$c'"
+            ;;
+          $'\n')
+            echo -n "\\$c"
+            ;;
+          *)
+            echo -n "$c"
+            ;;
         esac
       done
       echo -n \'
@@ -485,7 +515,7 @@ getopt() {
   }
 
   _getopt_help() {
-    cat <<-EOT >&2
+    cat <<- EOT >&2
 	Usage:
 	 getopt <optstring> <parameters>
 	 getopt [options] [--] <optstring> <parameters>
