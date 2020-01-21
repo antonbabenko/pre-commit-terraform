@@ -25,19 +25,38 @@ main() {
     esac
   done
 
-  local hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12)
+  local hack_terraform_docs
+  hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12)
 
-  if [[ "$hack_terraform_docs" == "1" ]]; then
-    which awk 2>&1 >/dev/null || ( echo "awk is required for terraform-docs hack to work with Terraform 0.12"; exit 1)
+  if [[ ! $(command -v terraform-docs) ]]; then
+    echo "ERROR: terraform-docs is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
+    exit 1
+  fi
+
+  local is_old_terraform_docs
+  is_old_terraform_docs=$(terraform-docs version | grep -o "v0.[1-7]" | tail -1)
+
+  if [[ -z "$is_old_terraform_docs" ]]; then  # Using terraform-docs 0.8+ (preferred)
+
+    terraform_docs "0" "$args" "$files"
+
+  elif [[ "$hack_terraform_docs" == "1" ]]; then # Using awk script because terraform-docs is older than 0.8 and terraform 0.12 is used
+
+    if [[ ! $(command -v awk) ]]; then
+      echo "ERROR: awk is required for terraform-docs hack to work with Terraform 0.12."
+      exit 1
+    fi
 
     tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
     terraform_docs_awk "$tmp_file_awk"
     terraform_docs "$tmp_file_awk" "$args" "$files"
     rm -f "$tmp_file_awk"
-  else
-    terraform_docs "0" "$args" "$files"
-  fi
 
+  else # Using terraform 0.11 and no awk script is needed for that
+
+    terraform_docs "0" "$args" "$files"
+
+  fi
 }
 
 terraform_docs() {
@@ -76,7 +95,7 @@ terraform_docs() {
     fi
 
   if [[ "$terraform_docs_awk_file" == "0" ]]; then
-    terraform-docs md $args ./ > "$tmp_file"
+    terraform-docs md "$args" ./ > "$tmp_file"
   else
     # Can't append extension for mktemp, so renaming instead
     tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
@@ -84,7 +103,7 @@ terraform_docs() {
     tmp_file_docs_tf="$tmp_file_docs.tf"
 
     awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
-    terraform-docs md $args "$tmp_file_docs_tf" > "$tmp_file"
+    terraform-docs md "$args" "$tmp_file_docs_tf" > "$tmp_file"
     rm -f "$tmp_file_docs_tf"
   fi
 
@@ -103,24 +122,19 @@ terraform_docs() {
 terraform_docs_awk() {
   readonly output_file=$1
 
-  cat <<"EOF" > $output_file
+  cat <<"EOF" > "$output_file"
 # This script converts Terraform 0.12 variables/outputs to something suitable for `terraform-docs`
 # As of terraform-docs v0.6.0, HCL2 is not supported. This script is a *dirty hack* to get around it.
 # https://github.com/segmentio/terraform-docs/
 # https://github.com/segmentio/terraform-docs/issues/62
-
 # Script was originally found here: https://github.com/cloudposse/build-harness/blob/master/bin/terraform-docs.awk
-
 {
   if ( $0 ~ /\{/ ) {
     braceCnt++
   }
-
   if ( $0 ~ /\}/ ) {
     braceCnt--
   }
-
-
   # ----------------------------------------------------------------------------------------------
   # variable|output "..." {
   # ----------------------------------------------------------------------------------------------
@@ -142,8 +156,6 @@ terraform_docs_awk() {
     # Print variable|output line
     print $0
   }
-
-
   # ----------------------------------------------------------------------------------------------
   # default = ...
   # ----------------------------------------------------------------------------------------------
@@ -177,8 +189,6 @@ terraform_docs_awk() {
       }
     }
   }
-
-
   # ----------------------------------------------------------------------------------------------
   # type  = ...
   # ----------------------------------------------------------------------------------------------
@@ -211,7 +221,6 @@ terraform_docs_awk() {
         } else {
           type = $3
         }
-
         # legacy quoted types: "string", "list", and "map"
         if (type ~ /^[[:space:]]*"(.*?)"[[:space:]]*$/) {
           print "  type = " type
@@ -229,8 +238,6 @@ terraform_docs_awk() {
       blockTypeCnt -= gsub(/\}/, "")
     }
   }
-
-
   # ----------------------------------------------------------------------------------------------
   # description = ...
   # ----------------------------------------------------------------------------------------------
@@ -240,8 +247,6 @@ terraform_docs_awk() {
       print $0
     }
   }
-
-
   # ----------------------------------------------------------------------------------------------
   # value = ...
   # ----------------------------------------------------------------------------------------------
@@ -251,8 +256,6 @@ terraform_docs_awk() {
   #    print $0
   #  }
   #}
-
-
   # ----------------------------------------------------------------------------------------------
   # Newlines, comments, everything else
   # ----------------------------------------------------------------------------------------------
