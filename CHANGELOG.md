@@ -3,9 +3,16 @@
 
 
 
+<a name="v1.24.0"></a>
+## [v1.24.0] - 2020-01-21
+
+- Added shfmt to autoformat shell scripts ([#86](https://github.com/antonbabenko/pre-commit-terraform/issues/86))
+
+
 <a name="v1.23.0"></a>
 ## [v1.23.0] - 2020-01-21
 
+- Updated CHANGELOG
 - Added support for terraform-docs 0.8.0 with proper support for Terraform 0.12 syntax (bye-bye awk) ([#85](https://github.com/antonbabenko/pre-commit-terraform/issues/85))
 
 
@@ -231,7 +238,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.23.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.24.0...HEAD
+[v1.24.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.23.0...v1.24.0
 [v1.23.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.22.0...v1.23.0
 [v1.22.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.21.0...v1.22.0
 [v1.21.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.20.0...v1.21.0
