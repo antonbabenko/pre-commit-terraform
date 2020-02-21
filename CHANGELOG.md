@@ -3,9 +3,17 @@
 
 
 
+<a name="v1.26.0"></a>
+## [v1.26.0] - 2020-02-21
+
+- Updated pre-commit-hooks
+- Fixed exit code for terraform 0.11 branch in terraform_docs ([#94](https://github.com/antonbabenko/pre-commit-terraform/issues/94))
+
+
 <a name="v1.25.0"></a>
 ## [v1.25.0] - 2020-01-30
 
+- Updated CHANGELOG
 - Fixed tflint hook to iterate over files ([#77](https://github.com/antonbabenko/pre-commit-terraform/issues/77))
 
 
@@ -245,7 +253,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.25.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.26.0...HEAD
+[v1.26.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.25.0...v1.26.0
 [v1.25.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.24.0...v1.25.0
 [v1.24.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.23.0...v1.24.0
 [v1.23.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.22.0...v1.23.0
