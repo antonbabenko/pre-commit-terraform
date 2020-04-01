@@ -17,11 +17,11 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
 
   if [[ -n "$(find $path_uniq -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
 
-    current_path=$(realpath "$path_uniq")
+    starting_path=$(realpath "$path_uniq")
     terraform_path="$path_uniq"
 
     # Find the relevant .terraform directory (indicating a 'terraform init'),
-    # but fall through to the current directory..
+    # but fall through to the current directory.
     while [[ "$terraform_path" != "." ]]; do
       if [[ -d "$terraform_path/.terraform" ]]; then
         break
@@ -30,22 +30,18 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
       fi
     done
 
-    check_path="${uniq_path#"$terraform_path"}"
+    validate_path="${path_uniq#"$terraform_path"}"
 
-    #
     # Change to the directory that has been initialized, run validation, then
     # change back to the starting directory.
-    #
     cd "$(realpath "$terraform_path")"
-
-    if ! terraform validate $check_path; then
+    if ! terraform validate $validate_path; then
       error=1
       echo
       echo "Failed path: $path_uniq"
       echo "================================"
     fi
-
-    cd "$current_path"
+    cd "$starting_path"
   fi
 done
 
