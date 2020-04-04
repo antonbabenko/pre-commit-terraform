@@ -3,9 +3,16 @@
 
 
 
+<a name="v1.28.0"></a>
+## [v1.28.0] - 2020-03-18
+
+- Update installation instructions ([#79](https://github.com/antonbabenko/pre-commit-terraform/issues/79))
+
+
 <a name="v1.27.0"></a>
 ## [v1.27.0] - 2020-03-02
 
+- Updated CHANGELOG
 - corrected tflint documentation ([#95](https://github.com/antonbabenko/pre-commit-terraform/issues/95))
 
 
@@ -260,7 +267,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.27.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.28.0...HEAD
+[v1.28.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.27.0...v1.28.0
 [v1.27.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.26.0...v1.27.0
 [v1.26.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.25.0...v1.26.0
 [v1.25.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.24.0...v1.25.0
