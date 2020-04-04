@@ -1,25 +1,34 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+
 <a name="unreleased"></a>
 ## [Unreleased]
 
 
 
-<a name="v1.28.0"></a>
-## [v1.28.0] - 2020-03-18
+<a name="v1.29.0"></a>
+## [v1.29.0] - 2020-04-04
 
+- fix: Change terraform_validate hook functionality for subdirectories with terraform files ([#100](https://github.com/antonbabenko/pre-commit-terraform/issues/100))
+
+
+<a name="v1.28.0"></a>
+## [v1.28.0] - 2020-04-04
+
+- Allow passing multiple args to terraform-docs ([#98](https://github.com/antonbabenko/pre-commit-terraform/issues/98))
 - Update installation instructions ([#79](https://github.com/antonbabenko/pre-commit-terraform/issues/79))
 
 
 <a name="v1.27.0"></a>
 ## [v1.27.0] - 2020-03-02
 
-- Updated CHANGELOG
 - corrected tflint documentation ([#95](https://github.com/antonbabenko/pre-commit-terraform/issues/95))
 
 
 <a name="v1.26.0"></a>
 ## [v1.26.0] - 2020-02-21
 
-- Updated CHANGELOG
 - Updated pre-commit-hooks
 - Fixed exit code for terraform 0.11 branch in terraform_docs ([#94](https://github.com/antonbabenko/pre-commit-terraform/issues/94))
 
@@ -27,42 +36,36 @@
 <a name="v1.25.0"></a>
 ## [v1.25.0] - 2020-01-30
 
-- Updated CHANGELOG
 - Fixed tflint hook to iterate over files ([#77](https://github.com/antonbabenko/pre-commit-terraform/issues/77))
 
 
 <a name="v1.24.0"></a>
 ## [v1.24.0] - 2020-01-21
 
-- Updated CHANGELOG
 - Added shfmt to autoformat shell scripts ([#86](https://github.com/antonbabenko/pre-commit-terraform/issues/86))
 
 
 <a name="v1.23.0"></a>
 ## [v1.23.0] - 2020-01-21
 
-- Updated CHANGELOG
 - Added support for terraform-docs 0.8.0 with proper support for Terraform 0.12 syntax (bye-bye awk) ([#85](https://github.com/antonbabenko/pre-commit-terraform/issues/85))
 
 
 <a name="v1.22.0"></a>
 ## [v1.22.0] - 2020-01-13
 
-- Updated CHANGELOG
 - move terraform-docs args after markdown command ([#83](https://github.com/antonbabenko/pre-commit-terraform/issues/83))
 
 
 <a name="v1.21.0"></a>
 ## [v1.21.0] - 2019-11-16
 
-- Updated CHANGELOG
 - use getopt for args in the tflint hook, following the approach in terraform-docs ([#75](https://github.com/antonbabenko/pre-commit-terraform/issues/75))
 
 
 <a name="v1.20.0"></a>
 ## [v1.20.0] - 2019-11-02
 
-- Updated CHANGELOG
 - Fixes [#65](https://github.com/antonbabenko/pre-commit-terraform/issues/65): terraform-docs should not fail if complex types contain 'description' keyword ([#73](https://github.com/antonbabenko/pre-commit-terraform/issues/73))
 - Added FUNDING.yml
 - Improve installation instructions and make README more readable ([#72](https://github.com/antonbabenko/pre-commit-terraform/issues/72))
@@ -72,7 +75,6 @@
 <a name="v1.19.0"></a>
 ## [v1.19.0] - 2019-08-20
 
-- Updated CHANGELOG
 - Updated README with terraform_tflint hook
 - Added support for TFLint with --deep parameter ([#53](https://github.com/antonbabenko/pre-commit-terraform/issues/53))
 
@@ -80,7 +82,6 @@
 <a name="v1.18.0"></a>
 ## [v1.18.0] - 2019-08-20
 
-- Updated CHANGELOG
 - Updated README with terragrunt_fmt hook
 - Formatter for Terragrunt HCL files ([#60](https://github.com/antonbabenko/pre-commit-terraform/issues/60))
 
@@ -88,7 +89,6 @@
 <a name="v1.17.0"></a>
 ## [v1.17.0] - 2019-06-25
 
-- Updated CHANGELOG
 - Fixed enquoted types in terraform_docs (fixed [#52](https://github.com/antonbabenko/pre-commit-terraform/issues/52))
 - Fix typo in README ([#51](https://github.com/antonbabenko/pre-commit-terraform/issues/51))
 
@@ -96,14 +96,12 @@
 <a name="v1.16.0"></a>
 ## [v1.16.0] - 2019-06-18
 
-- Updated CHANGELOG
 - Add slash to mktemp dir (fixed [#50](https://github.com/antonbabenko/pre-commit-terraform/issues/50))
 
 
 <a name="v1.15.0"></a>
 ## [v1.15.0] - 2019-06-18
 
-- Updated CHANGELOG
 - Fixed awk script for terraform-docs (kudos [@cytopia](https://github.com/cytopia)) and mktemp on Mac (closes [#47](https://github.com/antonbabenko/pre-commit-terraform/issues/47), [#48](https://github.com/antonbabenko/pre-commit-terraform/issues/48), [#49](https://github.com/antonbabenko/pre-commit-terraform/issues/49))
 - Fix version in README.md ([#46](https://github.com/antonbabenko/pre-commit-terraform/issues/46))
 
@@ -111,21 +109,18 @@
 <a name="v1.14.0"></a>
 ## [v1.14.0] - 2019-06-17
 
-- Updated CHANGELOG
 - Upgraded to work with Terraform >= 0.12 ([#44](https://github.com/antonbabenko/pre-commit-terraform/issues/44))
 
 
 <a name="v1.13.0"></a>
 ## [v1.13.0] - 2019-06-17
 
-- Updated CHANGELOG
 - Added support for terraform_docs for Terraform 0.12 ([#45](https://github.com/antonbabenko/pre-commit-terraform/issues/45))
 
 
 <a name="v1.12.0"></a>
 ## [v1.12.0] - 2019-05-27
 
-- Updated CHANGELOG
 - Added note about incompatibility of terraform-docs with Terraform 0.12 ([#41](https://github.com/antonbabenko/pre-commit-terraform/issues/41))
 - Fixed broken "maintained badge"
 - Update README.md ([#36](https://github.com/antonbabenko/pre-commit-terraform/issues/36))
@@ -148,23 +143,19 @@
 <a name="v1.9.0"></a>
 ## [v1.9.0] - 2019-02-18
 
-- Added CHANGELOG.md
 - Added chglog (hi [@robinbowes](https://github.com/robinbowes) :))
-- Merge pull request [#33](https://github.com/antonbabenko/pre-commit-terraform/issues/33) from chrisgilmerproj/run_terraform_docs_in_serial
 - Require terraform-docs runs in serial to avoid pre-commit doing parallel operations on similar file paths
 
 
 <a name="v1.8.1"></a>
 ## [v1.8.1] - 2018-12-15
 
-- Merge pull request [#30](https://github.com/antonbabenko/pre-commit-terraform/issues/30) from RothAndrew/feature/fix_issue_29
 - Fix bug not letting terraform_docs_replace work in the root directory of a repo
 
 
 <a name="v1.8.0"></a>
 ## [v1.8.0] - 2018-12-14
 
-- Merge pull request [#27](https://github.com/antonbabenko/pre-commit-terraform/issues/27) from RothAndrew/feature/new_hook
 - fix typo
 - Address requested changes
 - Add `--dest` argument
@@ -177,7 +168,6 @@
 
 - Merge remote-tracking branch 'origin/master' into pr25
 - Added followup after [#25](https://github.com/antonbabenko/pre-commit-terraform/issues/25)
-- Merge pull request [#25](https://github.com/antonbabenko/pre-commit-terraform/issues/25) from getcloudnative/feat-pass-terraform-docs-opts
 - Add feature to pass options to terraform-docs.
 - Added license file (fixed [#21](https://github.com/antonbabenko/pre-commit-terraform/issues/21))
 
@@ -238,8 +228,6 @@
 
 - Added badges
 - Added formatting for tfvars (fixes [#4](https://github.com/antonbabenko/pre-commit-terraform/issues/4)) ([#6](https://github.com/antonbabenko/pre-commit-terraform/issues/6))
-- Merge pull request [#5](https://github.com/antonbabenko/pre-commit-terraform/issues/5) from schneems/schneems/codetriage-badge
-- [ci skip] Get more Open Source Helpers
 
 
 <a name="v1.2.0"></a>
@@ -248,7 +236,6 @@
 - Renamed shell script file to the correct one
 - Updated .pre-commit-hooks.yaml
 - Updated sha in README
-- Merge pull request [#3](https://github.com/antonbabenko/pre-commit-terraform/issues/3) from pecigonzalo/master
 - Exclude .terraform even on subfolders
 
 
@@ -267,7 +254,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.28.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.29.0...HEAD
+[v1.29.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.28.0...v1.29.0
 [v1.28.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.27.0...v1.28.0
 [v1.27.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.26.0...v1.27.0
 [v1.26.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.25.0...v1.26.0
