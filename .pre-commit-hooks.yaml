@@ -20,12 +20,11 @@
   name: Terraform docs (sorted by required)
   description: Inserts input and output documentation into README.md (using terraform-docs).
   require_serial: true
-  entry: terraform_docs.sh
-  args: [--args=--sort-by-required]
-  language: script
+  entry: terraform_docs_by_required
+  language: python
   files: (\.tf)$
   exclude: \.terraform\/.*$
-  
+
 - id: terraform_docs_without_aggregate_type_defaults
   name: Terraform docs (without aggregate type defaults)
   description: Inserts input and output documentation into README.md (using terraform-docs).
