@@ -9,11 +9,13 @@
 * [`pre-commit`](https://pre-commit.com/#install)
 * [`terraform-docs`](https://github.com/segmentio/terraform-docs) required for `terraform_docs` hooks. `GNU awk` is required if using `terraform-docs` older than 0.8.0 with Terraform 0.12.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
+* [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 
 ##### MacOS
 
 ```bash
-brew install pre-commit gawk terraform-docs tflint
+brew tap liamg/tfsec
+brew install pre-commit gawk terraform-docs tflint tfsec
 ```
 
 ##### Ubuntu
@@ -23,6 +25,7 @@ sudo apt install python3-pip gawk &&\
 pip3 install pre-commit
 curl -L "$(curl -s https://api.github.com/repos/segmentio/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64")" > terraform-docs && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
+env GO111MODULE=on go get -u github.com/liamg/tfsec/cmd/tfsec
 ```
 
 ### 2. Install the pre-commit hook globally
@@ -69,6 +72,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md                                                           |
 | `terraform_tflint`                               | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint).                              |
 | `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format. |
+| `terraform_tfsec`                                | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues.     |
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
@@ -111,6 +115,20 @@ if they are present in `README.md`.
           - 'args=--deep'
           - 'args=--enable-rule=terraform_documented_variables'
     ```
+
+## Notes about terraform_tfsec hooks
+
+1. `terraform_tfsec` will recurse all directories/modules.
+1. To ignore specific warnings, follow the convention from the
+[documentation](https://github.com/liamg/tfsec#ignoring-warnings).
+    1. Example:
+    ```hcl
+    resource "aws_security_group_rule" "my-rule" {
+        type = "ingress"
+        cidr_blocks = ["0.0.0.0/0"] #tfsec:ignore:AWS006
+    }
+    ```
+
 
 ## Notes for developers
 
