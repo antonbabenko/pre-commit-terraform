@@ -9,7 +9,7 @@
 * [`pre-commit`](https://pre-commit.com/#install)
 * [`terraform-docs`](https://github.com/segmentio/terraform-docs) required for `terraform_docs` hooks. `GNU awk` is required if using `terraform-docs` older than 0.8.0 with Terraform 0.12.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
-* [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tsec` hook.
+* [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 
 ##### MacOS
 
@@ -121,6 +121,13 @@ if they are present in `README.md`.
 1. `terraform_tfsec` will recurse all directories/modules.
 1. To ignore specific warnings, follow the convention from the
 [documentation](https://github.com/liamg/tfsec#ignoring-warnings).
+    1. Example:
+    ```hcl
+    resource "aws_security_group_rule" "my-rule" {
+        type = "ingress"
+        cidr_blocks = ["0.0.0.0/0"] #tfsec:ignore:AWS006
+    }
+    ```
 
 
 ## Notes for developers
