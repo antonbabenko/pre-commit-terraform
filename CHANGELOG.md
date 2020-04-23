@@ -7,10 +7,39 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.30.0"></a>
+## [v1.30.0] - 2020-04-23
+
+- Updated pre-commit deps
+- feat: Support for TFSec ([#103](https://github.com/antonbabenko/pre-commit-terraform/issues/103))
+
+
 <a name="v1.29.0"></a>
 ## [v1.29.0] - 2020-04-04
 
 - fix: Change terraform_validate hook functionality for subdirectories with terraform files ([#100](https://github.com/antonbabenko/pre-commit-terraform/issues/100))
+
+###
+
+configuration for the appropriate working directory.
+
+* Neglected to change the terraform validate call to use the default of the
+current directory.
+
+* Several changes to improve functionality:
+- Switch to checking the path for '*.tf' instead of always checking the current
+
+directory.
+- Try to find a '.terraform' directory (which indicates a `terraform init`) and
+
+change to that directory before running `terraform validate`.
+
+* Fix the description for the terraform_validate hook to reflect changes that were
+made in:
+https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9a4e7200d936e514cba71
+
+* - Clean up comments.
+- Adjust variable names to better reflect what they are holding.
 
 
 <a name="v1.28.0"></a>
@@ -254,7 +283,8 @@ All notable changes to this project will be documented in this file.
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.29.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.30.0...HEAD
+[v1.30.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.29.0...v1.30.0
 [v1.29.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.28.0...v1.29.0
 [v1.28.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.27.0...v1.28.0
 [v1.27.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.26.0...v1.27.0
