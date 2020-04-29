@@ -10,12 +10,13 @@
 * [`terraform-docs`](https://github.com/segmentio/terraform-docs) required for `terraform_docs` hooks. `GNU awk` is required if using `terraform-docs` older than 0.8.0 with Terraform 0.12.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
+* [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
 
 ##### MacOS
 
 ```bash
 brew tap liamg/tfsec
-brew install pre-commit gawk terraform-docs tflint tfsec
+brew install pre-commit gawk terraform-docs tflint tfsec coreutils
 ```
 
 ##### Ubuntu
