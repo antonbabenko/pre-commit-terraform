@@ -113,7 +113,7 @@ if they are present in `README.md`.
     In order to pass multiple args, try the following:
     ```yaml
      - id: terraform_tflint
-        args:
+       args:
           - 'args=--deep'
           - 'args=--enable-rule=terraform_documented_variables'
     ```
