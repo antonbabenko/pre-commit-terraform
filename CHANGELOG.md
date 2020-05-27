@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.31.0"></a>
+## [v1.31.0] - 2020-05-27
+
+- fix: Updated formatting in README (closes [#113](https://github.com/antonbabenko/pre-commit-terraform/issues/113))
+- docs: Fixed the docs to use the latest config syntax([#106](https://github.com/antonbabenko/pre-commit-terraform/issues/106))
+- docs: Added coreutils as requirements in README.md ([#105](https://github.com/antonbabenko/pre-commit-terraform/issues/105))
+
+
 <a name="v1.30.0"></a>
 ## [v1.30.0] - 2020-04-23
 
@@ -283,7 +291,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.30.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.31.0...HEAD
+[v1.31.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.30.0...v1.31.0
 [v1.30.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.29.0...v1.30.0
 [v1.29.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.28.0...v1.29.0
 [v1.28.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.27.0...v1.28.0
