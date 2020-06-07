@@ -6,14 +6,14 @@ main() {
   argv=$(getopt -o a: --long args: -- "$@") || return
   eval "set -- $argv"
 
-  declare args
+  declare -a args
   declare files
 
   for argv; do
     case $argv in
       -a | --args)
         shift
-        args="$1"
+        args+=("$1")
         shift
         ;;
       --)
@@ -40,7 +40,7 @@ tflint_() {
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
     pushd "$path_uniq" > /dev/null
-    tflint $args
+    tflint ${args[@]}
     popd > /dev/null
   done
 }
