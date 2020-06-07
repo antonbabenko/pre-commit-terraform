@@ -107,15 +107,15 @@ if they are present in `README.md`.
     ```yaml
     hooks:
       - id: terraform_tflint
-        args: ['args=--deep']
+        args: ['--args=--deep']
     ```
 
     In order to pass multiple args, try the following:
     ```yaml
      - id: terraform_tflint
        args:
-          - 'args=--deep'
-          - 'args=--enable-rule=terraform_documented_variables'
+          - '--args=--deep'
+          - '--args=--enable-rule=terraform_documented_variables'
     ```
 
 ## Notes about terraform_tfsec hooks
