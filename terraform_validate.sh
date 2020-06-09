@@ -29,8 +29,9 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
         echo "Break: $terraform_path"
         break
       else
-        echo "Else: $terraform_path"
+        echo "Else before: $terraform_path"
         terraform_path=$(dirname "$terraform_path")
+        echo "Else after: $terraform_path"
       fi
     done
 
@@ -40,7 +41,7 @@ for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     # Change to the directory that has been initialized, run validation, then
     # change back to the starting directory.
     cd "$(realpath "$terraform_path")"
-    echo "Init and validate dir: ${pwd}"
+    echo "Init and validate dir: $(realpath "$terraform_path")"
 
     # Set an empty provider block to satisfy the AzureRM provider when running validation
     # checks, in case the current directory is a module with no provider block.
