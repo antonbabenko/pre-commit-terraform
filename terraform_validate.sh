@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!C:/Program\ Files/Git/bin/bash.exe
 set -e
 
 declare -a paths
