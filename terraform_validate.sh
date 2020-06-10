@@ -12,55 +12,43 @@ for file_with_path in "$@"; do
   (("index+=1"))
 done
 
-echo $paths
-
 for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
-  if [[ -n "$(find $path_uniq -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
+  pushd "$path_uniq" > /dev/null
 
-    starting_path=$(realpath "$path_uniq")
-    terraform_path="$path_uniq"
-
-    # Find the relevant .terraform directory (indicating a 'terraform init'),
-    # but fall through to the current directory.
-    while [[ "$terraform_path" != "." ]]; do
-      if [[ -d "$terraform_path/.terraform" ]]; then
-        echo "Break: $terraform_path"
-        break
-      else
-        echo "Else before: $terraform_path"
-        terraform_path=$(dirname "$terraform_path")
-        echo "Else after: $terraform_path"
-      fi
-    done
-
-    validate_path="${path_uniq#"$terraform_path"}"
-    echo "Validated path: ${validate_path}"
-
-    # Change to the directory that has been initialized, run validation, then
-    # change back to the starting directory.
-    cd "$(realpath "$terraform_path")"
-    echo "Init and validate dir: $(realpath "$terraform_path")"
-
-    # Set an empty provider block to satisfy the AzureRM provider when running validation
-    # checks, in case the current directory is a module with no provider block.
-    echo "provider \"azurerm\" {features{}}" > temp-provider.tf
-
-    # Initializing the directory before validation is required.
-    # TODO: Init
-
-    if ! terraform validate $validate_path; then
-      error=1
-      echo
-      echo "Failed path: $path_uniq"
-      echo "================================"
-    fi
-
-    # rm temp-provider.tf
-
-    cd "$starting_path"
+  # Set a temporary provider in case the current directory is a module without a provider block.
+  if [[ ${path_uniq} == *"modules"* && ! ${path_uniq} == *"examples"* ]]; then
+    echo -e "provider \"azurerm\" {\n  features{}\n}" >| temp-provider.tf
   fi
+
+  # Initialize the directory
+  if ! terraform init $validate_path -backend=false; then
+    error=1
+    echo "==============================================================================="
+    echo "Failed terraform init on path: $path_uniq"
+    echo "==============================================================================="
+  fi
+
+  # Perform the validation
+  if ! terraform validate $validate_path; then
+    error=1
+    echo "==============================================================================="
+    echo "Failed terraform validate on path: $path_uniq"
+    echo "==============================================================================="
+  fi
+
+  # Remove the temporary provider block if required.
+  if [[ ${path_uniq} == *"modules"* && ! ${path_uniq} == *"examples"* ]]; then
+    rm temp-provider.tf
+  fi
+
+  # Remove the terraform configuration directory that was created after init
+  if [[ -d .terraform ]]; then
+    rm -r .terraform
+  fi
+  
+  popd > /dev/null
 done
 
 if [[ "${error}" -ne 0 ]]; then

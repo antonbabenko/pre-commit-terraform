@@ -5,16 +5,17 @@
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
+  require_serial: true
 
 - id: terraform_docs
   name: Terraform docs
   description: Inserts input and output documentation into README.md (using terraform-docs).
-  require_serial: true
   entry: terraform_docs.sh
-  args: [--args=--with-aggregate-type-defaults]
+  args: [--args=--sort-by-required --no-providers --no-requirements]
   language: script
   files: (\.tf)$
   exclude: \.terraform\/.*$
+  require_serial: true
 
 - id: terraform_docs_without_aggregate_type_defaults
   name: Terraform docs (without aggregate type defaults)
@@ -41,6 +42,7 @@
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
+  require_serial: true
 
 - id: terraform_tflint
   name: Terraform validate with tflint
@@ -49,14 +51,17 @@
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
+  args: [--args=/disable-rule:azurerm_sql_database_invalid_requested_service_objective_name]
 
 - id: terragrunt_fmt
   name: Terragrunt fmt
   description: Rewrites all Terragrunt configuration files to a canonical format.
   entry: terragrunt_fmt.sh
   language: script
+  pass_filenames: false
   files: (\.hcl)$
   exclude: \.terraform\/.*$
+  require_serial: true
 
 - id: terraform_tfsec
   name: Terraform validate with tfsec
