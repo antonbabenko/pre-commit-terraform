@@ -131,6 +131,16 @@ if they are present in `README.md`.
     }
     ```
 
+## Notes about terraform_validate
+
+1. `terraform_validate` supports custom arguments so you can pass a var-file to `terraform validate`.
+
+    1. Example:
+    ```yaml
+    hooks:
+      - id: terraform_validate
+        args: ['--var-file=test.tfvars']
+    ```
 
 ## Notes for developers
 
