@@ -27,7 +27,7 @@ initialize_() {
 
 parse_cmdline_() {
   declare argv
-  argv=$(getopt -o e:a: --long envs:args: -- "$@") || return
+  argv=$(getopt -o e:a: --long envs:,args: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
