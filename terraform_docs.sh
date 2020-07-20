@@ -26,7 +26,7 @@ main() {
   done
 
   local hack_terraform_docs
-  hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12) || true
+  hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
 
   if [[ ! $(command -v terraform-docs) ]]; then
     echo "ERROR: terraform-docs is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
