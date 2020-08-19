@@ -58,6 +58,14 @@
   files: (\.hcl)$
   exclude: \.terraform\/.*$
 
+- id: terragrunt_validate
+  name: Terragrunt validate
+  description: Validates all Terragrunt configuration files.
+  entry: terragrunt_validate.sh
+  language: script
+  files: (\.hcl)$
+  exclude: \.terraform\/.*$
+
 - id: terraform_tfsec
   name: Terraform validate with tfsec
   description: Static analysis of Terraform templates to spot potential security issues.
