@@ -127,8 +127,8 @@ terraform_docs_awk() {
   cat << "EOF" > "$output_file"
 # This script converts Terraform 0.12 variables/outputs to something suitable for `terraform-docs`
 # As of terraform-docs v0.6.0, HCL2 is not supported. This script is a *dirty hack* to get around it.
-# https://github.com/segmentio/terraform-docs/
-# https://github.com/segmentio/terraform-docs/issues/62
+# https://github.com/terraform-docs/terraform-docs/
+# https://github.com/terraform-docs/terraform-docs/issues/62
 # Script was originally found here: https://github.com/cloudposse/build-harness/blob/master/bin/terraform-docs.awk
 {
   if ( $0 ~ /\{/ ) {
