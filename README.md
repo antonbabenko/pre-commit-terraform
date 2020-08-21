@@ -125,6 +125,18 @@ if they are present in `README.md`.
     passes to it, so you can perform whitelisting of directories
     or files to run against via [files](https://pre-commit.com/#config-files)
     pre-commit flag
+
+    1. Example:
+    ```yaml
+    hooks:
+      - id: terraform_tfsec
+        files: ^prd-infra/
+    ```
+
+    The above will tell pre-commit to pass down files from the `prd-infra/` folder
+    only such that the underlying `tfsec` tool can run against changed files in this
+    directory, ignoring any other folders at the root level
+
 1. To ignore specific warnings, follow the convention from the
 [documentation](https://github.com/liamg/tfsec#ignoring-warnings).
     1. Example:
