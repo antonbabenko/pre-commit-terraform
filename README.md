@@ -121,7 +121,10 @@ if they are present in `README.md`.
 
 ## Notes about terraform_tfsec hooks
 
-1. `terraform_tfsec` will recurse all directories/modules.
+1. `terraform_tfsec` will consume modified files that pre-commit
+    passes to it, so you can perform whitelisting of directories
+    or files to run against via [files](https://pre-commit.com/#config-files)
+    pre-commit flag
 1. To ignore specific warnings, follow the convention from the
 [documentation](https://github.com/liamg/tfsec#ignoring-warnings).
     1. Example:
