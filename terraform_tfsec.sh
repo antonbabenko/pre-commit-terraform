@@ -28,8 +28,21 @@ main() {
 }
 
 tfsec_() {
-  # Ignore $files because tfsec will recurse directories anyway.
-  tfsec $args .
+  # consume modified files passed from pre-commit so that
+  # tfsec runs against only those relevant directories
+  for file_with_path in $files; do
+    file_with_path="${file_with_path// /__REPLACED__SPACE__}"
+    paths[index]=$(dirname "$file_with_path")
+
+    let "index+=1"
+  done
+
+  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
+    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
+    pushd "$path_uniq" > /dev/null
+    tfsec $args
+    popd > /dev/null
+  done
 }
 
 getopt() {
