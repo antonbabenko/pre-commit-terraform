@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.34.0"></a>
+## [v1.34.0] - 2020-08-27
+
+- chore: Use lib_getopt for all hooks and some style tweaks ([#137](https://github.com/antonbabenko/pre-commit-terraform/issues/137))
+
+
 <a name="v1.33.0"></a>
 ## [v1.33.0] - 2020-08-27
 
@@ -304,7 +310,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.33.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.34.0...HEAD
+[v1.34.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.33.0...v1.34.0
 [v1.33.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.32.0...v1.33.0
 [v1.32.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.31.0...v1.32.0
 [v1.31.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.30.0...v1.31.0
