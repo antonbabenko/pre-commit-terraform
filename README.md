@@ -108,15 +108,15 @@ if they are present in `README.md`.
     ```yaml
     hooks:
       - id: terraform_tflint
-        args: ['args=--deep']
+        args: ['--args=--deep']
     ```
 
     In order to pass multiple args, try the following:
     ```yaml
      - id: terraform_tflint
        args:
-          - 'args=--deep'
-          - 'args=--enable-rule=terraform_documented_variables'
+          - '--args=--deep'
+          - '--args=--enable-rule=terraform_documented_variables'
     ```
 
 ## Notes about terraform_tfsec hooks
@@ -132,6 +132,41 @@ if they are present in `README.md`.
     }
     ```
 
+## Notes about terraform_validate hooks
+
+1. `terraform_validate` supports custom arguments so you can pass supported no-color or json flags.
+
+    1. Example:
+    ```yaml
+    hooks:
+      - id: terraform_validate
+        args: ['--args=-json']
+    ```
+
+    In order to pass multiple args, try the following:
+    ```yaml
+     - id: terraform_validate
+       args:
+          - '--args=-json'
+          - '--args=-no-color'
+    ```
+1. `terraform_validate` also supports custom environment variables passed to the pre-commit runtime
+
+    1. Example:
+    ```yaml
+    hooks:
+      - id: terraform_validate
+        args: ['--envs=AWS_DEFAULT_REGION="us-west-2"']
+    ```
+
+    In order to pass multiple args, try the following:
+    ```yaml
+     - id: terraform_validate
+       args:
+          - '--envs=AWS_DEFAULT_REGION="us-west-2"'
+          - '--envs=AWS_ACCESS_KEY_ID="anaccesskey"'
+          - '--envs=AWS_SECRET_ACCESS_KEY="asecretkey"'
+    ```
 
 ## Notes for developers
 
