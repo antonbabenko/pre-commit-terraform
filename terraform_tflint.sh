@@ -13,10 +13,10 @@ initialize_() {
   local dir
   local source
   source="${BASH_SOURCE[0]}"
-  while [[ -h $source ]]; do # resolve $source until the file is no longer a symlink
-    dir="$( cd -P "$( dirname "$source" )" >/dev/null && pwd )"
+  while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
+    dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
     source="$(readlink "$source")"
-     # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
     [[ $source != /* ]] && source="$dir/$source"
   done
   _SCRIPT_DIR="$(dirname "$source")"
@@ -54,7 +54,7 @@ tflint_() {
 
     paths[index]=$(dirname "$file_with_path")
 
-    ((index+=1))
+    ((index += 1))
   done
 
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
