@@ -4,7 +4,7 @@ set -euo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
-  terraform_validate_ "$ARGS" "$FILES"
+  terraform_docs_ "$ARGS" "$FILES"
 }
 
 initialize_() {
@@ -310,7 +310,7 @@ EOF
 }
 
 # global arrays
-declare -a ARGS
-declare -a FILES
+declare -a ARGS=()
+declare -a FILES=()
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"

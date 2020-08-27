@@ -49,6 +49,6 @@ parse_cmdline_() {
 }
 
 # global arrays
-declare -a ARGS
+declare -a ARGS=()
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
