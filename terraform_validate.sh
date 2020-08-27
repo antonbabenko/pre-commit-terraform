@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 main() {
   initialize_
@@ -54,14 +54,16 @@ parse_cmdline_() {
 terraform_validate_() {
 
   # Setup environment variables
+  local var
   for var in "${ENVS[@]}"; do
     export "${!var}"
   done
 
   declare -a paths
-  index=0
-  error=0
+  local index=0
+  local error=0
 
+  local file_with_path
   for file_with_path in "${FILES[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
@@ -69,12 +71,15 @@ terraform_validate_() {
     ((index += 1))
   done
 
+  local path_uniq
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
     if [[ -n "$(find "$path_uniq" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
 
+      local starting_path
       starting_path=$(realpath "$path_uniq")
+      local terraform_path
       terraform_path="$path_uniq"
 
       # Find the relevant .terraform directory (indicating a 'terraform init'),
@@ -87,6 +92,7 @@ terraform_validate_() {
         fi
       done
 
+      local validate_path
       validate_path="${path_uniq#"$terraform_path"}"
 
       # Change to the directory that has been initialized, run validation, then
