@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 main() {
   initialize_
@@ -54,9 +54,12 @@ parse_cmdline_() {
 terraform_validate_() {
 
   # Setup environment variables
-  local var
+  local var var_name var_value
   for var in "${ENVS[@]}"; do
-    export "${!var}"
+    var_name="${var%%=*}"
+    var_value="${var#*=}"
+    # shellcheck disable=SC2086
+    export $var_name="$var_value"
   done
 
   declare -a paths
