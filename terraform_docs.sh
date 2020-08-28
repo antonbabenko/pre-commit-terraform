@@ -59,7 +59,7 @@ terraform_docs_() {
   fi
 
   local is_old_terraform_docs
-  is_old_terraform_docs=$(terraform-docs version | grep -o "v0.[1-7]" | tail -1)
+  is_old_terraform_docs=$(terraform-docs version | grep -o "v0.[1-7]" | tail -1) || true
 
   if [[ -z "$is_old_terraform_docs" ]]; then # Using terraform-docs 0.8+ (preferred)
 
