@@ -20,7 +20,6 @@ tfsec_() {
   done
 
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
-    echo "PATH UNIQ: ${path_uniq}"
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
     pushd "$path_uniq" > /dev/null
     tfsec $ARGS
