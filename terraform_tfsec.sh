@@ -5,8 +5,27 @@ main() {
   initialize_
   parse_cmdline_ "$@"
 
-  # Don't pass any files tfsec will recurse directories anyway.
-  tfsec "$ARGS" .
+  # propagate $FILES to custom function
+  tfsec_ "$ARGS" "$FILES"
+}
+
+tfsec_() {
+  # consume modified files passed from pre-commit so that
+  # tfsec runs against only those relevant directories
+  for file_with_path in $FILES; do
+    file_with_path="${file_with_path// /__REPLACED__SPACE__}"
+    paths[index]=$(dirname "$file_with_path")
+
+    let "index+=1"
+  done
+
+  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
+    echo "PATH UNIQ: ${path_uniq}"
+    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
+    pushd "$path_uniq" > /dev/null
+    tfsec $ARGS
+    popd > /dev/null
+  done
 }
 
 initialize_() {
@@ -41,7 +60,7 @@ parse_cmdline_() {
         ;;
       --)
         shift
-        # ignore any parameters, as they're not used
+        FILES+=("$@")
         break
         ;;
     esac
@@ -50,5 +69,6 @@ parse_cmdline_() {
 
 # global arrays
 declare -a ARGS=()
+declare -a FILES=()
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
