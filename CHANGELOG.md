@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.36.0"></a>
+## [v1.36.0] - 2020-09-01
+
+- feat: have option for terraform_tfsec hook to only run in relevant modified directories ([#135](https://github.com/antonbabenko/pre-commit-terraform/issues/135))
+
+
 <a name="v1.35.0"></a>
 ## [v1.35.0] - 2020-08-28
 
@@ -316,7 +322,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.35.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.36.0...HEAD
+[v1.36.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.35.0...v1.36.0
 [v1.35.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.34.0...v1.35.0
 [v1.34.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.33.0...v1.34.0
 [v1.33.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.32.0...v1.33.0
