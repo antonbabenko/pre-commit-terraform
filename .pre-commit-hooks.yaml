@@ -71,3 +71,14 @@
   description: Static analysis of Terraform templates to spot potential security issues.
   entry: terraform_tfsec.sh
   language: script
+
+- id: checkov
+  name: Checkov
+  description: Runs checkov on Terraform templates.
+  entry: checkov -d .
+  language: python
+  pass_filenames: false
+  always_run: false
+  files: \.tf$
+  exclude: \.+.terraform\/.*$
+  require_serial: true
