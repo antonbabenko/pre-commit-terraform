@@ -1,6 +1,6 @@
 repos:
 - repo: git://github.com/pre-commit/pre-commit-hooks
-  rev: v2.5.0
+  rev: v3.2.0
   hooks:
     - id: check-yaml
     - id: end-of-file-fixer
@@ -9,7 +9,7 @@ repos:
     - id: check-merge-conflict
     - id: check-executables-have-shebangs
 - repo: git://github.com/jumanjihouse/pre-commit-hooks
-  rev: 2.0.0
+  rev: 2.1.4
   hooks:
     - id: shfmt
       args: ['-l', '-i', '2', '-ci', '-sr', '-w']
