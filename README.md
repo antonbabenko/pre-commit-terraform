@@ -11,6 +11,7 @@
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
+* [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
 
 ##### MacOS
 
@@ -76,6 +77,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format. |
 | `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                       |
 | `terraform_tfsec`                                | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues.     |
+| `checkov`                                | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues.     |
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
