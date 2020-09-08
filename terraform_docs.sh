@@ -4,7 +4,7 @@ set -eo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
-  terraform_docs_ "${ARGS[*]}" "${FILES[@]}"
+  terraform_docs_
 }
 
 initialize_() {
@@ -47,10 +47,6 @@ parse_cmdline_() {
 }
 
 terraform_docs_() {
-  local -r args="$1"
-  shift
-  local -a -r files=("$@")
-
   local hack_terraform_docs
   hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12) || true
 
@@ -64,7 +60,7 @@ terraform_docs_() {
 
   if [[ -z "$is_old_terraform_docs" ]]; then # Using terraform-docs 0.8+ (preferred)
 
-    terraform_docs "0" "$args" "${files[@]}"
+    terraform_docs "0"
 
   elif [[ "$hack_terraform_docs" == "1" ]]; then # Using awk script because terraform-docs is older than 0.8 and terraform 0.12 is used
 
@@ -76,28 +72,25 @@ terraform_docs_() {
     local tmp_file_awk
     tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
     terraform_docs_awk "$tmp_file_awk"
-    terraform_docs "$tmp_file_awk" "$args" "${files[@]}"
+    terraform_docs "$tmp_file_awk"
     rm -f "$tmp_file_awk"
 
   else # Using terraform 0.11 and no awk script is needed for that
 
-    terraform_docs "0" "$args" "${files[@]}"
+    terraform_docs "0"
 
   fi
 }
 
 terraform_docs() {
-  local -r terraform_docs_awk_file="$1"
-  local -r args="$2"
-  shift 2
-  local -a -r files=("$@")
+  local -r terraform_docs_awk_file="$1" ; shift
 
   declare -a paths
   declare -a tfvars_files
 
   local index=0
   local file_with_path
-  for file_with_path in "${files[@]}"; do
+  for file_with_path in "${FILES[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     paths[index]=$(dirname "$file_with_path")
@@ -125,18 +118,18 @@ terraform_docs() {
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs md $args ./ > "$tmp_file"
+      terraform-docs md "${ARGS[*]}" ./ > "$tmp_file"
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
-      tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
-      mv "$tmp_file_docs" "$tmp_file_docs.tf"
       local tmp_file_docs_tf
+      tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
       tmp_file_docs_tf="$tmp_file_docs.tf"
+      mv "$tmp_file_docs" "$tmp_file_docs_tf"
 
       awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
       # shellcheck disable=SC2086
-      terraform-docs md $args "$tmp_file_docs_tf" > "$tmp_file"
+      terraform-docs md "${ARGS[*]}" "$tmp_file_docs_tf" > "$tmp_file"
       rm -f "$tmp_file_docs_tf"
     fi
 

@@ -4,25 +4,22 @@ set -eo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
-
-  # propagate $FILES to custom function
-  tfsec_ "$ARGS" "$FILES"
+  tfsec_
 }
 
 tfsec_() {
   # consume modified files passed from pre-commit so that
   # tfsec runs against only those relevant directories
-  for file_with_path in $FILES; do
+  for file_with_path in "${FILES[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
     paths[index]=$(dirname "$file_with_path")
-
-    let "index+=1"
+    (( index+=1 ))
   done
 
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
     pushd "$path_uniq" > /dev/null
-    tfsec $ARGS
+    tfsec "${ARGS[@]}"
     popd > /dev/null
   done
 }
