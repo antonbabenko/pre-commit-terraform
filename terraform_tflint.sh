@@ -44,10 +44,9 @@ parse_cmdline_() {
         shift
         #        echo "ddd"
         #        echo "aaa=$1"
-        #        expanded_arg="${1//__GIT_REPO_DIR__/pwd}"
-        #        expanded_arg="${1//__GIT_REPO_DIR__/pwd}"
-        #        echo "bbb=$expanded_arg"
-        #        ARGS+=("$expanded_arg")
+                expanded_arg="${1//__GIT_WORKING_DIR__/$PWD}"
+                echo "bbb=$expanded_arg"
+#                ARGS+=("$expanded_arg")
         ARGS+=("$1")
         shift
         ;;
