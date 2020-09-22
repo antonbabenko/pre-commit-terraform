@@ -42,12 +42,10 @@ parse_cmdline_() {
     case $argv in
       -a | --args)
         shift
-        #        echo "ddd"
-        #        echo "aaa=$1"
-                expanded_arg="${1//__GIT_WORKING_DIR__/$PWD}"
-                echo "bbb=$expanded_arg"
-#                ARGS+=("$expanded_arg")
-        ARGS+=("$1")
+        expanded_arg="${1//__GIT_WORKING_DIR__/$PWD}"
+#        echo "bbb=$expanded_arg"
+        ARGS+=("$expanded_arg")
+#        ARGS+=("$1")
         shift
         ;;
       --)
