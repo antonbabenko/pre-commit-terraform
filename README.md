@@ -121,6 +121,16 @@ if they are present in `README.md`.
           - '--args=--enable-rule=terraform_documented_variables'
     ```
 
+1. When you have multiple directories and want to run `tflint` in all of them and share single config file it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
+
+   ```yaml
+   hooks:
+     - id: terraform_tflint
+       args:
+         - '--args=--config=__GIT_WORKING_DIR__/.tflint.hcl'
+   ```
+
+
 ## Notes about terraform_tfsec hooks
 
 1. `terraform_tfsec` will consume modified files that pre-commit
