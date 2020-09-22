@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
-set -e
+#set -eo pipefail
+set -eo pipefail
 
 main() {
+  echo "===="
+  echo "$@"
+
   initialize_
   parse_cmdline_ "$@"
   tflint_
@@ -31,10 +35,19 @@ parse_cmdline_() {
   argv=$(getopt -o a: --long args: -- "$@") || return
   eval "set -- $argv"
 
+  echo "fff"
+  echo "${argv[@]}"
+  echo "${argv}"
   for argv; do
     case $argv in
       -a | --args)
         shift
+        #        echo "ddd"
+        #        echo "aaa=$1"
+        #        expanded_arg="${1//__GIT_REPO_DIR__/pwd}"
+        #        expanded_arg="${1//__GIT_REPO_DIR__/pwd}"
+        #        echo "bbb=$expanded_arg"
+        #        ARGS+=("$expanded_arg")
         ARGS+=("$1")
         shift
         ;;
@@ -45,6 +58,9 @@ parse_cmdline_() {
         ;;
     esac
   done
+
+  #  ARGS+=("--config=$PWD/.tflint.hcl")
+
 }
 
 tflint_() {
@@ -56,6 +72,9 @@ tflint_() {
 
     ((index += 1))
   done
+
+  #echo "ARGS====="
+  #echo "${ARGS[@]}"
 
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
@@ -69,5 +88,8 @@ tflint_() {
 # global arrays
 declare -a ARGS
 declare -a FILES
+
+#echo "ABBBBBBSSSS="
+#pwd
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
