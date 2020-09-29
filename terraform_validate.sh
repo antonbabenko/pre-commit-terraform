@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+export AWS_DEFAULT_REGION=us-east-1
+
 main() {
   initialize_
   parse_cmdline_ "$@"
