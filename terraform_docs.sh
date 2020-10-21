@@ -20,30 +20,29 @@ initialize_() {
   done
   _SCRIPT_DIR="$(dirname "$source")"
 
-  # source getopt function
-  # shellcheck source=lib_getopt
-  . "$_SCRIPT_DIR/lib_getopt"
 }
 
 parse_cmdline_() {
   declare argv
-  argv=$(getopt -o a: --long args: -- "$@") || return
-  eval "set -- $argv"
+  argv=($@)
 
-  for argv; do
-    case $argv in
-      -a | --args)
-        shift
-        ARGS+=("$1")
-        shift
-        ;;
-      --)
-        shift
-        FILES=("$@")
-        break
-        ;;
-    esac
+  for arg in ${argv[@]}; do
+    echo WORKING with: \"$arg\"
+
+
+    if [[ "${arg}" =~ ^--header-from= ]]; then
+#      echo SPECIAL case arg can contain .tf
+      ARGS+=($arg)
+    elif [[ "${arg}" =~ \.tf ]]; then
+#      echo "ADDING FILE"
+      FILES+=($arg)
+    else
+      echo Adding arg
+      ARGS+=($arg)
+    fi
+
   done
+
 }
 
 terraform_docs_() {
@@ -92,6 +91,8 @@ terraform_docs() {
   shift 2
   local -a -r files=("$@")
 
+#  echo args-== $args, ${files[@]}
+
   declare -a paths
   declare -a tfvars_files
 
@@ -125,7 +126,7 @@ terraform_docs() {
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs md $args ./ > "$tmp_file"
+      terraform-docs $args ./ > "$tmp_file"
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
@@ -136,7 +137,7 @@ terraform_docs() {
 
       awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
       # shellcheck disable=SC2086
-      terraform-docs md $args "$tmp_file_docs_tf" > "$tmp_file"
+      terraform-docs $args "$tmp_file_docs_tf" > "$tmp_file"
       rm -f "$tmp_file_docs_tf"
     fi
 
