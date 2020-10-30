@@ -89,11 +89,14 @@ terraform_validate_() {
       # but fall through to the current directory.
       while [[ $terraform_path != "." ]]; do
         if [[ -d $terraform_path/.terraform ]]; then
+          echo "INSIDE -> $terraform_path"
           break
         else
           terraform_path=$(dirname "$terraform_path")
         fi
       done
+
+      echo "FOUND .terraform dir = ${terraform_path}"
 
       local validate_path
       validate_path="${path_uniq#"$terraform_path"}"
@@ -104,7 +107,7 @@ terraform_validate_() {
       if ! terraform validate "${ARGS[@]}" "$validate_path"; then
         error=1
         echo
-        echo "Failed path: $path_uniq"
+        echo "Failed pathaaaaaa: $path_uniq"
         echo "================================"
       fi
       cd "$starting_path"
