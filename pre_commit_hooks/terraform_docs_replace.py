@@ -15,6 +15,10 @@ def main(argv=None):
     )
     parser.add_argument(
         '--sort-inputs-by-required', dest='sort', action='store_true',
+        help='[deprecated] use --sort-by-required instead',
+    )
+    parser.add_argument(
+        '--sort-by-required', dest='sort', action='store_true',
     )
     parser.add_argument(
         '--with-aggregate-type-defaults', dest='aggregate', action='store_true',
@@ -35,7 +39,7 @@ def main(argv=None):
             procArgs = []
             procArgs.append('terraform-docs')
             if args.sort:
-                procArgs.append('--sort-inputs-by-required')
+                procArgs.append('--sort-by-required')
             if args.aggregate:
                 procArgs.append('--with-aggregate-type-defaults')
             procArgs.append('md')
