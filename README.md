@@ -72,7 +72,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                             | Validates all Terraform configuration files.                                                                               |
 | `terraform_docs`                                 | Inserts input and output documentation into `README.md`. Recommended.                                                      |
 | `terraform_docs_without_aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults.                                   |
-| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md                                                           |
+| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md (requires terraform-docs v0.10.0 or later)                                                           |
 | `terraform_tflint`                               | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint).                              |
 | `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format. |
 | `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                       |
@@ -91,13 +91,13 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 ```
 if they are present in `README.md`.
 
-1. `terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the name of the file that gets created/modified.
+1. `terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the name of the file that gets created/modified. This hook requires terraform-docs v0.10.0 or later.
 
     1. Example:
     ```yaml
     hooks:
       - id: terraform_docs_replace
-        args: ['--with-aggregate-type-defaults', '--sort-inputs-by-required', '--dest=TEST.md']
+        args: ['--with-aggregate-type-defaults', '--sort-by-required', '--dest=TEST.md']
     ```
 
 1. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
