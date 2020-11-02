@@ -311,7 +311,7 @@ EOF
 
 }
 
-# global arrays
+# global arrays
 declare -a ARGS=()
 declare -a FILES=()
 
