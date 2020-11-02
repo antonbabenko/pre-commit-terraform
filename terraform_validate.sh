@@ -78,39 +78,89 @@ terraform_validate_() {
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
+    echo "====================="
+    echo "PATH UNIQUE = $path_uniq"
+
     if [[ -n "$(find "$path_uniq" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
 
-      local starting_path
-      starting_path=$(realpath "$path_uniq")
       local terraform_path
       terraform_path="$path_uniq"
+      local ran_terraform_init
+      ran_terraform_init=0
 
       # Find the relevant .terraform directory (indicating a 'terraform init'),
       # but fall through to the current directory.
       while [[ $terraform_path != "." ]]; do
         if [[ -d $terraform_path/.terraform ]]; then
-          echo "INSIDE -> $terraform_path"
+          ran_terraform_init=1
           break
         else
           terraform_path=$(dirname "$terraform_path")
         fi
       done
 
-      echo "FOUND .terraform dir = ${terraform_path}"
-
       local validate_path
       validate_path="${path_uniq#"$terraform_path"}"
 
+      echo "ran_terraform_init = $ran_terraform_init"
+      echo "PUSHD = $(realpath "$terraform_path")"
+
       # Change to the directory that has been initialized, run validation, then
       # change back to the starting directory.
-      cd "$(realpath "$terraform_path")"
-      if ! terraform validate "${ARGS[@]}" "$validate_path"; then
-        error=1
+      pushd "$(realpath "$terraform_path")" > /dev/null
+
+      set +e
+      echo "VALIDATE COMMAND = terraform validate ${ARGS[@]} $validate_path 2>&1"
+      validate_output=$(terraform validate "${ARGS[@]}" "$validate_path" 2>&1)
+      validate_code=$?
+      set -e
+
+      echo "VALIDATE CODE = $validate_code"
+
+      if [[ $validate_code == 0 ]]; then
+        echo "Validation passed: $path_uniq"
+        echo "$validate_output"
         echo
-        echo "Failed pathaaaaaa: $path_uniq"
-        echo "================================"
+        break
+      elif [[ $validate_code != 0 && $ran_terraform_init == 1 ]]; then
+        error=1
+        echo "Validation failed: $path_uniq"
+        echo "$validate_output"
+        echo
+        break
+      else
+
+        set +e
+        pushd "$validate_path" > /dev/null
+        init_output=$(terraform init -backend=false 2>&1)
+        init_code=$?
+        set -e
+
+        if [[ $init_code != 0 ]]; then
+          error=1
+          echo "Init failed: $path_uniq"
+          echo "$init_output"
+          echo
+          echo "Validation failed: $path_uniq"
+          echo "$validate_output"
+          echo
+          break
+        fi
+
+        set +e
+        validate_output=$(terraform validate "${ARGS[@]}")
+        validate_code=$?
+        set -e
+
+        if [[ $validate_code != 0 ]]; then
+          error=1
+          echo "Validation failed (after init): $path_uniq"
+          echo "$validate_output"
+          echo
+        fi
       fi
-      cd "$starting_path"
+
+      popd > /dev/null
     fi
   done
 
