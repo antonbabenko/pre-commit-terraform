@@ -195,13 +195,21 @@ if they are present in `README.md`.
           - '--envs=AWS_SECRET_ACCESS_KEY="asecretkey"'
     ```
 
+1. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository using this command:
+
+    ```shell
+    find . -type d -name ".terraform" -print0 | xargs -0 rm -r
+    ```
+
+   `terraform_validate` hook will try to reinitialize them before running `terraform validate` command.
+
 ## Notes for developers
 
 1. Python hooks are supported now too. All you have to do is:
     1. add a line to the `console_scripts` array in `entry_points` in `setup.py`
     1. Put your python script in the `pre_commit_hooks` folder
 
-Enjoy the clean and documented code!
+Enjoy the clean, valid, and documented code!
 
 ## Authors
 

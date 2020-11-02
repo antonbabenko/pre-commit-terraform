@@ -66,7 +66,7 @@ parse_cmdline_() {
   done
 }
 
-# global arrays
+# global arrays
 declare -a ARGS=()
 declare -a FILES=()
 
