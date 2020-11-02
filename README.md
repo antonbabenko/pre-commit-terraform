@@ -209,7 +209,7 @@ if they are present in `README.md`.
     1. add a line to the `console_scripts` array in `entry_points` in `setup.py`
     1. Put your python script in the `pre_commit_hooks` folder
 
-Enjoy the clean and documented code!
+Enjoy the clean, valid, and documented code!
 
 ## Authors
 
