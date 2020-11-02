@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# `terraform validate` requires this env variable to be set
+export AWS_DEFAULT_REGION=us-east-1
+
 main() {
   initialize_
   parse_cmdline_ "$@"
