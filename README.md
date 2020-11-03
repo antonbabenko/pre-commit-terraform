@@ -11,6 +11,7 @@
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
+* [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
 
 ##### MacOS
 
@@ -76,6 +77,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format. |
 | `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                       |
 | `terraform_tfsec`                                | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues.     |
+| `checkov`                                | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues.     |
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
@@ -118,6 +120,16 @@ if they are present in `README.md`.
           - '--args=--deep'
           - '--args=--enable-rule=terraform_documented_variables'
     ```
+
+1. When you have multiple directories and want to run `tflint` in all of them and share single config file it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
+
+   ```yaml
+   hooks:
+     - id: terraform_tflint
+       args:
+         - '--args=--config=__GIT_WORKING_DIR__/.tflint.hcl'
+   ```
+
 
 ## Notes about terraform_tfsec hooks
 
@@ -183,13 +195,21 @@ if they are present in `README.md`.
           - '--envs=AWS_SECRET_ACCESS_KEY="asecretkey"'
     ```
 
+1. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository using this command:
+
+    ```shell
+    find . -type d -name ".terraform" -print0 | xargs -0 rm -r
+    ```
+
+   `terraform_validate` hook will try to reinitialize them before running `terraform validate` command.
+
 ## Notes for developers
 
 1. Python hooks are supported now too. All you have to do is:
     1. add a line to the `console_scripts` array in `entry_points` in `setup.py`
     1. Put your python script in the `pre_commit_hooks` folder
 
-Enjoy the clean and documented code!
+Enjoy the clean, valid, and documented code!
 
 ## Authors
 

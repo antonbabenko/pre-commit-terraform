@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# `terraform validate` requires this env variable to be set
+export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+
 main() {
   initialize_
   parse_cmdline_ "$@"
@@ -80,34 +83,36 @@ terraform_validate_() {
 
     if [[ -n "$(find "$path_uniq" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
 
-      local starting_path
-      starting_path=$(realpath "$path_uniq")
-      local terraform_path
-      terraform_path="$path_uniq"
+      pushd "$(realpath "$path_uniq")" > /dev/null
 
-      # Find the relevant .terraform directory (indicating a 'terraform init'),
-      # but fall through to the current directory.
-      while [[ $terraform_path != "." ]]; do
-        if [[ -d $terraform_path/.terraform ]]; then
-          break
-        else
-          terraform_path=$(dirname "$terraform_path")
+      if [[ ! -d .terraform ]]; then
+        set +e
+        init_output=$(terraform init -backend=false 2>&1)
+        init_code=$?
+        set -e
+
+        if [[ $init_code != 0 ]]; then
+          error=1
+          echo "Init before validation failed: $path_uniq"
+          echo "$init_output"
+          popd > /dev/null
+          continue
         fi
-      done
-
-      local validate_path
-      validate_path="${path_uniq#"$terraform_path"}"
-
-      # Change to the directory that has been initialized, run validation, then
-      # change back to the starting directory.
-      cd "$(realpath "$terraform_path")"
-      if ! terraform validate "${ARGS[@]}" "$validate_path"; then
-        error=1
-        echo
-        echo "Failed path: $path_uniq"
-        echo "================================"
       fi
-      cd "$starting_path"
+
+      set +e
+      validate_output=$(terraform validate "${ARGS[@]}" 2>&1)
+      validate_code=$?
+      set -e
+
+      if [[ $validate_code != 0 ]]; then
+        error=1
+        echo "Validation failed: $path_uniq"
+        echo "$validate_output"
+        echo
+      fi
+
+      popd > /dev/null
     fi
   done
 
@@ -116,7 +121,7 @@ terraform_validate_() {
   fi
 }
 
-# global arrays
+# global arrays
 declare -a ARGS
 declare -a ENVS
 declare -a FILES

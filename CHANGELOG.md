@@ -7,6 +7,54 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.44.0"></a>
+## [v1.44.0] - 2020-11-02
+
+- feat: Make terraform_validate to run init if necessary ([#158](https://github.com/antonbabenko/pre-commit-terraform/issues/158))
+
+
+<a name="v1.43.0"></a>
+## [v1.43.0] - 2020-09-24
+
+- fix: Fix regex considering terraform-docs v0.10.0 old ([#151](https://github.com/antonbabenko/pre-commit-terraform/issues/151))
+
+
+<a name="v1.42.0"></a>
+## [v1.42.0] - 2020-09-24
+
+- fix: make terraform_docs Windows compatible ([#129](https://github.com/antonbabenko/pre-commit-terraform/issues/129))
+
+
+<a name="v1.41.0"></a>
+## [v1.41.0] - 2020-09-23
+
+- fix: terraform-docs version 0.10 removed with-aggregate-type-defaults ([#150](https://github.com/antonbabenko/pre-commit-terraform/issues/150))
+
+
+<a name="v1.40.0"></a>
+## [v1.40.0] - 2020-09-22
+
+- feat: Add possibility to share tflint config file for subdirs ([#149](https://github.com/antonbabenko/pre-commit-terraform/issues/149))
+
+
+<a name="v1.39.0"></a>
+## [v1.39.0] - 2020-09-08
+
+- feat: Add checkov support ([#143](https://github.com/antonbabenko/pre-commit-terraform/issues/143))
+
+
+<a name="v1.38.0"></a>
+## [v1.38.0] - 2020-09-07
+
+- fix: Correctly handle arrays in terraform_docs.sh ([#141](https://github.com/antonbabenko/pre-commit-terraform/issues/141))
+
+
+<a name="v1.37.0"></a>
+## [v1.37.0] - 2020-09-01
+
+- fix: make terraform_tfsec.sh executable ([#140](https://github.com/antonbabenko/pre-commit-terraform/issues/140))
+
+
 <a name="v1.36.0"></a>
 ## [v1.36.0] - 2020-09-01
 
@@ -322,7 +370,15 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.36.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.44.0...HEAD
+[v1.44.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.43.0...v1.44.0
+[v1.43.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.42.0...v1.43.0
+[v1.42.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.41.0...v1.42.0
+[v1.41.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.40.0...v1.41.0
+[v1.40.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.39.0...v1.40.0
+[v1.39.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.38.0...v1.39.0
+[v1.38.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.37.0...v1.38.0
+[v1.37.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.36.0...v1.37.0
 [v1.36.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.35.0...v1.36.0
 [v1.35.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.34.0...v1.35.0
 [v1.34.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.33.0...v1.34.0

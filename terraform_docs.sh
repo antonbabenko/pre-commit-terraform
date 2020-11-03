@@ -4,7 +4,7 @@ set -eo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
-  terraform_docs_ "$ARGS" "$FILES"
+  terraform_docs_ "${ARGS[*]}" "${FILES[@]}"
 }
 
 initialize_() {
@@ -48,10 +48,11 @@ parse_cmdline_() {
 
 terraform_docs_() {
   local -r args="$1"
-  local -r files="$2"
+  shift
+  local -a -r files=("$@")
 
   local hack_terraform_docs
-  hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12) || true
+  hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
 
   if [[ ! $(command -v terraform-docs) ]]; then
     echo "ERROR: terraform-docs is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
@@ -59,11 +60,11 @@ terraform_docs_() {
   fi
 
   local is_old_terraform_docs
-  is_old_terraform_docs=$(terraform-docs version | grep -o "v0.[1-7]" | tail -1) || true
+  is_old_terraform_docs=$(terraform-docs version | grep -o "v0.[1-7]\." | tail -1) || true
 
   if [[ -z "$is_old_terraform_docs" ]]; then # Using terraform-docs 0.8+ (preferred)
 
-    terraform_docs "0" "$args" "$files"
+    terraform_docs "0" "$args" "${files[@]}"
 
   elif [[ "$hack_terraform_docs" == "1" ]]; then # Using awk script because terraform-docs is older than 0.8 and terraform 0.12 is used
 
@@ -75,12 +76,12 @@ terraform_docs_() {
     local tmp_file_awk
     tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
     terraform_docs_awk "$tmp_file_awk"
-    terraform_docs "$tmp_file_awk" "$args" "$files"
+    terraform_docs "$tmp_file_awk" "$args" "${files[@]}"
     rm -f "$tmp_file_awk"
 
   else # Using terraform 0.11 and no awk script is needed for that
 
-    terraform_docs "0" "$args" "$files"
+    terraform_docs "0" "$args" "${files[@]}"
 
   fi
 }
@@ -88,14 +89,15 @@ terraform_docs_() {
 terraform_docs() {
   local -r terraform_docs_awk_file="$1"
   local -r args="$2"
-  local -r files="$3"
+  shift 2
+  local -a -r files=("$@")
 
   declare -a paths
   declare -a tfvars_files
 
   local index=0
   local file_with_path
-  for file_with_path in $files; do
+  for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     paths[index]=$(dirname "$file_with_path")
@@ -309,7 +311,7 @@ EOF
 
 }
 
-# global arrays
+# global arrays
 declare -a ARGS=()
 declare -a FILES=()
 

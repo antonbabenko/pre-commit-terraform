@@ -11,14 +11,13 @@
   description: Inserts input and output documentation into README.md (using terraform-docs).
   require_serial: true
   entry: terraform_docs.sh
-  args: [--args=--with-aggregate-type-defaults]
   language: script
   files: (\.tf)$
   exclude: \.terraform\/.*$
 
 - id: terraform_docs_without_aggregate_type_defaults
   name: Terraform docs (without aggregate type defaults)
-  description: Inserts input and output documentation into README.md (using terraform-docs).
+  description: Inserts input and output documentation into README.md (using terraform-docs). Identical to terraform_docs.
   require_serial: true
   entry: terraform_docs.sh
   language: script
@@ -71,3 +70,14 @@
   description: Static analysis of Terraform templates to spot potential security issues.
   entry: terraform_tfsec.sh
   language: script
+
+- id: checkov
+  name: Checkov
+  description: Runs checkov on Terraform templates.
+  entry: checkov -d .
+  language: python
+  pass_filenames: false
+  always_run: false
+  files: \.tf$
+  exclude: \.+.terraform\/.*$
+  require_serial: true
