@@ -15,9 +15,14 @@ def main(argv=None):
     )
     parser.add_argument(
         '--sort-inputs-by-required', dest='sort', action='store_true',
+        help='[deprecated] use --sort-by-required instead',
+    )
+    parser.add_argument(
+        '--sort-by-required', dest='sort', action='store_true',
     )
     parser.add_argument(
         '--with-aggregate-type-defaults', dest='aggregate', action='store_true',
+        help='[deprecated]',
     )
     parser.add_argument('filenames', nargs='*', help='Filenames to check.')
     args = parser.parse_args(argv)
@@ -35,9 +40,7 @@ def main(argv=None):
             procArgs = []
             procArgs.append('terraform-docs')
             if args.sort:
-                procArgs.append('--sort-inputs-by-required')
-            if args.aggregate:
-                procArgs.append('--with-aggregate-type-defaults')
+                procArgs.append('--sort-by-required')
             procArgs.append('md')
             procArgs.append("./{dir}".format(dir=dir))
             procArgs.append("| sed -e '$ d' -e 'N;/^\\n$/D;P;D'")
