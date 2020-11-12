@@ -97,7 +97,7 @@ if they are present in `README.md`.
     ```yaml
     hooks:
       - id: terraform_docs_replace
-        args: ['--with-aggregate-type-defaults', '--sort-by-required', '--dest=TEST.md']
+        args: ['--sort-by-required', '--dest=TEST.md']
     ```
 
 1. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
