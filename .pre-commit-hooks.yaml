@@ -36,6 +36,7 @@
 - id: terraform_validate
   name: Terraform validate
   description: Validates all Terraform configuration files.
+  require_serial: true
   entry: terraform_validate.sh
   language: script
   files: (\.tf|\.tfvars)$
