@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 <a name="unreleased"></a>
 ## [Unreleased]
 
+- fix: Removes sed post-processing from the `terraform_docs_replace` hook which was causing the last line to be missing when using `terraform-docs` 0.11.0+. Note: for older versions this change will result in an extra newline at the end of the file (making the pre-commit hook and `terraform-docs` output identical).
 
 
 <a name="v1.46.0"></a>
@@ -123,7 +124,7 @@ All notable changes to this project will be documented in this file.
 
 - fix: Change terraform_validate hook functionality for subdirectories with terraform files ([#100](https://github.com/antonbabenko/pre-commit-terraform/issues/100))
 
-### 
+###
 
 configuration for the appropriate working directory.
 
