@@ -10,6 +10,18 @@ main() {
   terraform_validate_
 }
 
+to_abs_path() {
+    local target="$1"
+
+    if [ "$target" == "." ]; then
+        echo "$(pwd)"
+    elif [ "$target" == ".." ]; then
+        echo "$(dirname "$(pwd)")"
+    else
+        echo "$(cd "$(dirname "$1")"; pwd)/$(basename "$1")"
+    fi
+}
+
 initialize_() {
   # get directory containing this script
   local dir
@@ -30,11 +42,20 @@ initialize_() {
 
 parse_cmdline_() {
   declare argv
-  argv=$(getopt -o e:a: --long envs:,args: -- "$@") || return
+  argv=$(getopt -o e:a:x:d --long envs:,args:,exclude-path:,use-temp-data-dir -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
     case $argv in
+      -d | --use-temp-data-dir)
+        USE_TEMP_DATA_DIR=1
+        shift
+        ;;
+      -x | --exclude-path)
+        shift
+        EXCLUDED_PATHS+=("$(to_abs_path $1)")
+        shift
+        ;;
       -a | --args)
         shift
         ARGS+=("$1")
@@ -73,6 +94,10 @@ terraform_validate_() {
   for file_with_path in "${FILES[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
+    if [[ "${EXCLUDED_PATHS[@]}" =~ "$(dirname "$file_with_path")" ]]; then
+      continue
+    fi
+
     paths[index]=$(dirname "$file_with_path")
     ((index += 1))
   done
@@ -85,7 +110,14 @@ terraform_validate_() {
 
       pushd "$(realpath "$path_uniq")" > /dev/null
 
-      if [[ ! -d .terraform ]]; then
+      if [[ $USE_TEMP_DATA_DIR != 0 ]]; then
+        export TF_DATA_DIR=$(mktemp -d)
+        dot_terraform_path=${TF_DATA_DIR}
+      else
+        dot_terraform_path=.terraform
+      fi
+
+      if [[ ! -d ${dot_terraform_path} ]] || [[ $USE_TEMP_DATA_DIR != 0 ]]; then
         set +e
         init_output=$(terraform init -backend=false 2>&1)
         init_code=$?
@@ -93,6 +125,10 @@ terraform_validate_() {
 
         if [[ $init_code != 0 ]]; then
           error=1
+          if [[ "${TF_DATA_DIR}" != "" ]]; then
+            rm -rf ${TF_DATA_DIR}
+            unset TF_DATA_DIR
+          fi
           echo "Init before validation failed: $path_uniq"
           echo "$init_output"
           popd > /dev/null
@@ -104,6 +140,11 @@ terraform_validate_() {
       validate_output=$(terraform validate "${ARGS[@]}" 2>&1)
       validate_code=$?
       set -e
+
+      if [[ "${TF_DATA_DIR}" != "" ]]; then
+        rm -rf ${TF_DATA_DIR}
+        unset TF_DATA_DIR
+      fi
 
       if [[ $validate_code != 0 ]]; then
         error=1
