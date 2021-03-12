@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.48.0"></a>
+## [v1.48.0] - 2021-03-12
+
+- chore: add dockerfile ([#183](https://github.com/antonbabenko/pre-commit-terraform/issues/183))
+- docs: Added checkov install ([#182](https://github.com/antonbabenko/pre-commit-terraform/issues/182))
+
+
 <a name="v1.47.0"></a>
 ## [v1.47.0] - 2021-02-25
 
@@ -394,7 +401,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.47.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.48.0...HEAD
+[v1.48.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.47.0...v1.48.0
 [v1.47.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.46.0...v1.47.0
 [v1.46.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.45.0...v1.46.0
 [v1.45.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.44.0...v1.45.0
