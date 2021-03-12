@@ -68,7 +68,7 @@ After pre-commit hook has been installed you can run it manually on all files in
 pre-commit run -a
 ```
 
-or you can also build and use the prvodided Docker container, which wraps all dependencies by
+or you can also build and use the provided Docker container, which wraps all dependencies by
 ```bash
 # first building it
 docker build -t pre-commit .
