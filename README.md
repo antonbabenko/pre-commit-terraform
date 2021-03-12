@@ -13,6 +13,8 @@
 * [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
 
+or build and use the Docker image locally as mentioned below in the `Run` section.
+
 ##### MacOS
 
 ```bash
@@ -34,6 +36,7 @@ python3.7 -m pip install -U checkovpython3.7 -m pip install -U checkov
 ```
 
 ### 2. Install the pre-commit hook globally
+Note: not needed if you use the Docker image
 
 ```bash
 DIR=~/.git-template
@@ -63,6 +66,14 @@ After pre-commit hook has been installed you can run it manually on all files in
 
 ```bash
 pre-commit run -a
+```
+
+or you can also build and use the prvodided Docker container, which wraps all dependencies by
+```bash
+# first building it
+docker build -t pre-commit .
+# run it in the folder with the terraform code you want to check by
+docker run -v $(pwd):/lint -w /lint pre-commit run -a 
 ```
 
 ## Available Hooks
