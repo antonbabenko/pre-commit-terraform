@@ -72,7 +72,8 @@ or you can also build and use the prvodided Docker container, which wraps all de
 ```bash
 # first building it
 docker build -t pre-commit .
-# run it in the folder with the terraform code you want to check by
+# and then running it in the folder 
+# with the terraform code you want to check by executing
 docker run -v $(pwd):/lint -w /lint pre-commit run -a 
 ```
 
