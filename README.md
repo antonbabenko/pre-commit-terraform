@@ -16,7 +16,7 @@
 ##### MacOS
 
 ```bash
-brew install pre-commit gawk terraform-docs tflint tfsec coreutils
+brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov
 ```
 
 ##### Ubuntu
