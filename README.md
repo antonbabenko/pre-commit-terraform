@@ -32,7 +32,7 @@ pip3 install pre-commit
 curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar xzf terraform-docs.tgz && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 env GO111MODULE=on go get -u github.com/tfsec/tfsec/cmd/tfsec
-python3.7 -m pip install -U checkovpython3.7 -m pip install -U checkov
+python3.7 -m pip install -U checkov
 ```
 
 ### 2. Install the pre-commit hook globally
