@@ -17,7 +17,9 @@ done
 for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
   path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
-  pushd "$path_uniq" > /dev/null
-  terragrunt validate
-  popd > /dev/null
+  if [[ -f "$path_uniq/terragrunt.hcl" ]]; then
+    pushd "$path_uniq" > /dev/null
+    terragrunt validate
+    popd > /dev/null
+  fi
 done
