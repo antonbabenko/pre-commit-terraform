@@ -82,3 +82,9 @@
   files: \.tf$
   exclude: \.+.terraform\/.*$
   require_serial: true
+
+- id: terrascan
+  name: terrascan
+  description: Runs terrascan on Terraform templates.
+  language: script
+  entry: terrascan.sh
