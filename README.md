@@ -12,13 +12,14 @@
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
+* [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 
 or build and use the Docker image locally as mentioned below in the `Run` section.
 
 ##### MacOS
 
 ```bash
-brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov
+brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov terrascan
 ```
 
 ##### Ubuntu 18.04
@@ -32,6 +33,7 @@ pip3 install pre-commit
 curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar xzf terraform-docs.tgz && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/tfsec/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && mv tfsec /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/
 python3.7 -m pip install -U checkov
 ```
 
@@ -72,9 +74,9 @@ or you can also build and use the provided Docker container, which wraps all dep
 ```bash
 # first building it
 docker build -t pre-commit .
-# and then running it in the folder 
+# and then running it in the folder
 # with the terraform code you want to check by executing
-docker run -v $(pwd):/lint -w /lint pre-commit run -a 
+docker run -v $(pwd):/lint -w /lint pre-commit run -a
 ```
 
 ## Available Hooks
@@ -93,6 +95,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                       |
 | `terraform_tfsec`                                | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues.     |
 | `checkov`                                | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues.     |
+| `terrascan`                                | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. |
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
