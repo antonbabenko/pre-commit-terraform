@@ -12,13 +12,14 @@
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
+* [`tfenv`](https://github.com/tfutils/tfenv) if you wish to specify a desired version of terraform for the `terraform_fmt`, `terraform_validate`, or `terraform_docs` hooks.
 
 or build and use the Docker image locally as mentioned below in the `Run` section.
 
 ##### MacOS
 
 ```bash
-brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov
+brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov tfenv
 ```
 
 ##### Ubuntu 18.04
@@ -34,6 +35,8 @@ curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/release
 curl -L "$(curl -s https://api.github.com/repos/tfsec/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && mv tfsec /usr/bin/
 python3.7 -m pip install -U checkov
 ```
+
+`tfenv` installation varies depending on distribution, see full install instructions here: https://github.com/tfutils/tfenv#manual
 
 ### 2. Install the pre-commit hook globally
 Note: not needed if you use the Docker image
@@ -72,9 +75,9 @@ or you can also build and use the provided Docker container, which wraps all dep
 ```bash
 # first building it
 docker build -t pre-commit .
-# and then running it in the folder 
+# and then running it in the folder
 # with the terraform code you want to check by executing
-docker run -v $(pwd):/lint -w /lint pre-commit run -a 
+docker run -v $(pwd):/lint -w /lint pre-commit run -a
 ```
 
 ## Available Hooks
@@ -95,6 +98,16 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `checkov`                                | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues.     |
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
+
+## Using a specific terraform version via `tfenv`
+
+Hooks which call terraform directly (`terraform_fmt`, `terraform_validate`, `terraform_docs`) support the `--tf-version` argument to optionally ensure that the correct version of terraform is used.
+
+```yaml
+hooks:
+  - id: terraform_fmt
+    args: ['--tf-version=0.12.18']
+```
 
 ## Notes about terraform_docs hooks
 

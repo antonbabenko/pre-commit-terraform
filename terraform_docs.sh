@@ -4,6 +4,10 @@ set -eo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
+
+  # If a specific terraform version was specified, switch to it. The tfenv lib will auto-restore on exit
+  [ "$TFVER" != "" ] && . "$_SCRIPT_DIR/lib_tfenv" && switchTfEnv "$TFVER"
+
   terraform_docs_ "${ARGS[*]}" "${FILES[@]}"
 }
 
@@ -27,7 +31,7 @@ initialize_() {
 
 parse_cmdline_() {
   declare argv
-  argv=$(getopt -o a: --long args: -- "$@") || return
+  argv=$(getopt -o a:t: --long args:,tf-version: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -35,6 +39,11 @@ parse_cmdline_() {
       -a | --args)
         shift
         ARGS+=("$1")
+        shift
+        ;;
+      -t | --tf-version)
+        shift
+        TFVER="$1"
         shift
         ;;
       --)
@@ -311,7 +320,8 @@ EOF
 
 }
 
-# global arrays
+# global variables
+declare TFVER=""
 declare -a ARGS=()
 declare -a FILES=()
 

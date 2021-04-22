@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 <a name="unreleased"></a>
 ## [Unreleased]
 
-
+- feat: Add option for using `tfenv` to switch terraform versions in terraform_docs, terraform_fmt, terraform_validate
 
 <a name="v1.49.0"></a>
 ## [v1.49.0] - 2021-04-20
@@ -145,7 +145,7 @@ All notable changes to this project will be documented in this file.
 
 - fix: Change terraform_validate hook functionality for subdirectories with terraform files ([#100](https://github.com/antonbabenko/pre-commit-terraform/issues/100))
 
-### 
+###
 
 configuration for the appropriate working directory.
 

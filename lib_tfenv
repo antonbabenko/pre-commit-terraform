@@ -1,0 +1,21 @@
+#!/bin/sh
+function switchTfEnv() {
+    TARGET_VERSION="$1"
+
+    # Read current terraform version
+    CURRENT_VERSION=$(tfenv list | sed -nr 's/^\* ([0-9\-\.]+) .*/\1/p')
+    echo "Current version is set to '$CURRENT_VERSION', switching to '$TARGET_VERSION'"
+
+    # Install and switch to required version
+    tfenv install "$TARGET_VERSION"
+    tfenv use "$TARGET_VERSION"
+
+    # Auto-cleanup on exit
+    trap restoreTfEnv EXIT
+}
+
+function restoreTfEnv() {
+    # Restore
+    echo "Restoring version to '$CURRENT_VERSION'"
+    tfenv use "$CURRENT_VERSION"
+}

@@ -7,6 +7,10 @@ export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 main() {
   initialize_
   parse_cmdline_ "$@"
+
+  # If a specific terraform version was specified, switch to it. The tfenv lib will auto-restore on exit
+  [ "$TFVER" != "" ] && . "$_SCRIPT_DIR/lib_tfenv" && switchTfEnv "$TFVER"
+
   terraform_validate_
 }
 
@@ -30,7 +34,7 @@ initialize_() {
 
 parse_cmdline_() {
   declare argv
-  argv=$(getopt -o e:a: --long envs:,args: -- "$@") || return
+  argv=$(getopt -o e:a:t: --long envs:,args:,tf-version: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -43,6 +47,11 @@ parse_cmdline_() {
       -e | --envs)
         shift
         ENVS+=("$1")
+        shift
+        ;;
+      -t | --tf-version)
+        shift
+        TFVER="$1"
         shift
         ;;
       --)
@@ -121,7 +130,8 @@ terraform_validate_() {
   fi
 }
 
-# global arrays
+# global variables
+declare TFVER=""
 declare -a ARGS
 declare -a ENVS
 declare -a FILES
