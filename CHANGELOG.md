@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.50.0"></a>
+## [v1.50.0] - 2021-04-22
+
+- feat: Adds support for Terrascan ([#195](https://github.com/antonbabenko/pre-commit-terraform/issues/195))
+
+
 <a name="v1.49.0"></a>
 ## [v1.49.0] - 2021-04-20
 
@@ -417,7 +423,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.49.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.50.0...HEAD
+[v1.50.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.49.0...v1.50.0
 [v1.49.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.48.0...v1.49.0
 [v1.48.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.47.0...v1.48.0
 [v1.47.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.46.0...v1.47.0
