@@ -17,7 +17,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa && \
     pip3 install pre-commit==${PRE_COMMIT_VERSION} && \
     curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases | grep -o -E "https://.+?${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz")" > terraform-docs.tgz && tar xzf terraform-docs.tgz && chmod +x terraform-docs && mv terraform-docs /usr/bin/ && \
     curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases | grep -o -E "https://.+?/${TFLINT_VERSION}/tflint_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && mv tflint /usr/bin/ && \
-    curl -L "$(curl -s https://api.github.com/repos/tfsec/tfsec/releases | grep -o -E "https://.+?/${TFSEC_VERSION}/tfsec-linux-amd64")" > tfsec && chmod +x tfsec && mv tfsec /usr/bin/ && \
+    curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases | grep -o -E -m 1 "https://.+?/${TFSEC_VERSION}/tfsec-linux-amd64")" > tfsec && chmod +x tfsec && mv tfsec /usr/bin/ && \
     python3.7 -m pip install -U checkov==${CHECKOV_VERSION}
 
 # Install terraform because pre-commit needs it
