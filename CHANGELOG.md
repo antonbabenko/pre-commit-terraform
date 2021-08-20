@@ -151,7 +151,7 @@ All notable changes to this project will be documented in this file.
 
 - fix: Change terraform_validate hook functionality for subdirectories with terraform files ([#100](https://github.com/antonbabenko/pre-commit-terraform/issues/100))
 
-### 
+###
 
 configuration for the appropriate working directory.
 
