@@ -65,7 +65,7 @@ sudo apt install -y gawk unzip software-properties-common
 sudo apt install -y python3 python3-pip
 python3 -m pip install --upgrade pip
 pip3 install pre-commit
-curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar xzf terraform-docs.tgz && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar -xzf terraform-docs.tgz terraform-docs && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64" | head -n 1)" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/
@@ -123,11 +123,11 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 
 | Hook name                                        | Description                                                                                                                                      |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `terraform_fmt`                                  | Rewrites all Terraform configuration files to a canonical. [Hook notes](#terraform_docs) format.                                                 |
+| `terraform_fmt`                                  | Rewrites all Terraform configuration files to a canonical format. [Hook notes](#terraform_docs)                                                 |
 | `terraform_validate`                             | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                   |
 | `terraform_docs`                                 | Inserts input and output documentation into `README.md`. Recommended.                                                                            |
 | `terraform_docs_without_aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults.                                                         |
-| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md (requires terraform-docs v0.10.0 or later)                                      |
+| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md                                     |
 | `terraform_tflint`                               | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Hook notes](#terraform_tflint).         |
 | `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                       |
 | `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                             |
@@ -292,10 +292,10 @@ I.e.
 
 ```bash
 pre-commit try-repo /mnt/c/Users/tf/pre-commit-terraform terraform_fmt # Run only `terraform_fmt` check
-pre-commit try-repo -a ~/pre-commit-terraform # run all exiting checks from repo
+pre-commit try-repo -a ~/pre-commit-terraform # run all existing checks from repo
 ```
 
-It ignores all args etc specified in your `.pre-commit-config.yaml`.
+Running `pre-commit` with `try-repo` ignores all arguments specified in `.pre-commit-config.yaml`.
 
 ## Authors
 
