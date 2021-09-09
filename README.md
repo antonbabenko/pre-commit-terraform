@@ -43,44 +43,32 @@
 
 <details><summary>Docker</summary>
 
+If `--build-arg`'s not specified - will be installed only latests version of `pre-commit` and `terraform`.
+
 ```bash
 git clone git@github.com:antonbabenko/pre-commit-terraform.git
 cd pre-commit-terraform
-docker build -t pre-commit .
+# Install all tools with latest versions:
+docker build -t pre-commit --build-arg INSTALL_ALL=true .
 ```
 
-You can specify needed tool versions by providing `build-args`.  
-If `build-args` not specified - will be used default versions from [Dockerfile](Dockerfile)
-
-```bash
-docker build -t pre-commit \
-    --build-arg PRE_COMMIT_VERSION=2.15.0 \
-    --build-arg TERRAFORM_VERSION=1.0.6 \
-    --build-arg CHECKOV_VERSION=2.0.405 \
-    --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
-    --build-arg TERRAGRUNT_VERSION=0.31.10 \
-    --build-arg TERRASCAN_VERSION=1.10.0 \
-    --build-arg TFLINT_VERSION=0.31.0 \
-    --build-arg TFSEC_VERSION=0.58.6 \
-    .
-```
-
-If you'd like to use the latest versions - you are able to do this too
+You can specify needed tool versions by providing `--build-arg`'s.  
+If you'd like you can use the `latest` versions:
 
 ```bash
 docker build -t pre-commit \
     --build-arg PRE_COMMIT_VERSION=latest \
     --build-arg TERRAFORM_VERSION=latest \
-    --build-arg CHECKOV_VERSION=latest \
-    --build-arg TERRAFORM_DOCS_VERSION=latest \
+    --build-arg CHECKOV_VERSION=2.0.405 \
+    --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
     --build-arg TERRAGRUNT_VERSION=latest \
-    --build-arg TERRASCAN_VERSION=latest \
-    --build-arg TFLINT_VERSION=latest \
+    --build-arg TERRASCAN_VERSION=1.10.0 \
+    --build-arg TFLINT_VERSION=0.31.0 \
     --build-arg TFSEC_VERSION=latest \
     .
 ```
 
-If you need disable pre-commit color output set `PRE_COMMIT_COLOR=never docker ...`.
+To disable pre-commit color output set `-e PRE_COMMIT_COLOR=never`.
 
 </details>
 
