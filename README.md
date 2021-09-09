@@ -43,7 +43,7 @@
 
 <details><summary><b>Docker</b></summary><br>
 
-If `--build-arg`'s not specified - will be installed only latests version of `pre-commit` and `terraform`.
+If no `--build-arg` is specified, then the latest versions of `pre-commit` and `terraform` will be installed.
 
 ```bash
 git clone git@github.com:antonbabenko/pre-commit-terraform.git
