@@ -36,38 +36,38 @@ WORKDIR /bin_dir
 RUN \
     # Checkov
     ( \
-        [ ${CHECKOV_VERSION} = "latest" ] && pip3 install --no-cache-dir checkov \
+        [ "$CHECKOV_VERSION" = "latest" ] && pip3 install --no-cache-dir checkov \
         || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION} \
     ) && \
     # Terraform docs
     ( \
         TERRAFORM_DOCS_RELEASES="https://api.github.com/repos/terraform-docs/terraform-docs/releases" && \
-        [ ${TERRAFORM_DOCS_VERSION} = "latest" ] && curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES}/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz \
+        [ "$TERRAFORM_DOCS_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES}/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz \
         || curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES} | grep -o -E "https://.+?v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz")" > terraform-docs.tgz \
     ) && tar -xzf terraform-docs.tgz terraform-docs && chmod +x terraform-docs && \
     # Terrascan
     ( \
         TERRASCAN_RELEASES="https://api.github.com/repos/accurics/terrascan/releases" && \
-        [ ${TERRASCAN_VERSION} = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
+        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
         || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
     ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
     ./terrascan init && \
     # Terragrunt
     ( \
         TERRAGRUNT_RELEASES="https://api.github.com/repos/gruntwork-io/terragrunt/releases" && \
-        [ ${TERRAGRUNT_VERSION} = "latest" ] && curl -L "$(curl -s ${TERRAGRUNT_RELEASES}/latest | grep -o -E "https://.+?/terragrunt_linux_amd64" | head -n 1)" > terragrunt \
+        [ "$TERRAGRUNT_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRAGRUNT_RELEASES}/latest | grep -o -E "https://.+?/terragrunt_linux_amd64" | head -n 1)" > terragrunt \
         || curl -L "$(curl -s ${TERRAGRUNT_RELEASES} | grep -o -E "https://.+?v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" | head -n 1)" > terragrunt \
     ) && chmod +x terragrunt && \
     # TFLint
     ( \
         TFLINT_RELEASES="https://api.github.com/repos/terraform-linters/tflint/releases" && \
-        [ ${TFLINT_VERSION} = "latest" ] && curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip \
+        [ "$TFLINT_VERSION" = "latest" ] && curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip \
         || curl -L "$(curl -s ${TFLINT_RELEASES} | grep -o -E "https://.+?/v${TFLINT_VERSION}/tflint_linux_amd64.zip")" > tflint.zip \
     ) && unzip tflint.zip && rm tflint.zip && \
     # TFSec
     ( \
         TFSEC_RELEASES="https://api.github.com/repos/aquasecurity/tfsec/releases" && \
-        [ ${TFSEC_VERSION} = "latest" ] && curl -L "$(curl -s ${TFSEC_RELEASES}/latest | grep -o -E "https://.+?/tfsec-linux-amd64" | head -n 1)" > tfsec \
+        [ "$TFSEC_VERSION" = "latest" ] && curl -L "$(curl -s ${TFSEC_RELEASES}/latest | grep -o -E "https://.+?/tfsec-linux-amd64" | head -n 1)" > tfsec \
         || curl -L "$(curl -s ${TFSEC_RELEASES} | grep -o -E "https://.+?v${TFSEC_VERSION}/tfsec-linux-amd64" | head -n 1)" > tfsec \
     ) && chmod +x tfsec
 
@@ -76,7 +76,7 @@ RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
     apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
     apt update && \
     ( \
-        [ ${TERRAFORM_VERSION} = "latest" ] && apt install -y terraform \
+        [ "$TERRAFORM_VERSION" = "latest" ] && apt install -y terraform \
         || apt install -y terraform=${TERRAFORM_VERSION} \
     ) && \
     # Cleanup
