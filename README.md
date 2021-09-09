@@ -22,15 +22,24 @@
 
 ### 1. Install dependencies
 
-* [`pre-commit`](https://pre-commit.com/#install)
-* [`terraform`](https://www.terraform.io/downloads.html)<br><br>
+<!-- markdownlint-disable no-inline-html -->
+
+* [`pre-commit`](https://pre-commit.com/#install),
+  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
+  <sub><sup>[`git`](https://git-scm.com/downloads),
+  <sub><sup>POSIX compatible shell,
+  <sub><sup>Internet connection (on first run),
+  <sub><sup>x86_64 compatible operation system,
+  <sub><sup>Some hardware where this OS will run,
+  <sub><sup>Electricity for hardware and internet connection,
+  <sub><sup>Some basic physical laws,
+  <sub><sup>Hope that it all will works.
+  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
 * [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hooks.
 * [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
-
-<!-- markdownlint-disable no-inline-html -->
 
 <details><summary>Docker</summary>
 

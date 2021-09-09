@@ -3,6 +3,7 @@ FROM ubuntu:20.04
 # Install general dependencies
 RUN apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y \
+        git \
         gawk \
         unzip \
         software-properties-common \
