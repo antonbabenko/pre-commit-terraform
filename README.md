@@ -23,12 +23,12 @@
 ### 1. Install dependencies
 
 * [`pre-commit`](https://pre-commit.com/#install)
-* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hooks. `GNU awk` is required if using `terraform-docs` older than 0.8.0 with Terraform 0.12.
+* [`terraform`](https://www.terraform.io/downloads.html)<br><br>
+* [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
+* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hooks.
+* [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
-* [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
-* [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
-* [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 
 <!-- markdownlint-disable no-inline-html -->
 
@@ -73,6 +73,8 @@ docker build -t pre-commit \
 
 
 <details><summary>MacOS</summary>
+
+[`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
 
 ```bash
 brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov terrascan
