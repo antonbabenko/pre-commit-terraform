@@ -4,9 +4,6 @@
 
 * [How to install](#how-to-install)
   * [1. Install dependencies](#1-install-dependencies)
-    * [MacOS](#macos)
-    * [Ubuntu 18.04](#ubuntu-1804)
-      * [Ubuntu 20.04](#ubuntu-2004)
   * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
   * [3. Add configs and hooks](#3-add-configs-and-hooks)
   * [4. Run](#4-run)
@@ -33,15 +30,57 @@
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
 * [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 
-or build and use the Docker image locally as mentioned below in the `Run` section.
+<!-- markdownlint-disable no-inline-html -->
 
-#### MacOS
+<details><summary>Docker</summary>
+
+```bash
+git clone git@github.com:antonbabenko/pre-commit-terraform.git
+cd pre-commit-terraform
+docker build -t pre-commit .
+```
+
+You can specify needed tool versions by providing `build-args`.  
+If `build-args` not specified - will be used default versions from [Dockerfile](Dockerfile)
+
+```bash
+docker build -t pre-commit \
+    --build-arg PRE_COMMIT_VERSION=2.11.1 \
+    --build-arg TERRAFORM_VERSION=0.15.0 \
+    --build-arg CHECKOV_VERSION=1.0.838 \
+    --build-arg TERRAFORM_DOCS_VERSION=0.12.0 \
+    --build-arg TERRASCAN_VERSION=1.10.0 \
+    --build-arg TFLINT_VERSION=0.27.0 \
+    --build-arg TFSEC_VERSION=0.58.6 \
+    .
+```
+
+If you'd like to use the latest versions - you are able to do this too
+
+```bash
+docker build -t pre-commit \
+    --build-arg PRE_COMMIT_VERSION=latest \
+    --build-arg TERRAFORM_VERSION=latest \
+    --build-arg CHECKOV_VERSION=latest \
+    --build-arg TERRAFORM_DOCS_VERSION=latest \
+    --build-arg TERRASCAN_VERSION=latest \
+    --build-arg TFLINT_VERSION=latest \
+    --build-arg TFSEC_VERSION=latest \
+    .
+```
+
+</details>
+
+
+<details><summary>MacOS</summary>
 
 ```bash
 brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov terrascan
 ```
 
-#### Ubuntu 18.04
+</details>
+
+<details><summary>Ubuntu 18.04</summary>
 
 ```bash
 sudo apt update
@@ -49,33 +88,38 @@ sudo apt install -y gawk unzip software-properties-common
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install -y python3.7 python3-pip
 python3 -m pip install --upgrade pip
-pip3 install pre-commit
+pip3 install --no-cache-dir pre-commit
+python3.7 -m pip install -U checkov
 curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar xzf terraform-docs.tgz && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64" | head -n 1)" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/
-python3.7 -m pip install -U checkov
 ```
 
-##### Ubuntu 20.04
+</details>
+
+
+<details><summary>Ubuntu 20.04</summary>
 
 ```bash
 sudo apt update
-sudo apt install -y gawk unzip software-properties-common
-sudo apt install -y python3 python3-pip
+sudo apt install -y gawk unzip software-properties-common python3 python3-pip
 python3 -m pip install --upgrade pip
-pip3 install pre-commit
+pip3 install --no-cache-dir pre-commit
+pip3 install --no-cache-dir checkov
 curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar -xzf terraform-docs.tgz terraform-docs && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64" | head -n 1)" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
-curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/
-pip3 install -U checkov
 ```
 
+</details>
+
+<!-- markdownlint-enable no-inline-html -->
 
 ### 2. Install the pre-commit hook globally
 
-Note: not needed if you use the Docker image
+> Note: not needed if you use the Docker image
 
 ```bash
 DIR=~/.git-template
@@ -101,19 +145,17 @@ EOF
 
 ### 4. Run
 
-After pre-commit hook has been installed you can run it manually on all files in the repository
+After pre-commit hook has been installed you can run it manually on all files in the repository.
+
+Local installation:
 
 ```bash
 pre-commit run -a
 ```
 
-or you can also build and use the provided Docker container, which wraps all dependencies by
+Docker:
 
 ```bash
-# first building it
-docker build -t pre-commit .
-# and then running it in the folder
-# with the terraform code you want to check by executing
 docker run -v $(pwd):/lint -w /lint pre-commit run -a
 ```
 

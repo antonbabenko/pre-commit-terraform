@@ -49,7 +49,7 @@ RUN \
     # TFLint
     ( \
         TFLINT_RELEASES="https://api.github.com/repos/terraform-linters/tflint/releases" && \
-        [ ${TFLINT_VERSION} = "latest" ] && curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E "https://.+?/tflint_linux_amd64.zip")" > tflint.zip \
+        [ ${TFLINT_VERSION} = "latest" ] && curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip \
         || curl -L "$(curl -s ${TFLINT_RELEASES} | grep -o -E "https://.+?/v${TFLINT_VERSION}/tflint_linux_amd64.zip")" > tflint.zip \
     ) && unzip tflint.zip && rm tflint.zip && mv tflint /usr/bin/ && \
     # TFSec
