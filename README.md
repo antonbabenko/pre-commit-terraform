@@ -58,6 +58,7 @@ docker build -t pre-commit \
     --build-arg TERRAFORM_VERSION=1.0.6 \
     --build-arg CHECKOV_VERSION=2.0.405 \
     --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
+    --build-arg TERRAGRUNT_VERSION=0.31.10 \
     --build-arg TERRASCAN_VERSION=1.10.0 \
     --build-arg TFLINT_VERSION=0.31.0 \
     --build-arg TFSEC_VERSION=0.58.6 \
@@ -72,6 +73,7 @@ docker build -t pre-commit \
     --build-arg TERRAFORM_VERSION=latest \
     --build-arg CHECKOV_VERSION=latest \
     --build-arg TERRAFORM_DOCS_VERSION=latest \
+    --build-arg TERRAGRUNT_VERSION=latest \
     --build-arg TERRASCAN_VERSION=latest \
     --build-arg TFLINT_VERSION=latest \
     --build-arg TFSEC_VERSION=latest \

@@ -22,6 +22,7 @@ ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-1.0.6}
 
 ARG CHECKOV_VERSION=${CHECKOV_VERSION:-2.0.405}
 ARG TERRAFORM_DOCS_VERSION=${TERRAFORM_DOCS_VERSION:-0.15.0}
+ARG TERRAGRUNT_VERSION=${TERRAGRUNT_VERSION:-0.31.10}
 ARG TERRASCAN_VERSION=${TERRASCAN_VERSION:-1.10.0}
 ARG TFLINT_VERSION=${TFLINT_VERSION:-0.31.0}
 ARG TFSEC_VERSION=${TFSEC_VERSION:-0.58.6}
@@ -51,6 +52,12 @@ RUN \
         || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
     ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
     ./terrascan init && \
+    # Terragrunt
+    ( \
+        TERRAGRUNT_RELEASES="https://api.github.com/repos/gruntwork-io/terragrunt/releases" && \
+        [ ${TERRAGRUNT_VERSION} = "latest" ] && curl -L "$(curl -s ${TERRAGRUNT_RELEASES}/latest | grep -o -E "https://.+?/terragrunt_linux_amd64" | head -n 1)" > terragrunt \
+        || curl -L "$(curl -s ${TERRAGRUNT_RELEASES} | grep -o -E "https://.+?v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" | head -n 1)" > terragrunt \
+    ) && chmod +x terragrunt && \
     # TFLint
     ( \
         TFLINT_RELEASES="https://api.github.com/repos/terraform-linters/tflint/releases" && \
@@ -81,6 +88,7 @@ RUN echo "\n\n" && \
     terraform --version | head -n 1 && \
     echo -n "checkov " && checkov --version && \
     ./terraform-docs --version && \
+    ./terragrunt --version && \
     echo -n "terrascan " && ./terrascan version && \
     ./tflint --version && \
     echo -n "tfsec " && ./tfsec --version && \
