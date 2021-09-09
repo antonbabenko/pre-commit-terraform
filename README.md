@@ -78,6 +78,8 @@ docker build -t pre-commit \
     .
 ```
 
+If you need disable pre-commit color output set `PRE_COMMIT_COLOR=never docker ...`.
+
 </details>
 
 

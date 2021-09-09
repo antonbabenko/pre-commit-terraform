@@ -1,10 +1,12 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 as builder
 
 # Install general dependencies
 RUN apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y \
+        # Needed for pre-commit in next build stage
         git \
-        gawk \
+        libpcre2-8-0 \
+        # Builder deps
         unzip \
         software-properties-common \
         curl \
@@ -29,6 +31,7 @@ RUN [ ${PRE_COMMIT_VERSION} = "latest" ] && pip3 install --no-cache-dir pre-comm
     || pip3 install --no-cache-dir pre-commit==${PRE_COMMIT_VERSION}
 
 # Install tools
+WORKDIR /bin_dir
 RUN \
     # Checkov
     ( \
@@ -40,25 +43,26 @@ RUN \
         TERRAFORM_DOCS_RELEASES="https://api.github.com/repos/terraform-docs/terraform-docs/releases" && \
         [ ${TERRAFORM_DOCS_VERSION} = "latest" ] && curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES}/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz \
         || curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES} | grep -o -E "https://.+?v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz")" > terraform-docs.tgz \
-    ) && tar -xzf terraform-docs.tgz terraform-docs && chmod +x terraform-docs && mv terraform-docs /usr/bin/ && \
+    ) && tar -xzf terraform-docs.tgz terraform-docs && chmod +x terraform-docs && \
     # Terrascan
     ( \
         TERRASCAN_RELEASES="https://api.github.com/repos/accurics/terrascan/releases" && \
         [ ${TERRASCAN_VERSION} = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
         || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
-    ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && mv terrascan /usr/bin/ && \
+    ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
+    ./terrascan init && \
     # TFLint
     ( \
         TFLINT_RELEASES="https://api.github.com/repos/terraform-linters/tflint/releases" && \
         [ ${TFLINT_VERSION} = "latest" ] && curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip \
         || curl -L "$(curl -s ${TFLINT_RELEASES} | grep -o -E "https://.+?/v${TFLINT_VERSION}/tflint_linux_amd64.zip")" > tflint.zip \
-    ) && unzip tflint.zip && rm tflint.zip && mv tflint /usr/bin/ && \
+    ) && unzip tflint.zip && rm tflint.zip && \
     # TFSec
     ( \
         TFSEC_RELEASES="https://api.github.com/repos/aquasecurity/tfsec/releases" && \
         [ ${TFSEC_VERSION} = "latest" ] && curl -L "$(curl -s ${TFSEC_RELEASES}/latest | grep -o -E "https://.+?/tfsec-linux-amd64" | head -n 1)" > tfsec \
         || curl -L "$(curl -s ${TFSEC_RELEASES} | grep -o -E "https://.+?v${TFSEC_VERSION}/tfsec-linux-amd64" | head -n 1)" > tfsec \
-    ) && chmod +x tfsec && mv tfsec /usr/bin/
+    ) && chmod +x tfsec
 
 # Install terraform because pre-commit needs it
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
@@ -71,15 +75,41 @@ RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
     # Cleanup
     rm -rf /var/lib/apt/lists/*
 
-# Checking that all binaries are in the PATH and show their versions
+# Checking binaries versions
 RUN echo "\n\n" && \
     pre-commit --version && \
     terraform --version | head -n 1 && \
     echo -n "checkov " && checkov --version && \
-    echo -n "terrascan " && terrascan version && \
-    echo -n "tfsec " && tfsec --version && \
-    terraform-docs --version && \
-    tflint --version && \
+    echo -n "terrascan " && ./terrascan version && \
+    echo -n "tfsec " && ./tfsec --version && \
+    ./terraform-docs --version && \
+    ./tflint --version && \
     echo "\n\n"
+
+# based on debian:buster-slim
+# https://github.com/docker-library/python/blob/master/3.9/buster/slim/Dockerfile
+FROM python:3.9-slim-buster
+
+# Python 3.8 (ubuntu 20.04) -> Python3.9 hacks
+COPY --from=builder /usr/local/lib/python3.8/dist-packages/ /usr/local/lib/python3.9/site-packages/
+COPY --from=builder /usr/lib/python3/dist-packages /usr/lib/python3/site-packages
+RUN ln -s /usr/local/bin/python3 /usr/bin/python3
+RUN ln -s /usr/local/lib/python3.9/site-packages /usr/lib/python3/dist-packages
+# Copy binaries needed for pre-commit
+COPY --from=builder /usr/lib/git-core/ /usr/lib/git-core/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 /usr/lib/x86_64-linux-gnu/
+# Copy tools
+COPY --from=builder \
+    /bin_dir/ \
+    /usr/bin/terraform \
+    /usr/local/bin/checkov \
+    /usr/local/bin/pre-commit \
+    /usr/bin/git \
+    /usr/bin/git-shell \
+        /usr/bin/
+# Copy terrascan policies
+COPY --from=builder /root/.terrascan/ /root/.terrascan/
+
+ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
 ENTRYPOINT [ "pre-commit" ]
