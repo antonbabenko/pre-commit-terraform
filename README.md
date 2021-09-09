@@ -41,7 +41,7 @@
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 
-<details><summary>Docker</summary>
+<details><summary><b>Docker</b></summary><br>
 
 If `--build-arg`'s not specified - will be installed only latests version of `pre-commit` and `terraform`.
 
@@ -73,7 +73,7 @@ To disable pre-commit color output set `-e PRE_COMMIT_COLOR=never`.
 </details>
 
 
-<details><summary>MacOS</summary>
+<details><summary><b>MacOS</b></summary><br>
 
 [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
 
@@ -84,7 +84,7 @@ terrascan init
 
 </details>
 
-<details><summary>Ubuntu 18.04</summary>
+<details><summary><b>Ubuntu 18.04</b></summary><br>
 
 ```bash
 sudo apt update
@@ -104,7 +104,7 @@ terrascan init
 </details>
 
 
-<details><summary>Ubuntu 20.04</summary>
+<details><summary><b>Ubuntu 20.04</b></summary><br>
 
 ```bash
 sudo apt update
