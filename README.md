@@ -89,6 +89,7 @@ If you need disable pre-commit color output set `PRE_COMMIT_COLOR=never docker .
 
 ```bash
 brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov terrascan
+terrascan init
 ```
 
 </details>
@@ -107,6 +108,7 @@ curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/re
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64" | head -n 1)" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/
+terrascan init
 ```
 
 </details>
@@ -122,6 +124,7 @@ pip3 install --no-cache-dir pre-commit
 pip3 install --no-cache-dir checkov
 curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar -xzf terraform-docs.tgz terraform-docs && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/
+terrascan init
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64" | head -n 1)" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
 ```
