@@ -17,13 +17,13 @@ RUN apt update && \
     # Cleanup
     rm -rf /var/lib/apt/lists/*
 
-ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-2.11.1}
-ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-0.15.0}
+ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-2.15.0}
+ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-1.0.6}
 
-ARG CHECKOV_VERSION=${CHECKOV_VERSION:-1.0.838}
-ARG TERRAFORM_DOCS_VERSION=${TERRAFORM_DOCS_VERSION:-0.12.0}
+ARG CHECKOV_VERSION=${CHECKOV_VERSION:-2.0.405}
+ARG TERRAFORM_DOCS_VERSION=${TERRAFORM_DOCS_VERSION:-0.15.0}
 ARG TERRASCAN_VERSION=${TERRASCAN_VERSION:-1.10.0}
-ARG TFLINT_VERSION=${TFLINT_VERSION:-0.27.0}
+ARG TFLINT_VERSION=${TFLINT_VERSION:-0.31.0}
 ARG TFSEC_VERSION=${TFSEC_VERSION:-0.58.6}
 
 # Install pre-commit
@@ -80,10 +80,10 @@ RUN echo "\n\n" && \
     pre-commit --version && \
     terraform --version | head -n 1 && \
     echo -n "checkov " && checkov --version && \
-    echo -n "terrascan " && ./terrascan version && \
-    echo -n "tfsec " && ./tfsec --version && \
     ./terraform-docs --version && \
+    echo -n "terrascan " && ./terrascan version && \
     ./tflint --version && \
+    echo -n "tfsec " && ./tfsec --version && \
     echo "\n\n"
 
 # based on debian:buster-slim
@@ -92,9 +92,10 @@ FROM python:3.9-slim-buster
 
 # Python 3.8 (ubuntu 20.04) -> Python3.9 hacks
 COPY --from=builder /usr/local/lib/python3.8/dist-packages/ /usr/local/lib/python3.9/site-packages/
-COPY --from=builder /usr/lib/python3/dist-packages /usr/lib/python3/site-packages
-RUN ln -s /usr/local/bin/python3 /usr/bin/python3
-RUN ln -s /usr/local/lib/python3.9/site-packages /usr/lib/python3/dist-packages
+COPY --from=builder /usr/lib/python3/dist-packages /usr/local/lib/python3.9/site-packages
+RUN mkdir /usr/lib/python3 && \
+    ln -s /usr/local/lib/python3.9/site-packages /usr/lib/python3/site-packages && \
+    ln -s /usr/local/bin/python3 /usr/bin/python3
 # Copy binaries needed for pre-commit
 COPY --from=builder /usr/lib/git-core/ /usr/lib/git-core/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 /usr/lib/x86_64-linux-gnu/

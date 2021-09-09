@@ -54,12 +54,12 @@ If `build-args` not specified - will be used default versions from [Dockerfile](
 
 ```bash
 docker build -t pre-commit \
-    --build-arg PRE_COMMIT_VERSION=2.11.1 \
-    --build-arg TERRAFORM_VERSION=0.15.0 \
-    --build-arg CHECKOV_VERSION=1.0.838 \
-    --build-arg TERRAFORM_DOCS_VERSION=0.12.0 \
+    --build-arg PRE_COMMIT_VERSION=2.15.0 \
+    --build-arg TERRAFORM_VERSION=1.0.6 \
+    --build-arg CHECKOV_VERSION=2.0.405 \
+    --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
     --build-arg TERRASCAN_VERSION=1.10.0 \
-    --build-arg TFLINT_VERSION=0.27.0 \
+    --build-arg TFLINT_VERSION=0.31.0 \
     --build-arg TFSEC_VERSION=0.58.6 \
     .
 ```
