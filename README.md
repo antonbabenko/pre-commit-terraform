@@ -123,11 +123,11 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 
 | Hook name                                        | Description                                                                                                                                      |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `terraform_fmt`                                  | Rewrites all Terraform configuration files to a canonical format. [Hook notes](#terraform_docs)                                                 |
+| `terraform_fmt`                                  | Rewrites all Terraform configuration files to a canonical format. [Hook notes](#terraform_docs)                                                  |
 | `terraform_validate`                             | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                   |
 | `terraform_docs`                                 | Inserts input and output documentation into `README.md`. Recommended.                                                                            |
 | `terraform_docs_without_aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults.                                                         |
-| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md                                     |
+| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md                                                                                 |
 | `terraform_tflint`                               | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Hook notes](#terraform_tflint).         |
 | `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                       |
 | `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                             |
@@ -151,7 +151,7 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 
     if they are present in `README.md`.
 
-2. `terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the name of the file that gets created/modified. This hook requires terraform-docs v0.10.0 or later.
+2. `terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the name of the file that gets created/modified.
 
     Example:
 
