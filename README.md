@@ -163,6 +163,12 @@ Docker:
 docker run -v $(pwd):/lint -w /lint pre-commit run -a
 ```
 
+> You be able list tools versions when needed
+>
+> ```bash
+> TAG=latest && docker run --entrypoint cat pre-commit:$TAG /usr/bin/tools_versions_info
+> ```
+
 ## Available Hooks
 
 There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) and Terragrunt configurations (`*.hcl`) in a good shape:
