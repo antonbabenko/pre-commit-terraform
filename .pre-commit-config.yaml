@@ -19,6 +19,8 @@ repos:
 
     # Cross platform
     - id: check-case-conflict
+    - id: mixed-line-ending
+      args: [--fix=lf]
 
     # Security
     - id: detect-aws-credentials
