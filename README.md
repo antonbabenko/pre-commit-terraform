@@ -78,7 +78,7 @@ To disable pre-commit color output set `-e PRE_COMMIT_COLOR=never`.
 [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
 
 ```bash
-brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov terrascan
+brew install pre-commit terraform-docs tflint tfsec coreutils checkov terrascan
 terrascan init
 ```
 
@@ -88,7 +88,7 @@ terrascan init
 
 ```bash
 sudo apt update
-sudo apt install -y gawk unzip software-properties-common
+sudo apt install -y unzip software-properties-common
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install -y python3.7 python3-pip
 python3 -m pip install --upgrade pip
@@ -107,7 +107,7 @@ curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/late
 
 ```bash
 sudo apt update
-sudo apt install -y gawk unzip software-properties-common python3 python3-pip
+sudo apt install -y unzip software-properties-common python3 python3-pip
 python3 -m pip install --upgrade pip
 pip3 install --no-cache-dir pre-commit
 pip3 install --no-cache-dir checkov
