@@ -123,18 +123,18 @@ RUN . /.env && \
     ) && chmod +x tfsec \
     ; fi
 
-# Checking binaries versions
+# Checking binaries versions and write it to debug file
 RUN . /.env && \
-    echo "\n\n" && \
-    pre-commit --version && \
-    terraform --version | head -n 1 && \
-    (if [ "$CHECKOV_VERSION"        != "false" ]; then echo -n "checkov " && checkov --version;     else echo "checkov SKIPPED"       ; fi) && \
-    (if [ "$TERRAFORM_DOCS_VERSION" != "false" ]; then ./terraform-docs --version;                  else echo "terraform-docs SKIPPED"; fi) && \
-    (if [ "$TERRAGRUNT_VERSION"     != "false" ]; then ./terragrunt --version;                      else echo "terragrunt SKIPPED"    ; fi) && \
-    (if [ "$TERRASCAN_VERSION"      != "false" ]; then echo -n "terrascan " && ./terrascan version; else echo "terrascan SKIPPED"     ; fi) && \
-    (if [ "$TFLINT_VERSION"         != "false" ]; then ./tflint --version;                          else echo "tflint SKIPPED"        ; fi) && \
-    (if [ "$TFSEC_VERSION"          != "false" ]; then echo -n "tfsec " && ./tfsec --version;       else echo "tfsec SKIPPED"         ; fi) && \
-    echo "\n\n"
+    F=tools_versions_info && \
+    pre-commit --version >> $F && \
+    terraform --version | head -n 1 >> $F && \
+    (if [ "$CHECKOV_VERSION"        != "false" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F       ; fi) && \
+    (if [ "$TERRAFORM_DOCS_VERSION" != "false" ]; then ./terraform-docs --version >> $F;              else echo "terraform-docs SKIPPED" >> $F; fi) && \
+    (if [ "$TERRAGRUNT_VERSION"     != "false" ]; then ./terragrunt --version >> $F;                  else echo "terragrunt SKIPPED" >> $F    ; fi) && \
+    (if [ "$TERRASCAN_VERSION"      != "false" ]; then echo "terrascan $(./terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F     ; fi) && \
+    (if [ "$TFLINT_VERSION"         != "false" ]; then ./tflint --version >> $F;                      else echo "tflint SKIPPED" >> $F        ; fi) && \
+    (if [ "$TFSEC_VERSION"          != "false" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F         ; fi) && \
+    echo "\n\n" && cat $F && echo "\n\n"
 
 # based on debian:buster-slim
 # https://github.com/docker-library/python/blob/master/3.9/buster/slim/Dockerfile

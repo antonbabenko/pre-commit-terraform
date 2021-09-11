@@ -37,6 +37,7 @@
   </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
 * [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hooks.
+* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook.
 * [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
@@ -162,6 +163,12 @@ Docker:
 ```bash
 docker run -v $(pwd):/lint -w /lint pre-commit run -a
 ```
+
+> You be able list tools versions when needed
+>
+> ```bash
+> TAG=latest && docker run --entrypoint cat pre-commit:$TAG /usr/bin/tools_versions_info
+> ```
 
 ## Available Hooks
 
