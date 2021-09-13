@@ -23,8 +23,6 @@ jobs:
         # Not stale if have this labels
         exempt-issue-labels: kind/bug,lifecycle/active,lifecycle/frozen
         exempt-pr-labels:    kind/bug,lifecycle/active,lifecycle/frozen
-        # If unstale
-        labels-to-remove-when-unstale: lifecycle/stale
         # Close issue operations
         # Label will be automatically removed if the issues are no longer closed nor locked.
         days-before-close: 10
