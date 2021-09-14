@@ -1,9 +1,9 @@
 ---
-name: Docker bug report
+name: Local installation bug report
 about: Create a bug report
 labels:
 - bug
-- area/docker
+- area/local_install
 ---
 
 <!--
