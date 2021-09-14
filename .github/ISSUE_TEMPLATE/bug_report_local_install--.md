@@ -3,7 +3,7 @@ name: Docker bug report
 about: Create a bug report
 labels:
 - bug
-- area/local_installation
+- area/docker
 ---
 
 <!--
