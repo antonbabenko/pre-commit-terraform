@@ -3,7 +3,7 @@ name: Local installation bug report
 about: Create a bug report
 labels:
 - bug
-- area/local_install
+- area/local_installation
 ---
 
 <!--
