@@ -1,5 +1,5 @@
 ---
-name: Local installation bug report
+name: Docker bug report
 about: Create a bug report
 labels:
 - bug
