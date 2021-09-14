@@ -2,7 +2,7 @@
 name: Local installation bug report
 about: Create a bug report
 labels:
-- kind/bug
+- bug
 - area/docker
 ---
 
