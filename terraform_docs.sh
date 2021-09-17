@@ -93,7 +93,6 @@ terraform_docs() {
   local -a -r files=("$@")
 
   declare -a paths
-  declare -a tfvars_files
 
   local index=0
   local file_with_path
@@ -101,10 +100,6 @@ terraform_docs() {
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     paths[index]=$(dirname "$file_with_path")
-
-    if [[ "$file_with_path" == *".tfvars" ]]; then
-      tfvars_files+=("$file_with_path")
-    fi
 
     ((index += 1))
   done
