@@ -321,10 +321,9 @@ Example:
     function rm_terraform {
         find . -name ".terraform*" -print0 | xargs -0 rm -r
     }
-    alias rmtf=rm_terraform
     " >>~/.bashrc
 
-    # Reload shell and use `rmtf` command in repo root
+    # Reload shell and use `rm_terraform` command in repo root
     ```
 
    `terraform_validate` hook will try to reinitialize them before running `terraform validate` command.
