@@ -314,13 +314,22 @@ Example:
         - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository using this command:
+3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository:
 
-    ```shell
-    find . -type d -name ".terraform" -print0 | xargs -0 rm -r
+    ```bash
+    echo "
+    function rm_terraform {
+        find . -name ".terraform*" -print0 | xargs -0 rm -r
+    }
+    alias rmtf=rm_terraform
+    " >>~/.bashrc
+
+    # Reload shell and use `rmtf` command in repo root
     ```
 
    `terraform_validate` hook will try to reinitialize them before running `terraform validate` command.
+
+    **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation
 
 ## Notes for contributors
 
