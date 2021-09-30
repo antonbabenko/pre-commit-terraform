@@ -59,6 +59,8 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "export TERRASCAN_VERSION=latest" >> /.env && \
         echo "export TFLINT_VERSION=latest" >> /.env && \
         echo "export TFSEC_VERSION=latest" >> /.env \
+    ; else \
+        touch /.env \
     ; fi
 
 
