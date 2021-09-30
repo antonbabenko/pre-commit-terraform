@@ -7,6 +7,19 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.51.0"></a>
+## [v1.51.0] - 2021-09-17
+
+- fix: trigger terraform-docs on changes in lock files ([#228](https://github.com/antonbabenko/pre-commit-terraform/issues/228))
+- fix: label auto-adding after label rename ([#226](https://github.com/antonbabenko/pre-commit-terraform/issues/226))
+- chore: Updated GH stale action config ([#223](https://github.com/antonbabenko/pre-commit-terraform/issues/223))
+- feat: Add GH checks and templates ([#222](https://github.com/antonbabenko/pre-commit-terraform/issues/222))
+- feat: Add mixed line ending check to prevent possible errors ([#221](https://github.com/antonbabenko/pre-commit-terraform/issues/221))
+- fix: Dockerized pre-commit-terraform ([#219](https://github.com/antonbabenko/pre-commit-terraform/issues/219))
+- docs: Initial docs improvement ([#218](https://github.com/antonbabenko/pre-commit-terraform/issues/218))
+- chore: Update Ubuntu install method ([#198](https://github.com/antonbabenko/pre-commit-terraform/issues/198))
+
+
 <a name="v1.50.0"></a>
 ## [v1.50.0] - 2021-04-22
 
@@ -304,23 +317,19 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 <a name="v1.9.0"></a>
 ## [v1.9.0] - 2019-02-18
 
-- Added CHANGELOG.md
 - Added chglog (hi [@robinbowes](https://github.com/robinbowes) :))
-- Merge pull request [#33](https://github.com/antonbabenko/pre-commit-terraform/issues/33) from chrisgilmerproj/run_terraform_docs_in_serial
 - Require terraform-docs runs in serial to avoid pre-commit doing parallel operations on similar file paths
 
 
 <a name="v1.8.1"></a>
 ## [v1.8.1] - 2018-12-15
 
-- Merge pull request [#30](https://github.com/antonbabenko/pre-commit-terraform/issues/30) from RothAndrew/feature/fix_issue_29
 - Fix bug not letting terraform_docs_replace work in the root directory of a repo
 
 
 <a name="v1.8.0"></a>
 ## [v1.8.0] - 2018-12-14
 
-- Merge pull request [#27](https://github.com/antonbabenko/pre-commit-terraform/issues/27) from RothAndrew/feature/new_hook
 - fix typo
 - Address requested changes
 - Add `--dest` argument
@@ -333,7 +342,6 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 
 - Merge remote-tracking branch 'origin/master' into pr25
 - Added followup after [#25](https://github.com/antonbabenko/pre-commit-terraform/issues/25)
-- Merge pull request [#25](https://github.com/antonbabenko/pre-commit-terraform/issues/25) from getcloudnative/feat-pass-terraform-docs-opts
 - Add feature to pass options to terraform-docs.
 - Added license file (fixed [#21](https://github.com/antonbabenko/pre-commit-terraform/issues/21))
 
@@ -394,8 +402,6 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 
 - Added badges
 - Added formatting for tfvars (fixes [#4](https://github.com/antonbabenko/pre-commit-terraform/issues/4)) ([#6](https://github.com/antonbabenko/pre-commit-terraform/issues/6))
-- Merge pull request [#5](https://github.com/antonbabenko/pre-commit-terraform/issues/5) from schneems/schneems/codetriage-badge
-- [ci skip] Get more Open Source Helpers
 
 
 <a name="v1.2.0"></a>
@@ -404,7 +410,6 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Renamed shell script file to the correct one
 - Updated .pre-commit-hooks.yaml
 - Updated sha in README
-- Merge pull request [#3](https://github.com/antonbabenko/pre-commit-terraform/issues/3) from pecigonzalo/master
 - Exclude .terraform even on subfolders
 
 
@@ -423,7 +428,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.50.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.51.0...HEAD
+[v1.51.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.50.0...v1.51.0
 [v1.50.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.49.0...v1.50.0
 [v1.49.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.48.0...v1.49.0
 [v1.48.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.47.0...v1.48.0

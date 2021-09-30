@@ -1,44 +1,132 @@
 # Collection of git hooks for Terraform to be used with [pre-commit framework](http://pre-commit.com/)
 
-[![Github tag](https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg)](https://github.com/antonbabenko/pre-commit-terraform/releases) ![](https://img.shields.io/maintenance/yes/2021.svg) [![Help Contribute to Open Source](https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg)](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
+[![Github tag](https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg)](https://github.com/antonbabenko/pre-commit-terraform/releases) ![maintenance status](https://img.shields.io/maintenance/yes/2021.svg) [![Help Contribute to Open Source](https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg)](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
+
+* [How to install](#how-to-install)
+  * [1. Install dependencies](#1-install-dependencies)
+  * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
+  * [3. Add configs and hooks](#3-add-configs-and-hooks)
+  * [4. Run](#4-run)
+* [Available Hooks](#available-hooks)
+* [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
+  * [checkov](#checkov)
+  * [terraform_docs](#terraform_docs)
+  * [terraform_docs_replace](#terraform_docs_replace)
+  * [terraform_tflint](#terraform_tflint)
+  * [terraform_tfsec](#terraform_tfsec)
+  * [terraform_validate](#terraform_validate)
+* [Notes for contributors](#notes-for-contributors)
+  * [Run and debug hooks locally](#run-and-debug-hooks-locally)
+* [Authors](#authors)
+* [License](#license)
 
 ## How to install
 
 ### 1. Install dependencies
 
-* [`pre-commit`](https://pre-commit.com/#install)
-* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hooks. `GNU awk` is required if using `terraform-docs` older than 0.8.0 with Terraform 0.12.
+<!-- markdownlint-disable no-inline-html -->
+
+* [`pre-commit`](https://pre-commit.com/#install),
+  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
+  <sub><sup>[`git`](https://git-scm.com/downloads),
+  <sub><sup>POSIX compatible shell,
+  <sub><sup>Internet connection (on first run),
+  <sub><sup>x86_64 compatible operation system,
+  <sub><sup>Some hardware where this OS will run,
+  <sub><sup>Electricity for hardware and internet connection,
+  <sub><sup>Some basic physical laws,
+  <sub><sup>Hope that it all will works.
+  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
+* [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
+* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hooks.
+* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook.
+* [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
-* [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
-* [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
-* [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 
-or build and use the Docker image locally as mentioned below in the `Run` section.
+<details><summary><b>Docker</b></summary><br>
 
-##### MacOS
+If no `--build-arg` is specified, then the latest versions of `pre-commit` and `terraform` will be installed.
 
 ```bash
-brew install pre-commit gawk terraform-docs tflint tfsec coreutils checkov terrascan
+git clone git@github.com:antonbabenko/pre-commit-terraform.git
+cd pre-commit-terraform
+# Install all tools with latest versions:
+docker build -t pre-commit --build-arg INSTALL_ALL=true .
 ```
 
-##### Ubuntu 18.04
+You can specify needed tool versions by providing `--build-arg`'s.  
+If you'd like you can use the `latest` versions:
+
+```bash
+docker build -t pre-commit \
+    --build-arg PRE_COMMIT_VERSION=latest \
+    --build-arg TERRAFORM_VERSION=latest \
+    --build-arg CHECKOV_VERSION=2.0.405 \
+    --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
+    --build-arg TERRAGRUNT_VERSION=latest \
+    --build-arg TERRASCAN_VERSION=1.10.0 \
+    --build-arg TFLINT_VERSION=0.31.0 \
+    --build-arg TFSEC_VERSION=latest \
+    .
+```
+
+To disable pre-commit color output set `-e PRE_COMMIT_COLOR=never`.
+
+</details>
+
+
+<details><summary><b>MacOS</b></summary><br>
+
+[`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
+
+```bash
+brew install pre-commit terraform-docs tflint tfsec coreutils checkov terrascan
+terrascan init
+```
+
+</details>
+
+<details><summary><b>Ubuntu 18.04</b></summary><br>
 
 ```bash
 sudo apt update
-sudo apt install -y gawk unzip software-properties-common
+sudo apt install -y unzip software-properties-common
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install -y python3.7 python3-pip
-pip3 install pre-commit
-curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar xzf terraform-docs.tgz && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
-curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
-curl -L "$(curl -s https://api.github.com/repos/tfsec/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
-curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/
+python3 -m pip install --upgrade pip
+pip3 install --no-cache-dir pre-commit
 python3.7 -m pip install -U checkov
+curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar -xzf terraform-docs.tgz && rm terraform-docs.tgz && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E -m 1"https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/ && terrascan init
 ```
 
+</details>
+
+
+<details><summary><b>Ubuntu 20.04</b></summary><br>
+
+```bash
+sudo apt update
+sudo apt install -y unzip software-properties-common python3 python3-pip
+python3 -m pip install --upgrade pip
+pip3 install --no-cache-dir pre-commit
+pip3 install --no-cache-dir checkov
+curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar -xzf terraform-docs.tgz terraform-docs && rm terraform-docs.tgz && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E -m 1"https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/ && terrascan init
+curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
+```
+
+</details>
+
+<!-- markdownlint-enable no-inline-html -->
+
 ### 2. Install the pre-commit hook globally
-Note: not needed if you use the Docker image
+
+> Note: not needed if you use the Docker image
 
 ```bash
 DIR=~/.git-template
@@ -64,112 +152,140 @@ EOF
 
 ### 4. Run
 
-After pre-commit hook has been installed you can run it manually on all files in the repository
+After pre-commit hook has been installed you can run it manually on all files in the repository.
+
+Local installation:
 
 ```bash
 pre-commit run -a
 ```
 
-or you can also build and use the provided Docker container, which wraps all dependencies by
+Docker:
+
 ```bash
-# first building it
-docker build -t pre-commit .
-# and then running it in the folder
-# with the terraform code you want to check by executing
 docker run -v $(pwd):/lint -w /lint pre-commit run -a
 ```
+
+> You be able list tools versions when needed
+>
+> ```bash
+> TAG=latest && docker run --entrypoint cat pre-commit:$TAG /usr/bin/tools_versions_info
+> ```
 
 ## Available Hooks
 
 There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) and Terragrunt configurations (`*.hcl`) in a good shape:
 
-| Hook name                                        | Description                                                                                                                |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| `terraform_fmt`                                  | Rewrites all Terraform configuration files to a canonical format.                                                          |
-| `terraform_validate`                             | Validates all Terraform configuration files.                                                                               |
-| `terraform_docs`                                 | Inserts input and output documentation into `README.md`. Recommended.                                                      |
-| `terraform_docs_without_aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults.                                   |
-| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md (requires terraform-docs v0.10.0 or later)                                                           |
-| `terraform_tflint`                               | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint).                              |
-| `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format. |
-| `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                       |
-| `terraform_tfsec`                                | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues.     |
-| `checkov`                                | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues.     |
-| `terrascan`                                | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. |
+| Hook name                                        | Description                                                                                                                                                                                                                                  |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checkov`                                        | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov)                                                                                          |
+| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md                                                                                                                                                                             |
+| `terraform_docs_without_aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            |
+| `terraform_docs`                                 | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          |
+| `terraform_fmt`                                  | Rewrites all Terraform configuration files to a canonical format. [Hook notes](#terraform_docs)                                                                                                                                              |
+| `terraform_tflint`                               | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). |
+| `terraform_tfsec`                                | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_tfsec)                                                                                             |
+| `terraform_validate`                             | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               |
+| `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   |
+| `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         |
+| `terrascan`                                      | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations.                                                                                                                                                |
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
-## Notes about terraform_docs hooks
+## Hooks usage notes and examples
+
+### checkov
+
+For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each argument separately:
+
+```yaml
+- id: checkov
+  args: [
+    "-d", ".",
+    "--skip-check", "CKV2_AWS_8",
+  ]
+```
+
+### terraform_docs
 
 1. `terraform_docs` and `terraform_docs_without_aggregate_type_defaults` will insert/update documentation generated by [terraform-docs](https://github.com/terraform-docs/terraform-docs) framed by markers:
-```txt
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-```
-if they are present in `README.md`.
+    ```txt
+    <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
-1. `terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the name of the file that gets created/modified. This hook requires terraform-docs v0.10.0 or later.
-
-    1. Example:
-    ```yaml
-    hooks:
-      - id: terraform_docs_replace
-        args: ['--sort-by-required', '--dest=TEST.md']
+    <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
     ```
 
-1. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
+    if they are present in `README.md`.
 
-## Notes about terraform_tflint hooks
+2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
+
+For these hooks you need to specify all arguments as one:
+
+```yaml
+- id: terraform_docs
+  args:
+    - tfvars hcl --output-file terraform.tfvars.model .
+```
+
+### terraform_docs_replace
+
+`terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the name of the file that gets created/modified.
+
+Example:
+
+```yaml
+- id: terraform_docs_replace
+  args:
+    - --sort-by-required
+    - --dest=TEST.md
+```
+
+### terraform_tflint
 
 1. `terraform_tflint` supports custom arguments so you can enable module inspection, deep check mode etc.
 
-    1. Example:
+    Example:
+
     ```yaml
-    hooks:
-      - id: terraform_tflint
-        args: ['--args=--deep']
+    - id: terraform_tflint
+      args:
+        - --args=--deep
+        - --args=--enable-rule=terraform_documented_variables
     ```
 
-    In order to pass multiple args, try the following:
+2. When you have multiple directories and want to run `tflint` in all of them and share single config file it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
+
     ```yaml
-     - id: terraform_tflint
-       args:
-          - '--args=--deep'
-          - '--args=--enable-rule=terraform_documented_variables'
+    - id: terraform_tflint
+      args:
+        - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
     ```
 
-1. When you have multiple directories and want to run `tflint` in all of them and share single config file it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
 
-   ```yaml
-   hooks:
-     - id: terraform_tflint
-       args:
-         - '--args=--config=__GIT_WORKING_DIR__/.tflint.hcl'
-   ```
-
-
-## Notes about terraform_tfsec hooks
+### terraform_tfsec
 
 1. `terraform_tfsec` will consume modified files that pre-commit
     passes to it, so you can perform whitelisting of directories
     or files to run against via [files](https://pre-commit.com/#config-files)
     pre-commit flag
 
-    1. Example:
+    Example:
+
     ```yaml
-    hooks:
-      - id: terraform_tfsec
-        files: ^prd-infra/
+    - id: terraform_tfsec
+      files: ^prd-infra/
     ```
 
     The above will tell pre-commit to pass down files from the `prd-infra/` folder
     only such that the underlying `tfsec` tool can run against changed files in this
     directory, ignoring any other folders at the root level
 
-1. To ignore specific warnings, follow the convention from the
+2. To ignore specific warnings, follow the convention from the
 [documentation](https://github.com/liamg/tfsec#ignoring-warnings).
-    1. Example:
+
+    Example:
+
     ```hcl
     resource "aws_security_group_rule" "my-rule" {
         type = "ingress"
@@ -177,57 +293,65 @@ if they are present in `README.md`.
     }
     ```
 
-## Notes about terraform_validate hooks
+### terraform_validate
 
-1. `terraform_validate` supports custom arguments so you can pass supported no-color or json flags.
+1. `terraform_validate` supports custom arguments so you can pass supported no-color or json flags:
 
-    1. Example:
-    ```yaml
-    hooks:
-      - id: terraform_validate
-        args: ['--args=-json']
-    ```
-
-    In order to pass multiple args, try the following:
     ```yaml
      - id: terraform_validate
        args:
-          - '--args=-json'
-          - '--args=-no-color'
+         - --args=-json
+         - --args=-no-color
     ```
-1. `terraform_validate` also supports custom environment variables passed to the pre-commit runtime
 
-    1. Example:
+2. `terraform_validate` also supports custom environment variables passed to the pre-commit runtime:
+
     ```yaml
-    hooks:
-      - id: terraform_validate
-        args: ['--envs=AWS_DEFAULT_REGION="us-west-2"']
+    - id: terraform_validate
+      args:
+        - --envs=AWS_DEFAULT_REGION="us-west-2"
+        - --envs=AWS_ACCESS_KEY_ID="anaccesskey"
+        - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
     ```
 
-    In order to pass multiple args, try the following:
-    ```yaml
-     - id: terraform_validate
-       args:
-          - '--envs=AWS_DEFAULT_REGION="us-west-2"'
-          - '--envs=AWS_ACCESS_KEY_ID="anaccesskey"'
-          - '--envs=AWS_SECRET_ACCESS_KEY="asecretkey"'
-    ```
+3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository:
 
-1. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository using this command:
+    ```bash
+    echo "
+    function rm_terraform {
+        find . -name ".terraform*" -print0 | xargs -0 rm -r
+    }
+    " >>~/.bashrc
 
-    ```shell
-    find . -type d -name ".terraform" -print0 | xargs -0 rm -r
+    # Reload shell and use `rm_terraform` command in repo root
     ```
 
    `terraform_validate` hook will try to reinitialize them before running `terraform validate` command.
 
-## Notes for developers
+    **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation
+
+## Notes for contributors
 
 1. Python hooks are supported now too. All you have to do is:
     1. add a line to the `console_scripts` array in `entry_points` in `setup.py`
-    1. Put your python script in the `pre_commit_hooks` folder
+    2. Put your python script in the `pre_commit_hooks` folder
 
 Enjoy the clean, valid, and documented code!
+
+### Run and debug hooks locally
+
+```bash
+pre-commit try-repo {-a} /path/to/local/pre-commit-terraform/repo {hook_name}
+```
+
+I.e.
+
+```bash
+pre-commit try-repo /mnt/c/Users/tf/pre-commit-terraform terraform_fmt # Run only `terraform_fmt` check
+pre-commit try-repo -a ~/pre-commit-terraform # run all existing checks from repo
+```
+
+Running `pre-commit` with `try-repo` ignores all arguments specified in `.pre-commit-config.yaml`.
 
 ## Authors
 
