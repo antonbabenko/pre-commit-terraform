@@ -1,13 +1,33 @@
 repos:
 - repo: git://github.com/pre-commit/pre-commit-hooks
-  rev: v3.4.0
+  rev: v4.0.1
   hooks:
-    - id: check-yaml
+    # Git style
+    - id: check-added-large-files
+    - id: check-merge-conflict
+    - id: check-vcs-permalinks
+    - id: forbid-new-submodules
+    - id: no-commit-to-branch
+
+    # Common errors
     - id: end-of-file-fixer
     - id: trailing-whitespace
-    - id: check-case-conflict
+      args: [--markdown-linebreak-ext=md]
+    - id: check-yaml
     - id: check-merge-conflict
     - id: check-executables-have-shebangs
+
+    # Cross platform
+    - id: check-case-conflict
+    - id: mixed-line-ending
+      args: [--fix=lf]
+
+    # Security
+    - id: detect-aws-credentials
+      args: ['--allow-missing-credentials']
+    - id: detect-private-key
+
+
 - repo: git://github.com/jumanjihouse/pre-commit-hooks
   rev: 2.1.5
   hooks:

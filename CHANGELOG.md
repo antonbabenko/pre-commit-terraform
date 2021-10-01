@@ -7,6 +7,47 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.51.0"></a>
+## [v1.51.0] - 2021-09-17
+
+- fix: trigger terraform-docs on changes in lock files ([#228](https://github.com/antonbabenko/pre-commit-terraform/issues/228))
+- fix: label auto-adding after label rename ([#226](https://github.com/antonbabenko/pre-commit-terraform/issues/226))
+- chore: Updated GH stale action config ([#223](https://github.com/antonbabenko/pre-commit-terraform/issues/223))
+- feat: Add GH checks and templates ([#222](https://github.com/antonbabenko/pre-commit-terraform/issues/222))
+- feat: Add mixed line ending check to prevent possible errors ([#221](https://github.com/antonbabenko/pre-commit-terraform/issues/221))
+- fix: Dockerized pre-commit-terraform ([#219](https://github.com/antonbabenko/pre-commit-terraform/issues/219))
+- docs: Initial docs improvement ([#218](https://github.com/antonbabenko/pre-commit-terraform/issues/218))
+- chore: Update Ubuntu install method ([#198](https://github.com/antonbabenko/pre-commit-terraform/issues/198))
+
+
+<a name="v1.50.0"></a>
+## [v1.50.0] - 2021-04-22
+
+- feat: Adds support for Terrascan ([#195](https://github.com/antonbabenko/pre-commit-terraform/issues/195))
+
+
+<a name="v1.49.0"></a>
+## [v1.49.0] - 2021-04-20
+
+- fix: Fix and pin versions in Dockerfile ([#193](https://github.com/antonbabenko/pre-commit-terraform/issues/193))
+- chore: Fix mistake on command ([#185](https://github.com/antonbabenko/pre-commit-terraform/issues/185))
+- Update README.md
+
+
+<a name="v1.48.0"></a>
+## [v1.48.0] - 2021-03-12
+
+- chore: add dockerfile ([#183](https://github.com/antonbabenko/pre-commit-terraform/issues/183))
+- docs: Added checkov install ([#182](https://github.com/antonbabenko/pre-commit-terraform/issues/182))
+
+
+<a name="v1.47.0"></a>
+## [v1.47.0] - 2021-02-25
+
+- fix: remove sed postprocessing from the terraform_docs_replace hook to fix compatibility with terraform-docs 0.11.0+ ([#176](https://github.com/antonbabenko/pre-commit-terraform/issues/176))
+- docs: updates installs for macOS and ubuntu ([#175](https://github.com/antonbabenko/pre-commit-terraform/issues/175))
+
+
 <a name="v1.46.0"></a>
 ## [v1.46.0] - 2021-02-20
 
@@ -387,7 +428,12 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.46.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.51.0...HEAD
+[v1.51.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.50.0...v1.51.0
+[v1.50.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.49.0...v1.50.0
+[v1.49.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.48.0...v1.49.0
+[v1.48.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.47.0...v1.48.0
+[v1.47.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.46.0...v1.47.0
 [v1.46.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.45.0...v1.46.0
 [v1.45.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.44.0...v1.45.0
 [v1.44.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.43.1...v1.44.0

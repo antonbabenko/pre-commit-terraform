@@ -12,7 +12,7 @@
   require_serial: true
   entry: terraform_docs.sh
   language: script
-  files: (\.tf)$
+  files: (\.tf|\.terraform\.lock\.hcl)$
   exclude: \.terraform\/.*$
 
 - id: terraform_docs_without_aggregate_type_defaults
@@ -54,6 +54,7 @@
 - id: terraform_tflint
   name: Terraform validate with tflint
   description: Validates all Terraform configuration files with TFLint.
+  require_serial: true
   entry: terraform_tflint.sh
   language: script
   files: (\.tf|\.tfvars)$
@@ -91,3 +92,9 @@
   files: \.tf$
   exclude: \.+.terraform\/.*$
   require_serial: true
+
+- id: terrascan
+  name: terrascan
+  description: Runs terrascan on Terraform templates.
+  language: script
+  entry: terrascan.sh
