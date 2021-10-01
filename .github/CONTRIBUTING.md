@@ -6,6 +6,13 @@
 
 Enjoy the clean, valid, and documented code!
 
+* [Run and debug hooks locally](#run-and-debug-hooks-locally)
+* [Run hook performance test](#run-hook-performance-test)
+  * [Run via BASH](#run-via-bash)
+  * [Run via Docker](#run-via-docker)
+  * [Check results](#check-results)
+  * [Cleanup](#cleanup)
+
 ## Run and debug hooks locally
 
 ```bash
@@ -35,7 +42,7 @@ Script accept next options:
 | 4   | `TEST_DESCRIPTION`                 | ```'`terraform_tfsec` PR #123:'```                                       | Text that you'd like to see in result                |
 | 5   | `RAW_TEST_`<br>`RESULTS_FILE_NAME` | `terraform_tfsec_pr123`                                                  | (Temporary) File where all test data will be stored. |
 
-Run via bash:
+### Run via BASH
 
 ```bash
 # Install deps
@@ -44,7 +51,7 @@ sudo apt install -y datamash
 ./hooks_performance_test.sh 200 'pre-commit try-repo -a /tmp/159/pre-commit-terraform terraform_tfsec' '/tmp/infrastructure' '`terraform_tfsec` v1.51.0:' 'terraform_tfsec_pr159'
 ```
 
-Run via Docker:
+### Run via Docker
 
 ```bash
 # Build `pre-commit` image
@@ -63,7 +70,11 @@ docker run -v "$PRE_COMMIT_DIR:/pct:rw" -v "$TEST_DIR:/lint:ro" pre-commit-tests
     $TEST_NUM "$TEST_COMMAND" '/lint' "$RAW_TEST_RESULTS_FILE_NAME" "$RAW_TEST_RESULTS_FILE_NAME"
 ```
 
-Cleanup:
+### Check results
+
+Results will be located at `./test/results` dir.
+
+### Cleanup
 
 ```bash
 sudo rm -rf tests/results
