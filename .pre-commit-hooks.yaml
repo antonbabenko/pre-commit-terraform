@@ -70,6 +70,7 @@
 - id: terraform_tfsec
   name: Terraform validate with tfsec
   description: Static analysis of Terraform templates to spot potential security issues.
+  require_serial: true
   entry: terraform_tfsec.sh
   language: script
 
