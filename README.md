@@ -304,7 +304,6 @@ Example:
            -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
     ```
 
-    If you have many exclude rules and know how to split `-e ...` oneliner to multiply rows, please, send PR.
 
 ### terraform_validate
 
