@@ -333,7 +333,11 @@ Example:
 
 ## Authors
 
-This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from [these awesome contributors](https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors).
+This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
+
+<a href="https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=antonbabenko/pre-commit-terraform" />
+</a>
 
 ## License
 
