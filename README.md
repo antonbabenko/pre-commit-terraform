@@ -293,9 +293,21 @@ Example:
     }
     ```
 
+3. `terraform_tfsec` supports custom arguments so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
+
+    ```yaml
+     - id: terraform_tfsec
+       args:
+         - >
+           --args=--format json
+           --no-color
+           -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
+    ```
+
+
 ### terraform_validate
 
-1. `terraform_validate` supports custom arguments so you can pass supported no-color or json flags:
+1. `terraform_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
 
     ```yaml
      - id: terraform_validate
