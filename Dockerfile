@@ -142,11 +142,7 @@ RUN . /.env && \
 FROM python:3.9-slim-bullseye
 
 # Python 3.8 (ubuntu 20.04) -> Python3.9 hacks
-COPY --from=builder /usr/local/lib/python3.8/dist-packages/ /usr/local/lib/python3.9/site-packages/
-COPY --from=builder /usr/lib/python3/dist-packages /usr/local/lib/python3.9/site-packages
-RUN mkdir /usr/lib/python3 && \
-    ln -s /usr/local/lib/python3.9/site-packages /usr/lib/python3/site-packages && \
-    ln -s /usr/local/bin/python3 /usr/bin/python3
+COPY --from=builder /usr/local/lib/python* /usr/local/lib/
 RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" \
         git \
