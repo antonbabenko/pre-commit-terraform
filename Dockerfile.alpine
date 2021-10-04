@@ -107,16 +107,16 @@ RUN echo "terrascan $(./terrascan version)"
 RUN ./tflint --version
 RUN echo "tfsec $(./tfsec --version)"
 
-RUN F=tools_versions_info && \
-    pre-commit --version >> $F && \
-    terraform --version | head -n 1 >> $F && \
-    (if [ "$CHECKOV_VERSION"        != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F       ; fi) && \
-    (if [ "$TERRAFORM_DOCS_VERSION" != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then ./terraform-docs --version >> $F;              else echo "terraform-docs SKIPPED" >> $F; fi) && \
-    (if [ "$TERRAGRUNT_VERSION"     != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then ./terragrunt --version >> $F;                  else echo "terragrunt SKIPPED" >> $F    ; fi) && \
-    (if [ "$TERRASCAN_VERSION"      != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then echo "terrascan $(./terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F     ; fi) && \
-    (if [ "$TFLINT_VERSION"         != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then ./tflint --version >> $F;                      else echo "tflint SKIPPED" >> $F        ; fi) && \
-    (if [ "$TFSEC_VERSION"          != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F         ; fi) && \
-    cat $F
+#RUN F=tools_versions_info && \
+#    pre-commit --version >> $F && \
+#    terraform --version | head -n 1 >> $F && \
+#    (if [ "$CHECKOV_VERSION"        != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F       ; fi) && \
+#    (if [ "$TERRAFORM_DOCS_VERSION" != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then ./terraform-docs --version >> $F;              else echo "terraform-docs SKIPPED" >> $F; fi) && \
+#    (if [ "$TERRAGRUNT_VERSION"     != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then ./terragrunt --version >> $F;                  else echo "terragrunt SKIPPED" >> $F    ; fi) && \
+#    (if [ "$TERRASCAN_VERSION"      != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then echo "terrascan $(./terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F     ; fi) && \
+#    (if [ "$TFLINT_VERSION"         != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then ./tflint --version >> $F;                      else echo "tflint SKIPPED" >> $F        ; fi) && \
+#    (if [ "$TFSEC_VERSION"          != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F         ; fi) && \
+#    cat $F
 
 RUN python3 -m pip uninstall -y setuptools wheel pip
 
