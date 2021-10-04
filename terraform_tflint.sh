@@ -63,7 +63,18 @@ tflint_() {
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
     pushd "$path_uniq" > /dev/null
-    tflint "${ARGS[@]}"
+    TFLINT_MSG=$(
+      tflint "${ARGS[@]}" 2>&1 ||
+        echo >&2 -e "\033[1;31m\nERROR in ./$path_uniq/:\033[0m" &&
+        tflint "${ARGS[@]}" # Print TFLint error with PATH
+    )
+
+    # Print checked PATH if TFLint have any messages
+    if [ ! -z "$TFLINT_MSG" ]; then
+      echo -e "\n./$path_uniq/:"
+      echo "$TFLINT_MSG"
+    fi
+
     popd > /dev/null
   done
 }

@@ -2,6 +2,8 @@
 
 [![Github tag](https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg)](https://github.com/antonbabenko/pre-commit-terraform/releases) ![maintenance status](https://img.shields.io/maintenance/yes/2021.svg) [![Help Contribute to Open Source](https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg)](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
 
+Want to Contribute? Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc) and [contributing notes](/.github/CONTRIBUTING.md).
+
 * [How to install](#how-to-install)
   * [1. Install dependencies](#1-install-dependencies)
   * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
@@ -15,8 +17,6 @@
   * [terraform_tflint](#terraform_tflint)
   * [terraform_tfsec](#terraform_tfsec)
   * [terraform_validate](#terraform_validate)
-* [Notes for contributors](#notes-for-contributors)
-  * [Run and debug hooks locally](#run-and-debug-hooks-locally)
 * [Authors](#authors)
 * [License](#license)
 
@@ -293,9 +293,21 @@ Example:
     }
     ```
 
+3. `terraform_tfsec` supports custom arguments so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
+
+    ```yaml
+     - id: terraform_tfsec
+       args:
+         - >
+           --args=--format json
+           --no-color
+           -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
+    ```
+
+
 ### terraform_validate
 
-1. `terraform_validate` supports custom arguments so you can pass supported no-color or json flags:
+1. `terraform_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
 
     ```yaml
      - id: terraform_validate
@@ -330,32 +342,14 @@ Example:
 
     **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation
 
-## Notes for contributors
-
-1. Python hooks are supported now too. All you have to do is:
-    1. add a line to the `console_scripts` array in `entry_points` in `setup.py`
-    2. Put your python script in the `pre_commit_hooks` folder
-
-Enjoy the clean, valid, and documented code!
-
-### Run and debug hooks locally
-
-```bash
-pre-commit try-repo {-a} /path/to/local/pre-commit-terraform/repo {hook_name}
-```
-
-I.e.
-
-```bash
-pre-commit try-repo /mnt/c/Users/tf/pre-commit-terraform terraform_fmt # Run only `terraform_fmt` check
-pre-commit try-repo -a ~/pre-commit-terraform # run all existing checks from repo
-```
-
-Running `pre-commit` with `try-repo` ignores all arguments specified in `.pre-commit-config.yaml`.
 
 ## Authors
 
-This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from [these awesome contributors](https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors).
+This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
+
+<a href="https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=antonbabenko/pre-commit-terraform" />
+</a>
 
 ## License
 
