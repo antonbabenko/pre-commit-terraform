@@ -14,6 +14,7 @@ Want to Contribute? Check [open issues](https://github.com/antonbabenko/pre-comm
   * [checkov](#checkov)
   * [terraform_docs](#terraform_docs)
   * [terraform_docs_replace](#terraform_docs_replace)
+  * [terraform_providers_lock](#terraform_providers_lock)
   * [terraform_tflint](#terraform_tflint)
   * [terraform_tfsec](#terraform_tfsec)
   * [terraform_validate](#terraform_validate)
@@ -183,6 +184,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_docs_without_aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            |
 | `terraform_docs`                                 | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          |
 | `terraform_fmt`                                  | Rewrites all Terraform configuration files to a canonical format. [Hook notes](#terraform_docs)                                                                                                                                              |
+| `terraform_providers_lock`                       | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)
 | `terraform_tflint`                               | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). |
 | `terraform_tfsec`                                | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_tfsec)                                                                                             |
 | `terraform_validate`                             | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               |
@@ -342,6 +344,44 @@ Example:
 
     **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation
 
+### terraform_providers_lock
+
+1.  The hook requires Terraform 0.14 or later.
+
+1.  The hook invokes two operations that can be really slow:
+    `terraform init` (in case `.terraform` directory is not initialised)
+    and `terraform providers lock`. Both operations require downloading
+    data from remote Terraform registries, and not all of that
+    downloaded data or meta-data is currently being cached by Terraform.
+
+1.  `terraform_providers_lock` supports custom arguments.
+
+    Example:
+
+    ```yaml
+    hooks:
+      - id: terraform_providers_lock
+        args: ['--args=-platform=windows_amd64']
+    ```
+
+    In order to pass multiple args, try the following:
+
+    ```yaml
+     - id: terraform_providers_lock
+       args:
+          - '--args=-platform=windows_amd64'
+          - '--args=-platform=darwin_amd64'
+    ```  
+
+1.  It may happen that Terraform working directory (`.terraform`) already exists but is outdated
+    (e.g. not initialized modules, wrong version of Terraform, etc).
+    To solve this problem you can find and delete all `.terraform` directories in your repository using this command:
+
+    ```shell
+    find . -type d -name .terraform -prune -print -exec rm -rf {} \;
+    ```
+
+    `terraform_providers_lock` hook will try to reinitialize them before running `terraform providers lock` command.
 
 ## Authors
 
