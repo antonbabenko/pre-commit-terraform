@@ -117,7 +117,7 @@ RUN python3 -m pip uninstall -y setuptools wheel pip
 FROM python:${base_image_version}
 
 # hadolint ignore=DL3018
-RUN apk add --no-cache git && rm -rf "/var/cache/apk/*"
+RUN apk add --no-cache git bash && rm -rf "/var/cache/apk/*"
 
 # copy venv
 ENV VIRTUAL_ENV=/opt/venv
