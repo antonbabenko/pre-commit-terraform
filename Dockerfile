@@ -1,8 +1,8 @@
 FROM ubuntu:20.04 as builder
 
 # Install general dependencies
-RUN apt update && \
-    DEBIAN_FRONTEND=noninteractive apt install -y \
+RUN apt-get update && \
+    DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends \
         # Needed for pre-commit in next build stage
         git \
         libpcre2-8-0 \
@@ -153,7 +153,6 @@ RUN mkdir /usr/lib/python3 && \
 # Copy binaries needed for pre-commit
 COPY --from=builder /usr/lib/git-core/ /usr/lib/git-core/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 /usr/lib/x86_64-linux-gnu/
-RUN ls /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.*
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.4* /usr/lib/x86_64-linux-gnu/
 # Copy tools
 COPY --from=builder \
