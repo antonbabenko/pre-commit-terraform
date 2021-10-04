@@ -16,7 +16,7 @@ RUN apt update && \
     # Upgrade pip for be able get latest Checkov
     python3 -m pip install --upgrade pip && \
     # Cleanup
-    rm -rf /var/lib/apt/lists/* \
+    rm -rf /var/lib/apt/lists/* && \
     dpkg -L libcurl3-gnutls
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
