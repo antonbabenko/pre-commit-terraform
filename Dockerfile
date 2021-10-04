@@ -16,7 +16,8 @@ RUN apt update && \
     # Upgrade pip for be able get latest Checkov
     python3 -m pip install --upgrade pip && \
     # Cleanup
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* \
+    dpkg -L libcurl3-gnutls
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
@@ -153,8 +154,7 @@ RUN mkdir /usr/lib/python3 && \
 COPY --from=builder /usr/lib/git-core/ /usr/lib/git-core/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 /usr/lib/x86_64-linux-gnu/
 RUN ls /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.*
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.4.7.0 /usr/lib/x86_64-linux-gnu/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.4 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.4* /usr/lib/x86_64-linux-gnu/
 # Copy tools
 COPY --from=builder \
     /bin_dir/ \
