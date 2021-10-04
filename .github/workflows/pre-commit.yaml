@@ -32,6 +32,10 @@ jobs:
     - uses: hadolint/hadolint-action@v1.5.0
       with:
         dockerfile: Dockerfile.alpine
+    - name: Install hadolint
+      run: |
+        curl -L "$(curl -s https://api.github.com/repos/hadolint/hadolint/releases/latest | grep -o -E -m 1 "https://.+?Linux-x86_64")" > hadolint \
+        && chmod +x hadolint && sudo mv hadolint /usr/bin/
     - name: Execute pre-commit
       uses: pre-commit/action@v2.0.0
       env:
