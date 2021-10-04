@@ -151,6 +151,8 @@ RUN mkdir /usr/lib/python3 && \
 # Copy binaries needed for pre-commit
 COPY --from=builder /usr/lib/git-core/ /usr/lib/git-core/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.4.7.0 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.4 /usr/lib/x86_64-linux-gnu/
 # Copy tools
 COPY --from=builder \
     /bin_dir/ \
@@ -159,7 +161,7 @@ COPY --from=builder \
     /usr/local/bin/pre-commit \
     /usr/bin/git \
     /usr/bin/git-shell \
-        /usr/bin/
+    /usr/bin/
 # Copy terrascan policies
 COPY --from=builder /root/ /root/
 
