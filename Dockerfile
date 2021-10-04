@@ -5,8 +5,6 @@ RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" \
         # Needed for pre-commit in next build stage
         git \
-        libpcre2-8-0 \
-        libcurl3-gnutls \
         # Builder deps
         unzip \
         software-properties-common \
@@ -152,6 +150,7 @@ RUN mkdir /usr/lib/python3 && \
 RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" \
         git \
+        ca-certificates \
         curl && \
     # Cleanup
     rm -rf /var/lib/apt/lists/*
