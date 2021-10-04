@@ -7,6 +7,21 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.52.0"></a>
+## [v1.52.0] - 2021-10-04
+
+- feat: Add new hook for `terraform providers lock` operation ([#173](https://github.com/antonbabenko/pre-commit-terraform/issues/173))
+- docs: Document terraform_tfsec args usage ([#238](https://github.com/antonbabenko/pre-commit-terraform/issues/238))
+- docs: Make contributors more visible ([#236](https://github.com/antonbabenko/pre-commit-terraform/issues/236))
+- docs: Add contributing guide and docs about performance tests ([#235](https://github.com/antonbabenko/pre-commit-terraform/issues/235))
+- fix: terraform_tflint hook executes in a serial way to run less often ([#211](https://github.com/antonbabenko/pre-commit-terraform/issues/211))
+- feat: Add PATH outputs when TFLint found any problem ([#234](https://github.com/antonbabenko/pre-commit-terraform/issues/234))
+- fix: Dockerfile if INSTALL_ALL is not defined ([#233](https://github.com/antonbabenko/pre-commit-terraform/issues/233))
+- docs: Describe hooks usage and improve examples ([#232](https://github.com/antonbabenko/pre-commit-terraform/issues/232))
+- chore: Add shfmt to workflow ([#231](https://github.com/antonbabenko/pre-commit-terraform/issues/231))
+- fix: remove dead code from terraform-docs script ([#229](https://github.com/antonbabenko/pre-commit-terraform/issues/229))
+
+
 <a name="v1.51.0"></a>
 ## [v1.51.0] - 2021-09-17
 
@@ -164,7 +179,7 @@ All notable changes to this project will be documented in this file.
 
 - fix: Change terraform_validate hook functionality for subdirectories with terraform files ([#100](https://github.com/antonbabenko/pre-commit-terraform/issues/100))
 
-###
+### 
 
 configuration for the appropriate working directory.
 
@@ -428,7 +443,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.51.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.52.0...HEAD
+[v1.52.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.51.0...v1.52.0
 [v1.51.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.50.0...v1.51.0
 [v1.50.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.49.0...v1.50.0
 [v1.49.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.48.0...v1.49.0
