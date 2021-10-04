@@ -100,13 +100,7 @@ RUN if [ "$TFSEC_VERSION" != "false" ] || [ "${INSTALL_ALL}" = "true" ]; then \
     ) && chmod a+x tfsec \
     ; fi
 
-RUN echo "checkov $(checkov --version)"
-RUN ./terraform-docs --version
-RUN ./terragrunt --version
-RUN echo "terrascan $(./terrascan version)"
-RUN ./tflint --version
-RUN echo "tfsec $(./tfsec --version)"
-
+# In one environemt it gives me 255
 #RUN F=tools_versions_info && \
 #    pre-commit --version >> $F && \
 #    terraform --version | head -n 1 >> $F && \
