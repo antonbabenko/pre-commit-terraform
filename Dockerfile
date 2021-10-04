@@ -2,7 +2,7 @@ FROM ubuntu:20.04 as builder
 
 # Install general dependencies
 RUN apt-get update && \
-    DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" --no-install-recommends \
+    DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" \
         # Needed for pre-commit in next build stage
         git \
         libpcre2-8-0 \
@@ -16,8 +16,7 @@ RUN apt-get update && \
     # Upgrade pip for be able get latest Checkov
     python3 -m pip install --upgrade pip && \
     # Cleanup
-    rm -rf /var/lib/apt/lists/* && \
-    dpkg -L libcurl3-gnutls
+    rm -rf /var/lib/apt/lists/*
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
