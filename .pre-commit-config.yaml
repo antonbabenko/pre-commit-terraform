@@ -33,3 +33,8 @@ repos:
   hooks:
     - id: shfmt
       args: ['-l', '-i', '2', '-ci', '-sr', '-w']
+
+- repo: https://github.com/hadolint/hadolint
+  rev: v2.7.0
+  hooks:
+    - id: hadolint
