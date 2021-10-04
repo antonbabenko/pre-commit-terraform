@@ -149,12 +149,12 @@ COPY --from=builder /usr/lib/python3/dist-packages /usr/local/lib/python3.9/site
 RUN mkdir /usr/lib/python3 && \
     ln -s /usr/local/lib/python3.9/site-packages /usr/lib/python3/site-packages && \
     ln -s /usr/local/bin/python3 /usr/bin/python3
-# Copy binaries needed for pre-commit
-COPY --from=builder /usr/lib/git-core/ /usr/lib/git-core/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libpcre2-8.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libnghttp2.so* /usr/lib/x86_64-linux-gnu/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/librtmp.so* /usr/lib/x86_64-linux-gnu/
+RUN apt-get update && \
+    DEBIAN_FRONTEND="noninteractive" apt-get -q install -y -o Dpkg::Options::="--force-confnew" \
+        git \
+        curl && \
+    # Cleanup
+    rm -rf /var/lib/apt/lists/*
 # Copy tools
 COPY --from=builder \
     /bin_dir/ \
