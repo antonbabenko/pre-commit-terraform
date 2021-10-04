@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as builder
+FROM python:3.9-slim-bullseye as builder
 
 # Install general dependencies
 RUN apt-get update && \
@@ -139,7 +139,7 @@ RUN . /.env && \
 
 # based on debian:buster-slim
 # https://github.com/docker-library/python/blob/master/3.9/buster/slim/Dockerfile
-FROM python:3.9-slim-buster
+FROM python:3.9-slim-bullseye
 
 # Python 3.8 (ubuntu 20.04) -> Python3.9 hacks
 COPY --from=builder /usr/local/lib/python3.8/dist-packages/ /usr/local/lib/python3.9/site-packages/
