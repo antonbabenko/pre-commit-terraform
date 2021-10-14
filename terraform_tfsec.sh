@@ -6,13 +6,13 @@ main() {
   parse_cmdline_ "$@"
 
   # propagate $FILES to custom function
-  tfsec_ "$ARGS" "$FILES"
+  tfsec_ "$ARGS" "${FILES[*]}"
 }
 
 tfsec_() {
   # consume modified files passed from pre-commit so that
   # tfsec runs against only those relevant directories
-  for file_with_path in $FILES; do
+  for file_with_path in ${FILES[*]}; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
     paths[index]=$(dirname "$file_with_path")
 
