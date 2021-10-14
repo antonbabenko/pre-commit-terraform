@@ -28,6 +28,14 @@ pre-commit try-repo -a ~/pre-commit-terraform # run all existing checks from rep
 
 Running `pre-commit` with `try-repo` ignores all arguments specified in `.pre-commit-config.yaml`.
 
+If you need to test hook with arguments, follow [pre-commit doc](https://pre-commit.com/#arguments-pattern-in-hooks) to test hooks.
+
+For example, to test that the [`terraform_fmt`](../README.md#terraform_fmt) hook works fine with arguments:
+
+```bash
+/tmp/pre-commit-terraform/terraform_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
+```
+
 ## Run hook performance test
 
 To check is your improvement not violate performance, we have dummy execution time tests.
