@@ -52,7 +52,7 @@ terraform_docs_() {
   local -a -r files=("$@")
 
   local hack_terraform_docs
-  hack_terraform_docs=$(terraform version | head -1 | grep -c 0.12) || true
+  hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
 
   if [[ ! $(command -v terraform-docs) ]]; then
     echo "ERROR: terraform-docs is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
@@ -60,7 +60,7 @@ terraform_docs_() {
   fi
 
   local is_old_terraform_docs
-  is_old_terraform_docs=$(terraform-docs version | grep -o "v0.[1-7]" | tail -1) || true
+  is_old_terraform_docs=$(terraform-docs version | grep -o "v0.[1-7]\." | tail -1) || true
 
   if [[ -z "$is_old_terraform_docs" ]]; then # Using terraform-docs 0.8+ (preferred)
 
@@ -93,7 +93,6 @@ terraform_docs() {
   local -a -r files=("$@")
 
   declare -a paths
-  declare -a tfvars_files
 
   local index=0
   local file_with_path
@@ -101,10 +100,6 @@ terraform_docs() {
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     paths[index]=$(dirname "$file_with_path")
-
-    if [[ "$file_with_path" == *".tfvars" ]]; then
-      tfvars_files+=("$file_with_path")
-    fi
 
     ((index += 1))
   done
@@ -311,7 +306,7 @@ EOF
 
 }
 
-# global arrays
+# global arrays
 declare -a ARGS=()
 declare -a FILES=()
 

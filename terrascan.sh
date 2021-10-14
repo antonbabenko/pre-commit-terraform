@@ -1,11 +1,30 @@
 #!/usr/bin/env bash
-
 set -eo pipefail
 
 main() {
   initialize_
   parse_cmdline_ "$@"
-  tflint_
+
+  # propagate $FILES to custom function
+  terrascan_ "$ARGS" "$FILES"
+}
+
+terrascan_() {
+  # consume modified files passed from pre-commit so that
+  # terrascan runs against only those relevant directories
+  for file_with_path in $FILES; do
+    file_with_path="${file_with_path// /__REPLACED__SPACE__}"
+    paths[index]=$(dirname "$file_with_path")
+
+    let "index+=1"
+  done
+
+  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
+    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
+    pushd "$path_uniq" > /dev/null
+    terrascan scan -i terraform $ARGS
+    popd > /dev/null
+  done
 }
 
 initialize_() {
@@ -35,52 +54,20 @@ parse_cmdline_() {
     case $argv in
       -a | --args)
         shift
-        expanded_arg="${1//__GIT_WORKING_DIR__/$PWD}"
-        ARGS+=("$expanded_arg")
+        ARGS+=("$1")
         shift
         ;;
       --)
         shift
-        FILES=("$@")
+        FILES+=("$@")
         break
         ;;
     esac
   done
-
-}
-
-tflint_() {
-  local index=0
-  for file_with_path in "${FILES[@]}"; do
-    file_with_path="${file_with_path// /__REPLACED__SPACE__}"
-
-    paths[index]=$(dirname "$file_with_path")
-
-    ((index += 1))
-  done
-
-  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
-    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
-
-    pushd "$path_uniq" > /dev/null
-    TFLINT_MSG=$(
-      tflint "${ARGS[@]}" 2>&1 ||
-        echo >&2 -e "\033[1;31m\nERROR in ./$path_uniq/:\033[0m" &&
-        tflint "${ARGS[@]}" # Print TFLint error with PATH
-    )
-
-    # Print checked PATH if TFLint have any messages
-    if [ ! -z "$TFLINT_MSG" ]; then
-      echo -e "\n./$path_uniq/:"
-      echo "$TFLINT_MSG"
-    fi
-
-    popd > /dev/null
-  done
 }
 
 # global arrays
-declare -a ARGS
-declare -a FILES
+declare -a ARGS=()
+declare -a FILES=()
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"

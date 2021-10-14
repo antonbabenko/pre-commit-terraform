@@ -1,0 +1,38 @@
+name: Common issues check
+
+on: [pull_request]
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+
+    - name: Get changed files
+      id: file_changes
+      run: |
+        export DIFF=$(git diff --name-only origin/${{ github.base_ref }} ${{ github.sha }})
+        echo "Diff between ${{ github.base_ref }} and ${{ github.sha }}"
+        echo "::set-output name=files::$( echo "$DIFF" | xargs echo )"
+
+    - name: Install shfmt
+      run: |
+        curl -L "$(curl -s https://api.github.com/repos/mvdan/sh/releases/latest | grep -o -E -m 1 "https://.+?linux_amd64")" > shfmt \
+        && chmod +x shfmt && sudo mv shfmt /usr/bin/
+    # Need to success pre-commit fix push
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Execute pre-commit
+      uses: pre-commit/action@v2.0.0
+      env:
+        SKIP: no-commit-to-branch
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        extra_args: --color=always --show-diff-on-failure --files ${{ steps.file_changes.outputs.files }}

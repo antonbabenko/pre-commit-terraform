@@ -15,16 +15,21 @@ def main(argv=None):
     )
     parser.add_argument(
         '--sort-inputs-by-required', dest='sort', action='store_true',
+        help='[deprecated] use --sort-by-required instead',
+    )
+    parser.add_argument(
+        '--sort-by-required', dest='sort', action='store_true',
     )
     parser.add_argument(
         '--with-aggregate-type-defaults', dest='aggregate', action='store_true',
+        help='[deprecated]',
     )
     parser.add_argument('filenames', nargs='*', help='Filenames to check.')
     args = parser.parse_args(argv)
 
     dirs = []
     for filename in args.filenames:
-        if (os.path.realpath(filename) not in dirs and \
+        if (os.path.realpath(filename) not in dirs and
                 (filename.endswith(".tf") or filename.endswith(".tfvars"))):
             dirs.append(os.path.dirname(filename))
 
@@ -35,14 +40,11 @@ def main(argv=None):
             procArgs = []
             procArgs.append('terraform-docs')
             if args.sort:
-                procArgs.append('--sort-inputs-by-required')
-            if args.aggregate:
-                procArgs.append('--with-aggregate-type-defaults')
+                procArgs.append('--sort-by-required')
             procArgs.append('md')
             procArgs.append("./{dir}".format(dir=dir))
-            procArgs.append("| sed -e '$ d' -e 'N;/^\\n$/D;P;D'")
             procArgs.append('>')
-            procArgs.append("./{dir}/{dest}".format(dir=dir,dest=args.dest))
+            procArgs.append("./{dir}/{dest}".format(dir=dir, dest=args.dest))
             subprocess.check_call(" ".join(procArgs), shell=True)
         except subprocess.CalledProcessError as e:
             print(e)

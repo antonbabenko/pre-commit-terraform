@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-set -eo pipefail
 
-# `terraform validate` requires this env variable to be set
-export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+set -eo pipefail
 
 main() {
   initialize_
   parse_cmdline_ "$@"
-  terraform_validate_
+  terraform_providers_lock_
 }
 
 initialize_() {
@@ -30,7 +28,7 @@ initialize_() {
 
 parse_cmdline_() {
   declare argv
-  argv=$(getopt -o e:a: --long envs:,args: -- "$@") || return
+  argv=$(getopt -o a: --long args: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -38,11 +36,6 @@ parse_cmdline_() {
       -a | --args)
         shift
         ARGS+=("$1")
-        shift
-        ;;
-      -e | --envs)
-        shift
-        ENVS+=("$1")
         shift
         ;;
       --)
@@ -54,26 +47,16 @@ parse_cmdline_() {
   done
 }
 
-terraform_validate_() {
-
-  # Setup environment variables
-  local var var_name var_value
-  for var in "${ENVS[@]}"; do
-    var_name="${var%%=*}"
-    var_value="${var#*=}"
-    # shellcheck disable=SC2086
-    export $var_name="$var_value"
-  done
-
-  declare -a paths
+terraform_providers_lock_() {
+  local -a paths
   local index=0
-  local error=0
-
   local file_with_path
+
   for file_with_path in "${FILES[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     paths[index]=$(dirname "$file_with_path")
+
     ((index += 1))
   done
 
@@ -81,49 +64,25 @@ terraform_validate_() {
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
 
-    if [[ -n "$(find "$path_uniq" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
-
-      pushd "$(realpath "$path_uniq")" > /dev/null
-
-      if [[ ! -d .terraform ]]; then
-        set +e
-        init_output=$(terraform init -backend=false 2>&1)
-        init_code=$?
-        set -e
-
-        if [[ $init_code != 0 ]]; then
-          error=1
-          echo "Init before validation failed: $path_uniq"
-          echo "$init_output"
-          popd > /dev/null
-          continue
-        fi
-      fi
-
+    if [[ ! -d "${path_uniq}/.terraform" ]]; then
       set +e
-      validate_output=$(terraform validate "${ARGS[@]}" 2>&1)
-      validate_code=$?
+      init_output=$(terraform -chdir="${path_uniq}" init -backend=false 2>&1)
+      init_code=$?
       set -e
 
-      if [[ $validate_code != 0 ]]; then
-        error=1
-        echo "Validation failed: $path_uniq"
-        echo "$validate_output"
-        echo
+      if [[ $init_code != 0 ]]; then
+        echo "Init before validation failed: $path_uniq"
+        echo "$init_output"
+        exit 1
       fi
-
-      popd > /dev/null
     fi
-  done
 
-  if [[ $error -ne 0 ]]; then
-    exit 1
-  fi
+    terraform -chdir="${path_uniq}" providers lock "${ARGS[@]}"
+  done
 }
 
 # global arrays
 declare -a ARGS
-declare -a ENVS
 declare -a FILES
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
