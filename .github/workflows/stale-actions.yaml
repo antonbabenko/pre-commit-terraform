@@ -7,7 +7,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/stale@v3
+    - uses: actions/stale@v4
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         # Staling issues and PR's
@@ -20,9 +20,10 @@ jobs:
         stale-pr-message: |
           This PR has been automatically marked as stale because it has been open 30 days
           with no activity. Remove stale label or comment or this PR will be closed in 10 days
-        # Not stale if have this labels
+        # Not stale if have this labels or part of milestone
         exempt-issue-labels: bug,wip,on-hold
         exempt-pr-labels:    bug,wip,on-hold
+        exempt-all-milestones: true
         # Close issue operations
         # Label will be automatically removed if the issues are no longer closed nor locked.
         days-before-close: 10
