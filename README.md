@@ -223,6 +223,18 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 
 2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
 
+3. It is possible to automatically create docfile (and path to it), extend exiting docs files, by appending markers to the end of file (see p.1) and change docfile name.
+
+    Here is default values:
+
+    ```yaml
+    - id: terraform_docs
+      args:
+        - --hook-config=--path-to-file=README.md        # Valid UNIX path. I.e. ../TFDOC.md or docs/README.md etc.
+        - --hook-config=--add-to-exiting-file=true      # Boolean. true or false
+        - --hook-config=--create-file-if-not-exist=true # Boolean. true or false
+    ```
+
 For these hooks you need to specify all arguments as one:
 
 ```yaml

@@ -4,7 +4,7 @@ set -eo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
-  terraform_docs_ "${ARGS[*]}" "${FILES[@]}"
+  terraform_docs_ "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
 }
 
 initialize_() {
@@ -27,7 +27,7 @@ initialize_() {
 
 parse_cmdline_() {
   declare argv
-  argv=$(getopt -o a: --long args: -- "$@") || return
+  argv=$(getopt -o a: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -35,6 +35,11 @@ parse_cmdline_() {
       -a | --args)
         shift
         ARGS+=("$1")
+        shift
+        ;;
+      --hook-config)
+        shift
+        HOOK_CONFIG+=("$1")
         shift
         ;;
       --)
@@ -47,8 +52,9 @@ parse_cmdline_() {
 }
 
 terraform_docs_() {
-  local -r args="$1"
-  shift
+  local -r hook_config="$1"
+  local -r args="$2"
+  shift 2
   local -a -r files=("$@")
 
   local hack_terraform_docs
@@ -64,7 +70,7 @@ terraform_docs_() {
 
   if [[ -z "$is_old_terraform_docs" ]]; then # Using terraform-docs 0.8+ (preferred)
 
-    terraform_docs "0" "$args" "${files[@]}"
+    terraform_docs "0" "$hook_config" "$args" "${files[@]}"
 
   elif [[ "$hack_terraform_docs" == "1" ]]; then # Using awk script because terraform-docs is older than 0.8 and terraform 0.12 is used
 
@@ -76,20 +82,21 @@ terraform_docs_() {
     local tmp_file_awk
     tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
     terraform_docs_awk "$tmp_file_awk"
-    terraform_docs "$tmp_file_awk" "$args" "${files[@]}"
+    terraform_docs "$tmp_file_awk" "$hook_config" "$args" "${files[@]}"
     rm -f "$tmp_file_awk"
 
   else # Using terraform 0.11 and no awk script is needed for that
 
-    terraform_docs "0" "$args" "${files[@]}"
+    terraform_docs "0" "$hook_config" "$args" "${files[@]}"
 
   fi
 }
 
 terraform_docs() {
   local -r terraform_docs_awk_file="$1"
-  local -r args="$2"
-  shift 2
+  local -r hook_config="$2"
+  local -r args="$3"
+  shift 3
   local -a -r files=("$@")
 
   declare -a paths
@@ -105,7 +112,32 @@ terraform_docs() {
   done
 
   local -r tmp_file=$(mktemp)
-  local -r text_file="README.md"
+
+  #
+  # Get hook settings
+  #
+  local text_file="README.md"
+  local add_to_exiting=false
+  local create_if_not_exist=false
+
+  configs=($hook_config)
+  for c in "${configs[@]}"; do
+    config=(${c//=/ })
+    key=${config[0]}
+    value=${config[1]}
+
+    case $key in
+      --path-to-file)
+        text_file=$value
+        ;;
+      --add-to-exiting-file)
+        add_to_exiting=$value
+        ;;
+      --create-file-if-not-exist)
+        create_if_not_exist=$value
+        ;;
+    esac
+  done
 
   local path_uniq
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
@@ -113,9 +145,40 @@ terraform_docs() {
 
     pushd "$path_uniq" > /dev/null
 
-    if [[ ! -f "$text_file" ]]; then
-      popd > /dev/null
-      continue
+    #
+    # Create file if it not exist and `--create-if-not-exist=true` provided
+    #
+    if $create_if_not_exist && [[ ! -f "$text_file" ]]; then
+      dir_have_tf_files="$(
+        find . -maxdepth 1 -type f | sed 's|.*\.||' | sort -u | grep -oE '^tf$|^tfvars$' ||
+          exit 0
+      )"
+
+      # if no TF files - skip dir
+      [ ! "$dir_have_tf_files" ] && popd > /dev/null && continue
+
+      dir="$(dirname "$text_file")"
+
+      mkdir -p "$dir"
+      echo -e "# ${PWD##*/}\n" >> "$text_file"
+      echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+      echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+    fi
+
+    # If file still not exist - skip dir
+    [[ ! -f "$text_file" ]] && popd > /dev/null && continue
+
+    #
+    # If `--add-to-exiting-file=true` set, check is in file exist "hook markers",
+    # and if not - append "hook markers" to the end of file.
+    #
+    if $add_to_exiting; then
+      HAVE_MARKER=$(grep -o '<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->' "$text_file" || exit 0)
+
+      if [ ! "$HAVE_MARKER" ]; then
+        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+      fi
     fi
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
@@ -309,5 +372,6 @@ EOF
 # global arrays
 declare -a ARGS=()
 declare -a FILES=()
+declare -a HOOK_CONFIG=()
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
