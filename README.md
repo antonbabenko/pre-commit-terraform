@@ -73,7 +73,7 @@ docker build -t pre-commit \
     .
 ```
 
-To disable pre-commit color output set `-e PRE_COMMIT_COLOR=never`.
+To disable the pre-commit color output, set `-e PRE_COMMIT_COLOR=never`.
 
 </details>
 
@@ -154,7 +154,7 @@ EOF
 
 ### 4. Run
 
-After pre-commit hook has been installed you can run it manually on all files in the repository.
+After the pre-commit hook has been installing you can run it manually on all files in the repository.
 
 Local installation:
 
@@ -168,7 +168,7 @@ Docker:
 docker run -v $(pwd):/lint -w /lint pre-commit run -a
 ```
 
-> You be able list tools versions when needed
+> You be able to list tools versions when needed
 >
 > ```bash
 > TAG=latest && docker run --entrypoint cat pre-commit:$TAG /usr/bin/tools_versions_info
@@ -178,20 +178,22 @@ docker run -v $(pwd):/lint -w /lint pre-commit run -a
 
 There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) and Terragrunt configurations (`*.hcl`) in a good shape:
 
-| Hook name                                        | Description                                                                                                                                                                                                                                  |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `checkov`                                        | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov)                                                                                          |
-| `terraform_docs_replace`                         | Runs `terraform-docs` and pipes the output directly to README.md                                                                                                                                                                             |
-| `terraform_docs_without_aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            |
-| `terraform_docs`                                 | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          |
-| `terraform_fmt`                                  | Rewrites all Terraform configuration files to a canonical format. [Hook notes](#terraform_fmt)                                                                                                                                               |
-| `terraform_providers_lock`                       | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                              |
-| `terraform_tflint`                               | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). |
-| `terraform_tfsec`                                | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_tfsec)                                                                                             |
-| `terraform_validate`                             | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               |
-| `terragrunt_fmt`                                 | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   |
-| `terragrunt_validate`                            | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         |
-| `terrascan`                                      | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations.                                                                                                                                                |
+<!-- markdownlint-disable no-inline-html -->
+| Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup> |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `checkov`                                              | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov)                                                                                          | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                                                            |
+| `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md                                                                                                                                                                             | `terraform-docs`                                                                                                              |
+| `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `python3`, `terraform-docs`                                                                                                   |
+| `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                                                              |
+| `terraform_fmt`                                        | Rewrites all Terraform configuration files to a canonical format. [Hook notes](#terraform_fmt)                                                                                                                                               | -                                                                                                                             |
+| `terraform_providers_lock`                             | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                              | -                                                                                                                             |
+| `terraform_tflint`                                     | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). | `tflint`                                                                                                                      |
+| `terraform_tfsec`                                      | [TFSec](https://github.com/liamg/tfsec) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_tfsec)                                                                                             | `tfsec`                                                                                                                       |
+| `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | -                                                                                                                             |
+| `terragrunt_fmt`                                       | Rewrites all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                                                                  |
+| `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | -                                                                                                                             |
+| `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations.                                                                                                                                                | `terrascan`                                                                                                                   |
+<!-- markdownlint-enable no-inline-html -->
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
@@ -221,7 +223,7 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 
     if they are present in `README.md`.
 
-2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
+2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if something is missing.
 
 3. It is possible to automatically:
     * create docfile (and PATH to it)
@@ -253,7 +255,7 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 
 ### terraform_docs_replace
 
-`terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the name of the file that gets created/modified.
+`terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the filename that gets created/modified.
 
 Example:
 
@@ -294,7 +296,7 @@ Example:
           - '--args=-platform=darwin_amd64'
     ```
 
-4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository:
+4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -303,14 +305,14 @@ Example:
     }
     " >>~/.bashrc
 
-    # Reload shell and use `rm_terraform` command in repo root
+    # Reload shell and use `rm_terraform` command in the repo root
     ```
 
-    `terraform_providers_lock` hook will try to reinitialize them before running `terraform providers lock` command.
+    `terraform_providers_lock` hook will try to reinitialize them before running the `terraform providers lock` command.
 
 ### terraform_tflint
 
-1. `terraform_tflint` supports custom arguments so you can enable module inspection, deep check mode etc.
+1. `terraform_tflint` supports custom arguments so you can enable module inspection, deep check mode, etc.
 
     Example:
 
@@ -321,7 +323,7 @@ Example:
         - --args=--enable-rule=terraform_documented_variables
     ```
 
-2. When you have multiple directories and want to run `tflint` in all of them and share single config file it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
+2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_tflint
@@ -393,7 +395,7 @@ Example:
         - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository:
+3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -402,10 +404,10 @@ Example:
     }
     " >>~/.bashrc
 
-    # Reload shell and use `rm_terraform` command in repo root
+    # Reload shell and use `rm_terraform` command in the repo root
     ```
 
-   `terraform_validate` hook will try to reinitialize them before running `terraform validate` command.
+   `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
     **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation
 
@@ -414,10 +416,12 @@ Example:
 
 This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
 
+<!-- markdownlint-disable no-inline-html -->
 <a href="https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=antonbabenko/pre-commit-terraform" />
 </a>
+<!-- markdownlint-enable no-inline-html -->
 
 ## License
 
-MIT licensed. See LICENSE for full details.
+MIT licensed. See [LICENSE](LICENSE) for full details.
