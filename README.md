@@ -225,13 +225,33 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 
 2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if something is missing.
 
-For these hooks, you need to specify all arguments as one:
+3. It is possible to automatically:
+    * create docfile (and PATH to it)
+    * extend exiting docs files, by appending markers to the end of file (see p.1)
+    * use different than `README.md` docfile name.
 
-```yaml
-- id: terraform_docs
-  args:
-    - tfvars hcl --output-file terraform.tfvars.model .
-```
+    ```yaml
+    - id: terraform_docs
+      args:
+        - --hook-config=--path-to-file=README.md        # Valid UNIX path. I.e. ../TFDOC.md or docs/README.md etc.
+        - --hook-config=--add-to-exiting-file=true      # Boolean. true or false
+        - --hook-config=--create-file-if-not-exist=true # Boolean. true or false
+    ```
+
+4. You can provide arguments to terraform_doc. Eg. for [configuration](https://github.com/terraform-docs/terraform-docs/blob/master/docs/user-guide/configuration.md#usage):
+
+    ```yaml
+    - id: terraform_docs
+      args:
+        - --args=--config=.terraform-docs.yml
+
+5. If you need some exotic settings, it can be be done too. I.e. this one generates HCL files:
+
+    ```yaml
+    - id: terraform_docs
+    args:
+        - tfvars hcl --output-file terraform.tfvars.model .
+    ```
 
 ### terraform_docs_replace
 
