@@ -73,7 +73,7 @@ docker build -t pre-commit \
     .
 ```
 
-To disable pre-commit color output set `-e PRE_COMMIT_COLOR=never`.
+To disable the pre-commit color output, set `-e PRE_COMMIT_COLOR=never`.
 
 </details>
 
@@ -154,7 +154,7 @@ EOF
 
 ### 4. Run
 
-After pre-commit hook has been installed you can run it manually on all files in the repository.
+After the pre-commit hook has been installing you can run it manually on all files in the repository.
 
 Local installation:
 
@@ -168,7 +168,7 @@ Docker:
 docker run -v $(pwd):/lint -w /lint pre-commit run -a
 ```
 
-> You be able list tools versions when needed
+> You be able to list tools versions when needed
 >
 > ```bash
 > TAG=latest && docker run --entrypoint cat pre-commit:$TAG /usr/bin/tools_versions_info
@@ -223,9 +223,9 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 
     if they are present in `README.md`.
 
-2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if there is something missing.
+2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`. Send pull-request with the new hook if something is missing.
 
-For these hooks you need to specify all arguments as one:
+For these hooks, you need to specify all arguments as one:
 
 ```yaml
 - id: terraform_docs
@@ -235,7 +235,7 @@ For these hooks you need to specify all arguments as one:
 
 ### terraform_docs_replace
 
-`terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the name of the file that gets created/modified.
+`terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the filename that gets created/modified.
 
 Example:
 
@@ -276,7 +276,7 @@ Example:
           - '--args=-platform=darwin_amd64'
     ```
 
-4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository:
+4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -285,14 +285,14 @@ Example:
     }
     " >>~/.bashrc
 
-    # Reload shell and use `rm_terraform` command in repo root
+    # Reload shell and use `rm_terraform` command in the repo root
     ```
 
-    `terraform_providers_lock` hook will try to reinitialize them before running `terraform providers lock` command.
+    `terraform_providers_lock` hook will try to reinitialize them before running the `terraform providers lock` command.
 
 ### terraform_tflint
 
-1. `terraform_tflint` supports custom arguments so you can enable module inspection, deep check mode etc.
+1. `terraform_tflint` supports custom arguments so you can enable module inspection, deep check mode, etc.
 
     Example:
 
@@ -303,7 +303,7 @@ Example:
         - --args=--enable-rule=terraform_documented_variables
     ```
 
-2. When you have multiple directories and want to run `tflint` in all of them and share single config file it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
+2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_tflint
@@ -375,7 +375,7 @@ Example:
         - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc). To solve this problem you can find and delete all `.terraform` directories in your repository:
+3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -384,10 +384,10 @@ Example:
     }
     " >>~/.bashrc
 
-    # Reload shell and use `rm_terraform` command in repo root
+    # Reload shell and use `rm_terraform` command in the repo root
     ```
 
-   `terraform_validate` hook will try to reinitialize them before running `terraform validate` command.
+   `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
     **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation
 
@@ -396,10 +396,12 @@ Example:
 
 This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
 
+<!-- markdownlint-disable no-inline-html -->
 <a href="https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=antonbabenko/pre-commit-terraform" />
 </a>
+<!-- markdownlint-enable no-inline-html -->
 
 ## License
 
-MIT licensed. See LICENSE for full details.
+MIT licensed. See [LICENSE](LICENSE) for full details.
