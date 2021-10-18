@@ -4,8 +4,8 @@
   entry: infracost_breakdown.sh
   language: script
   require_serial: true
-  # files: (\.tf|\.terraform\.lock\.hcl)$
-  # exclude: \.terraform\/.*$
+  files: (\.tf|\.tfvars|\.hcl)$
+  exclude: \.terraform\/.*$
 
 - id: terraform_fmt
   name: Terraform fmt
