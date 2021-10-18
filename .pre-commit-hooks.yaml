@@ -3,6 +3,7 @@
   description: Check terraform infrastructure host
   entry: infracost_breakdown.sh
   language: script
+  require_serial: true
   # files: (\.tf|\.terraform\.lock\.hcl)$
   # exclude: \.terraform\/.*$
 
