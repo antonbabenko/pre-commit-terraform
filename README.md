@@ -223,21 +223,90 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 
 ### infracost_breakdown
 
-1. `infracost_breakdown` supports custom arguments so you can pass [supported flags](https://www.infracost.io/docs/#useful-options)
+`infracost_breakdown` build on top of the `infracost breakdown` command. It, if needed, run terraform init, terraform plan and call infracost API - so this hook can run up to few minutes.
+
+Unlike most other hooks, this one triggers all changes to tf files but checks predefined paths each time.
+
+For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./main.tf`. So when you will make changes to `./main.tf` - the hook will run and show the cost changes for `./env/dev`.
+
+
+1. `infracost_breakdown` supports custom arguments so you can pass [supported flags](https://www.infracost.io/docs/#useful-options).  
+    The next example only show costs:
 
     ```yaml
     - id: infracost_breakdown
       args:
-        - --args=-p
-        - --args=environment/qa
-        - --hook-config=.totalHourlyCost > "0.1"
-        - --hook-config=.totalHourlyCost <= "1"
-        - --hook-config=.projects[0].diff.totalMonthlyCost <= "100"
+        - --args=-p environment/qa
       verbose: true # Always show costs
     ```
+    <!-- markdownlint-disable-next-line no-inline-html -->
+    <details><summary>Output</summary>
 
+    ```bash
+    Run in "env/dev"
 
-To disable hook color output, set up `PRE_COMMIT_COLOR=never`
+    Summary: {
+    "unsupportedResourceCounts": {
+        "aws_sns_topic_subscription": 1
+    }
+    }
+    Total Hourly Cost:        0.1189452054794520505 USD
+    Total Hourly Cost (diff): 0.1189452054794520505 USD
+
+    Total Monthly Cost:        86.83 USD
+    Total Monthly Cost (diff): 86.83 USD
+    ```
+    <!-- markdownlint-disable-next-line no-inline-html -->
+    </details>
+
+2. You can provide limitations when the hook should fail:
+
+    ```yaml
+    - id: infracost_breakdown
+      args:
+        - --hook-config=
+            .totalHourlyCost > "0.1"
+            .totalHourlyCost <= 1
+            .projects[].diff.totalMonthlyCost!=10000
+    ```
+    <!-- markdownlint-disable-next-line no-inline-html -->
+    <details><summary>Output</summary>
+
+    ```bash
+    Run in "env/dev"
+    Passed: .totalHourlyCost >   0.1. 0.11894520547945205 > 0.1
+    Passed: .totalHourlyCost <= 10. 0.11894520547945205 <= 10
+    Passed: .projects[].diff.totalMonthlyCost < 1000. 86.83 < 1000
+
+    Summary: {
+    "unsupportedResourceCounts": {
+        "aws_sns_topic_subscription": 1
+    }
+    }
+    Total Hourly Cost:        0.1189452054794520505 USD
+    Total Hourly Cost (diff): 0.1189452054794520505 USD
+
+    Total Monthly Cost:        86.83 USD
+    Total Monthly Cost (diff): 86.83 USD
+    ```
+    <!-- markdownlint-disable-next-line no-inline-html -->
+    </details>
+
+    * Hook use `jq` to parse infracost output, so paths to values like `.totalHourlyCost` and `.totalMonthlyCost` should be in jq-compatible format.  
+    To check available structure use `infracost breakdown -p PATH_TO_TF_DIR --format json | jq -r . > infracost.json`. And play with it on [jqplay.org](https://jqplay.org/)
+    * Supported comparison operators: `<`, `<=`, `==`, `!=`, `>=`, `>`.
+    * Most useful paths:
+        * `.totalHourlyCost` (same to `.projects[].breakdown.totalHourlyCost`) - show total infra cost
+        * `.totalMonthlyCost` (same to `.projects[].breakdown.totalMonthlyCost`) - show total infra cost
+        * `.projects[].diff.totalHourlyCost` - show cost diff between created infra and tf plan
+        * `.projects[].diff.totalMonthlyCost` - show cost diff between created infra and tf plan
+    * You can setup only one path per `- id: infracost_breakdown` - this is `infracost` limitation.
+    * Set `verbose: true` to see cost even when the checks are passed.
+    * To disable hook color output, set up `PRE_COMMIT_COLOR=never`
+
+3. **Docker usage**. In `docker build` or `docker run` command:
+    * You need to provide [Infracost API key](https://www.infracost.io/docs/integrations/environment_variables/#infracost_api_key) via `-e INFRACOST_API_KEY=<your token>`. By default it saved to `~/.config/infracost/credentials.yml`
+    * Set `-e INFRACOST_SKIP_UPDATE_CHECK=true` to use in CI/CD systems. [Doc](https://www.infracost.io/docs/integrations/environment_variables/#infracost_skip_update_check)
 
 ### terraform_docs
 
@@ -255,7 +324,7 @@ To disable hook color output, set up `PRE_COMMIT_COLOR=never`
 
 3. It is possible to automatically:
     * create docfile (and PATH to it)
-    * extend exiting docs files, by appending markers to the end of file (see p.1)
+    * extend exiting docs files, by appending markers to the end of the file (see p.1)
     * use different than `README.md` docfile name.
 
     ```yaml
@@ -273,7 +342,7 @@ To disable hook color output, set up `PRE_COMMIT_COLOR=never`
       args:
         - --args=--config=.terraform-docs.yml
 
-5. If you need some exotic settings, it can be be done too. I.e. this one generates HCL files:
+5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
 
     ```yaml
     - id: terraform_docs
@@ -351,7 +420,7 @@ Example:
         - --args=--enable-rule=terraform_documented_variables
     ```
 
-2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
+2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to the `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_tflint

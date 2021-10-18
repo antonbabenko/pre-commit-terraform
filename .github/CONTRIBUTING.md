@@ -41,12 +41,28 @@ For example, to test that the [`terraform_fmt`](../README.md#terraform_fmt) hook
 /tmp/pre-commit-terraform/terraform_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
 ```
 
+Some hooks like `infracost_breakdown` support `--hook-config=` options. You can specify all options together separated by `;`, each individually or mix:
+
+```bash
+# All in one
+/tmp/pre-commit-terraform/infracost_breakdown.sh --args='-p environment/qa --show-skipped' --hook-config='.totalHourlyCost > 0.1; .totalHourlyCost <= 10; .projects[].diff.totalMonthlyCost < 1000'
+# Separated
+/tmp/pre-commit-terraform/infracost_breakdown.sh --args='-p environment/qa --show-skipped' \
+    --hook-config='.totalHourlyCost > 0.1' \
+    --hook-config='.totalHourlyCost <= 10' \
+    --hook-config='.projects[].diff.totalMonthlyCost < 1000' \
+# Mixed
+/tmp/pre-commit-terraform/infracost_breakdown.sh \
+    --args='-p environment/qa --show-skipped' --hook-config='.totalHourlyCost > 0.1' \
+    --hook-config=' .totalHourlyCost <= 10; .projects[].diff.totalMonthlyCost < 1000'
+```
+
 ## Run hook performance test
 
 To check is your improvement not violate performance, we have dummy execution time tests.
 
 Script accept next options:
-
+<!-- markdownlint-disable no-inline-html -->
 | #   | Name                               | Example value                                                            | Description                                          |
 | --- | ---------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------- |
 | 1   | `TEST_NUM`                         | `200`                                                                   | How many times need repeat test                      |
@@ -54,6 +70,7 @@ Script accept next options:
 | 3   | `TEST_DIR`                         | `'/tmp/infrastructure'`                                                  | Dir on what you run tests.                           |
 | 4   | `TEST_DESCRIPTION`                 | ```'`terraform_tfsec` PR #123:'```                                       | Text that you'd like to see in result                |
 | 5   | `RAW_TEST_`<br>`RESULTS_FILE_NAME` | `terraform_tfsec_pr123`                                                  | (Temporary) File where all test data will be stored. |
+<!-- markdownlint-enable no-inline-html -->
 
 ### Run via BASH
 
@@ -95,6 +112,8 @@ sudo rm -rf tests/results
 
 ## Add new hook
 
+You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/252) as an example.
+
 ### Before write code
 
 1. Try to figure out future hook usage.
@@ -132,4 +151,4 @@ sudo rm -rf tests/results
 ### Finish with the documentation
 
 1. Add hook description to [Available Hooks](../README.md#available-hooks).
-2. Create new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
+2. Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).

@@ -4,10 +4,8 @@ set -eo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
-  infracost_breakdown_ "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
+  infracost_breakdown_ "${HOOK_CONFIG[*]}" "${ARGS[*]}"
 }
-
-# Colorify
 
 function colorify {
   # Params start #
@@ -21,7 +19,7 @@ function colorify {
   local -r green="$(tput setaf 2)"
   local -r reset="$(tput sgr0)"
 
-  eval color='$'$COLOR
+  eval color='$'"$COLOR"
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     color=$reset
   fi
@@ -29,7 +27,7 @@ function colorify {
   echo "${color}${TEXT}${reset}"
 }
 
-initialize_() {
+function initialize_ {
   # get directory containing this script
   local dir
   local source
@@ -47,7 +45,7 @@ initialize_() {
   . "$_SCRIPT_DIR/lib_getopt"
 }
 
-parse_cmdline_() {
+function parse_cmdline_ {
   declare argv
   argv=$(getopt -o a: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
@@ -61,16 +59,11 @@ parse_cmdline_() {
         ;;
       --hook-config)
         shift
-        # replcece '\n' to ';' - add support to multiline config
-        config="${1//\\n/;}"
+        # replace '\n' to ';' - add support to multiline config
+        config="${1// \./;\.}"
         # $config; - separate configs that have spaces one from another
         HOOK_CONFIG+=("$config;")
         shift
-        ;;
-      --)
-        shift
-        FILES=("$@")
-        break
         ;;
     esac
   done
@@ -81,15 +74,13 @@ function get_cost_w/o_quotes {
   local -r INPUT=$2
   local -r CURRENCY=$3
 
-  echo "$(echo "$(jq "$JQ_PATTERN" <<< $INPUT) $CURRENCY" | tr -d \")"
+  echo "$(jq "$JQ_PATTERN" <<< "$INPUT") $CURRENCY" | tr -d \"
 }
 
-infracost_breakdown_() {
+function infracost_breakdown_ {
   local -r hook_config="$1"
   local args
-  IFS=" " read -a args <<< "$2"
-  shift 2
-  local -a -r files=("$@") #? Useless?
+  IFS=" " read -r -a args <<< "$2"
 
   # Get hook settings
   IFS=";" read -r -a checks <<< "$hook_config"
@@ -100,7 +91,7 @@ infracost_breakdown_() {
 
   RESULTS="$(infracost breakdown "${args[@]}" --format json)"
 
-  API_VERSION="$(jq .version <<< $RESULTS)"
+  API_VERSION="$(jq .version <<< "$RESULTS")"
 
   if [ ! "$API_VERSION" = '"0.2"' ]; then
     echo "WARNING: Hook supported Infracost API version \"0.2\", got $API_VERSION"
@@ -108,35 +99,33 @@ infracost_breakdown_() {
   fi
 
   local dir
-  dir="$(jq '.projects[].metadata.vcsSubPath' <<< $RESULTS)"
+  dir="$(jq '.projects[].metadata.vcsSubPath' <<< "$RESULTS")"
   echo -e "\nRun in $dir"
 
   local have_failed_checks=false
 
   # Okay, folks, that is bad solution, but everything else I tried just not works.
   # Time spend to this part: 1,5h
-
   for check in "${checks[@]}"; do
+    [ -z "$check" ] && continue
     # Unificate incoming string
     # Remove spaces and quotes, that can or not provided by users
-    c="$(echo $check | tr -d ' ' | tr -d '"')"
-    # Separate jq sting, comraration operator and comparing number
-    real_value_path="$(echo $c | grep -oP '^[\.\[\]\w]+')"
-    operation="$(echo $c | grep -oE '[\!<>=]+')"
-    user_value="$(echo $c | grep -oE '[0-9.,]+$')"
-    # Get vaue from infracost for comparation
-    real_value="$(jq "$real_value_path | tonumber" <<< $RESULTS)"
-
+    c="$(echo "$check" | tr -d ' ' | tr -d '"')"
+    # Separate jq sting, comparison operator and comparing number
+    real_value_path="$(echo "$c" | grep -oP '^[\.\[\]\w]+')"
+    operation="$(echo "$c" | grep -oE '[\!<>=]+')"
+    user_value="$(echo "$c" | grep -oE '[0-9.,]+$')"
+    # Get value from infracost for comparison
+    real_value="$(jq "$real_value_path | tonumber" <<< "$RESULTS")"
     # Compare values
     # Crutch to avoid redirection
-    bash_operation="$(echo $operation | tr '>' '<')"
+    bash_operation="$(echo "$operation" | tr '>' '<')"
 
     if [ "$operation" == "$bash_operation" ]; then
       check_passed=$(awk "BEGIN { print $real_value $operation $user_value }")
     else
       check_passed=$(awk "BEGIN { print $user_value $bash_operation $real_value }")
     fi
-
     status="Passed"
     color="green"
     if [[ ! $check_passed ]]; then
@@ -144,15 +133,14 @@ infracost_breakdown_() {
       color="red"
       have_failed_checks=true
     fi
-
     # Print each check result
     colorify $color "$status: $check. $real_value $operation $user_value"
   done
 
   # Fancy informational output
-  currency="$(jq '.currency' <<< $RESULTS)"
+  currency="$(jq '.currency' <<< "$RESULTS")"
 
-  printf "\nSummary: $(jq '.summary' <<< $RESULTS)"
+  printf "\nSummary: $(jq '.summary' <<< "$RESULTS")"
 
   printf "\nTotal Hourly Cost:        "
   get_cost_w/o_quotes '.totalHourlyCost' "$RESULTS" "$currency"
@@ -171,7 +159,6 @@ infracost_breakdown_() {
 
 # global arrays
 declare -a ARGS=()
-declare -a FILES=()
 declare -a HOOK_CONFIG=()
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
