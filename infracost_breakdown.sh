@@ -61,7 +61,10 @@ parse_cmdline_() {
         ;;
       --hook-config)
         shift
-        HOOK_CONFIG+=("$1;")
+        # replcece '\n' to ';' - add support to multiline config
+        config="${1//\\n/;}"
+        # $config; - separate configs that have spaces one from another
+        HOOK_CONFIG+=("$config;")
         shift
         ;;
       --)
