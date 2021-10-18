@@ -22,6 +22,10 @@ function colorify {
   local -r reset="$(tput sgr0)"
 
   eval color='$'$COLOR
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    color=$reset
+  fi
+
   echo "${color}${TEXT}${reset}"
 }
 
@@ -80,12 +84,16 @@ function get_cost_w/o_quotes {
 infracost_breakdown_() {
   local -r hook_config="$1"
   local args
-  IFS=" " read -r -a args <<< "$2"
+  IFS=" " read -a args <<< "$2"
   shift 2
   local -a -r files=("$@") #? Useless?
 
   # Get hook settings
   IFS=";" read -r -a checks <<< "$hook_config"
+
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    args+=("--no-color")
+  fi
 
   RESULTS="$(infracost breakdown "${args[@]}" --format json)"
 

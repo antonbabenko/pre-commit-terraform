@@ -12,6 +12,7 @@ Want to Contribute? Check [open issues](https://github.com/antonbabenko/pre-comm
 * [Available Hooks](#available-hooks)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [checkov](#checkov)
+  * [infracost_breakdown](#infracost_breakdown)
   * [terraform_docs](#terraform_docs)
   * [terraform_docs_replace](#terraform_docs_replace)
   * [terraform_fmt](#terraform_fmt)
@@ -190,7 +191,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup> |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `checkov`                                              | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov)                                                                                          | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                              |
-| `infracost_breakdown` | | `infracost`, `jq`, AWS credentials
+| `infracost_breakdown` | Check how much your infra cost with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown) | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key), Internet connection
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md                                                                                                                                                                             | `python3`, `terraform-docs`                                                     |
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `terraform-docs`                                                                |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                |
@@ -219,6 +220,24 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
     "--skip-check", "CKV2_AWS_8",
   ]
 ```
+
+### infracost_breakdown
+
+1. `infracost_breakdown` supports custom arguments so you can pass [supported flags](https://www.infracost.io/docs/#useful-options)
+
+    ```yaml
+    - id: infracost_breakdown
+      args:
+        - --args=-p
+        - --args=environment/qa
+        - --hook-config=.totalHourlyCost > "0.1"
+        - --hook-config=.totalHourlyCost <= "1"
+        - --hook-config=.projects[0].diff.totalMonthlyCost <= "100"
+      verbose: true # Always show costs
+    ```
+
+
+To disable hook color output, set up `PRE_COMMIT_COLOR=never`
 
 ### terraform_docs
 
