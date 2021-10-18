@@ -12,6 +12,11 @@ Enjoy the clean, valid, and documented code!
   * [Run via Docker](#run-via-docker)
   * [Check results](#check-results)
   * [Cleanup](#cleanup)
+* [Add new hook](#add-new-hook)
+  * [Before write code](#before-write-code)
+  * [Prepare basic documentation](#prepare-basic-documentation)
+  * [Add code](#add-code)
+  * [Finish with the documentation](#finish-with-the-documentation)
 
 ## Run and debug hooks locally
 
@@ -87,3 +92,44 @@ Results will be located at `./test/results` dir.
 ```bash
 sudo rm -rf tests/results
 ```
+
+## Add new hook
+
+### Before write code
+
+1. Try to figure out future hook usage.
+2. Confirm the concept with Anton Babenko.
+
+### Prepare basic documentation
+
+1. Identify and describe dependencies in [Install dependencies](../README.md#1-install-dependencies) and [Available Hooks](../README.md#available-hooks) sections
+
+### Add code
+
+1. Based on prev. block, add hook dependencies installation to [Dockerfile](../Dockerfile).  
+    Check that works:
+    * `docker build -t pre-commit --build-arg INSTALL_ALL=true .`
+    * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=latest .`
+    * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=<1.2.3> .`
+2. Add new hook to [`.pre-commit-hooks.yaml`](../.pre-commit-hooks.yaml)
+3. Create hook file. Do note forgot make it executable via `chmod +x`
+4. Test hook. How - described in [Run and debug hooks locally](#run-and-debug-hooks-locally) section.
+5. Test hook one more time.
+    1. Push commits with hook to GitHub
+    2. Grub commit SHA
+    3. Test hook using `.pre-commit-config.yaml`:
+
+        ```yaml
+        repos:
+        - repo: https://github.com/antonbabenko/pre-commit-terraform # Your repo
+        rev: 3d76da3885e6a33d59527eff3a57d246dfb66620 # Your commit SHA
+        hooks:
+          - id: terraform_docs # New hook name
+            args:
+              - --args=--config=.terraform-docs.yml # Some args that you'd like to test
+        ```
+
+### Finish with the documentation
+
+1. Add hook description to [Available Hooks](../README.md#available-hooks).
+2. Create new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).

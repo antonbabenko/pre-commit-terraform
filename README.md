@@ -45,6 +45,8 @@ Want to Contribute? Check [open issues](https://github.com/antonbabenko/pre-comm
 * [`terrascan`](https://github.com/accurics/terrascan) required for `terrascan` hook.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
+* [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
+* [`jq`](https://github.com/stedolan/jq) required for `infracost_breakdown` hook.
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -65,6 +67,7 @@ docker build -t pre-commit \
     --build-arg PRE_COMMIT_VERSION=latest \
     --build-arg TERRAFORM_VERSION=latest \
     --build-arg CHECKOV_VERSION=2.0.405 \
+    --build-arg INFRACOST_VERSION=latest \
     --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
     --build-arg TERRAGRUNT_VERSION=latest \
     --build-arg TERRASCAN_VERSION=1.10.0 \
@@ -83,8 +86,9 @@ To disable the pre-commit color output, set `-e PRE_COMMIT_COLOR=never`.
 [`coreutils`](https://formulae.brew.sh/formula/coreutils) required for `terraform_validate` hook on macOS (due to use of `realpath`).
 
 ```bash
-brew install pre-commit terraform-docs tflint tfsec coreutils checkov terrascan
+brew install pre-commit terraform-docs tflint tfsec coreutils checkov terrascan infracost jq
 terrascan init
+infracost register
 ```
 
 </details>
@@ -103,6 +107,8 @@ curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/re
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E -m 1"https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/ && terrascan init
+sudo apt install -y jq && \
+curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
 ```
 
 </details>
@@ -120,6 +126,8 @@ curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/re
 curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E -m 1"https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/ && terrascan init
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
+sudo apt install -y jq && \
+curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
 ```
 
 </details>
@@ -182,6 +190,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup> |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `checkov`                                              | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov)                                                                                          | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                              |
+| `infracost_breakdown` | | `infracost`, `jq`, AWS credentials
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md                                                                                                                                                                             | `python3`, `terraform-docs`                                                     |
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `terraform-docs`                                                                |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                |
