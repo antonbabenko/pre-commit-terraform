@@ -113,7 +113,7 @@ function infracost_breakdown_ {
     [ -z "$check" ] && continue
     # Unify incoming string
     # Remove spaces and quotes, which might be provided by users
-    c="$(echo "${check//\"}" | tr -d '[:space:]')"
+    c="$(echo "${check//\"/}" | tr -d '[:space:]')"
     # Separate jq string, comparison operator and compared number
     real_value_path="$(echo "$c" | grep -oP '^\.[.\[\]\w]+')"
     operation="$(echo "$c" | grep -oE '[!<>=]+')"
