@@ -38,7 +38,7 @@ function common::initialize {
 }
 
 function parse_cmdline_ {
-  declare argv
+  local argv
   argv=$(getopt -o a: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
 
