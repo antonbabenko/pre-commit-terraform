@@ -2,12 +2,12 @@
 set -eo pipefail
 
 main() {
-  initialize_
+  common::initialize
   parse_cmdline_ "$@"
   infracost_breakdown_ "${HOOK_CONFIG[*]}" "${ARGS[*]}"
 }
 
-function colorify {
+function common::colorify {
   # Params start #
   local -r COLOR=$1
   local -r TEXT=$2
@@ -27,22 +27,14 @@ function colorify {
   echo "${color}${TEXT}${reset}"
 }
 
-function initialize_ {
+function common::initialize {
+  local SCRIPT_DIR
   # get directory containing this script
-  local dir
-  local source
-  source="${BASH_SOURCE[0]}"
-  while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
-    dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
-    source="$(readlink "$source")"
-    # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    [[ $source != /* ]] && source="$dir/$source"
-  done
-  _SCRIPT_DIR="$(dirname "$source")"
+  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
   # source getopt function
   # shellcheck source=lib_getopt
-  . "$_SCRIPT_DIR/lib_getopt"
+  . "$SCRIPT_DIR/lib_getopt"
 }
 
 function parse_cmdline_ {
@@ -134,7 +126,7 @@ function infracost_breakdown_ {
       have_failed_checks=true
     fi
     # Print each check result
-    colorify $color "$status: $check. $real_value $operation $user_value"
+    common::colorify $color "$status: $check. $real_value $operation $user_value"
   done
 
   # Fancy informational output
