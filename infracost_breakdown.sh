@@ -123,7 +123,7 @@ function infracost_breakdown_ {
 
     status="Passed"
     color="green"
-    if [[ ! $check_passed ]]; then
+    if [ "$check_passed" == "0" ]; then
       status="Failed"
       color="red"
       have_failed_checks=true
