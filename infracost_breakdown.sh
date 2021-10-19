@@ -3,28 +3,29 @@ set -eo pipefail
 
 main() {
   common::initialize
-  parse_cmdline_ "$@"
+  common::parse_cmdline "$@"
   infracost_breakdown_ "${HOOK_CONFIG[*]}" "${ARGS[*]}"
 }
 
 function common::colorify {
+  # Colors. Provided as first string to first arg of function.
+  # shellcheck disable=SC2034
+  local -r red="$(tput setaf 1)"
+  # shellcheck disable=SC2034
+  local -r green="$(tput setaf 2)"
+  # Color reset
+  local -r RESET="$(tput sgr0)"
+
   # Params start #
-  local -r COLOR=$1
+  local COLOR="${!1}"
   local -r TEXT=$2
   # Params end #
 
-  # shellcheck disable=SC2034 # used in eval
-  local -r red="$(tput setaf 1)"
-  # shellcheck disable=SC2034 # used in eval
-  local -r green="$(tput setaf 2)"
-  local -r reset="$(tput sgr0)"
-
-  eval color='$'"$COLOR"
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
-    color=$reset
+    COLOR=$RESET
   fi
 
-  echo "${color}${TEXT}${reset}"
+  echo -e "${COLOR}${TEXT}${RESET}"
 }
 
 function common::initialize {
@@ -37,7 +38,7 @@ function common::initialize {
   . "$SCRIPT_DIR/lib_getopt"
 }
 
-function parse_cmdline_ {
+function common::parse_cmdline {
   local argv
   argv=$(getopt -o a: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
@@ -61,7 +62,7 @@ function parse_cmdline_ {
   done
 }
 
-function get_cost_w/o_quotes {
+function get_cost_without_quotes {
   local -r JQ_PATTERN=$1
   local -r INPUT=$2
   local -r CURRENCY=$3
@@ -72,7 +73,7 @@ function get_cost_w/o_quotes {
 function infracost_breakdown_ {
   local -r hook_config="$1"
   local args
-  IFS=" " read -r -a args <<< "$2"
+  read -r -a args <<< "$2"
 
   # Get hook settings
   IFS=";" read -r -a checks <<< "$hook_config"
@@ -110,7 +111,8 @@ function infracost_breakdown_ {
     # Get value from infracost for comparison
     real_value="$(jq "$real_value_path | tonumber" <<< "$RESULTS")"
     # Compare values
-    # Crutch to avoid redirection
+    # Crutch to avoid redirection. Eg. `0.1 > 0.1111` will not compare
+    # 2 numbers, but create file `0.1111` with `0.1` as its content.
     bash_operation="$(echo "$operation" | tr '>' '<')"
 
     if [ "$operation" == "$bash_operation" ]; then
@@ -118,6 +120,7 @@ function infracost_breakdown_ {
     else
       check_passed=$(awk "BEGIN { print $user_value $bash_operation $real_value }")
     fi
+
     status="Passed"
     color="green"
     if [[ ! $check_passed ]]; then
@@ -135,14 +138,14 @@ function infracost_breakdown_ {
   printf "\nSummary: $(jq '.summary' <<< "$RESULTS")"
 
   printf "\nTotal Hourly Cost:        "
-  get_cost_w/o_quotes '.totalHourlyCost' "$RESULTS" "$currency"
+  get_cost_without_quotes '.totalHourlyCost' "$RESULTS" "$currency"
   printf "Total Hourly Cost (diff): "
-  get_cost_w/o_quotes '.projects[].diff.totalHourlyCost' "$RESULTS" "$currency"
+  get_cost_without_quotes '.projects[].diff.totalHourlyCost' "$RESULTS" "$currency"
 
   printf "\nTotal Monthly Cost:        "
-  get_cost_w/o_quotes '.totalMonthlyCost' "$RESULTS" "$currency"
+  get_cost_without_quotes '.totalMonthlyCost' "$RESULTS" "$currency"
   printf "Total Monthly Cost (diff): "
-  get_cost_w/o_quotes '.projects[].diff.totalMonthlyCost' "$RESULTS" "$currency"
+  get_cost_without_quotes '.projects[].diff.totalMonthlyCost' "$RESULTS" "$currency"
 
   if $have_failed_checks; then
     exit 1
