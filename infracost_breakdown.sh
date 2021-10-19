@@ -108,7 +108,7 @@ function infracost_breakdown_ {
   local have_failed_checks=false
 
   # Okay, folks, that is bad solution, but everything else I tried just didn't work.
-  # Time spend to this part: 2h
+  # Time spent on this part: 2h
   for check in "${checks[@]}"; do
     [ -z "$check" ] && continue
     # Unify incoming string
