@@ -52,7 +52,7 @@ function common::parse_cmdline {
         ;;
       --hook-config)
         shift
-        # Add support to multiline config by replacing `\n` from `.pre-commit-config.yaml` to `;`.
+        # Add support for multiline config by replacing `\n` from `.pre-commit-config.yaml` to `;`.
         # .pre-commit-config.yaml:
         # ```yaml
         # - --hook-config=
