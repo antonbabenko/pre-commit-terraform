@@ -91,13 +91,14 @@ function infracost_breakdown_ {
     args+=("--no-color")
   fi
 
+  local RESULTS
   RESULTS="$(infracost breakdown "${args[@]}" --format json)"
+  local API_VERSION
+  API_VERSION="$(jq -r .version <<< "$RESULTS")"
 
-  API_VERSION="$(jq .version <<< "$RESULTS")"
-
-  if [ ! "$API_VERSION" = '"0.2"' ]; then
-    echo "WARNING: Hook supported Infracost API version \"0.2\", got $API_VERSION"
-    echo "Some things could not works"
+  if [ "$API_VERSION" != "0.2" ]; then
+    echo "WARNING: Hook supports Infracost API version \"0.2\", got \"$API_VERSION\""
+    echo "Some things may not work as expected"
   fi
 
   local dir
