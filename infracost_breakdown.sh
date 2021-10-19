@@ -119,7 +119,7 @@ function infracost_breakdown_ {
     # Get value from infracost for comparison
     real_value="$(jq "$real_value_path | tonumber" <<< "$RESULTS")"
     # Compare values
-    check_passed="$(($(bc -l <<< "$real_value $operation $user_value")))"
+    check_passed="$(bc -l <<< "$real_value $operation $user_value")"
 
     status="Passed"
     color="green"
