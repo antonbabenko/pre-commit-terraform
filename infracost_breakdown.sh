@@ -107,8 +107,6 @@ function infracost_breakdown_ {
 
   local have_failed_checks=false
 
-  # Okay, folks, that is bad solution, but everything else I tried just didn't work.
-  # Time spent on this part: 2h
   for check in "${checks[@]}"; do
     [ -z "$check" ] && continue
     # Unify incoming string
@@ -121,15 +119,7 @@ function infracost_breakdown_ {
     # Get value from infracost for comparison
     real_value="$(jq "$real_value_path | tonumber" <<< "$RESULTS")"
     # Compare values
-    # Crutch to avoid redirection. Eg. `0.1 > 0.1111` will not compare
-    # 2 numbers, but create file `0.1111` with `0.1` as its content.
-    bash_operation="$(echo "$operation" | tr '>' '<')"
-
-    if [ "$operation" == "$bash_operation" ]; then
-      check_passed=$(awk "BEGIN { print $real_value $operation $user_value }")
-    else
-      check_passed=$(awk "BEGIN { print $user_value $bash_operation $real_value }")
-    fi
+    check_passed="$(($(bc -l <<< "$real_value $operation $user_value")))"
 
     status="Passed"
     color="green"
