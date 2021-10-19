@@ -191,7 +191,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup> |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `checkov`                                              | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov)                                                                                          | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                              |
-| `infracost_breakdown` | Check how much your infra cost with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown) | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key), Internet connection
+| `infracost_breakdown` | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown) | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key), Internet connection
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md                                                                                                                                                                             | `python3`, `terraform-docs`                                                     |
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `terraform-docs`                                                                |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                |
@@ -223,7 +223,7 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 
 ### infracost_breakdown
 
-`infracost_breakdown` build on top of the `infracost breakdown` command. It, if needed, run terraform init, terraform plan and call infracost API - so this hook can run up to few minutes.
+`infracost_breakdown` build on top of the `infracost breakdown` command. It, if needed, runs `terraform init`, `terraform plan` and calls `infracost` API - so this hook can run up to several minutes.
 
 Unlike most other hooks, this one triggers all changes to tf files but checks predefined paths each time.
 
@@ -231,12 +231,12 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
 
 
 1. `infracost_breakdown` supports custom arguments so you can pass [supported flags](https://www.infracost.io/docs/#useful-options).  
-    The next example only show costs:
+    The following example only shows costs:
 
     ```yaml
     - id: infracost_breakdown
       args:
-        - --args=-p environment/qa
+        - --args=--path=./env/dev
       verbose: true # Always show costs
     ```
     <!-- markdownlint-disable-next-line no-inline-html -->
@@ -292,21 +292,21 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
     <!-- markdownlint-disable-next-line no-inline-html -->
     </details>
 
-    * Hook use `jq` to parse infracost output, so paths to values like `.totalHourlyCost` and `.totalMonthlyCost` should be in jq-compatible format.  
+    * Hook uses `jq` to parse `infracost` output, so paths to values like `.totalHourlyCost` and `.totalMonthlyCost` should be in jq-compatible format.  
     To check available structure use `infracost breakdown -p PATH_TO_TF_DIR --format json | jq -r . > infracost.json`. And play with it on [jqplay.org](https://jqplay.org/)
     * Supported comparison operators: `<`, `<=`, `==`, `!=`, `>=`, `>`.
     * Most useful paths:
-        * `.totalHourlyCost` (same to `.projects[].breakdown.totalHourlyCost`) - show total infra cost
-        * `.totalMonthlyCost` (same to `.projects[].breakdown.totalMonthlyCost`) - show total infra cost
-        * `.projects[].diff.totalHourlyCost` - show cost diff between created infra and tf plan
-        * `.projects[].diff.totalMonthlyCost` - show cost diff between created infra and tf plan
-    * You can setup only one path per `- id: infracost_breakdown` - this is `infracost` limitation.
+        * `.totalHourlyCost` (same to `.projects[].breakdown.totalHourlyCost`) - show total hourly infra cost
+        * `.totalMonthlyCost` (same to `.projects[].breakdown.totalMonthlyCost`) - show total monthly infra cost
+        * `.projects[].diff.totalHourlyCost` - show hourly cost diff between existing infra and tf plan
+        * `.projects[].diff.totalMonthlyCost` - show monthly cost diff between existing infra and tf plan
+    * You can setup only one path per one hook (`- id: infracost_breakdown`) - this is `infracost` limitation.
     * Set `verbose: true` to see cost even when the checks are passed.
-    * To disable hook color output, set up `PRE_COMMIT_COLOR=never`
+    * To disable hook color output, set `PRE_COMMIT_COLOR=never` env var
 
 3. **Docker usage**. In `docker build` or `docker run` command:
-    * You need to provide [Infracost API key](https://www.infracost.io/docs/integrations/environment_variables/#infracost_api_key) via `-e INFRACOST_API_KEY=<your token>`. By default it saved to `~/.config/infracost/credentials.yml`
-    * Set `-e INFRACOST_SKIP_UPDATE_CHECK=true` to use in CI/CD systems. [Doc](https://www.infracost.io/docs/integrations/environment_variables/#infracost_skip_update_check)
+    * You need to provide [Infracost API key](https://www.infracost.io/docs/integrations/environment_variables/#infracost_api_key) via `-e INFRACOST_API_KEY=<your token>`. By default it is saved in `~/.config/infracost/credentials.yml`
+    * Set `-e INFRACOST_SKIP_UPDATE_CHECK=true` to skip the Infracost update check; can be useful in CI/CD systems. [Doc](https://www.infracost.io/docs/integrations/environment_variables/#infracost_skip_update_check)
 
 ### terraform_docs
 
@@ -324,7 +324,7 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
 
 3. It is possible to automatically:
     * create docfile (and PATH to it)
-    * extend exiting docs files, by appending markers to the end of the file (see p.1)
+    * extend existing doc files by appending markers to the end of the file (see item 1)
     * use different than `README.md` docfile name.
 
     ```yaml

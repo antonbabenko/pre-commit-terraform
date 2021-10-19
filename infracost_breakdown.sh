@@ -74,7 +74,7 @@ function get_cost_w/o_quotes {
   local -r INPUT=$2
   local -r CURRENCY=$3
 
-  echo "$(jq "$JQ_PATTERN" <<< "$INPUT") $CURRENCY" | tr -d \"
+  echo "$(jq "$JQ_PATTERN" <<< "$INPUT") $CURRENCY" | tr -d '"'
 }
 
 function infracost_breakdown_ {
@@ -100,20 +100,20 @@ function infracost_breakdown_ {
 
   local dir
   dir="$(jq '.projects[].metadata.vcsSubPath' <<< "$RESULTS")"
-  echo -e "\nRun in $dir"
+  echo -e "\nRunning in $dir"
 
   local have_failed_checks=false
 
-  # Okay, folks, that is bad solution, but everything else I tried just not works.
+  # Okay, folks, that is bad solution, but everything else I tried just didn't work.
   # Time spend to this part: 1,5h
   for check in "${checks[@]}"; do
     [ -z "$check" ] && continue
-    # Unificate incoming string
+    # Unify incoming string
     # Remove spaces and quotes, that can or not provided by users
     c="$(echo "$check" | tr -d ' ' | tr -d '"')"
-    # Separate jq sting, comparison operator and comparing number
-    real_value_path="$(echo "$c" | grep -oP '^[\.\[\]\w]+')"
-    operation="$(echo "$c" | grep -oE '[\!<>=]+')"
+    # Separate jq string, comparison operator and compared number
+    real_value_path="$(echo "$c" | grep -oP '^\.[.\[\]\w]+')"
+    operation="$(echo "$c" | grep -oE '[!<>=]+')"
     user_value="$(echo "$c" | grep -oE '[0-9.,]+$')"
     # Get value from infracost for comparison
     real_value="$(jq "$real_value_path | tonumber" <<< "$RESULTS")"

@@ -1,6 +1,6 @@
 - id: infracost_breakdown
   name: Infracost breakdown
-  description: Check terraform infrastructure host
+  description: Check terraform infrastructure cost
   entry: infracost_breakdown.sh
   language: script
   require_serial: true

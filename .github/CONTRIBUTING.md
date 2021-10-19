@@ -131,11 +131,11 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
     * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=latest .`
     * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=<1.2.3> .`
 2. Add new hook to [`.pre-commit-hooks.yaml`](../.pre-commit-hooks.yaml)
-3. Create hook file. Do note forgot make it executable via `chmod +x`
-4. Test hook. How - described in [Run and debug hooks locally](#run-and-debug-hooks-locally) section.
+3. Create hook file. Don't forget to make it executable via `chmod +x /path/to/hook/file`.
+4. Test hook. How to do it is described in [Run and debug hooks locally](#run-and-debug-hooks-locally) section.
 5. Test hook one more time.
-    1. Push commits with hook to GitHub
-    2. Grub commit SHA
+    1. Push commit with hook file to GitHub
+    2. Grab SHA hash of the commit
     3. Test hook using `.pre-commit-config.yaml`:
 
         ```yaml
