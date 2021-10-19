@@ -52,7 +52,7 @@ function common::parse_cmdline {
         ;;
       --hook-config)
         shift
-        # Add support for multiline config by replacing `\n` from `.pre-commit-config.yaml` to `;`.
+        # Add support for multiline config by replacing `\n` from `.pre-commit-config.yaml` with `;`.
         # .pre-commit-config.yaml:
         # ```yaml
         # - --hook-config=
@@ -61,7 +61,7 @@ function common::parse_cmdline {
         # ````
         # Will be populated to `$1` as:
         # ` .totalHourlyCost > "0.1" .totalHourlyCost <= 1`
-        # So, to replace `\n` from `.pre-commit-config.yaml` we should replace ` .` to `;.`.
+        # So, to replace `\n` from `.pre-commit-config.yaml` we should replace ` .` with `;.`.
         config="${1// ./;.}"
         # $config; - separate configs that have spaces one from another
         HOOK_CONFIG+=("$config;")
