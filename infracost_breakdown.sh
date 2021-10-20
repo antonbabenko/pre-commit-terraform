@@ -64,13 +64,14 @@ function common::parse_cmdline {
         # So, to replace `\n` from `.pre-commit-config.yaml` we should replace ` .` with `;.`.
         config="${1// ./;.}"
         # $config; - separate configs that have spaces one from another
-        HOOK_CONFIG+=("$config;")
+        HOOK_CONFIG+=("$config;") # @todo: simplify
         shift
         ;;
     esac
   done
 }
 
+# @todo: can be implemented using `jq -r`
 function get_cost_without_quotes {
   local -r JQ_PATTERN=$1
   local -r INPUT=$2
@@ -108,6 +109,9 @@ function infracost_breakdown_ {
   local have_failed_checks=false
 
   for check in "${checks[@]}"; do
+
+    # @todo: replace with simpler ->  echo $RESULTS | jq '.totalHourlyCost|tonumber > 1'
+
     [ -z "$check" ] && continue
     # Unify incoming string
     # Remove spaces and quotes, which might be provided by users

@@ -264,10 +264,10 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
     ```yaml
     - id: infracost_breakdown
       args:
-        - --hook-config=
-            .totalHourlyCost > "0.1"
-            .totalHourlyCost <= 1
-            .projects[].diff.totalMonthlyCost!=10000
+        - --args=--path=./env/dev
+        - --hook-config='.totalHourlyCost|tonumber > 0.1'
+        - --hook-config='.totalHourlyCost|tonumber < 1'
+        - --hook-config='.projects[].diff.totalMonthlyCost|tonumber != 10000'
     ```
     <!-- markdownlint-disable-next-line no-inline-html -->
     <details><summary>Output</summary>
