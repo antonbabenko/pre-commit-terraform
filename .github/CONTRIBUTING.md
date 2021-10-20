@@ -41,22 +41,6 @@ For example, to test that the [`terraform_fmt`](../README.md#terraform_fmt) hook
 /tmp/pre-commit-terraform/terraform_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
 ```
 
-Some hooks like `infracost_breakdown` support `--hook-config=` options. You can specify all options together separated by `;`, each individually or mix:
-
-```bash
-# All in one
-/tmp/pre-commit-terraform/infracost_breakdown.sh --args='-p environment/qa --show-skipped' --hook-config='.totalHourlyCost > 0.1; .totalHourlyCost <= 10; .projects[].diff.totalMonthlyCost < 1000'
-# Separated
-/tmp/pre-commit-terraform/infracost_breakdown.sh --args='-p environment/qa --show-skipped' \
-    --hook-config='.totalHourlyCost > 0.1' \
-    --hook-config='.totalHourlyCost <= 10' \
-    --hook-config='.projects[].diff.totalMonthlyCost < 1000' \
-# Mixed
-/tmp/pre-commit-terraform/infracost_breakdown.sh \
-    --args='-p environment/qa --show-skipped' --hook-config='.totalHourlyCost > 0.1' \
-    --hook-config=' .totalHourlyCost <= 10; .projects[].diff.totalMonthlyCost < 1000'
-```
-
 ## Run hook performance test
 
 To check is your improvement not violate performance, we have dummy execution time tests.

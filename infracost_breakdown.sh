@@ -13,6 +13,8 @@ function common::colorify {
   local -r red="$(tput setaf 1)"
   # shellcheck disable=SC2034
   local -r green="$(tput setaf 2)"
+  # shellcheck disable=SC2034
+  local -r yellow="$(tput setaf 3)"
   # Color reset
   local -r RESET="$(tput sgr0)"
 
@@ -40,7 +42,7 @@ function common::initialize {
 
 function common::parse_cmdline {
   local argv
-  argv=$(getopt -o a: --long args:,hook-config: -- "$@") || return
+  argv=$(getopt -o a:,hc: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -50,34 +52,13 @@ function common::parse_cmdline {
         ARGS+=("$1")
         shift
         ;;
-      --hook-config)
+      -hc | --hook-config)
         shift
-        # Add support for multiline config by replacing `\n` from `.pre-commit-config.yaml` with `;`.
-        # .pre-commit-config.yaml:
-        # ```yaml
-        # - --hook-config=
-        #    .totalHourlyCost >  0.1
-        #    .totalHourlyCost < 10
-        # ````
-        # Will be populated to `$1` as:
-        # ` .totalHourlyCost > "0.1" .totalHourlyCost <= 1`
-        # So, to replace `\n` from `.pre-commit-config.yaml` we should replace ` .` with `;.`.
-        config="${1// ./;.}"
-        # $config; - separate configs that have spaces one from another
-        HOOK_CONFIG+=("$config;") # @todo: simplify
+        HOOK_CONFIG+=("$1;")
         shift
         ;;
     esac
   done
-}
-
-# @todo: can be implemented using `jq -r`
-function get_cost_without_quotes {
-  local -r JQ_PATTERN=$1
-  local -r INPUT=$2
-  local -r CURRENCY=$3
-
-  echo "$(jq "$JQ_PATTERN" <<< "$INPUT") $CURRENCY" | tr -d '"'
 }
 
 function infracost_breakdown_ {
@@ -98,8 +79,8 @@ function infracost_breakdown_ {
   API_VERSION="$(jq -r .version <<< "$RESULTS")"
 
   if [ "$API_VERSION" != "0.2" ]; then
-    echo "WARNING: Hook supports Infracost API version \"0.2\", got \"$API_VERSION\""
-    echo "Some things may not work as expected"
+    common::colorify "yellow" "WARNING: Hook supports Infracost API version \"0.2\", got \"$API_VERSION\""
+    common::colorify "yellow" "         Some things may not work as expected"
   fi
 
   local dir
@@ -109,47 +90,37 @@ function infracost_breakdown_ {
   local have_failed_checks=false
 
   for check in "${checks[@]}"; do
-
-    # @todo: replace with simpler ->  echo $RESULTS | jq '.totalHourlyCost|tonumber > 1'
-
-    [ -z "$check" ] && continue
-    # Unify incoming string
-    # Remove spaces and quotes, which might be provided by users
-    c="$(echo "${check//\"/}" | tr -d '[:space:]')"
-    # Separate jq string, comparison operator and compared number
-    real_value_path="$(echo "$c" | grep -oP '^\.[.\[\]\w]+')"
-    operation="$(echo "$c" | grep -oE '[!<>=]+')"
-    user_value="$(echo "$c" | grep -oE '[0-9.,]+$')"
-    # Get value from infracost for comparison
-    real_value="$(jq "$real_value_path | tonumber" <<< "$RESULTS")"
+    check=$(echo "$check" | sed 's/^[[:space:]]*//')
     # Compare values
-    check_passed="$(bc -l <<< "$real_value $operation $user_value")"
+    check_passed="$(echo "$RESULTS" | jq "$check")"
 
     status="Passed"
     color="green"
-    if [ "$check_passed" == "0" ]; then
+    if ! $check_passed; then
       status="Failed"
       color="red"
       have_failed_checks=true
     fi
+
     # Print each check result
-    common::colorify $color "$status: $check. $real_value $operation $user_value"
+    operation="$(echo "$check" | grep -oE '[!<>=]+')"
+    IFS="$operation" read -r -a jq_check <<< "$check"
+    real_value="$(jq "${jq_check[0]}" <<< "$RESULTS")"
+    compare_value="${jq_check[1]}${jq_check[2]}"
+
+    common::colorify $color "$status: $check\t\t$real_value $operation $compare_value"
   done
 
   # Fancy informational output
-  currency="$(jq '.currency' <<< "$RESULTS")"
+  currency="$(jq -r '.currency' <<< "$RESULTS")"
 
-  printf "\nSummary: $(jq '.summary' <<< "$RESULTS")"
+  echo -e "\nSummary: $(jq -r '.summary' <<< "$RESULTS")"
 
-  printf "\nTotal Hourly Cost:        "
-  get_cost_without_quotes '.totalHourlyCost' "$RESULTS" "$currency"
-  printf "Total Hourly Cost (diff): "
-  get_cost_without_quotes '.projects[].diff.totalHourlyCost' "$RESULTS" "$currency"
+  echo -e "\nTotal Hourly Cost:        $(jq -r .totalHourlyCost <<< "$RESULTS") $currency"
+  echo "Total Hourly Cost (diff): $(jq -r .projects[].diff.totalHourlyCost <<< "$RESULTS") $currency"
 
-  printf "\nTotal Monthly Cost:        "
-  get_cost_without_quotes '.totalMonthlyCost' "$RESULTS" "$currency"
-  printf "Total Monthly Cost (diff): "
-  get_cost_without_quotes '.projects[].diff.totalMonthlyCost' "$RESULTS" "$currency"
+  echo -e "\nTotal Monthly Cost:        $(jq -r .totalMonthlyCost <<< "$RESULTS") $currency"
+  echo "Total Monthly Cost (diff): $(jq -r .projects[].diff.totalMonthlyCost <<< "$RESULTS") $currency"
 
   if $have_failed_checks; then
     exit 1

@@ -243,12 +243,12 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
     <details><summary>Output</summary>
 
     ```bash
-    Run in "env/dev"
+    Running in "env/dev"
 
     Summary: {
     "unsupportedResourceCounts": {
         "aws_sns_topic_subscription": 1
-    }
+      }
     }
     Total Hourly Cost:        0.1189452054794520505 USD
     Total Hourly Cost (diff): 0.1189452054794520505 USD
@@ -265,24 +265,27 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
     - id: infracost_breakdown
       args:
         - --args=--path=./env/dev
-        - --hook-config='.totalHourlyCost|tonumber > 0.1'
-        - --hook-config='.totalHourlyCost|tonumber < 1'
-        - --hook-config='.projects[].diff.totalMonthlyCost|tonumber != 10000'
+        - --hook-config=.totalHourlyCost|tonumber > 0.1
+        - --hook-config=.totalHourlyCost|tonumber > 1
+        - --hook-config=.projects[].diff.totalMonthlyCost|tonumber != 10000
+        - --hook-config=.currency == "USD"
     ```
     <!-- markdownlint-disable-next-line no-inline-html -->
     <details><summary>Output</summary>
 
     ```bash
-    Run in "env/dev"
-    Passed: .totalHourlyCost >   0.1. 0.11894520547945205 > 0.1
-    Passed: .totalHourlyCost <= 10. 0.11894520547945205 <= 10
-    Passed: .projects[].diff.totalMonthlyCost < 1000. 86.83 < 1000
+    Running in "env/dev"
+    Passed: .totalHourlyCost|tonumber > 0.1         0.11894520547945205 >  0.1
+    Failed: .totalHourlyCost|tonumber > 1           0.11894520547945205 >  1
+    Passed: .projects[].diff.totalMonthlyCost|tonumber !=10000              86.83 != 10000
+    Passed: .currency == "USD"              "USD" == "USD"
 
     Summary: {
     "unsupportedResourceCounts": {
-        "aws_sns_topic_subscription": 1
+    "aws_sns_topic_subscription": 1
+      }
     }
-    }
+
     Total Hourly Cost:        0.1189452054794520505 USD
     Total Hourly Cost (diff): 0.1189452054794520505 USD
 
