@@ -42,7 +42,7 @@ function common::initialize {
 
 function common::parse_cmdline {
   local argv
-  argv=$(getopt -o a:,hc: --long args:,hook-config: -- "$@") || return
+  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -52,7 +52,7 @@ function common::parse_cmdline {
         ARGS+=("$1")
         shift
         ;;
-      -hc | --hook-config)
+      -h | --hook-config)
         shift
         HOOK_CONFIG+=("$1;")
         shift
