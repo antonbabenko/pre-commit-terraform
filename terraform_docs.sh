@@ -5,8 +5,8 @@ main() {
   initialize_
   parse_cmdline_ "$@"
   # Support for setting relative PATH to .terraform-docs.yml config.
-  ARGS=${ARGS/--config=/--config=$(pwd)\/}
-  terraform_docs_ "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
+  args=${ARGS[*]/--config=/--config=$(pwd)\/}
+  terraform_docs_ "${HOOK_CONFIG[*]}" "$args" "${FILES[@]}"
 }
 
 initialize_() {
