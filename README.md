@@ -225,7 +225,7 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 
 `infracost_breakdown` build on top of the `infracost breakdown` command. It, if needed, runs `terraform init`, `terraform plan` and calls `infracost` API - so this hook can run up to several minutes.
 
-Unlike most other hooks, this one triggers all changes to tf files but checks predefined paths each time.
+Unlike most other hooks, this one triggers all changes to the files but checks predefined paths each time.
 
 For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./main.tf`. So when you will make changes to `./main.tf` - the hook will run and show the cost changes for `./env/dev`.
 
@@ -301,7 +301,7 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
         * `.diffTotalHourlyCost` (for Infracost version 0.9.12 or newer) or `[.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add > 1000` (for Infracost older than 0.9.12):
             * fail if changes push the total monthly cost estimate above $1K
             * fail if changes increase the cost by $1K.
-    * You can set up only one path per one hook (`- id: infracost_breakdown`) - this is `infracost` limitation.
+    * You can set up only one path per one hook (`- id: infracost_breakdown`) - this is an `infracost` limitation.
     * Set `verbose: true` to see cost even when the checks are passed.
     * To disable hook color output, set `PRE_COMMIT_COLOR=never` env var
 
