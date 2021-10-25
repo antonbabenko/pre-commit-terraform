@@ -91,6 +91,32 @@ function infracost_breakdown_ {
 
   for check in "${checks[@]}"; do
     check=$(echo "$check" | sed 's/^[[:space:]]*//')
+
+    operation="$(echo "$check" | grep -oE '[!<>=]+')"
+    IFS="$operation" read -r -a jq_check <<< "$check"
+    real_value="$(jq "${jq_check[0]}" <<< "$RESULTS")"
+    compare_value="${jq_check[1]}${jq_check[2]}"
+    # Check types
+    jq_check_type="$(jq -r "${jq_check[0]} | type" <<< "$RESULTS")"
+    compare_value_type="$(jq -r "$compare_value | type" <<< "$RESULTS")"
+    # Fail if compare difаerent types
+    if [ "$jq_check_type" != "$compare_value_type" ]; then
+      common::colorify "yellow" "Warning: Compare different types: $check\t\t[$jq_check_type] $operation [$compare_value_type]"
+      common::colorify "yellow" "         Make sure to use '|tonumber' if you want to compare costs."
+      have_failed_checks=true
+      continue
+    fi
+    # Fail if string commpared not with `==` or `!=`
+    if [ "$jq_check_type" == "string" ] && {
+      [ "$operation" != '==' ] && [ "$operation" != '!=' ]
+    }; then
+      common::colorify "yellow" "Warning: Wrong comparation: $check\t\t[$jq_check_type] $operation [$compare_value_type]"
+      common::colorify "yellow" "         Make sure to use '|tonumber' if you want to compare costs."
+      common::colorify "yellow" "         Or use '==' or '!=' for string comparation"
+      have_failed_checks=true
+      continue
+    fi
+
     # Compare values
     check_passed="$(echo "$RESULTS" | jq "$check")"
 
@@ -102,12 +128,7 @@ function infracost_breakdown_ {
       have_failed_checks=true
     fi
 
-    # Print each check result
-    operation="$(echo "$check" | grep -oE '[!<>=]+')"
-    IFS="$operation" read -r -a jq_check <<< "$check"
-    real_value="$(jq "${jq_check[0]}" <<< "$RESULTS")"
-    compare_value="${jq_check[1]}${jq_check[2]}"
-
+    # Print check result
     common::colorify $color "$status: $check\t\t$real_value $operation $compare_value"
   done
 
@@ -115,9 +136,6 @@ function infracost_breakdown_ {
   currency="$(jq -r '.currency' <<< "$RESULTS")"
 
   echo -e "\nSummary: $(jq -r '.summary' <<< "$RESULTS")"
-
-  echo -e "\nTotal Hourly Cost:        $(jq -r .totalHourlyCost <<< "$RESULTS") $currency"
-  echo "Total Hourly Cost (diff): $(jq -r .projects[].diff.totalHourlyCost <<< "$RESULTS") $currency"
 
   echo -e "\nTotal Monthly Cost:        $(jq -r .totalMonthlyCost <<< "$RESULTS") $currency"
   echo "Total Monthly Cost (diff): $(jq -r .projects[].diff.totalMonthlyCost <<< "$RESULTS") $currency"

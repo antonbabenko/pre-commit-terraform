@@ -298,12 +298,15 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
     * Hook uses `jq` to parse `infracost` output, so paths to values like `.totalHourlyCost` and `.totalMonthlyCost` should be in jq-compatible format.  
     To check available structure use `infracost breakdown -p PATH_TO_TF_DIR --format json | jq -r . > infracost.json`. And play with it on [jqplay.org](https://jqplay.org/)
     * Supported comparison operators: `<`, `<=`, `==`, `!=`, `>=`, `>`.
-    * Most useful paths:
+    * Most useful paths and checks:
         * `.totalHourlyCost` (same to `.projects[].breakdown.totalHourlyCost`) - show total hourly infra cost
         * `.totalMonthlyCost` (same to `.projects[].breakdown.totalMonthlyCost`) - show total monthly infra cost
         * `.projects[].diff.totalHourlyCost` - show hourly cost diff between existing infra and tf plan
         * `.projects[].diff.totalMonthlyCost` - show monthly cost diff between existing infra and tf plan
-    * You can setup only one path per one hook (`- id: infracost_breakdown`) - this is `infracost` limitation.
+        * `[.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add > 1000`:
+            * fail if changes push the total monthly cost estimate above $1K
+            * fail if changes increase the cost by $1K.
+    * You can set up only one path per one hook (`- id: infracost_breakdown`) - this is `infracost` limitation.
     * Set `verbose: true` to see cost even when the checks are passed.
     * To disable hook color output, set `PRE_COMMIT_COLOR=never` env var
 
