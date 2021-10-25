@@ -40,6 +40,11 @@ function common::initialize {
   . "$SCRIPT_DIR/lib_getopt"
 }
 
+# common global arrays.
+# Populated in `parse_cmdline` and can used in hooks functions
+declare -a ARGS=()
+declare -a HOOK_CONFIG=()
+declare -a FILES=()
 function common::parse_cmdline {
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
@@ -56,6 +61,11 @@ function common::parse_cmdline {
         shift
         HOOK_CONFIG+=("$1;")
         shift
+        ;;
+      --)
+        shift
+        FILES=("$@")
+        break
         ;;
     esac
   done
@@ -149,9 +159,5 @@ function infracost_breakdown_ {
     exit 1
   fi
 }
-
-# global arrays
-declare -a ARGS=()
-declare -a HOOK_CONFIG=()
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
