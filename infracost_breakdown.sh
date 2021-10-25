@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-main() {
+function main {
   common::initialize
   common::parse_cmdline "$@"
   infracost_breakdown_ "${HOOK_CONFIG[*]}" "${ARGS[*]}"
