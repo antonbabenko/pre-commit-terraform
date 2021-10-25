@@ -90,9 +90,9 @@ function infracost_breakdown_ {
   local have_failed_checks=false
 
   for check in "${checks[@]}"; do
-    # $hook_config gets sting like '1 > 2; 3 == 4;' etc.
-    # it split by `;` to array, so we give ('1 > 2' ' 3 == 4')
-    # Next line remove leading spaces, just for fancy output reason.
+    # $hook_config receives string like '1 > 2; 3 == 4;' etc.
+    # It gets split by `;` into array, which we're parsing here ('1 > 2' ' 3 == 4')
+    # Next line removes leading spaces, just for fancy output reason.
     check=$(echo "$check" | sed 's/^[[:space:]]*//')
 
     operation="$(echo "$check" | grep -oE '[!<>=]+')"
@@ -102,14 +102,14 @@ function infracost_breakdown_ {
     # Check types
     jq_check_type="$(jq -r "${jq_check[0]} | type" <<< "$RESULTS")"
     compare_value_type="$(jq -r "$compare_value | type" <<< "$RESULTS")"
-    # Fail if compare difаerent types
+    # Fail if comparing different types
     if [ "$jq_check_type" != "$compare_value_type" ]; then
       common::colorify "yellow" "Warning: Compare different types: $check\t\t[$jq_check_type] $operation [$compare_value_type]"
       common::colorify "yellow" "         Make sure to use '|tonumber' if you want to compare costs."
       have_failed_checks=true
       continue
     fi
-    # Fail if string commpared not with `==` or `!=`
+    # Fail if string is compared not with `==` or `!=`
     if [ "$jq_check_type" == "string" ] && {
       [ "$operation" != '==' ] && [ "$operation" != '!=' ]
     }; then
