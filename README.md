@@ -250,8 +250,6 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
         "aws_sns_topic_subscription": 1
       }
     }
-    Total Hourly Cost:        0.1189452054794520505 USD
-    Total Hourly Cost (diff): 0.1189452054794520505 USD
 
     Total Monthly Cost:        86.83 USD
     Total Monthly Cost (diff): 86.83 USD
@@ -285,9 +283,6 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
     "aws_sns_topic_subscription": 1
       }
     }
-
-    Total Hourly Cost:        0.1189452054794520505 USD
-    Total Hourly Cost (diff): 0.1189452054794520505 USD
 
     Total Monthly Cost:        86.83 USD
     Total Monthly Cost (diff): 86.83 USD
