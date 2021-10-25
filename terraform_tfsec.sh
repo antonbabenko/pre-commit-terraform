@@ -54,8 +54,7 @@ parse_cmdline_() {
     case $argv in
       -a | --args)
         shift
-        expanded_arg="${1//__GIT_WORKING_DIR__/$PWD}"
-        ARGS+=("$expanded_arg")
+        ARGS+=("$1")
         shift
         ;;
       --)

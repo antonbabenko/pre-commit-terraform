@@ -372,14 +372,7 @@ Example:
            --no-color
            -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
     ```
-4. Like terraform_tflint, `__GIT_WORKING_DIR__` can be used when specifying files relative to the git working directory:
 
-Example:
-
-    ```yaml
-    - id: terraform_tfsec
-      args: [--args=--config-file=__GIT_WORKING_DIR__/.tfsec.json]
-    ```
 
 ### terraform_validate
 
