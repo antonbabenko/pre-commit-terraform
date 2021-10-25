@@ -90,6 +90,9 @@ function infracost_breakdown_ {
   local have_failed_checks=false
 
   for check in "${checks[@]}"; do
+    # $hook_config gets sting like '1 > 2; 3 == 4;' etc.
+    # it split by `;` to array, so we give ('1 > 2' ' 3 == 4')
+    # Next line remove leading spaces, just for fancy output reason.
     check=$(echo "$check" | sed 's/^[[:space:]]*//')
 
     operation="$(echo "$check" | grep -oE '[!<>=]+')"
