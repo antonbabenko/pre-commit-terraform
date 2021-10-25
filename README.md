@@ -298,7 +298,7 @@ For example, the hook tracks `--path=./env/dev` and `./env/dev` depend on `./mai
         * `.totalMonthlyCost` (same to `.projects[].breakdown.totalMonthlyCost`) - show total monthly infra cost
         * `.projects[].diff.totalHourlyCost` - show hourly cost diff between existing infra and tf plan
         * `.projects[].diff.totalMonthlyCost` - show monthly cost diff between existing infra and tf plan
-        * `[.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add > 1000`:
+      * `.diffTotalHourlyCost` (for Infracost version 0.9.12 or newer) or `[.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add > 1000` (for Infracost older than 0.9.12):
             * fail if changes push the total monthly cost estimate above $1K
             * fail if changes increase the cost by $1K.
     * You can set up only one path per one hook (`- id: infracost_breakdown`) - this is `infracost` limitation.
