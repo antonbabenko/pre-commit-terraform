@@ -110,9 +110,9 @@ function infracost_breakdown_ {
     if [ "$jq_check_type" == "string" ] && {
       [ "$operation" != '==' ] && [ "$operation" != '!=' ]
     }; then
-      common::colorify "yellow" "Warning: Wrong comparation: $check\t\t[$jq_check_type] $operation [$compare_value_type]"
+      common::colorify "yellow" "Warning: Wrong comparison: $check\t\t[$jq_check_type] $operation [$compare_value_type]"
       common::colorify "yellow" "         Make sure to use '|tonumber' if you want to compare costs."
-      common::colorify "yellow" "         Or use '==' or '!=' for string comparation"
+      common::colorify "yellow" "         Or use '==' or '!=' for string comparison."
       have_failed_checks=true
       continue
     fi
