@@ -101,7 +101,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 ### Before write code
 
 1. Try to figure out future hook usage.
-2. Confirm the concept with Anton Babenko.
+2. Confirm the concept with [Anton Babenko](https://github.com/antonbabenko).
 
 ### Prepare basic documentation
 
