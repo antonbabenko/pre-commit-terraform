@@ -1,5 +1,5 @@
 repos:
-- repo: git://github.com/pre-commit/pre-commit-hooks
+- repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.0.1
   hooks:
     # Git style
@@ -28,7 +28,7 @@ repos:
     - id: detect-private-key
 
 
-- repo: git://github.com/jumanjihouse/pre-commit-hooks
+- repo: https://github.com/jumanjihouse/pre-commit-hooks
   rev: 2.1.5
   hooks:
     - id: shfmt
