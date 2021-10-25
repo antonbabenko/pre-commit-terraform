@@ -104,8 +104,10 @@ function infracost_breakdown_ {
     compare_value_type="$(jq -r "$compare_value | type" <<< "$RESULTS")"
     # Fail if comparing different types
     if [ "$jq_check_type" != "$compare_value_type" ]; then
-      common::colorify "yellow" "Warning: Compare different types: $check\t\t[$jq_check_type] $operation [$compare_value_type]"
-      common::colorify "yellow" "         Make sure to use '|tonumber' if you want to compare costs."
+      common::colorify "yellow" "Warning: Comparing values with different types may give incorrect result"
+      common::colorify "yellow" "         Expression: $check"
+      common::colorify "yellow" "         Types in the expression: [$jq_check_type] $operation [$compare_value_type]"
+      common::colorify "yellow" "         Use 'tonumber' filter when comparing costs (e.g. '.totalMonthlyCost|tonumber')"
       have_failed_checks=true
       continue
     fi
@@ -113,9 +115,9 @@ function infracost_breakdown_ {
     if [ "$jq_check_type" == "string" ] && {
       [ "$operation" != '==' ] && [ "$operation" != '!=' ]
     }; then
-      common::colorify "yellow" "Warning: Wrong comparison: $check\t\t[$jq_check_type] $operation [$compare_value_type]"
-      common::colorify "yellow" "         Make sure to use '|tonumber' if you want to compare costs."
-      common::colorify "yellow" "         Or use '==' or '!=' for string comparison."
+      common::colorify "yellow" "Warning: Wrong comparison operator is used in expression: $check"
+      common::colorify "yellow" "         Use 'tonumber' filter when comparing costs (e.g. '.totalMonthlyCost|tonumber')"
+      common::colorify "yellow" "         Use '==' or '!=' when comparing strings (e.g. '.currency == \"USD\"')."
       have_failed_checks=true
       continue
     fi
