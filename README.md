@@ -323,12 +323,12 @@ Example:
         - --args=--enable-rule=terraform_documented_variables
     ```
 
-2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
+2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to `.tflint.hcl` file. The solution is to use relative path to file which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_tflint
       args:
-        - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
+        - --args=--config=.tflint.hcl
     ```
 
 

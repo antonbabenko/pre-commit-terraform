@@ -2,41 +2,56 @@
 
 set -eo pipefail
 
-main() {
-  initialize_
-  parse_cmdline_ "$@"
-  tflint_
+function main {
+  common::initialize
+  common::parse_cmdline "$@"
+  #! Avoiding breaking changes crutch. Will be simplified on
+  #! https://github.com/antonbabenko/pre-commit-terraform/issues/262
+  crutch="$(echo "${ARGS[*]}" | grep -oe '--config=/' || exit 0)"
+  if [ "$crutch" != "" ]; then
+    ARGS="${ARGS[*]}"
+  else
+    # Support for setting relative PATH to config.
+    ARGS=${ARGS[*]/--config=/--config=$(pwd)\/}
+  fi
+
+  tflint_ "$ARGS" "${FILES[*]}"
 }
 
-initialize_() {
+function common::initialize {
+  local SCRIPT_DIR
   # get directory containing this script
-  local dir
-  local source
-  source="${BASH_SOURCE[0]}"
-  while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
-    dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
-    source="$(readlink "$source")"
-    # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    [[ $source != /* ]] && source="$dir/$source"
-  done
-  _SCRIPT_DIR="$(dirname "$source")"
+  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
   # source getopt function
   # shellcheck source=lib_getopt
-  . "$_SCRIPT_DIR/lib_getopt"
+  . "$SCRIPT_DIR/lib_getopt"
 }
 
-parse_cmdline_() {
-  declare argv
-  argv=$(getopt -o a: --long args: -- "$@") || return
+# common global arrays.
+# Populated in `parse_cmdline` and can used in hooks functions
+declare -a ARGS=()
+declare -a HOOK_CONFIG=()
+declare -a FILES=()
+function common::parse_cmdline {
+  local argv
+  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
     case $argv in
       -a | --args)
         shift
+        #! Avoiding breaking changes crutch. Will be removed in
+        #! https://github.com/antonbabenko/pre-commit-terraform/issues/262
         expanded_arg="${1//__GIT_WORKING_DIR__/$PWD}"
         ARGS+=("$expanded_arg")
+        # ARGS+=("$1")
+        shift
+        ;;
+      -h | --hook-config)
+        shift
+        HOOK_CONFIG+=("$1;")
         shift
         ;;
       --)
@@ -46,12 +61,16 @@ parse_cmdline_() {
         ;;
     esac
   done
-
 }
 
-tflint_() {
+function tflint_ {
+  local args
+  read -r -a args <<< "$1"
+  local files
+  read -r -a files <<< "$2"
+
   local index=0
-  for file_with_path in "${FILES[@]}"; do
+  for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     paths[index]=$(dirname "$file_with_path")
@@ -65,17 +84,13 @@ tflint_() {
 
     # Print checked PATH **only** if TFLint have any messages
     # shellcheck disable=SC2091 # Suppress error output
-    $(tflint "${ARGS[@]}" 2>&1) 2> /dev/null || {
+    $(tflint "${args[@]}" 2>&1) 2> /dev/null || {
       echo >&2 -e "\033[1;31m\nERROR in $path_uniq/:\033[0m"
-      tflint "${ARGS[@]}"
+      tflint "${args[@]}"
     }
 
     popd > /dev/null
   done
 }
-
-# global arrays
-declare -a ARGS
-declare -a FILES
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
