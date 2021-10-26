@@ -11,7 +11,9 @@ RUN apt update && \
         software-properties-common \
         curl \
         python3 \
-        python3-pip && \
+        python3-pip \
+        # infracost deps
+        jq && \
     # Upgrade pip for be able get latest Checkov
     python3 -m pip install --upgrade pip && \
     # Cleanup
@@ -41,6 +43,7 @@ RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
 WORKDIR /bin_dir
 
 ARG CHECKOV_VERSION=${CHECKOV_VERSION:-false}
+ARG INFRACOST_VERSION=${INFRACOST_VERSION:-false}
 ARG TERRAFORM_DOCS_VERSION=${TERRAFORM_DOCS_VERSION:-false}
 ARG TERRAGRUNT_VERSION=${TERRAGRUNT_VERSION:-false}
 ARG TERRASCAN_VERSION=${TERRASCAN_VERSION:-false}
@@ -54,6 +57,7 @@ ARG TFSEC_VERSION=${TFSEC_VERSION:-false}
 ARG INSTALL_ALL=${INSTALL_ALL:-false}
 RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "export CHECKOV_VERSION=latest" >> /.env && \
+        echo "export INFRACOST_VERSION=latest" >> /.env && \
         echo "export TERRAFORM_DOCS_VERSION=latest" >> /.env && \
         echo "export TERRAGRUNT_VERSION=latest" >> /.env && \
         echo "export TERRASCAN_VERSION=latest" >> /.env && \
@@ -71,6 +75,16 @@ RUN . /.env && \
         [ "$CHECKOV_VERSION" = "latest" ] && pip3 install --no-cache-dir checkov \
         || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION} \
     ) \
+    ; fi
+
+# infracost
+RUN . /.env && \
+    if [ "$INFRACOST_VERSION" != "false" ]; then \
+    ( \
+        INFRACOST_RELEASES="https://api.github.com/repos/infracost/infracost/releases" && \
+        [ "$INFRACOST_VERSION" = "latest" ] && curl -L "$(curl -s ${INFRACOST_RELEASES}/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz \
+        || curl -L "$(curl -s ${INFRACOST_RELEASES} | grep -o -E "https://.+?v${INFRACOST_VERSION}/infracost-linux-amd64.tar.gz")" > infracost.tgz \
+    ) && tar -xzf infracost.tgz && rm infracost.tgz && mv infracost-linux-amd64 infracost \
     ; fi
 
 # Terraform docs
@@ -131,6 +145,7 @@ RUN . /.env && \
     pre-commit --version >> $F && \
     terraform --version | head -n 1 >> $F && \
     (if [ "$CHECKOV_VERSION"        != "false" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F       ; fi) && \
+    (if [ "$INFRACOST_VERSION"      != "false" ]; then echo "$(./infracost --version)" >> $F;         else echo "infracost SKIPPED" >> $F     ; fi) && \
     (if [ "$TERRAFORM_DOCS_VERSION" != "false" ]; then ./terraform-docs --version >> $F;              else echo "terraform-docs SKIPPED" >> $F; fi) && \
     (if [ "$TERRAGRUNT_VERSION"     != "false" ]; then ./terragrunt --version >> $F;                  else echo "terragrunt SKIPPED" >> $F    ; fi) && \
     (if [ "$TERRASCAN_VERSION"      != "false" ]; then echo "terrascan $(./terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F     ; fi) && \
@@ -159,10 +174,14 @@ COPY --from=builder \
     /usr/local/bin/pre-commit \
     /usr/bin/git \
     /usr/bin/git-shell \
+    /usr/bin/jq \
         /usr/bin/
 # Copy terrascan policies
 COPY --from=builder /root/ /root/
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
+
+ENV INFRACOST_API_KEY=${INFRACOST_API_KEY:-}
+ENV INFRACOST_SKIP_UPDATE_CHECK=${INFRACOST_SKIP_UPDATE_CHECK:-false}
 
 ENTRYPOINT [ "pre-commit" ]

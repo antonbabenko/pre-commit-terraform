@@ -1,3 +1,12 @@
+- id: infracost_breakdown
+  name: Infracost breakdown
+  description: Check terraform infrastructure cost
+  entry: infracost_breakdown.sh
+  language: script
+  require_serial: true
+  files: \.(tf(vars)?|hcl)$
+  exclude: \.terraform\/.*$
+
 - id: terraform_fmt
   name: Terraform fmt
   description: Rewrites all Terraform configuration files to a canonical format.

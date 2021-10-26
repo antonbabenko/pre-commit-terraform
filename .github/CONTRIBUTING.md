@@ -12,6 +12,11 @@ Enjoy the clean, valid, and documented code!
   * [Run via Docker](#run-via-docker)
   * [Check results](#check-results)
   * [Cleanup](#cleanup)
+* [Add new hook](#add-new-hook)
+  * [Before write code](#before-write-code)
+  * [Prepare basic documentation](#prepare-basic-documentation)
+  * [Add code](#add-code)
+  * [Finish with the documentation](#finish-with-the-documentation)
 
 ## Run and debug hooks locally
 
@@ -41,7 +46,7 @@ For example, to test that the [`terraform_fmt`](../README.md#terraform_fmt) hook
 To check is your improvement not violate performance, we have dummy execution time tests.
 
 Script accept next options:
-
+<!-- markdownlint-disable no-inline-html -->
 | #   | Name                               | Example value                                                            | Description                                          |
 | --- | ---------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------- |
 | 1   | `TEST_NUM`                         | `200`                                                                   | How many times need repeat test                      |
@@ -49,6 +54,7 @@ Script accept next options:
 | 3   | `TEST_DIR`                         | `'/tmp/infrastructure'`                                                  | Dir on what you run tests.                           |
 | 4   | `TEST_DESCRIPTION`                 | ```'`terraform_tfsec` PR #123:'```                                       | Text that you'd like to see in result                |
 | 5   | `RAW_TEST_`<br>`RESULTS_FILE_NAME` | `terraform_tfsec_pr123`                                                  | (Temporary) File where all test data will be stored. |
+<!-- markdownlint-enable no-inline-html -->
 
 ### Run via BASH
 
@@ -87,3 +93,46 @@ Results will be located at `./test/results` dir.
 ```bash
 sudo rm -rf tests/results
 ```
+
+## Add new hook
+
+You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/252) as an example.
+
+### Before write code
+
+1. Try to figure out future hook usage.
+2. Confirm the concept with [Anton Babenko](https://github.com/antonbabenko).
+
+### Prepare basic documentation
+
+1. Identify and describe dependencies in [Install dependencies](../README.md#1-install-dependencies) and [Available Hooks](../README.md#available-hooks) sections
+
+### Add code
+
+1. Based on prev. block, add hook dependencies installation to [Dockerfile](../Dockerfile).  
+    Check that works:
+    * `docker build -t pre-commit --build-arg INSTALL_ALL=true .`
+    * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=latest .`
+    * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=<1.2.3> .`
+2. Add new hook to [`.pre-commit-hooks.yaml`](../.pre-commit-hooks.yaml)
+3. Create hook file. Don't forget to make it executable via `chmod +x /path/to/hook/file`.
+4. Test hook. How to do it is described in [Run and debug hooks locally](#run-and-debug-hooks-locally) section.
+5. Test hook one more time.
+    1. Push commit with hook file to GitHub
+    2. Grab SHA hash of the commit
+    3. Test hook using `.pre-commit-config.yaml`:
+
+        ```yaml
+        repos:
+        - repo: https://github.com/antonbabenko/pre-commit-terraform # Your repo
+        rev: 3d76da3885e6a33d59527eff3a57d246dfb66620 # Your commit SHA
+        hooks:
+          - id: terraform_docs # New hook name
+            args:
+              - --args=--config=.terraform-docs.yml # Some args that you'd like to test
+        ```
+
+### Finish with the documentation
+
+1. Add hook description to [Available Hooks](../README.md#available-hooks).
+2. Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
