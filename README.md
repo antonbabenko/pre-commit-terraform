@@ -6,11 +6,10 @@ Want to contribute? Check [open issues](https://github.com/antonbabenko/pre-comm
 
 ### Sponsors
 
-[![env0](./assets/env0.png)](https://env0.com/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social)
-Automated provisioning of Terraform workflows and Infrastructure as Code.
+<a href="https://www.env0.com/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social"><img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/docs-227/assets/env0.png" alt="Automated provisioning of Terraform workflows and Infrastructure as Code" width="180" height="44" align="right" /></a>
 
-[![infracost](./assets/infracost.png)](https://www.infracost.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social)
-Cloud cost estimates for Terraform.
+<a href="https://www.infracost.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social"><img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/docs-227/assets/infracost.png" alt="Cloud cost estimates for Terraform" width="200" height="38" /></a>
+
 
 If you are using `pre-commit-terraform` already or if you want to support the development of it and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
 
