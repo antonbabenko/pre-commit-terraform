@@ -4,6 +4,19 @@
 
 Want to contribute? Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc) and [contributing notes](/.github/CONTRIBUTING.md).
 
+### Sponsors
+
+[![env0](./assets/env0.png)](https://env0.com/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social)
+Automated provisioning of Terraform workflows and Infrastructure as Code.
+
+[![infracost](./assets/infracost.png)](https://www.infracost.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social)
+Cloud cost estimates for Terraform.
+
+If you are using `pre-commit-terraform` already or if you want to support the development of it and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
+
+
+## Table of content
+
 * [How to install](#how-to-install)
   * [1. Install dependencies](#1-install-dependencies)
   * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
