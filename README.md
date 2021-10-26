@@ -243,10 +243,10 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     - id: infracost_breakdown
       args:
         - --args=--path=./env/dev
-        - --hook-config=.totalHourlyCost|tonumber > 0.1
-        - --hook-config=.totalHourlyCost|tonumber > 1
-        - --hook-config=.projects[].diff.totalMonthlyCost|tonumber != 10000
-        - --hook-config=.currency == "USD"
+        - --hook-config='.totalHourlyCost|tonumber > 0.1'
+        - --hook-config='.totalHourlyCost|tonumber > 1'
+        - --hook-config='.projects[].diff.totalMonthlyCost|tonumber != 10000'
+        - --hook-config='.currency == "USD"'
     ```
     <!-- markdownlint-disable-next-line no-inline-html -->
     <details><summary>Output</summary>
@@ -369,8 +369,8 @@ Example:
     ```yaml
      - id: terraform_providers_lock
        args:
-          - '--args=-platform=windows_amd64'
-          - '--args=-platform=darwin_amd64'
+          - --args=-platform=windows_amd64
+          - --args=-platform=darwin_amd64
     ```
 
 4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
