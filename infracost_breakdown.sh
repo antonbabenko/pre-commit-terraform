@@ -119,7 +119,12 @@ function infracost_breakdown_ {
       check="${check:1:-1}"
     fi
 
-    operation="$(echo "$check" | grep -oE '[!<>=]+')"
+    operations="$(echo "$check" | grep -oE '[!<>=]+')"
+    # Get the last operation, that is user comparation, not inside jq query:
+    # [.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add > 1000
+    # shellcheck disable=SC2086 # Enable word splitting.
+    operation="$(echo $operations | rev | cut -d' ' -f1 | rev)"
+
     IFS="$operation" read -r -a jq_check <<< "$check"
     real_value="$(jq "${jq_check[0]}" <<< "$RESULTS")"
     compare_value="${jq_check[1]}${jq_check[2]}"
