@@ -16,7 +16,7 @@ Automated provisioning of Terraform workflows and Infrastructure as Code.</a>
 
 Cloud cost estimates for Terraform.</a>
 
-If you are using `pre-commit-terraform` already or if you want to support the development of it and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
+If you are using `pre-commit-terraform` already or want to support its development and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
 
 
 ## Table of content
