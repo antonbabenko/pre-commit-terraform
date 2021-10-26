@@ -7,6 +7,29 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.53.0"></a>
+## [v1.53.0] - 2021-10-26
+
+- docs: Pre-release 1.53 ([#267](https://github.com/antonbabenko/pre-commit-terraform/issues/267))
+- docs: Clarify docs for terraform_tfsec hook ([#266](https://github.com/antonbabenko/pre-commit-terraform/issues/266))
+- feat: Add infracost_breakdown hook ([#252](https://github.com/antonbabenko/pre-commit-terraform/issues/252))
+- feat: Set up PR reviewers automatically ([#258](https://github.com/antonbabenko/pre-commit-terraform/issues/258))
+- docs: fix protocol to prevent MITM ([#257](https://github.com/antonbabenko/pre-commit-terraform/issues/257))
+- feat: add __GIT_WORKING_DIR__ to tfsec ([#255](https://github.com/antonbabenko/pre-commit-terraform/issues/255))
+- docs: Add missing space in terrascan install cmd ([#253](https://github.com/antonbabenko/pre-commit-terraform/issues/253))
+- fix: command not found ([#251](https://github.com/antonbabenko/pre-commit-terraform/issues/251))
+- fix: execute tflint once in no errors ([#250](https://github.com/antonbabenko/pre-commit-terraform/issues/250))
+- docs: fix deps ([#249](https://github.com/antonbabenko/pre-commit-terraform/issues/249))
+- feat: Add `terraform_docs` hook settings ([#245](https://github.com/antonbabenko/pre-commit-terraform/issues/245))
+- fix: terrafrom_tflint ERROR output for files located in repo root ([#243](https://github.com/antonbabenko/pre-commit-terraform/issues/243))
+- feat: Add support for specify terraform-docs config file ([#244](https://github.com/antonbabenko/pre-commit-terraform/issues/244))
+- docs: Document hooks dependencies ([#247](https://github.com/antonbabenko/pre-commit-terraform/issues/247))
+- feat: Allow passing of args to terraform_fmt ([#147](https://github.com/antonbabenko/pre-commit-terraform/issues/147))
+- docs: Add terraform_fmt usage instructions and how-to debug script with args ([#242](https://github.com/antonbabenko/pre-commit-terraform/issues/242))
+- fix: TFSec outputs the same results multiple times ([#237](https://github.com/antonbabenko/pre-commit-terraform/issues/237))
+- chore: Do not mark issues and PR's in milestone as stale ([#241](https://github.com/antonbabenko/pre-commit-terraform/issues/241))
+
+
 <a name="v1.52.0"></a>
 ## [v1.52.0] - 2021-10-04
 
@@ -443,7 +466,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.52.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.53.0...HEAD
+[v1.53.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.52.0...v1.53.0
 [v1.52.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.51.0...v1.52.0
 [v1.51.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.50.0...v1.51.0
 [v1.50.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.49.0...v1.50.0
