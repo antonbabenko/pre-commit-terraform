@@ -470,13 +470,21 @@ Example:
            --no-color
            -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
     ```
-4. Like terraform_tflint, `__GIT_WORKING_DIR__` can be used when specifying files relative to the git working directory:
 
-Example:
+4. When you have multiple directories and want to run `tfsec` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_tfsec` hooks with Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_tfsec
-      args: [--args=--config-file=__GIT_WORKING_DIR__/.tfsec.json]
+      args:
+        - --args=--config-file=__GIT_WORKING_DIR__/.tfsec.json
+    ```
+
+    Otherwise, will be used files that located in sub-folders:
+
+    ```yaml
+    - id: terraform_tfsec
+      args:
+        - --args=--config-file=.tfsec.json
     ```
 
 ### terraform_validate
