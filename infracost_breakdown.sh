@@ -105,7 +105,27 @@ function infracost_breakdown_ {
     # Next line removes leading spaces, just for fancy output reason.
     check=$(echo "$check" | sed 's/^[[:space:]]*//')
 
-    operation="$(echo "$check" | grep -oE '[!<>=]+')"
+    # Drop quotes in hook args section. From:
+    # -h ".totalHourlyCost > 0.1"
+    # --hook-config='.currency == "USD"'
+    # To:
+    # -h .totalHourlyCost > 0.1
+    # --hook-config=.currency == "USD"
+    first_char=${check:0:1}
+    last_char=${check: -1}
+    if [ "$first_char" == "$last_char" ] && {
+      [ "$first_char" == '"' ] || [ "$first_char" == "'" ]
+    }; then
+      check="${check:1:-1}"
+    fi
+
+    operations=($(echo "$check" | grep -oE '[!<>=]{1,2}'))
+    # Get the very last operator, that is used in comparison inside `jq` query.
+    # From the example below we need to pick the `>` which is in between `add` and `1000`,
+    # but not the `!=`, which goes earlier in the `jq` expression
+    # [.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add > 1000
+    operation=${operations[-1]}
+
     IFS="$operation" read -r -a jq_check <<< "$check"
     real_value="$(jq "${jq_check[0]}" <<< "$RESULTS")"
     compare_value="${jq_check[1]}${jq_check[2]}"
