@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.55.0"></a>
+## [v1.55.0] - 2021-10-27
+
+- fix: Fixed 1.54.0 where `terraform_docs` was broken ([#272](https://github.com/antonbabenko/pre-commit-terraform/issues/272))
+
+
 <a name="v1.54.0"></a>
 ## [v1.54.0] - 2021-10-27
 
@@ -474,7 +480,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.54.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.55.0...HEAD
+[v1.55.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.54.0...v1.55.0
 [v1.54.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.53.0...v1.54.0
 [v1.53.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.52.0...v1.53.0
 [v1.52.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.51.0...v1.52.0
