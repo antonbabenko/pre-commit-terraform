@@ -119,11 +119,12 @@ function infracost_breakdown_ {
       check="${check:1:-1}"
     fi
 
-    operations="$(echo "$check" | grep -oE '[!<>=]+')"
-    # Get the last operation, that is user comparation, not inside jq query:
+    operations=($(echo "$check" | grep -oE '[!<>=]{1,2}'))
+    # Get the very last operator, that is used in comparison inside `jq` query.
+    # From the example below we need to pick the `>` which is in between `add` and `1000`,
+    # but not the `!=`, which goes earlier in the `jq` expression
     # [.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add > 1000
-    # shellcheck disable=SC2086 # Enable word splitting.
-    operation="$(echo $operations | rev | cut -d' ' -f1 | rev)"
+    operation=${operations[-1]}
 
     IFS="$operation" read -r -a jq_check <<< "$check"
     real_value="$(jq "${jq_check[0]}" <<< "$RESULTS")"
