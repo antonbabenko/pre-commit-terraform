@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.54.0"></a>
+## [v1.54.0] - 2021-10-27
+
+- feat: Add support for quoted values in `infracost_breakdown` `--hook-config` ([#269](https://github.com/antonbabenko/pre-commit-terraform/issues/269))
+- docs: Added notes about sponsors ([#268](https://github.com/antonbabenko/pre-commit-terraform/issues/268))
+- fix: Fixed args expand in terraform_docs ([#260](https://github.com/antonbabenko/pre-commit-terraform/issues/260))
+
+
 <a name="v1.53.0"></a>
 ## [v1.53.0] - 2021-10-26
 
@@ -466,7 +474,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.53.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.54.0...HEAD
+[v1.54.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.53.0...v1.54.0
 [v1.53.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.52.0...v1.53.0
 [v1.52.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.51.0...v1.52.0
 [v1.51.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.50.0...v1.51.0
