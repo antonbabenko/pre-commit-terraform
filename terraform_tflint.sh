@@ -66,7 +66,7 @@ tflint_() {
     # Print checked PATH **only** if TFLint have any messages
     # shellcheck disable=SC2091 # Suppress error output
     $(tflint "${ARGS[@]}" 2>&1) 2> /dev/null || {
-      echo >&2 -e "\033[1;31m\nERROR in $path_uniq/:\033[0m"
+      echo >&2 -e "\033[1;33m\nTFLint in $path_uniq/:\033[0m"
       tflint "${ARGS[@]}"
     }
 
