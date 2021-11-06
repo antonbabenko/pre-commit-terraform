@@ -1,23 +1,14 @@
-FROM ubuntu:20.04 as builder
+ARG TAG=3.9.7-alpine3.14
+FROM python:${TAG} as builder
 
-# Install general dependencies
-RUN apt update && \
-    DEBIAN_FRONTEND=noninteractive apt install -y \
-        # Needed for pre-commit in next build stage
-        git \
-        libpcre2-8-0 \
-        # Builder deps
-        unzip \
-        software-properties-common \
-        curl \
-        python3 \
-        python3-pip \
-        # infracost deps
-        jq && \
+WORKDIR /bin_dir
+
+RUN apk add --no-cache \
+    # Builder deps
+    curl \
+    unzip && \
     # Upgrade pip for be able get latest Checkov
-    python3 -m pip install --upgrade pip && \
-    # Cleanup
-    rm -rf /var/lib/apt/lists/*
+    python3 -m pip install --upgrade pip
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
@@ -27,21 +18,15 @@ RUN [ ${PRE_COMMIT_VERSION} = "latest" ] && pip3 install --no-cache-dir pre-comm
     || pip3 install --no-cache-dir pre-commit==${PRE_COMMIT_VERSION}
 
 # Install terraform because pre-commit needs it
-RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
-    apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
-    apt update && \
-    ( \
-        [ "$TERRAFORM_VERSION" = "latest" ] && apt install -y terraform \
-        || apt install -y terraform=${TERRAFORM_VERSION} \
-    ) && \
-    # Cleanup
-    rm -rf /var/lib/apt/lists/*
+RUN if [ "${TERRAFORM_VERSION}" = "latest" ]; then \
+        TERRAFORM_VERSION="$(curl -s https://api.github.com/repos/hashicorp/terraform/releases/latest | grep tag_name | grep -o -E -m 1 "[0-9.]+")" \
+    ; fi && \
+    curl -L "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > terraform.zip && \
+    unzip terraform.zip terraform && rm terraform.zip
 
 #
 # Install tools
 #
-WORKDIR /bin_dir
-
 ARG CHECKOV_VERSION=${CHECKOV_VERSION:-false}
 ARG INFRACOST_VERSION=${INFRACOST_VERSION:-false}
 ARG TERRAFORM_DOCS_VERSION=${TERRAFORM_DOCS_VERSION:-false}
@@ -143,41 +128,46 @@ RUN . /.env && \
 RUN . /.env && \
     F=tools_versions_info && \
     pre-commit --version >> $F && \
-    terraform --version | head -n 1 >> $F && \
-    (if [ "$CHECKOV_VERSION"        != "false" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F       ; fi) && \
-    (if [ "$INFRACOST_VERSION"      != "false" ]; then echo "$(./infracost --version)" >> $F;         else echo "infracost SKIPPED" >> $F     ; fi) && \
-    (if [ "$TERRAFORM_DOCS_VERSION" != "false" ]; then ./terraform-docs --version >> $F;              else echo "terraform-docs SKIPPED" >> $F; fi) && \
-    (if [ "$TERRAGRUNT_VERSION"     != "false" ]; then ./terragrunt --version >> $F;                  else echo "terragrunt SKIPPED" >> $F    ; fi) && \
-    (if [ "$TERRASCAN_VERSION"      != "false" ]; then echo "terrascan $(./terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F     ; fi) && \
-    (if [ "$TFLINT_VERSION"         != "false" ]; then ./tflint --version >> $F;                      else echo "tflint SKIPPED" >> $F        ; fi) && \
-    (if [ "$TFSEC_VERSION"          != "false" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F         ; fi) && \
-    echo "\n\n" && cat $F && echo "\n\n"
+    ./terraform --version | head -n 1 >> $F && \
+    (if [ "$CHECKOV_VERSION"        != "false" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F        ; fi) && \
+    (if [ "$INFRACOST_VERSION"      != "false" ]; then echo "$(./infracost --version)" >> $F;         else echo "infracost SKIPPED" >> $F      ; fi) && \
+    (if [ "$TERRAFORM_DOCS_VERSION" != "false" ]; then ./terraform-docs --version >> $F;              else echo "terraform-docs SKIPPED" >> $F ; fi) && \
+    (if [ "$TERRAGRUNT_VERSION"     != "false" ]; then ./terragrunt --version >> $F;                  else echo "terragrunt SKIPPED" >> $F     ; fi) && \
+    (if [ "$TERRASCAN_VERSION"      != "false" ]; then echo "terrascan $(./terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F      ; fi) && \
+    (if [ "$TFLINT_VERSION"         != "false" ]; then ./tflint --version >> $F;                      else echo "tflint SKIPPED" >> $F         ; fi) && \
+    (if [ "$TFSEC_VERSION"          != "false" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F          ; fi) && \
+    echo -e "\n\n" && cat $F && echo -e "\n\n"
 
-# based on debian:buster-slim
-# https://github.com/docker-library/python/blob/master/3.9/buster/slim/Dockerfile
-FROM python:3.9-slim-buster
 
-# Python 3.8 (ubuntu 20.04) -> Python3.9 hacks
-COPY --from=builder /usr/local/lib/python3.8/dist-packages/ /usr/local/lib/python3.9/site-packages/
-COPY --from=builder /usr/lib/python3/dist-packages /usr/local/lib/python3.9/site-packages
-RUN mkdir /usr/lib/python3 && \
-    ln -s /usr/local/lib/python3.9/site-packages /usr/lib/python3/site-packages && \
-    ln -s /usr/local/bin/python3 /usr/bin/python3
-# Copy binaries needed for pre-commit
-COPY --from=builder /usr/lib/git-core/ /usr/lib/git-core/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 /usr/lib/x86_64-linux-gnu/
+
+FROM python:${TAG}
+
+RUN apk add --no-cache \
+    # pre-commit deps
+    git \
+    # All hooks deps
+    bash
+
 # Copy tools
 COPY --from=builder \
-    /bin_dir/ \
-    /usr/bin/terraform \
-    /usr/local/bin/checkov* \
+    # Needed for all hooks
     /usr/local/bin/pre-commit \
-    /usr/bin/git \
-    /usr/bin/git-shell \
-    /usr/bin/jq \
+    # Hooks and terraform binaries
+    /bin_dir/ \
+    /usr/local/bin/checkov* \
         /usr/bin/
+# Copy pre-commit packages
+COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
 # Copy terrascan policies
 COPY --from=builder /root/ /root/
+
+# Install hooks extra deps
+RUN if [ "$(grep terraform-docs /usr/bin/tools_versions_info | grep -o SKIPPED)" = "" ]; then \
+        apk add --no-cache perl \
+    ; fi && \
+    if [ "$(grep infracost /usr/bin/tools_versions_info | grep -o SKIPPED || echo)" = "" ]; then \
+        apk add --no-cache jq \
+    ; fi
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
