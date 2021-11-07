@@ -162,10 +162,10 @@ COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/pytho
 COPY --from=builder /root/ /root/
 
 # Install hooks extra deps
-RUN if [ "$(grep -o 'terraform-docs SKIPPED' /usr/bin/tools_versions_info)" = "" ]; then \
+RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
         apk add --no-cache perl \
     ; fi && \
-    if [ "$(grep -o 'infracost SKIPPED' /usr/bin/tools_versions_info)" = "" ]; then \
+    if [ "$(grep -o '^infracost SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
         apk add --no-cache jq \
     ; fi
 
