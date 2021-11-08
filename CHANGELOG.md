@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.56.0"></a>
+## [v1.56.0] - 2021-11-08
+
+- feat: Updated Docker image from Ubuntu to Alpine ([#278](https://github.com/antonbabenko/pre-commit-terraform/issues/278))
+- chore: Updated messages shown in terraform_tflint hook ([#274](https://github.com/antonbabenko/pre-commit-terraform/issues/274))
+
+
 <a name="v1.55.0"></a>
 ## [v1.55.0] - 2021-10-27
 
@@ -480,7 +487,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.55.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.56.0...HEAD
+[v1.56.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.55.0...v1.56.0
 [v1.55.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.54.0...v1.55.0
 [v1.54.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.53.0...v1.54.0
 [v1.53.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.52.0...v1.53.0
