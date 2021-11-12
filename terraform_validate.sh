@@ -54,6 +54,28 @@ parse_cmdline_() {
   done
 }
 
+find_parent_terraform_plugins_() {
+  local start_path=$(pwd)
+  local plugins=
+
+  limit=$1
+
+  while true; do
+    if [ -d ".terraform" ]; then
+      plugins=$(ls -1d $(pwd)/.terraform/plugins/* | sed "s/^/-plugin-dir /" | xargs echo)
+    fi
+
+    if [ "$(pwd)" == "$limit" ]; then
+      break;
+    fi
+    cd ..
+  done
+
+  cd $start_path
+  [ ! -z "$plugins" ] && echo $plugins
+  [ -z "$plugins" ] && return 1
+}
+
 terraform_validate_() {
 
   # Setup environment variables
@@ -77,6 +99,7 @@ terraform_validate_() {
     ((index += 1))
   done
 
+  local root_path=$(pwd)
   local path_uniq
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
@@ -86,8 +109,10 @@ terraform_validate_() {
       pushd "$(realpath "$path_uniq")" > /dev/null
 
       if [[ ! -d .terraform ]]; then
+        local plugins=$(find_parent_terraform_plugins_ $root_path)
+
         set +e
-        init_output=$(terraform init -backend=false 2>&1)
+        init_output=$(terraform init $plugins -backend=false 2>&1)
         init_code=$?
         set -e
 
