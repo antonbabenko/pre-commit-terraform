@@ -329,7 +329,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     - id: terraform_docs
       args:
         - --hook-config=--path-to-file=README.md        # Valid UNIX path. I.e. ../TFDOC.md or docs/README.md etc.
-        - --hook-config=--add-to-exiting-file=true      # Boolean. true or false
+        - --hook-config=--add-to-existing-file=true     # Boolean. true or false
         - --hook-config=--create-file-if-not-exist=true # Boolean. true or false
     ```
 

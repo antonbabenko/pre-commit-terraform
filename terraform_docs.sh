@@ -119,7 +119,7 @@ terraform_docs() {
   # Get hook settings
   #
   local text_file="README.md"
-  local add_to_exiting=false
+  local add_to_existing=false
   local create_if_not_exist=false
 
   configs=($hook_config)
@@ -132,8 +132,8 @@ terraform_docs() {
       --path-to-file)
         text_file=$value
         ;;
-      --add-to-exiting-file)
-        add_to_exiting=$value
+      --add-to-existing-file)
+        add_to_existing=$value
         ;;
       --create-file-if-not-exist)
         create_if_not_exist=$value
@@ -171,10 +171,10 @@ terraform_docs() {
     [[ ! -f "$text_file" ]] && popd > /dev/null && continue
 
     #
-    # If `--add-to-exiting-file=true` set, check is in file exist "hook markers",
+    # If `--add-to-existing-file=true` set, check is in file exist "hook markers",
     # and if not - append "hook markers" to the end of file.
     #
-    if $add_to_exiting; then
+    if $add_to_existing; then
       HAVE_MARKER=$(grep -o '<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->' "$text_file" || exit 0)
 
       if [ ! "$HAVE_MARKER" ]; then
