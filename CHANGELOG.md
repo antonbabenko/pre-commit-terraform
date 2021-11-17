@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.57.0"></a>
+## [v1.57.0] - 2021-11-17
+
+- fix: typo in arg name for terraform-docs ([#283](https://github.com/antonbabenko/pre-commit-terraform/issues/283))
+- chore: Add deprecation notice to `terraform_docs_replace` ([#280](https://github.com/antonbabenko/pre-commit-terraform/issues/280))
+
+
 <a name="v1.56.0"></a>
 ## [v1.56.0] - 2021-11-08
 
@@ -487,7 +494,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.56.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.57.0...HEAD
+[v1.57.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.56.0...v1.57.0
 [v1.56.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.55.0...v1.56.0
 [v1.55.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.54.0...v1.55.0
 [v1.54.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.53.0...v1.54.0
