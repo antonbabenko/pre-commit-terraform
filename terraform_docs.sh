@@ -132,7 +132,7 @@ terraform_docs() {
       --path-to-file)
         text_file=$value
         ;;
-      --add-to-existing-file)
+      --add-to-existing-file|--add-to-exiting-file) # Typo left for compatibility. Will removed in 2.0.0.
         add_to_existing=$value
         ;;
       --create-file-if-not-exist)
