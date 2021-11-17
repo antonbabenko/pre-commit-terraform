@@ -4,7 +4,7 @@ name: publish container image
 on:
   push:
     branches:
-      - "master"
+      - master
   release:
     types:
       - created
