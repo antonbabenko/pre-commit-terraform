@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.58.0"></a>
+## [v1.58.0] - 2021-11-20
+
+- chore: Publish container image on release ([#285](https://github.com/antonbabenko/pre-commit-terraform/issues/285))
+- chore: Fix master merge to working branch on pre-commit autofixes ([#286](https://github.com/antonbabenko/pre-commit-terraform/issues/286))
+
+
 <a name="v1.57.0"></a>
 ## [v1.57.0] - 2021-11-17
 
@@ -494,7 +501,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.57.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.58.0...HEAD
+[v1.58.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.57.0...v1.58.0
 [v1.57.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.56.0...v1.57.0
 [v1.56.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.55.0...v1.56.0
 [v1.55.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.54.0...v1.55.0
