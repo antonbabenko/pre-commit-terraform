@@ -6,6 +6,8 @@ WORKDIR /bin_dir
 RUN apk add --no-cache \
     # Builder deps
     curl \
+    gcc \
+    musl-dev \
     unzip && \
     # Upgrade pip for be able get latest Checkov
     python3 -m pip install --upgrade pip
