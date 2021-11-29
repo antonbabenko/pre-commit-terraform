@@ -95,9 +95,8 @@
 - id: checkov
   name: Checkov
   description: Runs checkov on Terraform templates.
-  entry: checkov -d .
-  language: python
-  pass_filenames: false
+  entry: terraform_checkov.sh
+  language: script
   always_run: false
   files: \.tf$
   exclude: \.terraform\/.*$
