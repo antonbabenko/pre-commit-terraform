@@ -236,14 +236,12 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 
 ### checkov
 
-For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each argument separately:
+For [checkov](https://github.com/bridgecrewio/checkov) you can specify custom arguments. E.g.:
 
 ```yaml
 - id: checkov
-  args: [
-    "-d", ".",
-    "--skip-check", "CKV2_AWS_8",
-  ]
+  args:
+    - --args=--quiet
 ```
 
 ### infracost_breakdown
