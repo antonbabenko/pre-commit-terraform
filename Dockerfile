@@ -1,13 +1,13 @@
 ARG TAG=3.9.7-alpine3.14
 FROM python:${TAG} as builder
 
+ENV PYTHONUNBUFFERED 1
+
 WORKDIR /bin_dir
 
 RUN apk add --no-cache \
     # Builder deps
     curl \
-    gcc \
-    musl-dev \
     unzip && \
     # Upgrade pip for be able get latest Checkov
     python3 -m pip install --upgrade pip
@@ -59,8 +59,10 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
 RUN . /.env && \
     if [ "$CHECKOV_VERSION" != "false" ]; then \
     ( \
+        apk add --no-cache gcc libffi-dev musl-dev; \
         [ "$CHECKOV_VERSION" = "latest" ] && pip3 install --no-cache-dir checkov \
-        || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION} \
+        || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION}; \
+        apk del gcc libffi-dev musl-dev \
     ) \
     ; fi
 
