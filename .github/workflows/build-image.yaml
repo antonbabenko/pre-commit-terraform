@@ -33,6 +33,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          build-args: |
+            INSTALL_ALL=true
           platforms: linux/amd64
           push: true
           tags: |
