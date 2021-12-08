@@ -1,8 +1,6 @@
 ARG TAG=3.9.7-alpine3.14
 FROM python:${TAG} as builder
 
-ENV PYTHONUNBUFFERED 1
-
 WORKDIR /bin_dir
 
 RUN apk add --no-cache \
