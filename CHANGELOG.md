@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v1.61.0"></a>
+## [v1.61.0] - 2021-12-11
+
+- feat: Pass custom arguments to terraform init in `terraform_validate` hook ([#293](https://github.com/antonbabenko/pre-commit-terraform/issues/293))
+- fix: analyse all folders with tflint and don't stop on first execution ([#289](https://github.com/antonbabenko/pre-commit-terraform/issues/289))
+
+
 <a name="v1.60.0"></a>
 ## [v1.60.0] - 2021-12-08
 
@@ -513,7 +520,8 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.60.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.61.0...HEAD
+[v1.61.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.60.0...v1.61.0
 [v1.60.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.59.0...v1.60.0
 [v1.59.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.58.0...v1.59.0
 [v1.58.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.57.0...v1.58.0
