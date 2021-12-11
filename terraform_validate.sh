@@ -30,7 +30,7 @@ initialize_() {
 
 parse_cmdline_() {
   declare argv
-  argv=$(getopt -o e:a: --long envs:,args: -- "$@") || return
+  argv=$(getopt -o e:i:a: --long envs:,init-args:,args: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -38,6 +38,11 @@ parse_cmdline_() {
       -a | --args)
         shift
         ARGS+=("$1")
+        shift
+        ;;
+      -i | --init-args)
+        shift
+        INIT_ARGS+=("$1")
         shift
         ;;
       -e | --envs)
@@ -87,7 +92,7 @@ terraform_validate_() {
 
       if [[ ! -d .terraform ]]; then
         set +e
-        init_output=$(terraform init -backend=false 2>&1)
+        init_output=$(terraform init -backend=false "${INIT_ARGS[@]}" 2>&1)
         init_code=$?
         set -e
 
@@ -123,6 +128,7 @@ terraform_validate_() {
 
 # global arrays
 declare -a ARGS
+declare -a INIT_ARGS
 declare -a ENVS
 declare -a FILES
 
