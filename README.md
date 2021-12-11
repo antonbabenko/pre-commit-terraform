@@ -526,7 +526,15 @@ Example:
         - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
+3. `terraform_validate` also supports passing custom arguments to its `terraform init`:
+
+    ```yaml
+    - id: terraform_validate
+      args:
+        - --init-args=-lockfile=readonly
+    ```
+
+4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
