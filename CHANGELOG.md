@@ -1,3 +1,14 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+# [1.62.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.61.0...v1.62.0) (2021-12-12)
+
+
+### Features
+
+* Added semantic release ([#296](https://github.com/antonbabenko/pre-commit-terraform/issues/296)) ([1bcca44](https://github.com/antonbabenko/pre-commit-terraform/commit/1bcca44d1677128c23d505be644f1d16c320eb4c))
+
 # Change Log
 
 All notable changes to this project will be documented in this file.
