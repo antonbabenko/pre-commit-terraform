@@ -1,0 +1,17 @@
+# Disable validation, and skip status check creation
+enabled: true
+# Always validate the PR title, and ignore the commits
+titleOnly: true
+# Always validate all commits, and ignore the PR title
+commitsOnly: false
+# Always validate the PR title AND all the commits
+titleAndCommits: false
+# By default types specified in commitizen/conventional-commit-types is used.
+# See: https://github.com/commitizen/conventional-commit-types/blob/v3.0.0/index.json
+# You can override the valid types
+types:
+  - feat
+  - fix
+  - docs
+  - ci
+  - chore
