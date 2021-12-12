@@ -27,6 +27,7 @@ jobs:
             docs
             ci
             chore
+            BREAKING CHANGE
           # Configure which scopes are allowed.
           scopes: |
             core
