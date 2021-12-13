@@ -534,22 +534,21 @@ Example:
         - --init-args=-lockfile=readonly
     ```
 
-4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
+4. `terraform_validate` hook identifies automatically, if all needed modules are initialized and will reinitialize them if needed before running the `terraform validate` command. If you want to force a module initialization on every run, pass the following argument to its `terraform init`:
 
-    ```bash
-    echo "
-    function rm_terraform {
-        find . -name ".terraform*" -print0 | xargs -0 rm -r
-    }
-    " >>~/.bashrc
-
-    # Reload shell and use `rm_terraform` command in the repo root
+    ```yaml
+    - id: terraform_validate
+      args:
+        - --init-args=-get=true
     ```
 
-   `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
+5. Pass the following argument, if you want `terraform_validate` hook to also upgrade all specified providers:
 
-    **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
-
+    ```yaml
+    - id: terraform_validate
+      args:
+        - --init-args=-upgrade
+    ```
 
 ## Authors
 
