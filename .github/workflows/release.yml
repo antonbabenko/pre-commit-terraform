@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
       - master
     paths:
       - '**/*.py'
       - '**/*.sh'
+      - 'Dockerfile'
 
 jobs:
   release:

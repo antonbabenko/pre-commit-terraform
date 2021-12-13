@@ -1,14 +1,10 @@
----
-name: publish container image
+name: Publish container image
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
   release:
     types:
       - created
-  workflow_dispatch:
 
 jobs:
   docker:
