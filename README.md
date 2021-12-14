@@ -542,7 +542,7 @@ Example:
         - --init-args=-get=true
     ```
 
-5. Pass the following argument, if you want `terraform_validate` hook to also upgrade all specified providers:
+5. Pass the following argument, if you want `terraform_validate` hook to also upgrade all specified providers and (if `-get=true` is specified) to (re-)install latest versions of module(s) allowed within configured constraints:
 
     ```yaml
     - id: terraform_validate
