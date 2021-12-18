@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.62.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.0...v1.62.1) (2021-12-18)
+
+
+### Bug Fixes
+
+* **terraform_tflint:** Restore current working directory behavior ([#302](https://github.com/antonbabenko/pre-commit-terraform/issues/302)) ([93029dc](https://github.com/antonbabenko/pre-commit-terraform/commit/93029dcfcf6b9b121c24573f3e647d9fde255486))
+
 # [1.62.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.61.0...v1.62.0) (2021-12-12)
 
 
