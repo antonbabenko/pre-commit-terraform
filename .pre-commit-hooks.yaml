@@ -108,3 +108,4 @@
   description: Runs terrascan on Terraform templates.
   language: script
   entry: terrascan.sh
+  files: \.tf$
