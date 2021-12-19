@@ -25,26 +25,28 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 ## Table of content
 
-* [Sponsors](#sponsors)
-* [Table of content](#table-of-content)
-* [How to install](#how-to-install)
-  * [1. Install dependencies](#1-install-dependencies)
-  * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
-  * [3. Add configs and hooks](#3-add-configs-and-hooks)
-  * [4. Run](#4-run)
-* [Available Hooks](#available-hooks)
-* [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
-  * [checkov](#checkov)
-  * [infracost_breakdown](#infracost_breakdown)
-  * [terraform_docs](#terraform_docs)
-  * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
-  * [terraform_fmt](#terraform_fmt)
-  * [terraform_providers_lock](#terraform_providers_lock)
-  * [terraform_tflint](#terraform_tflint)
-  * [terraform_tfsec](#terraform_tfsec)
-  * [terraform_validate](#terraform_validate)
-* [Authors](#authors)
-* [License](#license)
+- [Collection of git hooks for Terraform to be used with pre-commit framework](#collection-of-git-hooks-for-terraform-to-be-used-with-pre-commit-framework)
+  - [Sponsors](#sponsors)
+  - [Table of content](#table-of-content)
+  - [How to install](#how-to-install)
+    - [1. Install dependencies](#1-install-dependencies)
+    - [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
+    - [3. Add configs and hooks](#3-add-configs-and-hooks)
+    - [4. Run](#4-run)
+  - [Available Hooks](#available-hooks)
+  - [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
+    - [checkov](#checkov)
+    - [infracost_breakdown](#infracost_breakdown)
+    - [terraform_docs](#terraform_docs)
+    - [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
+    - [terraform_fmt](#terraform_fmt)
+    - [terraform_providers_lock](#terraform_providers_lock)
+    - [terraform_tflint](#terraform_tflint)
+    - [terraform_tfsec](#terraform_tfsec)
+    - [terraform_validate](#terraform_validate)
+    - [terrascan](#terrascan)
+  - [Authors](#authors)
+  - [License](#license)
 
 ## How to install
 
@@ -550,6 +552,22 @@ Example:
 
     **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
+### terrascan
+
+1. `terrascan` supports custom arguments so you can pass supported flags like `--non-recursive` and `--policy-type` to disable recursive inspection and set the policy type respectively::
+
+    ```yaml
+    - id: terrascan
+      args:
+        - --args=--non-recursive # avoids scan errors on subdirectories without Terraform config files
+        - --args=--policy-type azure
+    ```
+
+    See the `terrascan run -h` command line help for available options.
+
+2. Use the `--args=--verbose` parameter to see the rule ID in the scaning output. Usuful to skip validations.
+3. Use `--skip-rules strings` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
+4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
 
 ## Authors
 
