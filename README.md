@@ -25,27 +25,28 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 ## Table of content
 
-* [Sponsors](#sponsors)
-* [Table of content](#table-of-content)
-* [How to install](#how-to-install)
-  * [1. Install dependencies](#1-install-dependencies)
-  * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
-  * [3. Add configs and hooks](#3-add-configs-and-hooks)
-  * [4. Run](#4-run)
-* [Available Hooks](#available-hooks)
-* [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
-  * [checkov](#checkov)
-  * [infracost_breakdown](#infracost_breakdown)
-  * [terraform_docs](#terraform_docs)
-  * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
-  * [terraform_fmt](#terraform_fmt)
-  * [terraform_providers_lock](#terraform_providers_lock)
-  * [terraform_tflint](#terraform_tflint)
-  * [terraform_tfsec](#terraform_tfsec)
-  * [terraform_validate](#terraform_validate)
-  * [terrascan](#terrascan)
-* [Authors](#authors)
-* [License](#license)
+- [Collection of git hooks for Terraform to be used with pre-commit framework](#collection-of-git-hooks-for-terraform-to-be-used-with-pre-commit-framework)
+  - [Sponsors](#sponsors)
+  - [Table of content](#table-of-content)
+  - [How to install](#how-to-install)
+    - [1. Install dependencies](#1-install-dependencies)
+    - [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
+    - [3. Add configs and hooks](#3-add-configs-and-hooks)
+    - [4. Run](#4-run)
+  - [Available Hooks](#available-hooks)
+  - [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
+    - [checkov](#checkov)
+    - [infracost_breakdown](#infracost_breakdown)
+    - [terraform_docs](#terraform_docs)
+    - [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
+    - [terraform_fmt](#terraform_fmt)
+    - [terraform_providers_lock](#terraform_providers_lock)
+    - [terraform_tflint](#terraform_tflint)
+    - [terraform_tfsec](#terraform_tfsec)
+    - [terraform_validate](#terraform_validate)
+    - [terrascan](#terrascan)
+  - [Authors](#authors)
+  - [License](#license)
 
 ## How to install
 
@@ -224,7 +225,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | -                                                                                    |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
-| `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations.                                                                                                                                                | `terrascan`                                                                          |
+| `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                                               | `terrascan`                                                                          |
 <!-- markdownlint-enable no-inline-html -->
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
