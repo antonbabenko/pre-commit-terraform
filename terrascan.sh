@@ -13,10 +13,12 @@ terrascan_() {
   for file_with_path in "${FILES[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
     paths[index]=$(dirname "$file_with_path")
-    ((index++)) || true
+    index=$((index + 1))
   done
 
-  # allow terrascan continue if exit_code greater than 0
+  # allow terrascan to continue if exit_code is greater than 0
+  # preserve errexit status
+  shopt -qo errexit && ERREXIT_IS_SET=true
   set +e
   terrascan_final_exit_code=0
 
@@ -26,7 +28,7 @@ terrascan_() {
     pushd "$path_uniq" > /dev/null
 
     # pass the arguments to terrascan
-    # shellcheck disable=SC2068 # terrascan fails when is used "${ARGS[@]}"
+    # shellcheck disable=SC2068 # terrascan fails when quoting is used ("${ARGS[@]}" vs ${ARGS[@]})
     terrascan scan -i terraform ${ARGS[@]}
 
     local exit_code=$?
@@ -37,8 +39,9 @@ terrascan_() {
     popd > /dev/null
   done
 
+  # restore errexit if it was set before the "for" loop
+  [[ $ERREXIT_IS_SET ]] && set -e
   # return the terrascan final exit_code
-  set -e
   exit $terrascan_final_exit_code
 }
 
