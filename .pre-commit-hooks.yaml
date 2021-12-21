@@ -100,7 +100,7 @@
   pass_filenames: false
   always_run: false
   files: \.tf$
-  exclude: \.+.terraform\/.*$
+  exclude: \.terraform\/.*$
   require_serial: true
 
 - id: terrascan
