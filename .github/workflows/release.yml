@@ -9,6 +9,7 @@ on:
       - '**/*.py'
       - '**/*.sh'
       - 'Dockerfile'
+      - '.pre-commit-hooks.yaml'
 
 jobs:
   release:
