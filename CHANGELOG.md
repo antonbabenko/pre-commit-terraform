@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.62.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.1...v1.62.2) (2021-12-21)
+
+
+### Bug Fixes
+
+* Properly exclude .terraform directory with checkov hook ([#306](https://github.com/antonbabenko/pre-commit-terraform/issues/306)) ([b431a43](https://github.com/antonbabenko/pre-commit-terraform/commit/b431a43ffa6cd13156485ef853c967856e9572ef))
+* Speedup `terrascan` hook up to x3 times in big repos ([#307](https://github.com/antonbabenko/pre-commit-terraform/issues/307)) ([2e8dcf9](https://github.com/antonbabenko/pre-commit-terraform/commit/2e8dcf9298733a256cc7f8c6f05b3ef9a1047a36))
+
 ## [1.62.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.0...v1.62.1) (2021-12-18)
 
 
