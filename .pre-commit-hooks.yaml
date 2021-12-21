@@ -110,3 +110,4 @@
   entry: terrascan.sh
   files: \.tf$
   exclude: \.terraform\/.*$
+  require_serial: true
