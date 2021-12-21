@@ -109,3 +109,4 @@
   language: script
   entry: terrascan.sh
   files: \.tf$
+  exclude: \.+.terraform\/.*$
