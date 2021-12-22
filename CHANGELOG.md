@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.62.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.2...v1.62.3) (2021-12-22)
+
+
+### Bug Fixes
+
+* Check all directories with changes and pass all args in terrascan hook ([#305](https://github.com/antonbabenko/pre-commit-terraform/issues/305)) ([66401d9](https://github.com/antonbabenko/pre-commit-terraform/commit/66401d93f485164fb2272af297df835b932c61c3))
+
 ## [1.62.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.1...v1.62.2) (2021-12-21)
 
 
