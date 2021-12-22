@@ -14,8 +14,7 @@ terrascan_() {
 
   # consume modified files passed from pre-commit so that
   # terrascan runs against only those relevant directories
-  # shellcheck disable=SC2128 # scan the first directory of the FILES array
-  for file_with_path in $files; do
+  for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
     paths[index]=$(dirname "$file_with_path")
     index=$((index + 1))
