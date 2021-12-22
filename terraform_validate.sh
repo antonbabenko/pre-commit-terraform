@@ -4,31 +4,23 @@ set -eo pipefail
 # `terraform validate` requires this env variable to be set
 export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 
-main() {
-  initialize_
+function main {
+  common::initialize
   parse_cmdline_ "$@"
   terraform_validate_
 }
 
-initialize_() {
+function common::initialize {
+  local SCRIPT_DIR
   # get directory containing this script
-  local dir
-  local source
-  source="${BASH_SOURCE[0]}"
-  while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
-    dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
-    source="$(readlink "$source")"
-    # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    [[ $source != /* ]] && source="$dir/$source"
-  done
-  _SCRIPT_DIR="$(dirname "$source")"
+  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
   # source getopt function
   # shellcheck source=lib_getopt
-  . "$_SCRIPT_DIR/lib_getopt"
+  . "$SCRIPT_DIR/lib_getopt"
 }
 
-parse_cmdline_() {
+function parse_cmdline_ {
   declare argv
   argv=$(getopt -o e:i:a: --long envs:,init-args:,args: -- "$@") || return
   eval "set -- $argv"
@@ -59,7 +51,7 @@ parse_cmdline_() {
   done
 }
 
-terraform_validate_() {
+function terraform_validate_ {
 
   # Setup environment variables
   local var var_name var_value
