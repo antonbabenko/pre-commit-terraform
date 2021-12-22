@@ -543,13 +543,17 @@ Example:
         - --init-args=-get=true
     ```
 
-5. Pass the following argument, if you want `terraform_validate` hook to also upgrade all specified providers and (if `-get=true` is specified) to (re-)install latest versions of module(s) allowed within configured constraints:
+5. If you want `terraform_validate` hook upgrade all specified providers and install the latest versions of modules allowed within configured constraints, set:
 
     ```yaml
+```suggestion
     - id: terraform_validate
       args:
         - --init-args=-upgrade
+        - --init-args=-get=true
     ```
+
+    For all possible `terraform init` args, check [official docs](https://www.terraform.io/docs/cli/commands/init.html).
 
 ### terrascan
 
