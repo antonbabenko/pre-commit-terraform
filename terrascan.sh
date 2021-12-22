@@ -4,27 +4,49 @@ set -eo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
-
-  # propagate $FILES to custom function
-  terrascan_ "$ARGS" "$FILES"
+  terrascan_ "${ARGS[*]}" "${FILES[@]}"
 }
 
 terrascan_() {
+  local -r args="${1}"
+  shift 1
+  local -a -r files=("$@")
+
   # consume modified files passed from pre-commit so that
   # terrascan runs against only those relevant directories
-  for file_with_path in $FILES; do
+  for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
     paths[index]=$(dirname "$file_with_path")
-
-    let "index+=1"
+    index=$((index + 1))
   done
 
+  # allow terrascan to continue if exit_code is greater than 0
+  # preserve errexit status
+  shopt -qo errexit && ERREXIT_IS_SET=true
+  set +e
+  terrascan_final_exit_code=0
+
+  # for each path run terrascan
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
     pushd "$path_uniq" > /dev/null
-    terrascan scan -i terraform $ARGS
+
+    # pass the arguments to terrascan
+    # shellcheck disable=SC2086 # terrascan fails when quoting is used ("$arg" vs $arg)
+    terrascan scan -i terraform $args
+
+    local exit_code=$?
+    if [ $exit_code != 0 ]; then
+      terrascan_final_exit_code=$exit_code
+    fi
+
     popd > /dev/null
   done
+
+  # restore errexit if it was set before the "for" loop
+  [[ $ERREXIT_IS_SET ]] && set -e
+  # return the terrascan final exit_code
+  exit $terrascan_final_exit_code
 }
 
 initialize_() {

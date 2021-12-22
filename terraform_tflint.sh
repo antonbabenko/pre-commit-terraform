@@ -62,17 +62,20 @@ tflint_() {
   tflint_final_exit_code=0
   for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
+    pushd "$path_uniq" > /dev/null
 
     # Print checked PATH **only** if TFLint have any messages
     # shellcheck disable=SC2091 # Suppress error output
-    $(tflint "${ARGS[@]}" $path_uniq 2>&1) 2> /dev/null || {
+    $(tflint "${ARGS[@]}" 2>&1) 2> /dev/null || {
       echo >&2 -e "\033[1;33m\nTFLint in $path_uniq/:\033[0m"
-      tflint "${ARGS[@]}" $path_uniq
+      tflint "${ARGS[@]}"
     }
     local exit_code=$?
     if [ $exit_code != 0 ]; then
       tflint_final_exit_code=$exit_code
     fi
+
+    popd > /dev/null
   done
   set -e
   exit $tflint_final_exit_code
