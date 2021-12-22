@@ -10,6 +10,29 @@ function main {
   common::per_dir_hook "$ARGS" "${FILES[@]}"
 }
 
+function common::colorify {
+  # Colors. Provided as first string to first arg of function.
+  # shellcheck disable=SC2034
+  local -r red="$(tput setaf 1)"
+  # shellcheck disable=SC2034
+  local -r green="$(tput setaf 2)"
+  # shellcheck disable=SC2034
+  local -r yellow="$(tput setaf 3)"
+  # Color reset
+  local -r RESET="$(tput sgr0)"
+
+  # Params start #
+  local COLOR="${!1}"
+  local -r TEXT=$2
+  # Params end #
+
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    COLOR=$RESET
+  fi
+
+  echo -e "${COLOR}${TEXT}${RESET}"
+}
+
 function common::initialize {
   local SCRIPT_DIR
   # get directory containing this script
@@ -74,11 +97,11 @@ function common::per_dir_hook {
   local final_exit_code=0
 
   # run hook for each path
-  for path_uniq in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
-    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
-    pushd "$path_uniq" > /dev/null
+  for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
+    dir_path="${dir_path//__REPLACED__SPACE__/ }"
+    pushd "$dir_path" > /dev/null
 
-    per_dir_hook_unique_part "$args"
+    per_dir_hook_unique_part "$args" "$dir_path"
 
     local exit_code=$?
     if [ "$exit_code" != 0 ]; then
@@ -97,12 +120,14 @@ function common::per_dir_hook {
 function per_dir_hook_unique_part {
   # common logic located in common::per_dir_hook
   local -r args="$1"
+  local -r dir_path="$2"
 
   # Print checked PATH **only** if TFLint have any messages
   # shellcheck disable=SC2091,SC2068 # Suppress error output
   $(tflint ${args[@]} 2>&1) 2> /dev/null || {
-    echo >&2 -e "\033[1;33m\nTFLint in $path_uniq/:\033[0m"
-    # shellcheck disable=SC2068 # tflint fails when quoting is used ("$arg" vs $arg)
+    common::colorify "yellow" "TFLint in $dir_path/:"
+
+    # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
     tflint ${args[@]}
   }
 

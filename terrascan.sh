@@ -71,11 +71,11 @@ function common::per_dir_hook {
   local final_exit_code=0
 
   # run hook for each path
-  for path_uniq in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
-    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
-    pushd "$path_uniq" > /dev/null
+  for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
+    dir_path="${dir_path//__REPLACED__SPACE__/ }"
+    pushd "$dir_path" > /dev/null
 
-    per_dir_hook_unique_part "$args"
+    per_dir_hook_unique_part "$args" "$dir_path"
 
     local exit_code=$?
     if [ "$exit_code" != 0 ]; then
@@ -94,6 +94,7 @@ function common::per_dir_hook {
 function per_dir_hook_unique_part {
   # common logic located in common::per_dir_hook
   local -r args="$1"
+  local -r dir_path="$2"
 
   # pass the arguments to hook
   # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
