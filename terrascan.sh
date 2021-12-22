@@ -4,13 +4,17 @@ set -eo pipefail
 main() {
   initialize_
   parse_cmdline_ "$@"
-  terrascan_
+  terrascan_ "${ARGS[*]}" "${FILES[@]}"
 }
 
 terrascan_() {
+  local -r args="${1}"
+  shift 1
+  local -a -r files=("$@")
+
   # consume modified files passed from pre-commit so that
   # terrascan runs against only those relevant directories
-  for file_with_path in "${FILES[@]}"; do
+  for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
     paths[index]=$(dirname "$file_with_path")
     index=$((index + 1))
@@ -28,8 +32,8 @@ terrascan_() {
     pushd "$path_uniq" > /dev/null
 
     # pass the arguments to terrascan
-    # shellcheck disable=SC2068 # terrascan fails when quoting is used ("${ARGS[@]}" vs ${ARGS[@]})
-    terrascan scan -i terraform ${ARGS[@]}
+    # shellcheck disable=SC2086 # terrascan fails when quoting is used ("$arg" vs $arg)
+    terrascan scan -i terraform $args
 
     local exit_code=$?
     if [ $exit_code != 0 ]; then
