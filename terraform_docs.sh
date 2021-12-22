@@ -1,35 +1,32 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-main() {
-  initialize_
-  parse_cmdline_ "$@"
+function main {
+  common::initialize
+  common::parse_cmdline "$@"
   # Support for setting relative PATH to .terraform-docs.yml config.
   ARGS=${ARGS[*]/--config=/--config=$(pwd)\/}
   terraform_docs_ "${HOOK_CONFIG[*]}" "$ARGS" "${FILES[@]}"
 }
 
-initialize_() {
+function common::initialize {
+  local SCRIPT_DIR
   # get directory containing this script
-  local dir
-  local source
-  source="${BASH_SOURCE[0]}"
-  while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
-    dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
-    source="$(readlink "$source")"
-    # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    [[ $source != /* ]] && source="$dir/$source"
-  done
-  _SCRIPT_DIR="$(dirname "$source")"
+  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
   # source getopt function
   # shellcheck source=lib_getopt
-  . "$_SCRIPT_DIR/lib_getopt"
+  . "$SCRIPT_DIR/lib_getopt"
 }
 
-parse_cmdline_() {
-  declare argv
-  argv=$(getopt -o a: --long args:,hook-config: -- "$@") || return
+# common global arrays.
+# Populated in `parse_cmdline` and can used in hooks functions
+declare -a ARGS=()
+declare -a HOOK_CONFIG=()
+declare -a FILES=()
+function common::parse_cmdline {
+  local argv
+  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -39,9 +36,9 @@ parse_cmdline_() {
         ARGS+=("$1")
         shift
         ;;
-      --hook-config)
+      -h | --hook-config)
         shift
-        HOOK_CONFIG+=("$1")
+        HOOK_CONFIG+=("$1;")
         shift
         ;;
       --)
@@ -53,11 +50,14 @@ parse_cmdline_() {
   done
 }
 
-terraform_docs_() {
+function terraform_docs_ {
   local -r hook_config="$1"
   local -r args="$2"
   shift 2
   local -a -r files=("$@")
+
+  # Get hook settings
+  IFS=";" read -r -a configs <<< "$hook_config"
 
   local hack_terraform_docs
   hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
@@ -72,7 +72,7 @@ terraform_docs_() {
 
   if [[ -z "$is_old_terraform_docs" ]]; then # Using terraform-docs 0.8+ (preferred)
 
-    terraform_docs "0" "$hook_config" "$args" "${files[@]}"
+    terraform_docs "0" "${configs[*]}" "$args" "${files[@]}"
 
   elif [[ "$hack_terraform_docs" == "1" ]]; then # Using awk script because terraform-docs is older than 0.8 and terraform 0.12 is used
 
@@ -84,17 +84,17 @@ terraform_docs_() {
     local tmp_file_awk
     tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
     terraform_docs_awk "$tmp_file_awk"
-    terraform_docs "$tmp_file_awk" "$hook_config" "$args" "${files[@]}"
+    terraform_docs "$tmp_file_awk" "${configs[*]}" "$args" "${files[@]}"
     rm -f "$tmp_file_awk"
 
   else # Using terraform 0.11 and no awk script is needed for that
 
-    terraform_docs "0" "$hook_config" "$args" "${files[@]}"
+    terraform_docs "0" "${configs[*]}" "$args" "${files[@]}"
 
   fi
 }
 
-terraform_docs() {
+function terraform_docs {
   local -r terraform_docs_awk_file="$1"
   local -r hook_config="$2"
   local -r args="$3"
@@ -212,7 +212,7 @@ terraform_docs() {
   done
 }
 
-terraform_docs_awk() {
+function terraform_docs_awk {
   local -r output_file=$1
 
   cat << "EOF" > "$output_file"
@@ -370,10 +370,5 @@ terraform_docs_awk() {
 EOF
 
 }
-
-# global arrays
-declare -a ARGS=()
-declare -a FILES=()
-declare -a HOOK_CONFIG=()
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
