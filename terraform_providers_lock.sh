@@ -2,33 +2,53 @@
 
 set -eo pipefail
 
-main() {
-  initialize_
-  parse_cmdline_ "$@"
-  terraform_providers_lock_
+function main {
+  common::initialize
+  common::parse_cmdline "$@"
+  common::per_dir_hook "${ARGS[*]}" "${FILES[@]}"
 }
 
-initialize_() {
+function common::colorify {
+  # Colors. Provided as first string to first arg of function.
+  # shellcheck disable=SC2034
+  local -r red="$(tput setaf 1)"
+  # shellcheck disable=SC2034
+  local -r green="$(tput setaf 2)"
+  # shellcheck disable=SC2034
+  local -r yellow="$(tput setaf 3)"
+  # Color reset
+  local -r RESET="$(tput sgr0)"
+
+  # Params start #
+  local COLOR="${!1}"
+  local -r TEXT=$2
+  # Params end #
+
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    COLOR=$RESET
+  fi
+
+  echo -e "${COLOR}${TEXT}${RESET}"
+}
+
+function common::initialize {
+  local SCRIPT_DIR
   # get directory containing this script
-  local dir
-  local source
-  source="${BASH_SOURCE[0]}"
-  while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
-    dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
-    source="$(readlink "$source")"
-    # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    [[ $source != /* ]] && source="$dir/$source"
-  done
-  _SCRIPT_DIR="$(dirname "$source")"
+  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
   # source getopt function
   # shellcheck source=lib_getopt
-  . "$_SCRIPT_DIR/lib_getopt"
+  . "$SCRIPT_DIR/lib_getopt"
 }
 
-parse_cmdline_() {
-  declare argv
-  argv=$(getopt -o a: --long args: -- "$@") || return
+# common global arrays.
+# Populated in `parse_cmdline` and can used in hooks functions
+declare -a ARGS=()
+declare -a HOOK_CONFIG=()
+declare -a FILES=()
+function common::parse_cmdline {
+  local argv
+  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -36,6 +56,11 @@ parse_cmdline_() {
       -a | --args)
         shift
         ARGS+=("$1")
+        shift
+        ;;
+      -h | --hook-config)
+        shift
+        HOOK_CONFIG+=("$1;")
         shift
         ;;
       --)
@@ -47,42 +72,74 @@ parse_cmdline_() {
   done
 }
 
-terraform_providers_lock_() {
-  local -a paths
-  local index=0
-  local file_with_path
+function common::per_dir_hook {
+  local -r args="$1"
+  shift 1
+  local -a -r files=("$@")
 
-  for file_with_path in "${FILES[@]}"; do
+  # consume modified files passed from pre-commit so that
+  # hook runs against only those relevant directories
+  local index=0
+  for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
-    paths[index]=$(dirname "$file_with_path")
+    dir_paths[index]=$(dirname "$file_with_path")
 
     ((index += 1))
   done
 
-  local path_uniq
-  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
-    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
+  # allow hook to continue if exit_code is greater than 0
+  # preserve errexit status
+  shopt -qo errexit && ERREXIT_IS_SET=true
+  set +e
+  local final_exit_code=0
 
-    if [[ ! -d "${path_uniq}/.terraform" ]]; then
-      set +e
-      init_output=$(terraform -chdir="${path_uniq}" init -backend=false 2>&1)
-      init_code=$?
-      set -e
+  # run hook for each path
+  for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
+    dir_path="${dir_path//__REPLACED__SPACE__/ }"
+    pushd "$dir_path" > /dev/null
 
-      if [[ $init_code != 0 ]]; then
-        echo "Init before validation failed: $path_uniq"
-        echo "$init_output"
-        exit 1
-      fi
+    per_dir_hook_unique_part "$args" "$dir_path"
+
+    local exit_code=$?
+    if [ "$exit_code" != 0 ]; then
+      final_exit_code=$exit_code
     fi
 
-    terraform -chdir="${path_uniq}" providers lock "${ARGS[@]}"
+    popd > /dev/null
   done
+
+  # restore errexit if it was set before the "for" loop
+  [[ $ERREXIT_IS_SET ]] && set -e
+  # return the hook final exit_code
+  exit $final_exit_code
 }
 
-# global arrays
-declare -a ARGS
-declare -a FILES
+function per_dir_hook_unique_part {
+  # common logic located in common::per_dir_hook
+  local -r args="$1"
+  local -r dir_path="$2"
+
+  if [[ ! -d ".terraform" ]]; then
+    set +e
+    init_output=$(terraform init -backend=false 2>&1)
+    init_code=$?
+    set -e
+
+    if [[ $init_code != 0 ]]; then
+      common::colorify "red" "Init before validation failed: $dir_path"
+      common::colorify "red" "$init_output"
+      exit 1
+    fi
+  fi
+
+  # pass the arguments to hook
+  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+  terraform providers lock ${args[@]}
+
+  # return exit code to common::per_dir_hook
+  local exit_code=$?
+  return $exit_code
+}
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
