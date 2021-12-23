@@ -23,6 +23,7 @@ function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
   declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
+  declare -g -r HOOK_CONFIG_SEPARATOR='%%SEPARATOR%%'
 
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
@@ -37,7 +38,7 @@ function common::parse_cmdline {
         ;;
       -h | --hook-config)
         shift
-        HOOK_CONFIG+=("$1;")
+        HOOK_CONFIG+=("${1}${HOOK_CONFIG_SEPARATOR}")
         shift
         ;;
       --)

@@ -44,6 +44,7 @@ function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
   declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
+  declare -g -r HOOK_CONFIG_SEPARATOR='%%SEPARATOR%%'
 
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
@@ -58,7 +59,7 @@ function common::parse_cmdline {
         ;;
       -h | --hook-config)
         shift
-        HOOK_CONFIG+=("$1;")
+        HOOK_CONFIG+=("${1}${HOOK_CONFIG_SEPARATOR}")
         shift
         ;;
       --)
@@ -76,7 +77,7 @@ function infracost_breakdown_ {
   read -r -a args <<< "$2"
 
   # Get hook settings
-  IFS=";" read -r -a checks <<< "$hook_config"
+  IFS="$HOOK_CONFIG_SEPARATOR" read -r -a checks <<< "$hook_config"
 
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     args+=("--no-color")
