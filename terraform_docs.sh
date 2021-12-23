@@ -140,11 +140,11 @@ function terraform_docs {
     esac
   done
 
-  local path_uniq
-  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
-    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
+  local dir_path
+  for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
+    dir_path="${dir_path//__REPLACED__SPACE__/ }"
 
-    pushd "$path_uniq" > /dev/null
+    pushd "$dir_path" > /dev/null
 
     #
     # Create file if it not exist and `--create-if-not-exist=true` provided
