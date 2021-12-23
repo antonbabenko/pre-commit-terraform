@@ -64,9 +64,9 @@ function common::per_dir_hook {
     ((index += 1))
   done
 
-  # allow hook to continue if exit_code is greater than 0
   # preserve errexit status
   shopt -qo errexit && ERREXIT_IS_SET=true
+  # allow hook to continue if exit_code is greater than 0
   set +e
   local final_exit_code=0
 

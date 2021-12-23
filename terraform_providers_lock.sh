@@ -41,12 +41,11 @@ function common::initialize {
   . "$SCRIPT_DIR/lib_getopt"
 }
 
-# common global arrays.
-# Populated in `parse_cmdline` and can used in hooks functions
-declare -a ARGS=()
-declare -a HOOK_CONFIG=()
-declare -a FILES=()
 function common::parse_cmdline {
+  # common global arrays.
+  # Populated via `common::parse_cmdline` and can be used inside hooks' functions
+  declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
+
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
@@ -88,9 +87,9 @@ function common::per_dir_hook {
     ((index += 1))
   done
 
-  # allow hook to continue if exit_code is greater than 0
   # preserve errexit status
   shopt -qo errexit && ERREXIT_IS_SET=true
+  # allow hook to continue if exit_code is greater than 0
   set +e
   local final_exit_code=0
 
@@ -121,15 +120,13 @@ function per_dir_hook_unique_part {
   local -r dir_path="$2"
 
   if [[ ! -d ".terraform" ]]; then
-    set +e
     init_output=$(terraform init -backend=false 2>&1)
     init_code=$?
-    set -e
 
     if [[ $init_code != 0 ]]; then
       common::colorify "red" "Init before validation failed: $dir_path"
       common::colorify "red" "$init_output"
-      exit 1
+      exit $init_code
     fi
   fi
 

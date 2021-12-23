@@ -17,12 +17,11 @@ function common::initialize {
   . "$SCRIPT_DIR/lib_getopt"
 }
 
-# common global arrays.
-# Populated in `parse_cmdline` and can used in hooks functions
-declare -a ARGS=()
-declare -a HOOK_CONFIG=()
-declare -a FILES=()
 function common::parse_cmdline {
+  # common global arrays.
+  # Populated via `common::parse_cmdline` and can be used inside hooks' functions
+  declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
+
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
@@ -67,9 +66,9 @@ function terraform_fmt_ {
     ((index += 1))
   done
 
-  # allow hook to continue if exit_code is greater than 0
   # preserve errexit status
   shopt -qo errexit && ERREXIT_IS_SET=true
+  # allow hook to continue if exit_code is greater than 0
   set +e
   local final_exit_code=0
 
@@ -112,8 +111,8 @@ function per_dir_hook_unique_part {
   local -r args="$1"
   local -r dir_path="$2"
 
-  # pass the arguments to terrascan
-  # shellcheck disable=SC2068 # terrascan fails when quoting is used ("$arg" vs $arg)
+  # pass the arguments to hook
+  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
   terraform fmt ${args[@]}
 
   # return exit code to common::per_dir_hook
