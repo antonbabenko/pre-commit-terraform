@@ -17,6 +17,8 @@ function run_tests {
   RESULTS_DIR="$(pwd)/tests/results"
 
   cd "$TEST_DIR" || { echo "Specified TEST_DIR does not exist" && exit 1; }
+  # Cleanup
+  rm "$RESULTS_DIR/$FILE_NAME_TO_SAVE_TEST_RESULTS"
 
   for ((i = 1; i <= TEST_NUM; i++)); do
     {
