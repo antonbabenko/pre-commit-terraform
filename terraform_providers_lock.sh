@@ -101,7 +101,7 @@ function common::per_dir_hook {
     per_dir_hook_unique_part "$args" "$dir_path"
 
     local exit_code=$?
-    if [ "$exit_code" != 0 ]; then
+    if [ $exit_code -ne 0 ]; then
       final_exit_code=$exit_code
     fi
 
@@ -119,11 +119,11 @@ function per_dir_hook_unique_part {
   local -r args="$1"
   local -r dir_path="$2"
 
-  if [[ ! -d ".terraform" ]]; then
+  if [ ! -d ".terraform" ]; then
     init_output=$(terraform init -backend=false 2>&1)
     init_code=$?
 
-    if [[ $init_code != 0 ]]; then
+    if [ $init_code -ne 0 ]; then
       common::colorify "red" "Init before validation failed: $dir_path"
       common::colorify "red" "$init_output"
       exit $init_code
@@ -139,4 +139,4 @@ function per_dir_hook_unique_part {
   return $exit_code
 }
 
-[[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
+[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

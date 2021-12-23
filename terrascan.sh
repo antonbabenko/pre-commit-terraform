@@ -77,7 +77,7 @@ function common::per_dir_hook {
     per_dir_hook_unique_part "$args" "$dir_path"
 
     local exit_code=$?
-    if [ "$exit_code" != 0 ]; then
+    if [ $exit_code -ne 0 ]; then
       final_exit_code=$exit_code
     fi
 
@@ -104,4 +104,4 @@ function per_dir_hook_unique_part {
   return $exit_code
 }
 
-[[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
+[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
