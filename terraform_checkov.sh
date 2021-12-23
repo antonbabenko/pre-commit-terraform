@@ -5,7 +5,7 @@ set -eo pipefail
 function main {
   common::initialize
   common::parse_cmdline "$@"
-  checkov_ "${ARGS[*]}" "${FILES[@]}"
+  common::per_dir_hook "${ARGS[*]}" "${FILES[@]}"
 }
 
 function common::initialize {
@@ -49,43 +49,38 @@ function common::parse_cmdline {
   done
 }
 
-function checkov_ {
+function common::per_dir_hook {
   local -r args="$1"
   shift 1
   local -a -r files=("$@")
 
   # consume modified files passed from pre-commit so that
-  # checkov runs against only those relevant directories
+  # hook runs against only those relevant directories
   local index=0
   for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
-    paths[index]=$(dirname "$file_with_path")
+    dir_paths[index]=$(dirname "$file_with_path")
 
     ((index += 1))
   done
 
-  # allow checkov to continue if exit_code is greater than 0
+  # allow hook to continue if exit_code is greater than 0
   # preserve errexit status
   shopt -qo errexit && ERREXIT_IS_SET=true
   set +e
-  checkov_final_exit_code=0
+  local final_exit_code=0
 
-  # for each path run checkov
-  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
-    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
-    pushd "$path_uniq" > /dev/null
+  # run hook for each path
+  for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
+    dir_path="${dir_path//__REPLACED__SPACE__/ }"
+    pushd "$dir_path" > /dev/null
 
-    # pass git root dir, if args not specified
-    if [ -z "$args" ]; then
-      checkov -d .
-    else
-      checkov "${args[@]}"
-    fi
+    per_dir_hook_unique_part "$args" "$dir_path"
 
     local exit_code=$?
-    if [ $exit_code != 0 ]; then
-      checkov_final_exit_code=$exit_code
+    if [ "$exit_code" != 0 ]; then
+      final_exit_code=$exit_code
     fi
 
     popd > /dev/null
@@ -93,8 +88,26 @@ function checkov_ {
 
   # restore errexit if it was set before the "for" loop
   [[ $ERREXIT_IS_SET ]] && set -e
-  # return the checkov final exit_code
-  exit $checkov_final_exit_code
+  # return the hook final exit_code
+  exit $final_exit_code
+}
+
+function per_dir_hook_unique_part {
+  # common logic located in common::per_dir_hook
+  local -r args="$1"
+  local -r dir_path="$2"
+
+  # pass git root dir, if args not specified
+  if [ -z "$args" ]; then
+    checkov -d .
+  else
+    # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+    checkov ${args[@]}
+  fi
+
+  # return exit code to common::per_dir_hook
+  local exit_code=$?
+  return $exit_code
 }
 
 [[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
