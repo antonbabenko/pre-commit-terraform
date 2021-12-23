@@ -144,7 +144,7 @@ function terraform_docs {
   for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
 
-    pushd "$dir_path" > /dev/null
+    pushd "$dir_path" > /dev/null || continue
 
     #
     # Create file if it not exist and `--create-if-not-exist=true` provided

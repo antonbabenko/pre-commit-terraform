@@ -75,7 +75,7 @@ function terraform_fmt_ {
   # run hook for each path
   for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
-    pushd "$dir_path" > /dev/null
+    pushd "$dir_path" > /dev/null || continue
 
     per_dir_hook_unique_part "$args" "$dir_path"
 
