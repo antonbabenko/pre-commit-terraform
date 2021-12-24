@@ -11,15 +11,14 @@ function main {
 }
 
 function common::colorify {
-  # Colors. Provided as first string to first arg of function.
   # shellcheck disable=SC2034
-  local -r red="$(tput setaf 1)"
+  local -r red="\e[0m\e[31m"
   # shellcheck disable=SC2034
-  local -r green="$(tput setaf 2)"
+  local -r green="\e[0m\e[32m"
   # shellcheck disable=SC2034
-  local -r yellow="$(tput setaf 3)"
+  local -r yellow="\e[0m\e[33m"
   # Color reset
-  local -r RESET="$(tput sgr0)"
+  local -r RESET="\e[0m"
 
   # Params start #
   local COLOR="${!1}"
