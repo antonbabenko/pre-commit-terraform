@@ -16,6 +16,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: ./Dockerfile
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx

@@ -1,3 +1,7 @@
-*
-!.dockerignore
-!Dockerfile
+Dockerfile
+.dockerignore
+.editorconfig
+.pre-commit-config.yaml
+.github
+.gitignore
+.hadolint.yaml
