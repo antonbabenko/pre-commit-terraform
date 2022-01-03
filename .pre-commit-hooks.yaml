@@ -82,7 +82,7 @@
   description: Validates all Terragrunt configuration files.
   entry: terragrunt_validate.sh
   language: script
-  files: (\.hcl)$
+  files: (/terragrunt\.hcl)$
   exclude: \.terraform\/.*$
 
 - id: terraform_tfsec
