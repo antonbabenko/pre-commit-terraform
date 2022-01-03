@@ -6,6 +6,8 @@ Want to contribute? Check [open issues](https://github.com/antonbabenko/pre-comm
 
 ## Sponsors
 
+<!-- markdownlint-disable no-inline-html -->
+
 <br />
 <a href="https://www.env0.com/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social"><img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/master/assets/env0.png" alt="env0" width="180" height="44" />
 
@@ -14,9 +16,12 @@ Automated provisioning of Terraform workflows and Infrastructure as Code.</a>
 <br />
 <a href="https://www.infracost.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social"><img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/master/assets/infracost.png" alt="infracost" width="200" height="38" />
 
+<!-- markdownlint-enable no-inline-html -->
+
 Cloud cost estimates for Terraform.</a>
 
 If you are using `pre-commit-terraform` already or want to support its development and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
+
 
 ## Table of content
 
@@ -38,6 +43,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform_tflint](#terraform_tflint)
   * [terraform_tfsec](#terraform_tfsec)
   * [terraform_validate](#terraform_validate)
+  * [terrascan](#terrascan)
 * [Authors](#authors)
 * [License](#license)
 
@@ -59,19 +65,30 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 <details><summary><b>Docker</b></summary><br>
 
-When `--build-arg` is not specified, the latest version of `pre-commit` and `terraform` will be installed.
+**Pull docker image with all hooks**:
+
+```bash
+TAG=latest
+docker pull ghcr.io/antonbabenko/pre-commit-terraform:$TAG
+```
+
+All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
+
+**Build from scratch**:
+
+When `--build-arg` is not specified, the latest version of `pre-commit` and `terraform` will be only installed.
 
 ```bash
 git clone git@github.com:antonbabenko/pre-commit-terraform.git
 cd pre-commit-terraform
 # Install the latest versions of all the tools
-docker build -t pre-commit --build-arg INSTALL_ALL=true .
+docker build -t pre-commit-terraform --build-arg INSTALL_ALL=true .
 ```
 
 To install a specific version of individual tools, define it using `--build-arg` arguments or set it to `latest`:
 
 ```bash
-docker build -t pre-commit \
+docker build -t pre-commit-terraform \
     --build-arg PRE_COMMIT_VERSION=latest \
     --build-arg TERRAFORM_VERSION=latest \
     --build-arg CHECKOV_VERSION=2.0.405 \
@@ -174,15 +191,18 @@ Execute this command to run `pre-commit` on all files in the repository (not onl
 pre-commit run -a
 ```
 
-Or, using Docker:
+Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions)):
 
 ```bash
-docker run -v $(pwd):/lint -w /lint pre-commit run -a
+TAG=latest
+docker run -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 ```
 
 Execute this command to list the versions of the tools in Docker:
+
 ```bash
-docker run --entrypoint cat pre-commit:latest /usr/bin/tools_versions_info
+TAG=latest
+docker run --entrypoint cat ghcr.io/antonbabenko/pre-commit-terraform:$TAG /usr/bin/tools_versions_info
 ```
 
 ## Available Hooks
@@ -204,7 +224,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | -                                                                                    |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
-| `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations.                                                                                                                                                | `terrascan`                                                                          |
+| `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                                               | `terrascan`                                                                          |
 <!-- markdownlint-enable no-inline-html -->
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
@@ -321,7 +341,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`.
 
 3. It is possible to automatically:
-    * create documentation file
+    * create a documentation file
     * extend existing documentation file by appending markers to the end of the file (see item 1 above)
     * use different filename for the documentation (default is `README.md`)
 
@@ -333,7 +353,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --hook-config=--create-file-if-not-exist=true # Boolean. true or false
     ```
 
-4. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as argument to `terraform_doc` hook, for example:
+4. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_doc` hook, for example:
 
     ```yaml
     - id: terraform_docs
@@ -507,7 +527,15 @@ Example:
         - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
+3. `terraform_validate` also supports passing custom arguments to its `terraform init`:
+
+    ```yaml
+    - id: terraform_validate
+      args:
+        - --init-args=-lockfile=readonly
+    ```
+
+4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -523,6 +551,22 @@ Example:
 
     **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
+### terrascan
+
+1. `terrascan` supports custom arguments so you can pass supported flags like `--non-recursive` and `--policy-type` to disable recursive inspection and set the policy type respectively:
+
+    ```yaml
+    - id: terrascan
+      args:
+        - --args=--non-recursive # avoids scan errors on subdirectories without Terraform config files
+        - --args=--policy-type=azure
+    ```
+
+    See the `terrascan run -h` command line help for available options.
+
+2. Use the `--args=--verbose` parameter to see the rule ID in the scaning output. Usuful to skip validations.
+3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
+4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
 
 ## Authors
 

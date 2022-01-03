@@ -1,3 +1,36 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [1.62.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.2...v1.62.3) (2021-12-22)
+
+
+### Bug Fixes
+
+* Check all directories with changes and pass all args in terrascan hook ([#305](https://github.com/antonbabenko/pre-commit-terraform/issues/305)) ([66401d9](https://github.com/antonbabenko/pre-commit-terraform/commit/66401d93f485164fb2272af297df835b932c61c3))
+
+## [1.62.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.1...v1.62.2) (2021-12-21)
+
+
+### Bug Fixes
+
+* Properly exclude .terraform directory with checkov hook ([#306](https://github.com/antonbabenko/pre-commit-terraform/issues/306)) ([b431a43](https://github.com/antonbabenko/pre-commit-terraform/commit/b431a43ffa6cd13156485ef853c967856e9572ef))
+* Speedup `terrascan` hook up to x3 times in big repos ([#307](https://github.com/antonbabenko/pre-commit-terraform/issues/307)) ([2e8dcf9](https://github.com/antonbabenko/pre-commit-terraform/commit/2e8dcf9298733a256cc7f8c6f05b3ef9a1047a36))
+
+## [1.62.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.0...v1.62.1) (2021-12-18)
+
+
+### Bug Fixes
+
+* **terraform_tflint:** Restore current working directory behavior ([#302](https://github.com/antonbabenko/pre-commit-terraform/issues/302)) ([93029dc](https://github.com/antonbabenko/pre-commit-terraform/commit/93029dcfcf6b9b121c24573f3e647d9fde255486))
+
+# [1.62.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.61.0...v1.62.0) (2021-12-12)
+
+
+### Features
+
+* Added semantic release ([#296](https://github.com/antonbabenko/pre-commit-terraform/issues/296)) ([1bcca44](https://github.com/antonbabenko/pre-commit-terraform/commit/1bcca44d1677128c23d505be644f1d16c320eb4c))
+
 # Change Log
 
 All notable changes to this project will be documented in this file.
@@ -5,6 +38,25 @@ All notable changes to this project will be documented in this file.
 <a name="unreleased"></a>
 ## [Unreleased]
 
+
+
+<a name="v1.61.0"></a>
+## [v1.61.0] - 2021-12-11
+
+- feat: Pass custom arguments to terraform init in `terraform_validate` hook ([#293](https://github.com/antonbabenko/pre-commit-terraform/issues/293))
+- fix: analyse all folders with tflint and don't stop on first execution ([#289](https://github.com/antonbabenko/pre-commit-terraform/issues/289))
+
+
+<a name="v1.60.0"></a>
+## [v1.60.0] - 2021-12-08
+
+- fix: pre-build docker image ([#292](https://github.com/antonbabenko/pre-commit-terraform/issues/292))
+
+
+<a name="v1.59.0"></a>
+## [v1.59.0] - 2021-12-06
+
+- fix: Fixed docker build ([#288](https://github.com/antonbabenko/pre-commit-terraform/issues/288))
 
 
 <a name="v1.58.0"></a>
@@ -501,7 +553,10 @@ https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9
 - Initial commit
 
 
-[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.58.0...HEAD
+[Unreleased]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.61.0...HEAD
+[v1.61.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.60.0...v1.61.0
+[v1.60.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.59.0...v1.60.0
+[v1.59.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.58.0...v1.59.0
 [v1.58.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.57.0...v1.58.0
 [v1.57.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.56.0...v1.57.0
 [v1.56.0]: https://github.com/antonbabenko/pre-commit-terraform/compare/v1.55.0...v1.56.0

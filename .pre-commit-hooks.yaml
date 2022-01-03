@@ -100,7 +100,7 @@
   pass_filenames: false
   always_run: false
   files: \.tf$
-  exclude: \.+.terraform\/.*$
+  exclude: \.terraform\/.*$
   require_serial: true
 
 - id: terrascan
@@ -108,3 +108,6 @@
   description: Runs terrascan on Terraform templates.
   language: script
   entry: terrascan.sh
+  files: \.tf$
+  exclude: \.terraform\/.*$
+  require_serial: true

@@ -1,14 +1,10 @@
----
-name: publish container image
+name: Publish container image
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
   release:
     types:
       - created
-  workflow_dispatch:
 
 jobs:
   docker:
@@ -36,6 +32,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          build-args: |
+            INSTALL_ALL=true
           platforms: linux/amd64
           push: true
           tags: |
