@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# globals variables
+# hook ID, see `- id` for details in .pre-commit-hooks.yaml file
+HOOK_ID="terrascan"
+
 function main {
   common::initialize
   common::parse_cmdline "$@"
@@ -52,9 +56,8 @@ function common::is_hook_run_on_whole_repo {
   local sorted_string
   local git_ls_files
   local included_files
-  local HOOK_ID="terrascan"
-
   local SCRIPT_DIR
+
   # get directory containing this script
   SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
