@@ -47,10 +47,50 @@ function common::parse_cmdline {
   done
 }
 
+function common::is_hook_run_on_whole_repo {
+  local -a -r files=("$@")
+  local sorted_string
+  local git_ls_files
+  local included_files
+  local HOOK_ID="terrascan"
+
+  local SCRIPT_DIR
+  # get directory containing this script
+  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+  # get included and excluded files from .pre-commit-hooks.yaml file
+  included_files=$(sed -n "/^- id: $HOOK_ID$/,/^$/p" "$SCRIPT_DIR/.pre-commit-hooks.yaml" | awk '$1 == "files:" {print $2; exit}')
+  excluded_files=$(sed -n "/^- id: $HOOK_ID$/,/^$/p" "$SCRIPT_DIR/.pre-commit-hooks.yaml" | awk '$1 == "exclude:" {print $2; exit}')
+
+  # sorted string with the files passed to the hook by pre-commit
+  sorted_string=$(printf '%s\n' "${files[@]}" | sort | tr '\n' ' ')
+
+  # git ls-files sorted string
+  if [[ "$excluded_files" != "" ]]; then
+    git_ls_files=$(git ls-files | sort | grep -v "$excluded_files" | grep -e "$included_files" | tr '\n' ' ')
+  else
+    git_ls_files=$(git ls-files | sort | grep -e "$included_files" | tr '\n' ' ')
+  fi
+
+  # This is a workaround to improve performance when all files are passed
+  # See: https://github.com/antonbabenko/pre-commit-terraform/issues/309
+  if [[ "$sorted_string" == "$git_ls_files" ]]; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
+
 function common::per_dir_hook {
   local -r args="$1"
   shift 1
   local -a -r files=("$@")
+
+  # check is (optional) function defined
+  if [[ $(type -t run_hook_on_whole_repo) == function ]] && [[ $(common::is_hook_run_on_whole_repo "${files[@]}") == "true" ]]; then
+    run_hook_on_whole_repo "$args"
+    exit 0
+  fi
 
   # consume modified files passed from pre-commit so that
   # hook runs against only those relevant directories
@@ -102,6 +142,14 @@ function per_dir_hook_unique_part {
   # return exit code to common::per_dir_hook
   local exit_code=$?
   return $exit_code
+}
+
+function run_hook_on_whole_repo {
+  local -r args="$1"
+
+  # pass the arguments to hook
+  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+  terrascan scan -i terraform ${args[@]}
 }
 
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
