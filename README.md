@@ -568,6 +568,24 @@ Example:
 3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
 4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
 
+### terrafmt
+
+1. `terrafmt` supports custom arguments so you can pass [supported flags](https://github.com/katbyte/terrafmt). Eg:
+
+```tf
+    resource "aws_lambda_function" "pass" {
+    function_name = "test-env"
+    role           = ""
+    runtime        = "python3.8"
+
+    environment {
+    variables = {
+      AWS_DEFAULT_REGION = "us-west-2"
+    }
+      }
+    }
+```
+
 ## Authors
 
 This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
