@@ -573,17 +573,17 @@ Example:
 1. `terrafmt` supports custom arguments so you can pass [supported flags](https://github.com/katbyte/terrafmt). Eg:
 
 ```tf
-    resource "aws_lambda_function" "pass" {
-    function_name = "test-env"
-    role           = ""
-    runtime        = "python3.8"
+resource "aws_lambda_function" "pass" {
+  function_name = "test-env"
+  role          = ""
+  runtime       = "python3.8"
 
-    environment {
+  environment {
     variables = {
       AWS_DEFAULT_REGION = "us-west-2"
     }
-      }
-    }
+  }
+}
 ```
 
 ## Authors
