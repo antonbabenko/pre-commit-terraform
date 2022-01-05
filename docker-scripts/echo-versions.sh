@@ -14,4 +14,4 @@ terraform --version | head -n 1 >> $F
 (if [ "$TERRASCAN_VERSION" != "false" ]; then echo "terrascan $(terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F; fi)
 (if [ "$TFLINT_VERSION" != "false" ]; then tflint --version >> $F; else echo "tflint SKIPPED" >> $F; fi)
 (if [ "$TFSEC_VERSION" != "false" ]; then echo "tfsec $(tfsec --version)" >> $F; else echo "tfsec SKIPPED" >> $F; fi)
-echo -n "\n\n" && cat $F && echo -n "\n\n"
+printf '\n\n' && cat $F && printf '\n\n'
