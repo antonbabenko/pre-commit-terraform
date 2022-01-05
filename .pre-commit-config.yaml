@@ -33,10 +33,3 @@ repos:
   hooks:
     - id: shfmt
       args: ['-l', '-i', '2', '-ci', '-sr', '-w']
-
-- repo: https://github.com/rahulmlokurte/pre-commit-terraform
-  rev: 90bd2a5727d2bbd5d5a27ed5390073f11c359a0c
-  hooks:
-    - id: terrafmt
-      args:
-        - --args=fmt

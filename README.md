@@ -572,7 +572,7 @@ Example:
 
 ### terrafmt
 
-1. `terrafmt` supports custom arguments so you can pass [supported flags](https://github.com/katbyte/terrafmt). Eg:
+1. `terrafmt` supports custom arguments so you can pass [supported flags](https://github.com/katbyte/terrafmt#usage). Eg:
 
 ```tf
 resource "aws_lambda_function" "pass" {
