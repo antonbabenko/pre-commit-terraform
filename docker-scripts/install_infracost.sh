@@ -5,14 +5,15 @@ set -exuo pipefail
 
 . /.env
 if [ "$INFRACOST_VERSION" != "false" ]; then
-  INFRACOST_RELEASES="https://api.github.com/repos/infracost/infracost/releases"
-
-  if [ "$INFRACOST_VERSION" = "latest" ]; then
-    curl -sS -L "$(curl -s ${INFRACOST_RELEASES}/latest | grep -o -E -m 1 "https://.+?-linux-${ARCH}.tar.gz")" > infracost.tgz
-  else
-    curl -sS -L "$(curl -sS ${INFRACOST_RELEASES} | grep -o -E "https://.+?v${INFRACOST_VERSION}/infracost-linux-${ARCH}.tar.gz")" > infracost.tgz
-  fi
-  tar -xzf infracost.tgz
-  rm infracost.tgz
-  mv infracost-linux-amd64 "${VIRTUAL_ENV}/bin/infracost"
+  export PCT_VERSION=$INFRACOST_VERSION
+  export PCT_GITHUB_USER=infracost
+  export PCT_GITHUB_PROJECT=infracost
+  export PCT_BIN_NAME=infracost
+  export PCT_PREFIX="${PCT_BIN_NAME}-"
+  export PCT_ASSET_INCLUDE_VERSION=false
+  export PCT_INFIX="linux-"
+  export PCT_ARCH=${ARCH}
+  export PCT_SUFFIX=".tar.gz"
+  export PCT_ASSET_BIN_NAME="infracost-linux-amd64"
+  /docker-scripts/install-from-github.sh
 fi
