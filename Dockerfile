@@ -1,5 +1,5 @@
-ARG base_image_version=3.9.9-alpine3.14
-FROM python:${base_image_version} as builder
+ARG TAG=3.10.1-alpine3.15
+FROM python:${TAG} as builder
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
@@ -37,17 +37,17 @@ ENV VIRTUAL_ENV=/opt/venv
 ENV PATH=$OLD_PATH
 RUN python3 -m venv --system-site-packages $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$OLD_PATH"
+RUN python3 -m pip install --no-cache-dir --upgrade pip
 
 # install package
 WORKDIR /src
-RUN pip install --no-cache-dir --disable-pip-version-check --use-feature=in-tree-build ./dist/*.whl
+RUN pip install --no-cache-dir --disable-pip-version-check ./dist/*.whl
 WORKDIR /
 
 RUN /src/docker-scripts/handle_architecture.sh
 
 # pre-commit
 RUN /src/docker-scripts/install_pre-commit.sh
-RUN python3 -m pip install --no-cache-dir --upgrade pip
 
 # Terraform
 RUN /src/docker-scripts/install_terraform.sh
@@ -59,16 +59,21 @@ RUN /src/docker-scripts/handle_install-all.sh
 
 # Checkov
 RUN /src/docker-scripts/install_checkov.sh
-RUN python3 -m pip install --no-cache-dir --upgrade pip
 
-# terraform-docs
+# infracost
+RUN /src/docker-scripts/install_infracost.sh
+
+# Terraform docs
 RUN /src/docker-scripts/install_terraform-docs.sh
 
+# Terragrunt
+RUN /src/docker-scripts/install_terragrunt.sh
+
 # remove build tools
-RUN python3 -m pip uninstall -y setuptools wheel pip
+RUN python3 -m pip uninstall -y setuptools wheel build
 
 # runtime image
-FROM python:${base_image_version}
+FROM python:${TAG}
 
 # copy venv
 ENV VIRTUAL_ENV=/opt/venv
@@ -77,4 +82,6 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 ENV PYTHONUNBUFFERED=1
 
-CMD ["block-pvc-scanner"]
+
+
+ENTRYPOINT [ "pre-commit" ]

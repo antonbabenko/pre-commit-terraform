@@ -3,7 +3,6 @@
 
 set -exuo pipefail
 
-# shellcheck source=/dev/null
 . /.env
 if [ "$INFRACOST_VERSION" != "false" ]; then
   INFRACOST_RELEASES="https://api.github.com/repos/infracost/infracost/releases"

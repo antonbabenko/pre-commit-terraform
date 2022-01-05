@@ -3,7 +3,6 @@
 
 set -exuo pipefail
 
-# shellcheck source=/dev/null
 . /.env
 if [ "${TERRAFORM_VERSION}" = "latest" ]; then
   TERRAFORM_VERSION="$(curl -sS https://api.github.com/repos/hashicorp/terraform/releases/latest | jq -r '.tag_name' | grep -o -E -m 1 "[0-9.]+")"

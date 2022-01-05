@@ -1,7 +1,9 @@
+# hadolint ignore=DL3006
 FROM pre-commit
 
-RUN apt update && \
-    apt install -y \
+# hadolint ignore=DL3008
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
         datamash \
         time && \
     # Cleanup
