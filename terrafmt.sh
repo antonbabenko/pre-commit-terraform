@@ -49,7 +49,7 @@ terrafmt_() {
   find . | grep -E "README.md" | sort | while read -r f; do
     echo "Processing $f"
     echo "terrafmt ${ARGS[*]} $f"
-    terrafmt "${ARGS[@]}" $f
+    terrafmt "${ARGS[@]}" "$f"
   done
 }
 
