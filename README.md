@@ -572,21 +572,16 @@ Example:
 
 ### terrafmt
 
-1. `terrafmt` supports custom arguments so you can pass [supported flags](https://github.com/katbyte/terrafmt#usage). Eg:
+1. `terrafmt` supports custom arguments so you can pass [supported flags](https://github.com/katbyte/terrafmt#usage) like `diff` and `fmt` to see what would be formatted and to format the blocks respectively:
 
-```tf
-resource "aws_lambda_function" "pass" {
-  function_name = "test-env"
-  role          = ""
-  runtime       = "python3.8"
-
-  environment {
-    variables = {
-      AWS_DEFAULT_REGION = "us-west-2"
-    }
-  }
-}
-```
+    ```yaml
+    - id: terrafmt
+      args:
+        - --args=diff
+        - --args=fmt
+     ```
+     
+     See the `terrafmt --help` command line help for available options
 
 ## Authors
 
