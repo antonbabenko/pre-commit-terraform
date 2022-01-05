@@ -47,8 +47,7 @@ parse_cmdline_() {
 
 terrafmt_() {
   find . | grep -E "README.md" | sort | while read -r f; do
-    echo "Processing $f"
-    echo "terrafmt ${ARGS[*]} $f"
+    echo "terrafmt: $f"
     terrafmt "${ARGS[@]}" "$f"
   done
 }
