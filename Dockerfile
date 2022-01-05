@@ -12,7 +12,6 @@ RUN apk add --no-cache \
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
-
 # Install pre-commit
 RUN [ ${PRE_COMMIT_VERSION} = "latest" ] && pip3 install --no-cache-dir pre-commit \
     || pip3 install --no-cache-dir pre-commit==${PRE_COMMIT_VERSION}
@@ -34,6 +33,7 @@ ARG TERRAGRUNT_VERSION=${TERRAGRUNT_VERSION:-false}
 ARG TERRASCAN_VERSION=${TERRASCAN_VERSION:-false}
 ARG TFLINT_VERSION=${TFLINT_VERSION:-false}
 ARG TFSEC_VERSION=${TFSEC_VERSION:-false}
+ARG TERRAFMT_VERSION=${TERRAFMT_VERSION:-false}
 
 
 # Tricky thing to install all tools by set only one arg.
@@ -47,7 +47,8 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "export TERRAGRUNT_VERSION=latest" >> /.env && \
         echo "export TERRASCAN_VERSION=latest" >> /.env && \
         echo "export TFLINT_VERSION=latest" >> /.env && \
-        echo "export TFSEC_VERSION=latest" >> /.env \
+        echo "export TFSEC_VERSION=latest" >> /.env && \
+        echo "export TERRAFMT_VERSION=latest" >> /.env \
     ; else \
         touch /.env \
     ; fi
@@ -126,6 +127,13 @@ RUN . /.env && \
     ) && chmod +x tfsec \
     ; fi
 
+RUN . /.env && \
+    if [ "TERRAFMT_VERSION" != "false" ]; then \
+    ( \
+       curl -L "https://github.com/katbyte/terrafmt/archive/refs/tags/v0.3.0.zip" > terrafmt.zip \
+    ) && unzip terrafmt.zip && rm terrafmt.zip \
+    ; fi
+
 # Checking binaries versions and write it to debug file
 RUN . /.env && \
     F=tools_versions_info && \
@@ -138,6 +146,7 @@ RUN . /.env && \
     (if [ "$TERRASCAN_VERSION"      != "false" ]; then echo "terrascan $(./terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F      ; fi) && \
     (if [ "$TFLINT_VERSION"         != "false" ]; then ./tflint --version >> $F;                      else echo "tflint SKIPPED" >> $F         ; fi) && \
     (if [ "$TFSEC_VERSION"          != "false" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F          ; fi) && \
+    (if [ "$TERRAFMT_VERSION"       != "false" ]; then echo "terrafmt $(terrafmt version)" >> $F;     else echo "terrafmt SKIPPED" >> $F       ; fi) && \
     echo -e "\n\n" && cat $F && echo -e "\n\n"
 
 

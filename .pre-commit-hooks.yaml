@@ -111,3 +111,12 @@
   files: \.tf$
   exclude: \.terraform\/.*$
   require_serial: true
+
+- id: terrafmt
+  name: terrafmt
+  description: Runs terrafmt on Markdown files.
+  language: script
+  entry: terrafmt.sh
+  files: \.md$
+  exclude: \.md\/.*$
+  require_serial: true

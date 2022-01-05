@@ -62,6 +62,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
 * [`jq`](https://github.com/stedolan/jq) required for `infracost_breakdown` hook.
+* [`terrafmt`](https://github.com/katbyte/terrafmt) required for `terraform_fmt` hook.
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -225,6 +226,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
 | `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                                               | `terrascan`                                                                          |
+| `terrafmt`                                             | [terrafmt](https://github.com/katbyte/terrafmt) Format terraform blocks embedded in files.                                                                                                                                                   | `terrafmt`                                                                           |
 <!-- markdownlint-enable no-inline-html -->
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
@@ -567,6 +569,24 @@ Example:
 2. Use the `--args=--verbose` parameter to see the rule ID in the scaning output. Usuful to skip validations.
 3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
 4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
+
+### terrafmt
+
+1. `terrafmt` supports custom arguments so you can pass [supported flags](https://github.com/katbyte/terrafmt). Eg:
+
+```tf
+resource "aws_lambda_function" "pass" {
+  function_name = "test-env"
+  role          = ""
+  runtime       = "python3.8"
+
+  environment {
+    variables = {
+      AWS_DEFAULT_REGION = "us-west-2"
+    }
+  }
+}
+```
 
 ## Authors
 
