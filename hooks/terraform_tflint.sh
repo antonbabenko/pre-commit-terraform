@@ -17,8 +17,17 @@ function main {
   common::per_dir_hook "$ARGS" "${FILES[@]}"
 }
 
+#######################################################################
+# Uniq part of `common::per_dir_hook`. That function executes in loop
+# on each provided dir path. Run wrapped tool with specified arguments
+# Arguments:
+#   args (string with array) arguments that configure wrapped tool behavior
+#   dir_path (string) PATH to dir from git repo root. Can be used in
+#     error logging
+# Outputs:
+#   If failed - print out hook checks status
+#######################################################################
 function per_dir_hook_unique_part {
-  # common logic located in common::per_dir_hook
   local -r args="$1"
   local -r dir_path="$2"
 

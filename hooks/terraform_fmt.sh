@@ -13,6 +13,19 @@ function main {
   terraform_fmt_ "${ARGS[*]}" "${FILES[@]}"
 }
 
+#######################################################################
+# Hook execution boilerplate logic that common for hooks, that run on
+# per dir basis. Little bit extended than `common::per_dir_hook`
+# 1. Because hook run on whole dir, reduce file paths to uniq dir paths
+# (uniq) 1.1. Collect paths to *.tfvars files to separate variable
+# 2. Run for each dir `per_dir_hook_unique_part`, on all paths
+# (uniq) 2.1. Run `terraform fmt` on each *.tfvars file
+# 2.2. If at least 1 check failed - change exit code to non-zero
+# 3. Complete hook execution and return exit code
+# Arguments:
+#   args (string with array) arguments that configure wrapped tool behavior
+#   files (array) filenames to check
+#######################################################################
 function terraform_fmt_ {
   local -r args="$1"
   shift 1
@@ -72,8 +85,17 @@ function terraform_fmt_ {
 
 }
 
+#######################################################################
+# Uniq part of `common::per_dir_hook`. That function executes in loop
+# on each provided dir path. Run wrapped tool with specified arguments
+# Arguments:
+#   args (string with array) arguments that configure wrapped tool behavior
+#   dir_path (string) PATH to dir from git repo root. Can be used in
+#     error logging
+# Outputs:
+#   If failed - print out hook checks status
+#######################################################################
 function per_dir_hook_unique_part {
-  # common logic located in common::per_dir_hook
   local -r args="$1"
   local -r dir_path="$2"
 

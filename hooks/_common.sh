@@ -1,13 +1,29 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+#######################################################################
+# Init arguments parser
+# Arguments:
+#   script_dir - absolute path to hook dir location
+#######################################################################
 function common::initialize {
   local -r script_dir=$1
   # source getopt function
-  # shellcheck source=lib_getopt
+  # shellcheck source=../lib_getopt
   . "$script_dir/../lib_getopt"
 }
 
+#######################################################################
+# Parse provided to script args and filenames and populate each to
+# appropriate Global
+# Globals (init and populate):
+#   ARGS (array) arguments that configure wrapped tool behavior
+#   HOOK_CONFIG (array) arguments that configure hook behavior
+#   FILES (array) filenames to check
+# Arguments:
+#   $@ (array) all specified in `hooks.[].args` in
+#     `.pre-commit-config.yaml` and filenames.
+#######################################################################
 function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
@@ -39,6 +55,17 @@ function common::parse_cmdline {
   done
 }
 
+#######################################################################
+# Hook execution boilerplate logic that common for hooks, that run on
+# per dir basis.
+# 1. Because hook run on whole dir, reduce file paths to uniq dir paths
+# 2. Run for each dir `per_dir_hook_unique_part`, on all paths
+# 2.1. If at least 1 check failed - change exit code to non-zero
+# 3. Complete hook execution and return exit code
+# Arguments:
+#   args (string with array) arguments that configure wrapped tool behavior
+#   files (array) filenames to check
+#######################################################################
 function common::per_dir_hook {
   local -r args="$1"
   shift 1
@@ -82,6 +109,16 @@ function common::per_dir_hook {
   exit $final_exit_code
 }
 
+#######################################################################
+# Colorify provided string and print out it to stdout
+# Environment variables:
+#   PRE_COMMIT_COLOR (string) If set to `never` - do not colorify string
+# Arguments:
+#   COLOR (string) Color name that will be used for colorify
+#   TEXT (string)
+# Outputs:
+#   Print out provided text to stdout
+#######################################################################
 function common::colorify {
   # shellcheck disable=SC2034
   local -r red="\e[0m\e[31m"
