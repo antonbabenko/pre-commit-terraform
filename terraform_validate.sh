@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
+
 # `terraform validate` requires this env variable to be set
 export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 
 function main {
-  common::initialize
+  common::initialize "$SCRIPT_DIR"
   parse_cmdline_ "$@"
   terraform_validate_
-}
-
-function common::initialize {
-  local SCRIPT_DIR
-  # get directory containing this script
-  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
-  # source getopt function
-  # shellcheck source=lib_getopt
-  . "$SCRIPT_DIR/lib_getopt"
 }
 
 function parse_cmdline_ {
@@ -119,9 +114,7 @@ function terraform_validate_ {
 }
 
 # global arrays
-declare -a ARGS
 declare -a INIT_ARGS
 declare -a ENVS
-declare -a FILES
 
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

@@ -1,50 +1,16 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
+
 function main {
-  common::initialize
+  common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
+  # shellcheck disable=SC2153 # False positive
   terraform_fmt_ "${ARGS[*]}" "${FILES[@]}"
-}
-
-function common::initialize {
-  local SCRIPT_DIR
-  # get directory containing this script
-  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
-  # source getopt function
-  # shellcheck source=lib_getopt
-  . "$SCRIPT_DIR/lib_getopt"
-}
-
-function common::parse_cmdline {
-  # common global arrays.
-  # Populated via `common::parse_cmdline` and can be used inside hooks' functions
-  declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
-
-  local argv
-  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
-  eval "set -- $argv"
-
-  for argv; do
-    case $argv in
-      -a | --args)
-        shift
-        ARGS+=("$1")
-        shift
-        ;;
-      -h | --hook-config)
-        shift
-        HOOK_CONFIG+=("$1;")
-        shift
-        ;;
-      --)
-        shift
-        FILES=("$@")
-        break
-        ;;
-    esac
-  done
 }
 
 function terraform_fmt_ {
