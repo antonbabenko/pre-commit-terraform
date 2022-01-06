@@ -56,6 +56,10 @@ Script accept next options:
 | 5   | `RAW_TEST_`<br>`RESULTS_FILE_NAME` | `terraform_tfsec_pr123`                                                  | (Temporary) File where all test data will be stored. |
 <!-- markdownlint-enable no-inline-html -->
 
+> **Note:** To make test results repeatable and comparable, be sure that on the test machine nothing generates an unstable workload. During tests good to stop any other apps and do not interact with the test machine.
+>
+> Otherwise, for eg, when you watch Youtube videos during one test and not during other, test results can differ up to 30% for the same test.
+
 ### Run via BASH
 
 ```bash
