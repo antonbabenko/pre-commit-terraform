@@ -8,15 +8,14 @@ function main {
 }
 
 function common::colorify {
-  # Colors. Provided as first string to first arg of function.
   # shellcheck disable=SC2034
-  local -r red="$(tput setaf 1)"
+  local -r red="\e[0m\e[31m"
   # shellcheck disable=SC2034
-  local -r green="$(tput setaf 2)"
+  local -r green="\e[0m\e[32m"
   # shellcheck disable=SC2034
-  local -r yellow="$(tput setaf 3)"
+  local -r yellow="\e[0m\e[33m"
   # Color reset
-  local -r RESET="$(tput sgr0)"
+  local -r RESET="\e[0m"
 
   # Params start #
   local COLOR="${!1}"
@@ -40,12 +39,11 @@ function common::initialize {
   . "$SCRIPT_DIR/lib_getopt"
 }
 
-# common global arrays.
-# Populated in `parse_cmdline` and can used in hooks functions
-declare -a ARGS=()
-declare -a HOOK_CONFIG=()
-declare -a FILES=()
 function common::parse_cmdline {
+  # common global arrays.
+  # Populated via `common::parse_cmdline` and can be used inside hooks' functions
+  declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
+
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
   eval "set -- $argv"
@@ -180,4 +178,4 @@ function infracost_breakdown_ {
   fi
 }
 
-[[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
+[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
