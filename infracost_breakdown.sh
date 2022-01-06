@@ -118,7 +118,7 @@ function infracost_breakdown_ {
     }; then
       check="${check:1:-1}"
     fi
-    # shellcheck disable=SC2207 # Can't found working `read` command
+    # shellcheck disable=SC2207 # Can't find working `read` command
     operations=($(echo "$check" | grep -oE '[!<>=]{1,2}'))
     # Get the very last operator, that is used in comparison inside `jq` query.
     # From the example below we need to pick the `>` which is in between `add` and `1000`,
