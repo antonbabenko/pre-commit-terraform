@@ -164,7 +164,7 @@ function terraform_docs {
 
       mkdir -p "$dir"
       {
-        echo -e "# ${PWD##*/}\n" >> "$text_file"
+        echo -e "# ${PWD##*/}\n"
         echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
         echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
       } >> "$text_file"
