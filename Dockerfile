@@ -98,8 +98,8 @@ RUN pip install --no-cache-dir --disable-pip-version-check ./dist/*.whl
 WORKDIR /
 
 # Checking binaries versions and write it to debug file
-COPY ./docker-scripts/write-version-file.sh /docker-scripts/write-version-file.sh
-RUN /docker-scripts/write-version-file.sh
+COPY ./docker-scripts/echo-versions.sh /docker-scripts/echo-versions.sh
+RUN /docker-scripts/echo-versions.sh
 
 # runtime image
 FROM python:${TAG}
