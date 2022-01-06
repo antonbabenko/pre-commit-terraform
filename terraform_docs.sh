@@ -121,9 +121,11 @@ function terraform_docs {
   local add_to_existing=false
   local create_if_not_exist=false
 
-  configs=($hook_config)
+  read -r -a configs <<< "$hook_config"
+
   for c in "${configs[@]}"; do
-    config=(${c//=/ })
+
+    IFS="=" read -r -a config <<< "$c"
     key=${config[0]}
     value=${config[1]}
 
@@ -161,9 +163,11 @@ function terraform_docs {
       dir="$(dirname "$text_file")"
 
       mkdir -p "$dir"
-      echo -e "# ${PWD##*/}\n" >> "$text_file"
-      echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
-      echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+      {
+        echo -e "# ${PWD##*/}\n"
+        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+      } >> "$text_file"
     fi
 
     # If file still not exist - skip dir

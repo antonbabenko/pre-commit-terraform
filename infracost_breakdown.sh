@@ -62,6 +62,7 @@ function common::parse_cmdline {
         ;;
       --)
         shift
+        # shellcheck disable=SC2034 # Common function
         FILES=("$@")
         break
         ;;
@@ -101,6 +102,7 @@ function infracost_breakdown_ {
     # $hook_config receives string like '1 > 2; 3 == 4;' etc.
     # It gets split by `;` into array, which we're parsing here ('1 > 2' ' 3 == 4')
     # Next line removes leading spaces, just for fancy output reason.
+    # shellcheck disable=SC2001 # Rule exception
     check=$(echo "$check" | sed 's/^[[:space:]]*//')
 
     # Drop quotes in hook args section. From:
@@ -116,7 +118,7 @@ function infracost_breakdown_ {
     }; then
       check="${check:1:-1}"
     fi
-
+    # shellcheck disable=SC2207 # Can't find working `read` command
     operations=($(echo "$check" | grep -oE '[!<>=]{1,2}'))
     # Get the very last operator, that is used in comparison inside `jq` query.
     # From the example below we need to pick the `>` which is in between `add` and `1000`,
