@@ -1,26 +1,17 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-function main {
-  common::initialize
-  common::parse_cmdline "$@"
-  common::per_dir_hook "${ARGS[*]}" "${FILES[@]}"
-}
-
 function common::initialize {
-  local SCRIPT_DIR
-  # get directory containing this script
-  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
+  local -r script_dir=$1
   # source getopt function
   # shellcheck source=lib_getopt
-  . "$SCRIPT_DIR/lib_getopt"
+  . "$script_dir/../lib_getopt"
 }
 
 function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
-  declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
+  declare -g -a ARGS=() HOOK_CONFIG=() FILES=()
 
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
@@ -40,6 +31,7 @@ function common::parse_cmdline {
         ;;
       --)
         shift
+        # shellcheck disable=SC2034 # Variable is used
         FILES=("$@")
         break
         ;;
@@ -90,18 +82,24 @@ function common::per_dir_hook {
   exit $final_exit_code
 }
 
-function per_dir_hook_unique_part {
-  # common logic located in common::per_dir_hook
-  local -r args="$1"
-  local -r dir_path="$2"
+function common::colorify {
+  # shellcheck disable=SC2034
+  local -r red="\e[0m\e[31m"
+  # shellcheck disable=SC2034
+  local -r green="\e[0m\e[32m"
+  # shellcheck disable=SC2034
+  local -r yellow="\e[0m\e[33m"
+  # Color reset
+  local -r RESET="\e[0m"
 
-  # pass the arguments to hook
-  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  terragrunt validate ${args[@]}
+  # Params start #
+  local COLOR="${!1}"
+  local -r TEXT=$2
+  # Params end #
 
-  # return exit code to common::per_dir_hook
-  local exit_code=$?
-  return $exit_code
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    COLOR=$RESET
+  fi
+
+  echo -e "${COLOR}${TEXT}${RESET}"
 }
-
-[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
