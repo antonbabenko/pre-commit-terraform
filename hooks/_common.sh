@@ -5,7 +5,7 @@ function common::initialize {
   local -r script_dir=$1
   # source getopt function
   # shellcheck source=lib_getopt
-  . "$script_dir/lib_getopt"
+  . "$script_dir/../lib_getopt"
 }
 
 function common::parse_cmdline {
