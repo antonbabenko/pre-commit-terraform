@@ -60,8 +60,8 @@ function parse_cmdline_ {
 }
 
 #######################################################################
-# Wrapper around `terraform validate` tool that check is code are valid
-# 1. Export provided envs to environment
+# Wrapper around `terraform validate` tool that checks if code is valid
+# 1. Export provided env var K/V pairs to environment
 # 2. Because hook runs on whole dir, reduce file paths to uniq dir paths
 # 3. In each dir that have *.tf files:
 # 3.1. Check if `.terraform` dir exists and if not - run `terraform init`
