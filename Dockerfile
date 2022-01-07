@@ -98,11 +98,14 @@ RUN pip install --no-cache-dir --disable-pip-version-check ./dist/*.whl
 WORKDIR /
 
 # Checking binaries versions and write it to debug file
-COPY ./docker-scripts/echo-versions.sh /docker-scripts/echo-versions.sh
-RUN /docker-scripts/echo-versions.sh
+COPY ./docker-scripts/write_tools-versions-info.sh /docker-scripts/write_tools-versions-info.sh
+RUN /docker-scripts/write_tools-versions-info.sh
 
 # runtime image
 FROM python:${TAG}
+
+ARG INFRACOST_VERSION=${INFRACOST_VERSION:-false}
+ARG TERRAFORM_DOCS_VERSION=${TERRAFORM_DOCS_VERSION:-false}
 
 ENV PYTHONUNBUFFERED=1
 
@@ -110,15 +113,21 @@ RUN apk add --no-cache \
     # pre-commit deps
     git \
     # All hooks deps
-    bash
+    bash && \
+    if [ "${TERRAFORM_DOCS_VERSION}" = "false" ]; then \
+        apk add --no-cache perl \
+    ; fi && \
+    if [ "${INFRACOST_VERSION}" = "false" ]; then \
+        apk add --no-cache jq \
+    ; fi
+
+# Copy terrascan policies
+COPY --from=builder /root/.terrascan/pkg/policies/opa/rego/ /root/.terrascan/pkg/policies/opa/rego/
 
 # copy venv
 ENV VIRTUAL_ENV=/opt/venv
 COPY --from=builder /opt/venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
-# Copy terrascan policies
-COPY --from=builder /root/.terrascan/pkg/policies/opa/rego /root/.terrascan/pkg/policies/opa/rego
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 

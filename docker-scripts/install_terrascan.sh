@@ -3,6 +3,8 @@
 
 set -exuo pipefail
 
+mkdir -p /root/.terrascan/pkg/policies/opa/rego/
+
 . /.env
 if [ "$TERRASCAN_VERSION" != "false" ]; then
   export PCT_VERSION=$TERRASCAN_VERSION
