@@ -71,11 +71,11 @@ function terraform_docs_ {
 
 #######################################################################
 # Wrapper around `terraform-docs` tool that check and change/create
-# (depends on on provided hook_config) terraform documentation in
+# (depends on provided hook_config) terraform documentation in
 # markdown format
 # Arguments:
 #   terraform_docs_awk_file (string) filename where awk hack for old
-#     `terraform-docs` populated. Needed for tf 0.12+.
+#     `terraform-docs` was written. Needed for TF 0.12+.
 #     Hack skipped when `terraform_docs_awk_file == "0"`
 #   hook_config (string with array) arguments that configure hook behavior
 #   args (string with array) arguments that configure wrapped tool behavior

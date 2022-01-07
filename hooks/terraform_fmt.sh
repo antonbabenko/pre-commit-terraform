@@ -90,8 +90,8 @@ function terraform_fmt_ {
 # on each provided dir path. Run wrapped tool with specified arguments
 # Arguments:
 #   args (string with array) arguments that configure wrapped tool behavior
-#   dir_path (string) PATH to dir from git repo root. Can be used in
-#     error logging
+#   dir_path (string) PATH to dir relative to git repo root.
+#     Can be used in error logging
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
