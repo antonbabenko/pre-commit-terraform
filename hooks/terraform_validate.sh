@@ -16,11 +16,11 @@ function main {
 }
 
 #######################################################################
-# Parse provided to script args and filenames and populate each to
-# appropriate Global
+# Parse args and filenames passed to script and populate respective
+# global variables with appropriate values
 # Globals (init and populate):
 #   ARGS (array) arguments that configure wrapped tool behavior
-#   INIT_ARGS (array) arguments for `terraform init` command`
+#   INIT_ARGS (array) arguments to `terraform init` command
 #   ENVS (array) environment variables that will be used with
 #     `terraform` commands
 #   FILES (array) filenames to check
@@ -62,9 +62,9 @@ function parse_cmdline_ {
 #######################################################################
 # Wrapper around `terraform validate` tool that check is code are valid
 # 1. Export provided envs to environment
-# 2. Because hook run on whole dir, reduce file paths to uniq dir paths
+# 2. Because hook runs on whole dir, reduce file paths to uniq dir paths
 # 3. In each dir that have *.tf files:
-# 3.1. Check is `.terraform` exist and if not - run `terraform init`
+# 3.1. Check if `.terraform` dir exists and if not - run `terraform init`
 # 3.2. Run `terraform validate`
 # 3.3. If at least 1 check failed - change exit code to non-zero
 # 4. Complete hook execution and return exit code

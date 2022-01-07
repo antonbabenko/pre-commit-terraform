@@ -14,11 +14,10 @@ function main {
 }
 
 #######################################################################
-# Wrapper around `infracost breakdown` tool that check and compare
-# infra cost by provided hook_config
+# Wrapper around `infracost breakdown` tool which checks and compares
+# infra cost based on provided hook_config
 # Environment variables:
-#   PRE_COMMIT_COLOR (string) If set to `never` - force tool output to
-#     plain text
+#   PRE_COMMIT_COLOR (string) If set to `never` - do not colorize output
 # Arguments:
 #   hook_config (string with array) arguments that configure hook behavior
 #   args (string with array) arguments that configure wrapped tool behavior

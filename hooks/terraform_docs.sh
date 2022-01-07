@@ -18,7 +18,7 @@ function main {
 }
 
 #######################################################################
-# Functions that prepares hacks for old versions of `terraform`` and
+# Function which prepares hacks for old versions of `terraform` and
 # `terraform-docs` that them call `terraform_docs`
 # Arguments:
 #   hook_config (string with array) arguments that configure hook behavior
@@ -204,10 +204,10 @@ function terraform_docs {
 }
 
 #######################################################################
-# Functions that create file with awk hacks for old versions of
+# Function which creates file with `awk` hacks for old versions of
 # `terraform-docs`
 # Arguments:
-#   output_file (string) filename where hack will be written
+#   output_file (string) filename where hack will be written to
 #######################################################################
 function terraform_docs_awk {
   local -r output_file=$1

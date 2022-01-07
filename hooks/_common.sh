@@ -14,8 +14,8 @@ function common::initialize {
 }
 
 #######################################################################
-# Parse provided to script args and filenames and populate each to
-# appropriate Global
+# Parse args and filenames passed to script and populate respective
+# global variables with appropriate values
 # Globals (init and populate):
 #   ARGS (array) arguments that configure wrapped tool behavior
 #   HOOK_CONFIG (array) arguments that configure hook behavior
@@ -56,9 +56,9 @@ function common::parse_cmdline {
 }
 
 #######################################################################
-# Hook execution boilerplate logic that common for hooks, that run on
-# per dir basis.
-# 1. Because hook run on whole dir, reduce file paths to uniq dir paths
+# Hook execution boilerplate logic which is common to hooks, that run
+# on per dir basis.
+# 1. Because hook runs on whole dir, reduce file paths to uniq dir paths
 # 2. Run for each dir `per_dir_hook_unique_part`, on all paths
 # 2.1. If at least 1 check failed - change exit code to non-zero
 # 3. Complete hook execution and return exit code
@@ -110,11 +110,11 @@ function common::per_dir_hook {
 }
 
 #######################################################################
-# Colorify provided string and print out it to stdout
+# Colorize provided string and print it out to stdout
 # Environment variables:
-#   PRE_COMMIT_COLOR (string) If set to `never` - do not colorify string
+#   PRE_COMMIT_COLOR (string) If set to `never` - do not colorize output
 # Arguments:
-#   COLOR (string) Color name that will be used for colorify
+#   COLOR (string) Color name that will be used to colorize
 #   TEXT (string)
 # Outputs:
 #   Print out provided text to stdout

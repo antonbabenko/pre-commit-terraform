@@ -17,7 +17,7 @@ function main {
 }
 
 #######################################################################
-# Uniq part of `common::per_dir_hook`. That function executes in loop
+# Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
 # Arguments:
 #   args (string with array) arguments that configure wrapped tool behavior
