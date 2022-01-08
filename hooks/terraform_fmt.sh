@@ -1,57 +1,22 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
+
 function main {
-  common::initialize
+  common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
-  common::per_dir_hook "${ARGS[*]}" "${FILES[@]}"
+  # shellcheck disable=SC2153 # False positive
+  terraform_fmt_ "${ARGS[*]}" "${FILES[@]}"
 }
 
-function common::initialize {
-  local SCRIPT_DIR
-  # get directory containing this script
-  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
-  # source getopt function
-  # shellcheck source=lib_getopt
-  . "$SCRIPT_DIR/lib_getopt"
-}
-
-function common::parse_cmdline {
-  # common global arrays.
-  # Populated via `common::parse_cmdline` and can be used inside hooks' functions
-  declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
-
-  local argv
-  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
-  eval "set -- $argv"
-
-  for argv; do
-    case $argv in
-      -a | --args)
-        shift
-        ARGS+=("$1")
-        shift
-        ;;
-      -h | --hook-config)
-        shift
-        HOOK_CONFIG+=("$1;")
-        shift
-        ;;
-      --)
-        shift
-        FILES=("$@")
-        break
-        ;;
-    esac
-  done
-}
-
-function common::per_dir_hook {
+function terraform_fmt_ {
   local -r args="$1"
   shift 1
   local -a -r files=("$@")
-
   # consume modified files passed from pre-commit so that
   # hook runs against only those relevant directories
   local index=0
@@ -59,7 +24,11 @@ function common::per_dir_hook {
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     dir_paths[index]=$(dirname "$file_with_path")
-
+    # TODO Unique part
+    if [[ "$file_with_path" == *".tfvars" ]]; then
+      tfvars_files+=("$file_with_path")
+    fi
+    #? End for unique part
     ((index += 1))
   done
 
@@ -84,10 +53,23 @@ function common::per_dir_hook {
     popd > /dev/null
   done
 
+  # TODO: Unique part
+  # terraform.tfvars are excluded by `terraform fmt`
+  for tfvars_file in "${tfvars_files[@]}"; do
+    tfvars_file="${tfvars_file//__REPLACED__SPACE__/ }"
+
+    terraform fmt "${ARGS[@]}" "$tfvars_file"
+    local exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+      final_exit_code=$exit_code
+    fi
+  done
+  #? End for unique part
   # restore errexit if it was set before the "for" loop
   [[ $ERREXIT_IS_SET ]] && set -e
   # return the hook final exit_code
   exit $final_exit_code
+
 }
 
 function per_dir_hook_unique_part {
@@ -97,7 +79,7 @@ function per_dir_hook_unique_part {
 
   # pass the arguments to hook
   # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  terrascan scan -i terraform ${args[@]}
+  terraform fmt ${args[@]}
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
