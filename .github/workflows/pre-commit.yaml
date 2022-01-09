@@ -21,6 +21,10 @@ jobs:
       run: |
         curl -L "$(curl -s https://api.github.com/repos/mvdan/sh/releases/latest | grep -o -E -m 1 "https://.+?linux_amd64")" > shfmt \
         && chmod +x shfmt && sudo mv shfmt /usr/bin/
+
+    - name: Install shellcheck
+      run: |
+        sudo apt update && sudo apt install shellcheck
     # Need to success pre-commit fix push
     - uses: actions/checkout@v2
       with:

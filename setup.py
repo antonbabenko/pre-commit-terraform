@@ -27,7 +27,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'terraform_docs_replace = pre_commit_hooks.terraform_docs_replace:main',
+            'terraform_docs_replace = hooks.terraform_docs_replace:main',
         ],
     },
 )

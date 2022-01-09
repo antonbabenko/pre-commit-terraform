@@ -1,7 +1,7 @@
 - id: infracost_breakdown
   name: Infracost breakdown
   description: Check terraform infrastructure cost
-  entry: infracost_breakdown.sh
+  entry: hooks/infracost_breakdown.sh
   language: script
   require_serial: true
   files: \.(tf(vars)?|hcl)$
@@ -10,7 +10,7 @@
 - id: terraform_fmt
   name: Terraform fmt
   description: Rewrites all Terraform configuration files to a canonical format.
-  entry: terraform_fmt.sh
+  entry: hooks/terraform_fmt.sh
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
@@ -19,7 +19,7 @@
   name: Terraform docs
   description: Inserts input and output documentation into README.md (using terraform-docs).
   require_serial: true
-  entry: terraform_docs.sh
+  entry: hooks/terraform_docs.sh
   language: script
   files: (\.tf|\.terraform\.lock\.hcl)$
   exclude: \.terraform\/.*$
@@ -28,7 +28,7 @@
   name: Terraform docs (without aggregate type defaults)
   description: Inserts input and output documentation into README.md (using terraform-docs). Identical to terraform_docs.
   require_serial: true
-  entry: terraform_docs.sh
+  entry: hooks/terraform_docs.sh
   language: script
   files: (\.tf)$
   exclude: \.terraform\/.*$
@@ -46,7 +46,7 @@
   name: Terraform validate
   description: Validates all Terraform configuration files.
   require_serial: true
-  entry: terraform_validate.sh
+  entry: hooks/terraform_validate.sh
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
@@ -55,7 +55,7 @@
   name: Lock terraform provider versions
   description: Updates provider signatures in dependency lock files.
   require_serial: true
-  entry: terraform_providers_lock.sh
+  entry: hooks/terraform_providers_lock.sh
   language: script
   files: (\.terraform\.lock\.hcl)$
   exclude: \.terraform\/.*$
@@ -64,7 +64,7 @@
   name: Terraform validate with tflint
   description: Validates all Terraform configuration files with TFLint.
   require_serial: true
-  entry: terraform_tflint.sh
+  entry: hooks/terraform_tflint.sh
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
@@ -72,7 +72,7 @@
 - id: terragrunt_fmt
   name: Terragrunt fmt
   description: Rewrites all Terragrunt configuration files to a canonical format.
-  entry: terragrunt_fmt.sh
+  entry: hooks/terragrunt_fmt.sh
   language: script
   files: (\.hcl)$
   exclude: \.terraform\/.*$
@@ -80,7 +80,7 @@
 - id: terragrunt_validate
   name: Terragrunt validate
   description: Validates all Terragrunt configuration files.
-  entry: terragrunt_validate.sh
+  entry: hooks/terragrunt_validate.sh
   language: script
   files: (\.hcl)$
   exclude: \.terraform\/.*$
@@ -89,13 +89,13 @@
   name: Terraform validate with tfsec
   description: Static analysis of Terraform templates to spot potential security issues.
   require_serial: true
-  entry: terraform_tfsec.sh
+  entry: hooks/terraform_tfsec.sh
   language: script
 
 - id: checkov
   name: Checkov
   description: Runs checkov on Terraform templates.
-  entry: checkov -d .
+  entry: hooks/checkov -d .
   language: python
   pass_filenames: false
   always_run: false
@@ -107,7 +107,7 @@
   name: terrascan
   description: Runs terrascan on Terraform templates.
   language: script
-  entry: terrascan.sh
+  entry: hooks/terrascan.sh
   files: \.tf$
   exclude: \.terraform\/.*$
   require_serial: true

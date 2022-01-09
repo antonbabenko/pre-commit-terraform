@@ -1,52 +1,20 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
+
 function main {
-  common::initialize
+  common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
   # Support for setting relative PATH to .terraform-docs.yml config.
+  # shellcheck disable=SC2178 # It's the simplest syntax for that case
   ARGS=${ARGS[*]/--config=/--config=$(pwd)\/}
+  # shellcheck disable=SC2128 # It's the simplest syntax for that case
+  # shellcheck disable=SC2153 # False positive
   terraform_docs_ "${HOOK_CONFIG[*]}" "$ARGS" "${FILES[@]}"
-}
-
-function common::initialize {
-  local SCRIPT_DIR
-  # get directory containing this script
-  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
-  # source getopt function
-  # shellcheck source=lib_getopt
-  . "$SCRIPT_DIR/lib_getopt"
-}
-
-function common::parse_cmdline {
-  # common global arrays.
-  # Populated via `common::parse_cmdline` and can be used inside hooks' functions
-  declare -g -a ARGS=() FILES=() HOOK_CONFIG=()
-
-  local argv
-  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
-  eval "set -- $argv"
-
-  for argv; do
-    case $argv in
-      -a | --args)
-        shift
-        ARGS+=("$1")
-        shift
-        ;;
-      -h | --hook-config)
-        shift
-        HOOK_CONFIG+=("$1;")
-        shift
-        ;;
-      --)
-        shift
-        FILES=("$@")
-        break
-        ;;
-    esac
-  done
 }
 
 function terraform_docs_ {
@@ -121,9 +89,11 @@ function terraform_docs {
   local add_to_existing=false
   local create_if_not_exist=false
 
-  configs=($hook_config)
+  read -r -a configs <<< "$hook_config"
+
   for c in "${configs[@]}"; do
-    config=(${c//=/ })
+
+    IFS="=" read -r -a config <<< "$c"
     key=${config[0]}
     value=${config[1]}
 
@@ -161,9 +131,11 @@ function terraform_docs {
       dir="$(dirname "$text_file")"
 
       mkdir -p "$dir"
-      echo -e "# ${PWD##*/}\n" >> "$text_file"
-      echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
-      echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+      {
+        echo -e "# ${PWD##*/}\n"
+        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+      } >> "$text_file"
     fi
 
     # If file still not exist - skip dir
