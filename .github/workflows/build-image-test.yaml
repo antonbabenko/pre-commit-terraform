@@ -1,0 +1,36 @@
+name: "Build Dockerfile if changed and run smoke tests"
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Test changed-files
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v13
+
+      - name: Check if Dockerfile changed
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [ $file = "Dockerfile" ]; then
+              echo "DOCKERFILE_CHANGED=true" >> $GITHUB_ENV
+            fi
+          done
+
+      - name: Build
+        if: env.DOCKERFILE_CHANGED == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          build-args: |
+            INSTALL_ALL=true
+          platforms: linux/amd64
+          push: false
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
