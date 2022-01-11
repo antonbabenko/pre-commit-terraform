@@ -11,20 +11,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v13
+      - name: Get changed Dockerfile
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v13.1
+        with:
+          files: |
+            Dockerfile
 
-      - name: Check if Dockerfile changed
-        run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            if [ $file = "Dockerfile" ]; then
-              echo "DOCKERFILE_CHANGED=true" >> $GITHUB_ENV
-            fi
-          done
-
-      - name: Build
-        if: env.DOCKERFILE_CHANGED == 'true'
+      - name: Build if Dockerfile changed
+        if: steps.changed-files-specific.outputs.any_changed == "true"
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -34,3 +29,4 @@ jobs:
           push: false
           tags: |
             ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+
