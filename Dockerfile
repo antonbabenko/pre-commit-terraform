@@ -106,6 +106,7 @@ FROM python:${TAG}
 
 ARG INFRACOST_VERSION=${INFRACOST_VERSION:-false}
 ARG TERRAFORM_DOCS_VERSION=${TERRAFORM_DOCS_VERSION:-false}
+ARG INSTALL_ALL=${INSTALL_ALL:-false}
 
 ENV PYTHONUNBUFFERED=1
 
@@ -114,10 +115,10 @@ RUN apk add --no-cache \
     git \
     # All hooks deps
     bash && \
-    if [ "${TERRAFORM_DOCS_VERSION}" = "false" ]; then \
+    if [ "${TERRAFORM_DOCS_VERSION}" != "false" ] || [ "${INSTALL_ALL}" != "false" ]; then \
         apk add --no-cache perl \
     ; fi && \
-    if [ "${INFRACOST_VERSION}" = "false" ]; then \
+    if [ "${INFRACOST_VERSION}" != "false" ] || [ "${INSTALL_ALL}" != "false" ]; then \
         apk add --no-cache jq \
     ; fi
 
