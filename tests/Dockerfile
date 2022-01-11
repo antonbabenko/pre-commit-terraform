@@ -1,4 +1,4 @@
-FROM pre-commit
+FROM pre-commit-terraform:latest
 
 RUN apt update && \
     apt install -y \

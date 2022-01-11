@@ -1,14 +1,14 @@
-ARG TAG=3.9.7-alpine3.14
+ARG TAG=3.10.1-alpine3.15
 FROM python:${TAG} as builder
 
 WORKDIR /bin_dir
 
 RUN apk add --no-cache \
     # Builder deps
-    curl \
-    unzip && \
+    curl=~7 \
+    unzip=~6 && \
     # Upgrade pip for be able get latest Checkov
-    python3 -m pip install --upgrade pip
+    python3 -m pip install --no-cache-dir --upgrade pip
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
@@ -57,7 +57,7 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
 RUN . /.env && \
     if [ "$CHECKOV_VERSION" != "false" ]; then \
     ( \
-        apk add --no-cache gcc libffi-dev musl-dev; \
+        apk add --no-cache gcc=~10 libffi-dev=~3 musl-dev=~1; \
         [ "$CHECKOV_VERSION" = "latest" ] && pip3 install --no-cache-dir checkov \
         || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION}; \
         apk del gcc libffi-dev musl-dev \
@@ -146,9 +146,9 @@ FROM python:${TAG}
 
 RUN apk add --no-cache \
     # pre-commit deps
-    git \
+    git=~2 \
     # All hooks deps
-    bash
+    bash=~5
 
 # Copy tools
 COPY --from=builder \
@@ -159,16 +159,16 @@ COPY --from=builder \
     /usr/local/bin/checkov* \
         /usr/bin/
 # Copy pre-commit packages
-COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
+COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
 # Copy terrascan policies
 COPY --from=builder /root/ /root/
 
 # Install hooks extra deps
 RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
-        apk add --no-cache perl \
+        apk add --no-cache perl=~5 \
     ; fi && \
     if [ "$(grep -o '^infracost SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
-        apk add --no-cache jq \
+        apk add --no-cache jq=~1 \
     ; fi
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
