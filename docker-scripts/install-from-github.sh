@@ -1,7 +1,7 @@
 #!/usr/bin/env ash
 # shellcheck shell=dash
 
-set -exuo pipefail
+set -euo pipefail
 
 PCT_ASSET_INCLUDE_VERSION="${PCT_ASSET_INCLUDE_VERSION:-true}"
 PCT_SUFFIX="${PCT_SUFFIX:-}"
@@ -21,7 +21,9 @@ fi
 
 PCT_GITHUB_URL="https://github.com/${PCT_GITHUB_USER}/${PCT_GITHUB_PROJECT}/releases/download/${PCT_TAG}/${PCT_PREFIX}${PCT_VERSION}${PCT_INFIX}${PCT_ARCH}${PCT_SUFFIX}"
 
+echo Downloading...
 curl -sSfL "${PCT_GITHUB_URL}" > "${PCT_BIN_NAME}${PCT_SUFFIX}"
+echo Downloaded
 
 case "$PCT_SUFFIX" in
   .zip)

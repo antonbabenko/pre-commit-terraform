@@ -1,7 +1,7 @@
 #!/usr/bin/env ash
 # shellcheck shell=dash
 
-set -exuo pipefail
+set -euo pipefail
 
 if [ "${PRE_COMMIT_VERSION}" = "latest" ]; then
   pip3 install --no-cache-dir pre-commit

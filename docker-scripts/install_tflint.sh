@@ -1,7 +1,7 @@
 #!/usr/bin/env ash
 # shellcheck shell=dash
 
-set -exuo pipefail
+set -euo pipefail
 
 . /.env
 if [ "$TFLINT_VERSION" != "false" ]; then

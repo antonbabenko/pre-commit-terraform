@@ -1,7 +1,7 @@
 #!/usr/bin/env ash
 # shellcheck shell=dash
 
-set -exuo pipefail
+set -euo pipefail
 
 . /.env
 if [ "$TFSEC_VERSION" != "false" ]; then

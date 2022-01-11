@@ -1,7 +1,7 @@
 #!/usr/bin/env ash
 # shellcheck shell=dash
 
-set -exuo pipefail
+set -euo pipefail
 
 mkdir -p /root/.terrascan/pkg/policies/opa/rego/
 
@@ -17,5 +17,6 @@ if [ "$TERRASCAN_VERSION" != "false" ]; then
   export PCT_SUFFIX=.tar.gz
   export PCT_VERSION_PARAM="version"
   /docker-scripts/install-from-github.sh
+  echo terrascan init
   terrascan init
 fi
