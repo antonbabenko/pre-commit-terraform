@@ -29,7 +29,7 @@ jobs:
 
     - name: Install hadolint
       run: |
-        curl -L "$(curl -s https://api.github.com/repos/mvdan/sh/releases/latest | grep -o -E -m 1 "https://.+?/hadolint-Linux-x86_64")" > hadolint \
+        curl -L "$(curl -s https://api.github.com/repos/hadolint/hadolint/releases/latest | grep -o -E -m 1 "https://.+?/hadolint-Linux-x86_64")" > hadolint \
         && chmod +x hadolint && sudo mv hadolint /usr/bin/
 
     # Need to success pre-commit fix push
