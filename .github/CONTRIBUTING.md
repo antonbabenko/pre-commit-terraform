@@ -73,7 +73,7 @@ sudo apt install -y datamash
 
 ```bash
 # Build `pre-commit` image
-docker build -t pre-commit --build-arg INSTALL_ALL=true .
+docker build -t pre-commit-terraform --build-arg INSTALL_ALL=true .
 # Build test image
 docker build -t pre-commit-tests tests/
 # Run
