@@ -22,7 +22,7 @@ can uncomment the below line to indicate which issue your PR fixes, for example
 
 <!-- Fixes # -->
 
-### How has this code been tested
+### How can we test changes
 
 <!--
 Before reviewers can be confident in the correctness of this pull request, it
