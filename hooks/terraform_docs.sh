@@ -17,6 +17,14 @@ function main {
   terraform_docs_ "${HOOK_CONFIG[*]}" "$ARGS" "${FILES[@]}"
 }
 
+#######################################################################
+# Function which prepares hacks for old versions of `terraform` and
+# `terraform-docs` that them call `terraform_docs`
+# Arguments:
+#   hook_config (string with array) arguments that configure hook behavior
+#   args (string with array) arguments that configure wrapped tool behavior
+#   files (array) filenames to check
+#######################################################################
 function terraform_docs_ {
   local -r hook_config="$1"
   local -r args="$2"
@@ -61,6 +69,18 @@ function terraform_docs_ {
   fi
 }
 
+#######################################################################
+# Wrapper around `terraform-docs` tool that check and change/create
+# (depends on provided hook_config) terraform documentation in
+# markdown format
+# Arguments:
+#   terraform_docs_awk_file (string) filename where awk hack for old
+#     `terraform-docs` was written. Needed for TF 0.12+.
+#     Hack skipped when `terraform_docs_awk_file == "0"`
+#   hook_config (string with array) arguments that configure hook behavior
+#   args (string with array) arguments that configure wrapped tool behavior
+#   files (array) filenames to check
+#######################################################################
 function terraform_docs {
   local -r terraform_docs_awk_file="$1"
   local -r hook_config="$2"
@@ -183,6 +203,12 @@ function terraform_docs {
   done
 }
 
+#######################################################################
+# Function which creates file with `awk` hacks for old versions of
+# `terraform-docs`
+# Arguments:
+#   output_file (string) filename where hack will be written to
+#######################################################################
 function terraform_docs_awk {
   local -r output_file=$1
 

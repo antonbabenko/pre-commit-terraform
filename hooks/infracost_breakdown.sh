@@ -13,6 +13,18 @@ function main {
   infracost_breakdown_ "${HOOK_CONFIG[*]}" "${ARGS[*]}"
 }
 
+#######################################################################
+# Wrapper around `infracost breakdown` tool which checks and compares
+# infra cost based on provided hook_config
+# Environment variables:
+#   PRE_COMMIT_COLOR (string) If set to `never` - do not colorize output
+# Arguments:
+#   hook_config (string with array) arguments that configure hook behavior
+#   args (string with array) arguments that configure wrapped tool behavior
+# Outputs:
+#   Print out hook checks status (Passed/Failed), total monthly cost and
+#   diff, summary about infracost check (non-supported resources etc.)
+#######################################################################
 function infracost_breakdown_ {
   local -r hook_config="$1"
   local args
