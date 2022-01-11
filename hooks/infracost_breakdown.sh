@@ -1,75 +1,16 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
+
 function main {
-  common::initialize
+  common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
+  # shellcheck disable=SC2153 # False positive
   infracost_breakdown_ "${HOOK_CONFIG[*]}" "${ARGS[*]}"
-}
-
-function common::colorify {
-  # Colors. Provided as first string to first arg of function.
-  # shellcheck disable=SC2034
-  local -r red="$(tput setaf 1)"
-  # shellcheck disable=SC2034
-  local -r green="$(tput setaf 2)"
-  # shellcheck disable=SC2034
-  local -r yellow="$(tput setaf 3)"
-  # Color reset
-  local -r RESET="$(tput sgr0)"
-
-  # Params start #
-  local COLOR="${!1}"
-  local -r TEXT=$2
-  # Params end #
-
-  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
-    COLOR=$RESET
-  fi
-
-  echo -e "${COLOR}${TEXT}${RESET}"
-}
-
-function common::initialize {
-  local SCRIPT_DIR
-  # get directory containing this script
-  SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
-  # source getopt function
-  # shellcheck source=lib_getopt
-  . "$SCRIPT_DIR/lib_getopt"
-}
-
-# common global arrays.
-# Populated in `parse_cmdline` and can used in hooks functions
-declare -a ARGS=()
-declare -a HOOK_CONFIG=()
-declare -a FILES=()
-function common::parse_cmdline {
-  local argv
-  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
-  eval "set -- $argv"
-
-  for argv; do
-    case $argv in
-      -a | --args)
-        shift
-        ARGS+=("$1")
-        shift
-        ;;
-      -h | --hook-config)
-        shift
-        HOOK_CONFIG+=("$1;")
-        shift
-        ;;
-      --)
-        shift
-        # shellcheck disable=SC2034
-        FILES=("$@")
-        break
-        ;;
-    esac
-  done
 }
 
 function infracost_breakdown_ {
@@ -181,4 +122,4 @@ function infracost_breakdown_ {
   fi
 }
 
-[[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
+[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

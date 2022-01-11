@@ -17,6 +17,8 @@ function run_tests {
   RESULTS_DIR="$(pwd)/tests/results"
 
   cd "$TEST_DIR" || { echo "Specified TEST_DIR does not exist" && exit 1; }
+  # Cleanup
+  rm "$RESULTS_DIR/$FILE_NAME_TO_SAVE_TEST_RESULTS"
 
   for ((i = 1; i <= TEST_NUM; i++)); do
     {
@@ -80,10 +82,7 @@ function save_result {
 
   local FILE_NAME=${5:-"tests_result.md"}
 
-  {
-    echo -e "\n$DESCRIPTION"
-    echo -e "$TABLE"
-  } >> "tests/results/$FILE_NAME"
+  echo -e "\n$DESCRIPTION\n$TABLE" >> "tests/results/$FILE_NAME"
   # shellcheck disable=SC2016,SC2128 # Irrelevant
   echo -e '
 <details><summary>Run details</summary>

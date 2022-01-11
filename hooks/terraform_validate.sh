@@ -1,34 +1,21 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
+
 # `terraform validate` requires this env variable to be set
 export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 
-main() {
-  initialize_
+function main {
+  common::initialize "$SCRIPT_DIR"
   parse_cmdline_ "$@"
   terraform_validate_
 }
 
-initialize_() {
-  # get directory containing this script
-  local dir
-  local source
-  source="${BASH_SOURCE[0]}"
-  while [[ -L $source ]]; do # resolve $source until the file is no longer a symlink
-    dir="$(cd -P "$(dirname "$source")" > /dev/null && pwd)"
-    source="$(readlink "$source")"
-    # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-    [[ $source != /* ]] && source="$dir/$source"
-  done
-  _SCRIPT_DIR="$(dirname "$source")"
-
-  # source getopt function
-  # shellcheck source=lib_getopt
-  . "$_SCRIPT_DIR/lib_getopt"
-}
-
-parse_cmdline_() {
+function parse_cmdline_ {
   declare argv
   argv=$(getopt -o e:i:a: --long envs:,init-args:,args: -- "$@") || return
   eval "set -- $argv"
@@ -59,7 +46,7 @@ parse_cmdline_() {
   done
 }
 
-terraform_validate_() {
+function terraform_validate_ {
 
   # Setup environment variables
   local var var_name var_value
@@ -82,23 +69,23 @@ terraform_validate_() {
     ((index += 1))
   done
 
-  local path_uniq
-  for path_uniq in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
-    path_uniq="${path_uniq//__REPLACED__SPACE__/ }"
+  local dir_path
+  for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
+    dir_path="${dir_path//__REPLACED__SPACE__/ }"
 
-    if [[ -n "$(find "$path_uniq" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
+    if [[ -n "$(find "$dir_path" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
 
-      pushd "$(realpath "$path_uniq")" > /dev/null
+      pushd "$(realpath "$dir_path")" > /dev/null
 
-      if [[ ! -d .terraform ]]; then
+      if [ ! -d .terraform ]; then
         set +e
         init_output=$(terraform init -backend=false "${INIT_ARGS[@]}" 2>&1)
         init_code=$?
         set -e
 
-        if [[ $init_code != 0 ]]; then
+        if [ $init_code -ne 0 ]; then
           error=1
-          echo "Init before validation failed: $path_uniq"
+          echo "Init before validation failed: $dir_path"
           echo "$init_output"
           popd > /dev/null
           continue
@@ -110,9 +97,9 @@ terraform_validate_() {
       validate_code=$?
       set -e
 
-      if [[ $validate_code != 0 ]]; then
+      if [ $validate_code -ne 0 ]; then
         error=1
-        echo "Validation failed: $path_uniq"
+        echo "Validation failed: $dir_path"
         echo "$validate_output"
         echo
       fi
@@ -121,15 +108,13 @@ terraform_validate_() {
     fi
   done
 
-  if [[ $error -ne 0 ]]; then
+  if [ $error -ne 0 ]; then
     exit 1
   fi
 }
 
 # global arrays
-declare -a ARGS
 declare -a INIT_ARGS
 declare -a ENVS
-declare -a FILES
 
-[[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
+[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
