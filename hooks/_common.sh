@@ -6,7 +6,7 @@ set -eo pipefail
 # Arguments:
 #   script_dir - absolute path to hook dir location
 #######################################################################
-function common::initialize() {
+common::initialize() {
   local -r script_dir=$1
   # source getopt function
   # shellcheck source=../lib_getopt
@@ -24,7 +24,7 @@ function common::initialize() {
 #   $@ (array) all specified in `hooks.[].args` in
 #     `.pre-commit-config.yaml` and filenames.
 #######################################################################
-function common::parse_cmdline() {
+common::parse_cmdline() {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
   declare -g -a ARGS=() HOOK_CONFIG=() FILES=()
@@ -66,7 +66,7 @@ function common::parse_cmdline() {
 #   args (string with array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
-function common::per_dir_hook() {
+common::per_dir_hook() {
   local -r args="$1"
   shift 1
   local -a -r files=("$@")
@@ -119,7 +119,7 @@ function common::per_dir_hook() {
 # Outputs:
 #   Print out provided text to stdout
 #######################################################################
-function common::colorify() {
+common::colorify() {
   # shellcheck disable=SC2034
   local -r red="\e[0m\e[31m"
   # shellcheck disable=SC2034

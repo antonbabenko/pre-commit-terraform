@@ -7,6 +7,22 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
+#######################################
+# main function
+# Globals:
+#   ARGS
+#   FILES
+#   SCRIPT_DIR
+# Arguments:
+#  None
+#######################################
+main() {
+  common::initialize "$SCRIPT_DIR"
+  common::parse_cmdline "$@"
+  # shellcheck disable=SC2153 # False positive
+  common::per_dir_hook "${ARGS[*]}" "${FILES[@]}"
+}
+
 #######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
@@ -17,7 +33,7 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
-function per_dir_hook_unique_part() {
+per_dir_hook_unique_part() {
   local -r args="$1"
   local -r dir_path="$2"
 
@@ -41,19 +57,5 @@ function per_dir_hook_unique_part() {
   return $exit_code
 }
 
-#######################################
-# main function
-# Globals:
-#   ARGS
-#   FILES
-#   SCRIPT_DIR
-# Arguments:
-#  None
-#######################################
-function main() {
-  common::initialize "$SCRIPT_DIR"
-  common::parse_cmdline "$@"
-  # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "${ARGS[*]}" "${FILES[@]}"
-}
+
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

@@ -6,7 +6,7 @@ TEST_DIR=$3                            # '/tmp/infrastructure'
 TEST_DESCRIPTION="$TEST_NUM runs '$4'" # '`terraform_tfsec` PR #123:'
 RAW_TEST_RESULTS_FILE_NAME=$5          # terraform_tfsec_pr123
 
-function run_tests() {
+run_tests() {
   local TEST_NUM=$1
   local TEST_DIR=$2
   local TEST_COMMAND
@@ -31,7 +31,7 @@ function run_tests() {
   cd - > /dev/null
 }
 
-function generate_table() {
+generate_table() {
   local FILE_PATH="tests/results/$1"
 
   local users_seconds system_seconds cpu total_time
@@ -74,7 +74,7 @@ function generate_table() {
 "
 }
 
-function save_result() {
+save_result() {
   local DESCRIPTION=$1
   local TABLE=$2
   local TEST_RUN_START_TIME=$3

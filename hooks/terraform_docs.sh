@@ -6,6 +6,27 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
+#######################################
+# main function
+# Globals:
+#   ARGS
+#   FILES
+#   HOOK_CONFIG
+#   SCRIPT_DIR
+# Arguments:
+#  None
+#######################################
+main() {
+  common::initialize "$SCRIPT_DIR"
+  common::parse_cmdline "$@"
+  # Support for setting relative PATH to .terraform-docs.yml config.
+  # shellcheck disable=SC2178 # It's the simplest syntax for that case
+  ARGS=${ARGS[*]/--config=/--config=$(pwd)\/}
+  # shellcheck disable=SC2128 # It's the simplest syntax for that case
+  # shellcheck disable=SC2153 # False positive
+  terraform_docs_ "${HOOK_CONFIG[*]}" "$ARGS" "${FILES[@]}"
+}
+
 #######################################################################
 # Function which prepares hacks for old versions of `terraform` and
 # `terraform-docs` that them call `terraform_docs`
@@ -14,14 +35,14 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 #   args (string with array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
-function terraform_docs_() {
+terraform_docs_() {
   local -r hook_config="$1"
   local -r args="$2"
   shift 2
   local -a -r files=("$@")
 
   # Get hook settings
-  IFS=";" read -r -a configs <<<"$hook_config"
+  IFS=";" read -r -a configs <<< "$hook_config"
 
   local hack_terraform_docs
   hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
@@ -70,7 +91,7 @@ function terraform_docs_() {
 #   args (string with array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
-function terraform_docs() {
+terraform_docs() {
   local -r terraform_docs_awk_file="$1"
   local -r hook_config="$2"
   local -r args="$3"
@@ -98,11 +119,11 @@ function terraform_docs() {
   local add_to_existing=false
   local create_if_not_exist=false
 
-  read -r -a configs <<<"$hook_config"
+  read -r -a configs <<< "$hook_config"
 
   for c in "${configs[@]}"; do
 
-    IFS="=" read -r -a config <<<"$c"
+    IFS="=" read -r -a config <<< "$c"
     key=${config[0]}
     value=${config[1]}
 
@@ -123,7 +144,7 @@ function terraform_docs() {
   for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
 
-    pushd "$dir_path" >/dev/null || continue
+    pushd "$dir_path" > /dev/null || continue
 
     #
     # Create file if it not exist and `--create-if-not-exist=true` provided
@@ -135,7 +156,7 @@ function terraform_docs() {
       )"
 
       # if no TF files - skip dir
-      [ ! "$dir_have_tf_files" ] && popd >/dev/null && continue
+      [ ! "$dir_have_tf_files" ] && popd > /dev/null && continue
 
       dir="$(dirname "$text_file")"
 
@@ -144,11 +165,11 @@ function terraform_docs() {
         echo -e "# ${PWD##*/}\n"
         echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
         echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
-      } >>"$text_file"
+      } >> "$text_file"
     fi
 
     # If file still not exist - skip dir
-    [[ ! -f "$text_file" ]] && popd >/dev/null && continue
+    [[ ! -f "$text_file" ]] && popd > /dev/null && continue
 
     #
     # If `--add-to-existing-file=true` set, check is in file exist "hook markers",
@@ -158,14 +179,14 @@ function terraform_docs() {
       HAVE_MARKER=$(grep -o '<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->' "$text_file" || exit 0)
 
       if [ ! "$HAVE_MARKER" ]; then
-        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >>"$text_file"
-        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >>"$text_file"
+        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
       fi
     fi
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs md $args ./ >"$tmp_file"
+      terraform-docs md $args ./ > "$tmp_file"
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
@@ -174,9 +195,9 @@ function terraform_docs() {
       local tmp_file_docs_tf
       tmp_file_docs_tf="$tmp_file_docs.tf"
 
-      awk -f "$terraform_docs_awk_file" ./*.tf >"$tmp_file_docs_tf"
+      awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
       # shellcheck disable=SC2086
-      terraform-docs md $args "$tmp_file_docs_tf" >"$tmp_file"
+      terraform-docs md $args "$tmp_file_docs_tf" > "$tmp_file"
       rm -f "$tmp_file_docs_tf"
     fi
 
@@ -188,7 +209,7 @@ function terraform_docs() {
 
     rm -f "$tmp_file"
 
-    popd >/dev/null
+    popd > /dev/null
   done
 }
 
@@ -198,10 +219,10 @@ function terraform_docs() {
 # Arguments:
 #   output_file (string) filename where hack will be written to
 #######################################################################
-function terraform_docs_awk() {
+terraform_docs_awk() {
   local -r output_file=$1
 
-  cat <<"EOF" >"$output_file"
+  cat << "EOF" > "$output_file"
 # This script converts Terraform 0.12 variables/outputs to something suitable for `terraform-docs`
 # As of terraform-docs v0.6.0, HCL2 is not supported. This script is a *dirty hack* to get around it.
 # https://github.com/terraform-docs/terraform-docs/
@@ -358,25 +379,6 @@ EOF
 }
 
 
-#######################################
-# main function
-# Globals:
-#   ARGS
-#   FILES
-#   HOOK_CONFIG
-#   SCRIPT_DIR
-# Arguments:
-#  None
-#######################################
-function main() {
-  common::initialize "$SCRIPT_DIR"
-  common::parse_cmdline "$@"
-  # Support for setting relative PATH to .terraform-docs.yml config.
-  # shellcheck disable=SC2178 # It's the simplest syntax for that case
-  ARGS=${ARGS[*]/--config=/--config=$(pwd)\/}
-  # shellcheck disable=SC2128 # It's the simplest syntax for that case
-  # shellcheck disable=SC2153 # False positive
-  terraform_docs_ "${HOOK_CONFIG[*]}" "$ARGS" "${FILES[@]}"
-}
+
 
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

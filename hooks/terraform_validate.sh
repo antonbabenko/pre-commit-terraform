@@ -6,6 +6,19 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
+#######################################
+# main function
+# Globals:
+#   SCRIPT_DIR
+# Arguments:
+#  None
+#######################################
+main() {
+  common::initialize "$SCRIPT_DIR"
+  parse_cmdline_ "$@"
+  terraform_validate_
+}
+
 # `terraform validate` requires this env variable to be set
 export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 
@@ -22,7 +35,7 @@ export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 #   $@ (array) all specified in `hooks.[].args` in
 #     `.pre-commit-config.yaml` and filenames.
 #######################################################################
-function parse_cmdline_() {
+parse_cmdline_() {
   declare argv
   argv=$(getopt -o e:i:a: --long envs:,init-args:,args: -- "$@") || return
   eval "set -- $argv"
@@ -71,7 +84,7 @@ function parse_cmdline_() {
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
-function terraform_validate_() {
+terraform_validate_() {
 
   # Setup environment variables
   local var var_name var_value
@@ -100,7 +113,7 @@ function terraform_validate_() {
 
     if [[ -n "$(find "$dir_path" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
 
-      pushd "$(realpath "$dir_path")" >/dev/null
+      pushd "$(realpath "$dir_path")" > /dev/null
 
       if [ ! -d .terraform ]; then
         set +e
@@ -112,7 +125,7 @@ function terraform_validate_() {
           error=1
           echo "Init before validation failed: $dir_path"
           echo "$init_output"
-          popd >/dev/null
+          popd > /dev/null
           continue
         fi
       fi
@@ -129,7 +142,7 @@ function terraform_validate_() {
         echo
       fi
 
-      popd >/dev/null
+      popd > /dev/null
     fi
   done
 
@@ -138,18 +151,7 @@ function terraform_validate_() {
   fi
 }
 
-#######################################
-# main function
-# Globals:
-#   SCRIPT_DIR
-# Arguments:
-#  None
-#######################################
-function main() {
-  common::initialize "$SCRIPT_DIR"
-  parse_cmdline_ "$@"
-  terraform_validate_
-}
+
 
 # global arrays
 declare -a INIT_ARGS
