@@ -6,13 +6,6 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
-function main {
-  common::initialize "$SCRIPT_DIR"
-  common::parse_cmdline "$@"
-  # shellcheck disable=SC2153 # False positive
-  terraform_fmt_ "${ARGS[*]}" "${FILES[@]}"
-}
-
 #######################################################################
 # Hook execution boilerplate logic which is common to hooks, that run
 # on per dir basis. Little bit extended than `common::per_dir_hook`
@@ -26,7 +19,7 @@ function main {
 #   args (string with array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
-function terraform_fmt_ {
+function terraform_fmt_() {
   local -r args="$1"
   shift 1
   local -a -r files=("$@")
@@ -54,7 +47,7 @@ function terraform_fmt_ {
   # run hook for each path
   for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
-    pushd "$dir_path" > /dev/null || continue
+    pushd "$dir_path" >/dev/null || continue
 
     per_dir_hook_unique_part "$args" "$dir_path"
 
@@ -63,7 +56,7 @@ function terraform_fmt_ {
       final_exit_code=$exit_code
     fi
 
-    popd > /dev/null
+    popd >/dev/null
   done
 
   # TODO: Unique part
@@ -95,7 +88,7 @@ function terraform_fmt_ {
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
-function per_dir_hook_unique_part {
+function per_dir_hook_unique_part() {
   local -r args="$1"
   local -r dir_path="$2"
 
@@ -106,6 +99,23 @@ function per_dir_hook_unique_part {
   # return exit code to common::per_dir_hook
   local exit_code=$?
   return $exit_code
+}
+
+
+#######################################
+# main function
+# Globals:
+#   ARGS
+#   FILES
+#   SCRIPT_DIR
+# Arguments:
+#  None
+#######################################
+function main() {
+  common::initialize "$SCRIPT_DIR"
+  common::parse_cmdline "$@"
+  # shellcheck disable=SC2153 # False positive
+  terraform_fmt_ "${ARGS[*]}" "${FILES[@]}"
 }
 
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
