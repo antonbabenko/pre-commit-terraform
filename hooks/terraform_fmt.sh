@@ -63,7 +63,7 @@ function terraform_fmt_() {
   # terraform.tfvars are excluded by `terraform fmt`
   for tfvars_file in "${tfvars_files[@]}"; do
     tfvars_file="${tfvars_file//__REPLACED__SPACE__/ }"
-
+  # shellcheck disable=SC2153 # False positive
     terraform fmt "${ARGS[@]}" "$tfvars_file"
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
