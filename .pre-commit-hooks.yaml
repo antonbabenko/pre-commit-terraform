@@ -16,6 +16,9 @@
   exclude: \.terraform\/.*$
 
 - id: terraform_docs
+  args:
+    - TERRAFORM_DOCS_ALLOWED_VERSION_REGEXP="0.13.[0-9]+"
+    - tfvars hcl --output-file terraform.tfvars.model .
   name: Terraform docs
   description: Inserts input and output documentation into README.md (using terraform-docs).
   require_serial: true
