@@ -41,7 +41,6 @@ function per_dir_hook_unique_part() {
   return $exit_code
 }
 
-
 #######################################
 # main function
 # Globals:
@@ -56,4 +55,5 @@ function main() {
   common::parse_cmdline "$@"
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "${ARGS[*]}" "${FILES[@]}"
-}[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
+}
+[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

@@ -53,4 +53,5 @@ function main() {
   ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
   # shellcheck disable=SC2128 # It's the simplest syntax for that case
   common::per_dir_hook "$ARGS" "${FILES[@]}"
-}[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
+}
+[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
