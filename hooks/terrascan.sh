@@ -3,7 +3,7 @@ set -eo pipefail
 
 # globals variables
 # hook ID, see `- id` for details in .pre-commit-hooks.yaml file
-declare -r HOOK_ID='terrascan'
+declare -g -r HOOK_ID='terrascan'
 
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"

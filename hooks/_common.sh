@@ -69,9 +69,9 @@ function common::is_hook_run_on_whole_repo {
   shift 1
   local -a -r files=("$@")
   # get directory containing `.pre-commit-hooks.yaml` file
-  local -r script_parent_dir="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"
+  local -r root_config_dir="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"
   # get included and excluded files from .pre-commit-hooks.yaml file
-  local -r hook_config_block=$(sed -n "/^- id: $hook_id$/,/^$/p" "$script_parent_dir/.pre-commit-hooks.yaml")
+  local -r hook_config_block=$(sed -n "/^- id: $hook_id$/,/^$/p" "$root_config_dir/.pre-commit-hooks.yaml")
   local -r included_files=$(awk '$1 == "files:" {print $2; exit}' <<< "$hook_config_block")
   local -r excluded_files=$(awk '$1 == "exclude:" {print $2; exit}' <<< "$hook_config_block")
   # sorted string with the files passed to the hook by pre-commit
