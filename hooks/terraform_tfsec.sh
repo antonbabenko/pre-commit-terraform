@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# globals variables
+# hook ID, see `- id` for details in .pre-commit-hooks.yaml file
+readonly HOOK_ID='terraform_tfsec'
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # shellcheck source=_common.sh
@@ -13,7 +16,7 @@ function main {
   # shellcheck disable=SC2178 # It's the simplest syntax for that case
   ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
   # shellcheck disable=SC2128 # It's the simplest syntax for that case
-  common::per_dir_hook "$ARGS" "${FILES[@]}"
+  common::per_dir_hook "$ARGS" "$HOOK_ID" "${FILES[@]}"
 }
 
 #######################################################################
