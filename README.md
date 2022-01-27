@@ -238,10 +238,12 @@ For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each 
 ```yaml
 - id: checkov
   args: [
-    "-d", ".",
+    "-d", "./mod1",
     "--skip-check", "CKV2_AWS_8",
   ]
 ```
+
+By default, `checkov` will scan the entire repository's terraform files. You can use the `--scan-change-directories` or `--scan-change-files` arguments, to restrict the scan to changed directories or terraform files (if both of these are provided, the directory command will take precedence). Any other arguments provided will be passed through to checkov.
 
 ### infracost_breakdown
 
