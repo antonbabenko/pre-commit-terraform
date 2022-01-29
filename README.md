@@ -551,6 +551,51 @@ Example:
 
     **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
+5. `terraform_validate` in a 0.15+ module with configuration_aliases errors out
+
+   When running the hook where you have configuration_aliases defined as required in the terraform block, terraform will throw an error like:
+   >
+   >
+   > Error: Provider configuration not present
+   > To work with <resource> its original provider configuration at provider["registry.terraform.io/hashicorp/aws"].<provider_alias> is required, but it has been removed. This occurs when a provider configuration is removed while
+   > objects created by that provider still exist in the state. Re-add the provider configuration to destroy <resource>, after which you can remove the provider configuration again.
+
+   This is a [known issue](https://github.com/hashicorp/terraform/issues/28490) with Terraform and how providers are initialized in 0.15 and later. To work around this for now you can add an exclude to the `terraform_validate` hook like this:
+   ```yaml
+   - id: terraform_validate
+     exclude: [^/].+$
+   ```
+   This will exclude the root directory from being processed by this hook. Then add a subdirectory like "examples" or "tests" and put an example implementation in place that defines the providers with the proper aliases, and this will give you validation of your module through the example.
+
+   Alternately, you can use [terraform-config-inspect](https://github.com/hashicorp/terraform-config-inspect) and use a variant of [this script](https://github.com/bendrucker/terraform-configuration-aliases-action/blob/main/providers.sh) to generate a providers file at runtime:
+
+   ```bash
+   terraform-config-inspect --json . | jq -r '
+     [.required_providers[].aliases]
+     | flatten
+     | del(.[] | select(. == null))
+     | reduce .[] as $entry (
+       {};
+       .provider[$entry.name] //= [] | .provider[$entry.name] += [{"alias": $entry.alias}]
+     )
+   ' | tee aliased-providers.tf.json
+   ```
+
+   Save this as .generate-providers.sh in the root of your repository and place it in the and add a hook to run that first, like so:
+   ```yaml
+   - repo: local
+     hooks:
+       - id: generate-terraform-providers
+          name: generate-terraform-providers
+          require_serial: true
+          entry: .generate-providers.sh
+          language: script
+          files: (\.tf|\.tfvars)$
+          pass_filenames: false
+   ```
+
+   **Note:** This latter method will leave an "aliased-providers.tf.json" file in your path. You will either want to automate a way to clean this up or add it to your gitignore or both.
+
 ### terrascan
 
 1. `terrascan` supports custom arguments so you can pass supported flags like `--non-recursive` and `--policy-type` to disable recursive inspection and set the policy type respectively:
