@@ -111,3 +111,13 @@
   files: \.tf$
   exclude: \.terraform\/.*$
   require_serial: true
+
+- id: tfupdate
+  name: tfupdate
+  description: Runs tfupdate on Terraform templates.
+  language: script
+  entry: hooks/tfupdate.sh
+  args:
+    - --args=terraform
+  files: \.tf$
+  require_serial: true
