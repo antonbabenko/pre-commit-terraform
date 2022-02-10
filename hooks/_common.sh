@@ -56,6 +56,43 @@ function common::parse_cmdline {
 }
 
 #######################################################################
+# This is a workaround to improve performance when all files are passed
+# See: https://github.com/antonbabenko/pre-commit-terraform/issues/309
+# Arguments:
+#   hook_id (string) hook ID, see `- id` for details in .pre-commit-hooks.yaml file
+#   files (array) filenames to check
+# Outputs:
+#   Return 0 if `-a|--all` arg was passed to `pre-commit`
+#######################################################################
+function common::is_hook_run_on_whole_repo {
+  local -r hook_id="$1"
+  shift 1
+  local -a -r files=("$@")
+  # get directory containing `.pre-commit-hooks.yaml` file
+  local -r root_config_dir="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"
+  # get included and excluded files from .pre-commit-hooks.yaml file
+  local -r hook_config_block=$(sed -n "/^- id: $hook_id$/,/^$/p" "$root_config_dir/.pre-commit-hooks.yaml")
+  local -r included_files=$(awk '$1 == "files:" {print $2; exit}' <<< "$hook_config_block")
+  local -r excluded_files=$(awk '$1 == "exclude:" {print $2; exit}' <<< "$hook_config_block")
+  # sorted string with the files passed to the hook by pre-commit
+  local -r files_to_check=$(printf '%s\n' "${files[@]}" | sort | tr '\n' ' ')
+  # git ls-files sorted string
+  local all_files_that_can_be_checked
+
+  if [ -z "$excluded_files" ]; then
+    all_files_that_can_be_checked=$(git ls-files | sort | grep -e "$included_files" | tr '\n' ' ')
+  else
+    all_files_that_can_be_checked=$(git ls-files | sort | grep -e "$included_files" | grep -v -e "$excluded_files" | tr '\n' ' ')
+  fi
+
+  if [ "$files_to_check" == "$all_files_that_can_be_checked" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+#######################################################################
 # Hook execution boilerplate logic which is common to hooks, that run
 # on per dir basis.
 # 1. Because hook runs on whole dir, reduce file paths to uniq dir paths
@@ -64,12 +101,22 @@ function common::parse_cmdline {
 # 3. Complete hook execution and return exit code
 # Arguments:
 #   args (string with array) arguments that configure wrapped tool behavior
+#   hook_id (string) hook ID, see `- id` for details in .pre-commit-hooks.yaml file
 #   files (array) filenames to check
 #######################################################################
 function common::per_dir_hook {
   local -r args="$1"
-  shift 1
+  local -r hook_id="$2"
+  shift 2
   local -a -r files=("$@")
+
+  # check is (optional) function defined
+  if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
+    # check is hook run via `pre-commit run --all`
+    common::is_hook_run_on_whole_repo "$hook_id" "${files[@]}"; then
+    run_hook_on_whole_repo "$args"
+    exit 0
+  fi
 
   # consume modified files passed from pre-commit so that
   # hook runs against only those relevant directories
