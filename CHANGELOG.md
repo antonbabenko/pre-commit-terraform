@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.64.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.63.0...v1.64.0) (2022-02-10)
+
+
+### Features
+
+* Improved speed of `pre-commit run -a` for multiple hooks ([#338](https://github.com/antonbabenko/pre-commit-terraform/issues/338)) ([579dc45](https://github.com/antonbabenko/pre-commit-terraform/commit/579dc45fb40bc64c6742d42a9da78eddb0b70e1d))
+
 # [1.63.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.62.3...v1.63.0) (2022-02-10)
 
 
