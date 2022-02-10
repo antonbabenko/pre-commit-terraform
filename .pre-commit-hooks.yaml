@@ -95,7 +95,7 @@
 - id: checkov
   name: Checkov
   description: Runs checkov on Terraform templates.
-  entry: hooks/checkov -d .
+  entry: checkov -d .
   language: python
   pass_filenames: false
   always_run: false
