@@ -19,7 +19,7 @@ jobs:
             Dockerfile
 
       - name: Build if Dockerfile changed
-        if: steps.changed-files-specific.outputs.any_changed == "true"
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         uses: docker/build-push-action@v2
         with:
           context: .
