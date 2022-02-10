@@ -27,7 +27,7 @@ function common::initialize {
 function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
-  ARGS=() HOOK_CONFIG=() FILES=()
+  declare -g -a ARGS=() HOOK_CONFIG=() FILES=()
 
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
