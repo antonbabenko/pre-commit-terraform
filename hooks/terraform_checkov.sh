@@ -14,7 +14,7 @@ function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "${ARGS[*]}" "${FILES[@]}"
+  common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
 }
 
 #######################################################################
@@ -40,6 +40,24 @@ function per_dir_hook_unique_part {
     # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
     checkov ${args[@]}
   fi
+
+  # return exit code to common::per_dir_hook
+  local exit_code=$?
+  return $exit_code
+}
+
+#######################################################################
+# Unique part of `common::per_dir_hook`. The function is executed one time
+# in the root git repo
+# Arguments:
+#   args (string with array) arguments that configure wrapped tool behavior
+#######################################################################
+function run_hook_on_whole_repo {
+  local -r args="$1"
+
+  # pass the arguments to hook
+  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+  checkov -d "$(pwd)" ${args[@]}
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
