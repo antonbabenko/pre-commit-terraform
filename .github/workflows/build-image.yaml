@@ -5,6 +5,8 @@ on:
   release:
     types:
       - created
+  schedule:
+    - cron: '00 00 * * *'
 
 jobs:
   docker:
@@ -25,7 +27,8 @@ jobs:
       - name: Set tag for image
         run: |
           echo IMAGE_TAG=$([ ${{ github.ref_type }} == 'tag' ] && echo ${{ github.ref_name }} || echo 'latest') >> $GITHUB_ENV
-      - name: Build and Push
+      - name: Build and Push release
+        if: github.event_name != 'schedule'
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -35,3 +38,15 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ github.repository }}:latest
+      - name: Build and Push nightly
+        if: github.event_name == 'schedule'
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          build-args: |
+            INSTALL_ALL=true
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:nightly
