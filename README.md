@@ -418,7 +418,7 @@ Example:
     ```bash
     echo "
     function rm_terraform {
-        find . -name ".terraform*" -print0 | xargs -0 rm -r
+        find . \( -iname ".terraform*" ! -iname ".terraform-docs*" \) -print0 | xargs -0 rm -r
     }
     " >>~/.bashrc
 
@@ -540,7 +540,7 @@ Example:
     ```bash
     echo "
     function rm_terraform {
-        find . -name ".terraform*" -print0 | xargs -0 rm -r
+        find . \( -iname ".terraform*" ! -iname ".terraform-docs*" \) -print0 | xargs -0 rm -r
     }
     " >>~/.bashrc
 
