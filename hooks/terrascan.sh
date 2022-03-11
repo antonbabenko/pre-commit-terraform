@@ -12,6 +12,7 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
+  common::passthrough_env_vars
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
 }

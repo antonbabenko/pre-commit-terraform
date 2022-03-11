@@ -27,10 +27,10 @@ function common::initialize {
 function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
-  declare -g -a ARGS=() HOOK_CONFIG=() FILES=()
+  declare -g -a ARGS=() HOOK_CONFIG=() FILES=() ENV_PASSTHRU=()
 
   local argv
-  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
+  argv=$(getopt -o a:,h: --long args:,hook-config:,env-passthrough: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -45,6 +45,11 @@ function common::parse_cmdline {
         HOOK_CONFIG+=("$1;")
         shift
         ;;
+      --env-passthrough)
+        shift
+        ENV_PASSTHRU+=("$1")
+        shift
+        ;;
       --)
         shift
         # shellcheck disable=SC2034 # Variable is used
@@ -52,6 +57,22 @@ function common::parse_cmdline {
         break
         ;;
     esac
+  done
+}
+
+# Iterates through each value in ${ENV_PASSTHRU} and replaces the
+# placeholder value __ENV_<value>__ with the value of the environment
+# variable <value>
+#
+# Example usage:
+# - FOO=one
+# - __ENV_FOO__ becomes "one"
+
+function common::passthrough_env_vars {
+  local var
+  for var in "${ENV_PASSTHRU[@]}"; do
+    # shellcheck disable=SC2178
+    ARGS=${ARGS[*]/__ENV_${var}__/${!var}}
   done
 }
 
