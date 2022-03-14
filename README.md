@@ -2,6 +2,8 @@
 
 [![Github tag](https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg)](https://github.com/antonbabenko/pre-commit-terraform/releases) ![maintenance status](https://img.shields.io/maintenance/yes/2021.svg) [![Help Contribute to Open Source](https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg)](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
 
+[![SWUbanner](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
+
 Want to contribute? Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc) and [contributing notes](/.github/CONTRIBUTING.md).
 
 ## Sponsors
@@ -46,6 +48,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terrascan](#terrascan)
 * [Authors](#authors)
 * [License](#license)
+  * [Additional terms of use for users from Russia and Belarus](#additional-terms-of-use-for-users-from-russia-and-belarus)
 
 ## How to install
 
@@ -630,3 +633,11 @@ This repository is managed by [Anton Babenko](https://github.com/antonbabenko) w
 ## License
 
 MIT licensed. See [LICENSE](LICENSE) for full details.
+
+### Additional terms of use for users from Russia and Belarus
+
+By using the code provided in this repository you agree with the following:
+
+* Russia has [illegally annexed Crimea in 2014](https://en.wikipedia.org/wiki/Annexation_of_Crimea_by_the_Russian_Federation) and [brought the war in Donbas](https://en.wikipedia.org/wiki/War_in_Donbas) followed by [full-scale invasion of Ukraine in 2022](https://en.wikipedia.org/wiki/2022_Russian_invasion_of_Ukraine).
+* Russia has brought sorrow and devastations to millions of Ukrainians, killed hundreds of innocent people, damaged thousands of buildings, and forced several million people to flee.
+* [Putin khuylo!](https://en.wikipedia.org/wiki/Putin_khuylo!)
