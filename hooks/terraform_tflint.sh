@@ -36,6 +36,11 @@ function per_dir_hook_unique_part {
 
   # Print checked PATH **only** if TFLint have any messages
   # shellcheck disable=SC2091,SC2068 # Suppress error output
+  $(tflint --init 2>&1) 2> /dev/null || {
+    common:colorify "yellow" "tflint init:"
+    tflint --init
+  }
+  # shellcheck disable=SC2091,SC2068 # Suppress error output
   $(tflint ${args[@]} 2>&1) 2> /dev/null || {
     common::colorify "yellow" "TFLint in $dir_path/:"
 
