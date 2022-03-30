@@ -34,12 +34,14 @@ function per_dir_hook_unique_part {
   local -r args="$1"
   local -r dir_path="$2"
 
-  # Print checked PATH **only** if TFLint have any messages
   # shellcheck disable=SC2091,SC2068 # Suppress error output
-  $(tflint --init 2>&1) 2> /dev/null || {
+  TFLINT_INIT=$(tflint --init 2>&1) 2> /dev/null || {
+    local exit_code=$?
     common:colorify "yellow" "tflint init:"
-    tflint --init
+    echo "${TFLINT_INIT}"
+    return ${exit_code}
   }
+  # Print checked PATH **only** if TFLint have any messages
   # shellcheck disable=SC2091,SC2068 # Suppress error output
   $(tflint ${args[@]} 2>&1) 2> /dev/null || {
     common::colorify "yellow" "TFLint in $dir_path/:"
