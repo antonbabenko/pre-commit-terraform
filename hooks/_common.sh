@@ -138,7 +138,7 @@ function common::per_dir_hook {
   # run hook for each path
   for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
-    pushd "$dir_path" > /dev/null || continue
+    [ -f "$dir_path" ] || continue
 
     per_dir_hook_unique_part "$args" "$dir_path"
 
@@ -147,7 +147,6 @@ function common::per_dir_hook {
       final_exit_code=$exit_code
     fi
 
-    popd > /dev/null
   done
 
   # restore errexit if it was set before the "for" loop
