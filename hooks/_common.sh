@@ -138,7 +138,7 @@ function common::per_dir_hook {
   # run hook for each path
   for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
-    [ -f "$dir_path" ] || continue
+    [ ! -d "$dir_path" ] && continue
 
     per_dir_hook_unique_part "$args" "$dir_path"
 
