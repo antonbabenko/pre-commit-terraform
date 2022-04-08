@@ -36,11 +36,11 @@ function per_dir_hook_unique_part {
 
   # Print checked PATH **only** if TFLint have any messages
   # shellcheck disable=SC2091,SC2068 # Suppress error output
-  $(tflint ${args[@]} 2>&1) 2> /dev/null || {
+  $(tflint ${args[@]} "$dir_path" 2>&1) 2> /dev/null || {
     common::colorify "yellow" "TFLint in $dir_path/:"
 
     # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-    tflint ${args[@]}
+    tflint ${args[@]} "$dir_path"
   }
 
   # return exit code to common::per_dir_hook

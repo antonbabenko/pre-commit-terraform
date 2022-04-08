@@ -44,7 +44,7 @@ function per_dir_hook_unique_part {
 
   # pass the arguments to hook
   # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  terraform providers lock ${args[@]}
+  terraform providers lock ${args[@]} "$dir_path"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
