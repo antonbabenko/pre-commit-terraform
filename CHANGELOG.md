@@ -324,7 +324,7 @@ directory.
 change to that directory before running `terraform validate`.
 
 * Fix the description for the terraform_validate hook to reflect changes that were
-made in: 
+made in:
 https://github.com/antonbabenko/pre-commit-terraform/commit/35e0356188b64a4c5af9a4e7200d936e514cba71
 
 * Clean up comments.
