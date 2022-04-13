@@ -13,6 +13,7 @@ repos:
     - id: end-of-file-fixer
     - id: trailing-whitespace
       args: [--markdown-linebreak-ext=md]
+      exclude: CHANGELOG.md
     - id: check-yaml
     - id: check-merge-conflict
     - id: check-executables-have-shebangs
