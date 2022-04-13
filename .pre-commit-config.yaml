@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.1.0
+  rev: v4.2.0
   hooks:
     # Git style
     - id: check-added-large-files
@@ -13,6 +13,7 @@ repos:
     - id: end-of-file-fixer
     - id: trailing-whitespace
       args: [--markdown-linebreak-ext=md]
+      exclude: CHANGELOG.md
     - id: check-yaml
     - id: check-merge-conflict
     - id: check-executables-have-shebangs
@@ -29,7 +30,7 @@ repos:
 
 
 - repo: https://github.com/jumanjihouse/pre-commit-hooks
-  rev: 2.1.5
+  rev: 2.1.6
   hooks:
     - id: shfmt
       args: ['-l', '-i', '2', '-ci', '-sr', '-w']
@@ -37,7 +38,7 @@ repos:
 
 # Dockerfile linter
 - repo: https://github.com/hadolint/hadolint
-  rev: v2.8.0
+  rev: v2.10.0
   hooks:
     - id: hadolint
       args: [

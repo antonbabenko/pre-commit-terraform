@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.64.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.64.0...v1.64.1) (2022-03-31)
+
+
+### Bug Fixes
+
+* Make hooks bash 3.2 compatible ([#339](https://github.com/antonbabenko/pre-commit-terraform/issues/339)) ([4ad825d](https://github.com/antonbabenko/pre-commit-terraform/commit/4ad825d8d39254c69f0e01fb3e7728f0be9acbb9))
+
 # [1.64.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.63.0...v1.64.0) (2022-02-10)
 
 
