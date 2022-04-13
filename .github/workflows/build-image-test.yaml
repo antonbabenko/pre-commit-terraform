@@ -28,4 +28,4 @@ jobs:
           platforms: linux/amd64
           push: false
           tags: |
-            ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ github.repository }}:pr-test
