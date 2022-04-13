@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.65.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.65.0...v1.65.1) (2022-04-13)
+
+
+### Bug Fixes
+
+* Improve `tflint --init` command execution ([#361](https://github.com/antonbabenko/pre-commit-terraform/issues/361)) ([d31cb69](https://github.com/antonbabenko/pre-commit-terraform/commit/d31cb6936376bd1aaa9ada83021c29e6ca6727e0))
+
 # [1.65.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.64.1...v1.65.0) (2022-04-13)
 
 
