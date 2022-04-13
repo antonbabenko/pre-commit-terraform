@@ -328,6 +328,7 @@ For [checkov](https://github.com/bridgecrewio/checkov) you can specify custom ar
 - id: terraform_checkov
   args:
     - --args=--quiet
+    - --args=--skip-check CKV2_AWS_8
 ```
 
 For deprecated hook you need to specify each argument separately:
