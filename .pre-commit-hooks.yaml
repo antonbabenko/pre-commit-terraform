@@ -101,6 +101,7 @@
   always_run: false
   files: \.tf$
   exclude: \.terraform\/.*$
+  require_serial: true
 
 - id: terraform_checkov
   name: Checkov
