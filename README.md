@@ -36,8 +36,8 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [4. Run](#4-run)
 * [Available Hooks](#available-hooks)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
-  * [checkov](#checkov)
   * [infracost_breakdown](#infracost_breakdown)
+  * [terraform_checkov and checkov](#terraform_checkov-and-checkov)
   * [terraform_docs](#terraform_docs)
   * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
   * [terraform_fmt](#terraform_fmt)
@@ -215,11 +215,11 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 <!-- markdownlint-disable no-inline-html -->
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup>      |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `checkov`                                              | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov)                                                                                          | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
 | `infracost_breakdown`                                  | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown)                                                                                                                 | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key) |
+| `terraform_checkov` and `checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_checkov-and-checkov)                                                                    | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
+| `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md. **DEPRECATED**, see [#248](https://github.com/antonbabenko/pre-commit-terraform/issues/248). [Hook notes](#terraform_docs_replace-deprecated)                              | `python3`, `terraform-docs`                                                          |
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `terraform-docs`                                                                     |
-| `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
 | `terraform_fmt`                                        | Reformat all Terraform configuration files to a canonical format. [Hook notes](#terraform_fmt)                                                                                                                                               | -                                                                                    |
 | `terraform_providers_lock`                             | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                              | -                                                                                    |
 | `terraform_tflint`                                     | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). | `tflint`                                                                             |
@@ -227,22 +227,12 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | -                                                                                    |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
-| `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                                               | `terrascan`                                                                          |
+| `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                       | `terrascan`                                                                          |
 <!-- markdownlint-enable no-inline-html -->
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
 ## Hooks usage notes and examples
-
-### checkov
-
-For [checkov](https://github.com/bridgecrewio/checkov) you can specify custom arguments. E.g.:
-
-```yaml
-- id: checkov
-  args:
-    - --args=--quiet
-```
 
 ### infracost_breakdown
 
@@ -326,6 +316,30 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 3. **Docker usage**. In `docker build` or `docker run` command:
     * You need to provide [Infracost API key](https://www.infracost.io/docs/integrations/environment_variables/#infracost_api_key) via `-e INFRACOST_API_KEY=<your token>`. By default, it is saved in `~/.config/infracost/credentials.yml`
     * Set `-e INFRACOST_SKIP_UPDATE_CHECK=true` to [skip the Infracost update check](https://www.infracost.io/docs/integrations/environment_variables/#infracost_skip_update_check) if you use this hook as part of your CI/CD pipeline.
+
+### terraform_checkov and checkov
+
+> `checkov` hook is deprecated, please use `terraform_checkov`.
+
+
+For [checkov](https://github.com/bridgecrewio/checkov) you can specify custom arguments. E.g.:
+
+```yaml
+- id: terraform_checkov
+  args:
+    - --args=--quiet
+```
+
+For deprecated hook you need to specify each argument separately:
+
+```yaml
+- id: checkov
+  args: [
+    "-d", ".",
+    "--skip-check", "CKV2_AWS_8",
+  ]
+```
+
 
 ### terraform_docs
 

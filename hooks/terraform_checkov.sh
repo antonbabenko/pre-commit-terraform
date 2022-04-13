@@ -4,7 +4,7 @@ set -eo pipefail
 # globals variables
 # hook ID, see `- id` for details in .pre-commit-hooks.yaml file
 # shellcheck disable=SC2034 # Unused var.
-readonly HOOK_ID='checkov'
+readonly HOOK_ID='terraform_checkov'
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # shellcheck source=_common.sh
