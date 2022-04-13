@@ -48,6 +48,5 @@ repos:
         '--ignore', 'SC1091', # Useless check
         '--ignore', 'SC2015', # Useless check
         '--ignore', 'SC3037', # Not related to alpine
-        '--ignore', 'SC2039', # see SC3037
         '--ignore', 'DL3013', # Pin versions in pip
       ]

@@ -42,14 +42,14 @@ ARG TFUPDATE_VERSION=${TFUPDATE_VERSION:-false}
 # specified in step below
 ARG INSTALL_ALL=${INSTALL_ALL:-false}
 RUN if [ "$INSTALL_ALL" != "false" ]; then \
-        echo "export CHECKOV_VERSION=latest" | tee -a /.env && \
-        echo "export INFRACOST_VERSION=latest" | tee -a /.env && \
-        echo "export TERRAFORM_DOCS_VERSION=latest" | tee -a /.env && \
-        echo "export TERRAGRUNT_VERSION=latest" | tee -a /.env && \
-        echo "export TERRASCAN_VERSION=latest" | tee -a /.env && \
-        echo "export TFLINT_VERSION=latest" | tee -a /.env && \
-        echo "export TFSEC_VERSION=latest" | tee -a /.env \
-        echo "export TFUPDATE_VERSION=latest" | tee -a /.env \
+        echo "export CHECKOV_VERSION=latest" >> /.env && \
+        echo "export INFRACOST_VERSION=latest" >> /.env && \
+        echo "export TERRAFORM_DOCS_VERSION=latest" >> /.env && \
+        echo "export TERRAGRUNT_VERSION=latest" >> /.env && \
+        echo "export TERRASCAN_VERSION=latest" >> /.env && \
+        echo "export TFLINT_VERSION=latest" >> /.env && \
+        echo "export TFSEC_VERSION=latest" >> /.env \
+        echo "export TFUPDATE_VERSION=latest" >> /.env \
     ; else \
         touch /.env \
     ; fi
@@ -170,7 +170,7 @@ COPY --from=builder \
     # Hooks and terraform binaries
     /bin_dir/ \
     /usr/local/bin/checkov* \
-    /usr/bin/
+        /usr/bin/
 # Copy pre-commit packages
 COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
 # Copy terrascan policies
