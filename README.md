@@ -46,6 +46,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform_tfsec](#terraform_tfsec)
   * [terraform_validate](#terraform_validate)
   * [terrascan](#terrascan)
+  * [tfupdate](#tfupdate)
 * [Authors](#authors)
 * [License](#license)
   * [Additional terms of use for users from Russia and Belarus](#additional-terms-of-use-for-users-from-russia-and-belarus)
@@ -65,6 +66,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
 * [`jq`](https://github.com/stedolan/jq) required for `infracost_breakdown` hook.
+* [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -101,6 +103,7 @@ docker build -t pre-commit-terraform \
     --build-arg TERRASCAN_VERSION=1.10.0 \
     --build-arg TFLINT_VERSION=0.31.0 \
     --build-arg TFSEC_VERSION=latest \
+    --build-arg TFUPDATE_VERSION=latest \
     .
 ```
 
@@ -114,7 +117,7 @@ Set `-e PRE_COMMIT_COLOR=never` to disable the color output in `pre-commit`.
 [`coreutils`](https://formulae.brew.sh/formula/coreutils) is required for hooks on MacOS (due to use of `realpath`).
 
 ```bash
-brew install pre-commit terraform-docs tflint tfsec coreutils checkov terrascan infracost jq
+brew install pre-commit terraform-docs tflint tfsec coreutils checkov terrascan infracost tfupdate jq
 ```
 
 </details>
@@ -135,6 +138,7 @@ curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/late
 curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E -m 1 "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/ && terrascan init
 sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
+curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
 ```
 
 </details>
@@ -154,6 +158,7 @@ curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/release
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
 sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
+curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
 ```
 
 </details>
@@ -228,6 +233,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
 | `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                       | `terrascan`                                                                          |
+| `tfupdate`                                             | [tfupdate](https://github.com/minamijoyo/tfupdate) Update version constraints of Terraform core, providers, and modules. [Hook notes](#tfupdate)                                                                                             | `tfupdate`                                                                           |
 <!-- markdownlint-enable no-inline-html -->
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
@@ -632,6 +638,33 @@ Example:
 2. Use the `--args=--verbose` parameter to see the rule ID in the scaning output. Usuful to skip validations.
 3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
 4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
+
+### tfupdate
+
+1. Out of the box `tfupdate` will pin the terraform version:
+
+    ```yaml
+    - id: tfupdate
+      name: Autoupdate Terraform versions
+    ```
+
+2. If you'd like to pin providers, etc., use custom arguments, i.e `provider=PROVIDER_NAME`:
+
+    ```yaml
+    - id: tfupdate
+      name: Autoupdate AWS provider versions
+      args:
+        - --args=provider aws # Will be pined to latest version
+
+    - id: tfupdate
+      name: Autoupdate Helm provider versions
+      args:
+        - --args=provider helm
+        - --args=--version 2.5.0 # Will be pined to specified version
+    ```
+
+Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
+No need to pass `--recursive .` as it is added automatically.
 
 ## Authors
 
