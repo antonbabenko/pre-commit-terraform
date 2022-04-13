@@ -327,15 +327,18 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 
 > `checkov` hook is deprecated, please use `terraform_checkov`.
 
+Note that `terraform_checkov` runs recursively during `-d .` usage. That means, for example, if you change `.tf` file in repo root, all existing `.tf` files in repo will be checked.
 
-For [checkov](https://github.com/bridgecrewio/checkov) you can specify custom arguments. E.g.:
+1. You can specify custom arguments. E.g.:
 
-```yaml
-- id: terraform_checkov
-  args:
-    - --args=--quiet
-    - --args=--skip-check CKV2_AWS_8
-```
+    ```yaml
+    - id: terraform_checkov
+    args:
+        - --args=--quiet
+        - --args=--skip-check CKV2_AWS_8
+    ```
+
+    Check all available arguments [here](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
 
 For deprecated hook you need to specify each argument separately:
 

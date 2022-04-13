@@ -33,13 +33,8 @@ function per_dir_hook_unique_part {
   # shellcheck disable=SC2034 # Unused var.
   local -r dir_path="$2"
 
-  # pass git root dir, if args not specified
-  if [ -z "$args" ]; then
-    checkov -d .
-  else
-    # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-    checkov ${args[@]}
-  fi
+  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+  checkov -d . ${args[@]}
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
