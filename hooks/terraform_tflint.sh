@@ -17,6 +17,20 @@ function main {
   # shellcheck disable=SC2178 # It's the simplest syntax for that case
   ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
   # shellcheck disable=SC2128 # It's the simplest syntax for that case
+
+  # Run `tflint --init` for check that plugins installed.
+  # It should run once on whole repo.
+  {
+    TFLINT_INIT=$(tflint --init 2>&1) 2> /dev/null &&
+      common::colorify "green" "Command 'tflint --init' successfully done:" &&
+      echo -e "${TFLINT_INIT}\n\n\n"
+  } || {
+    local exit_code=$?
+    common::colorify "red" "Command 'tflint --init' failed:"
+    echo "${TFLINT_INIT}"
+    return ${exit_code}
+  }
+
   common::per_dir_hook "$ARGS" "$HOOK_ID" "${FILES[@]}"
 }
 
@@ -34,13 +48,6 @@ function per_dir_hook_unique_part {
   local -r args="$1"
   local -r dir_path="$2"
 
-  # shellcheck disable=SC2091,SC2068 # Suppress error output
-  TFLINT_INIT=$(tflint --init 2>&1) 2> /dev/null || {
-    local exit_code=$?
-    common:colorify "yellow" "tflint init:"
-    echo "${TFLINT_INIT}"
-    return ${exit_code}
-  }
   # Print checked PATH **only** if TFLint have any messages
   # shellcheck disable=SC2091,SC2068 # Suppress error output
   $(tflint ${args[@]} 2>&1) 2> /dev/null || {
