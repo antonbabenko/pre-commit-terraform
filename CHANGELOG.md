@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.66.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.65.1...v1.66.0) (2022-04-13)
+
+
+### Features
+
+* Added support for `tfupdate` to update version constraints in Terraform configurations ([#342](https://github.com/antonbabenko/pre-commit-terraform/issues/342)) ([ef7a0f2](https://github.com/antonbabenko/pre-commit-terraform/commit/ef7a0f2b467d20f30341d25df3d4012cff2194ec))
+
 ## [1.65.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.65.0...v1.65.1) (2022-04-13)
 
 
