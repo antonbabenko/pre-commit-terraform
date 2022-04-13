@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.65.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.64.1...v1.65.0) (2022-04-13)
+
+
+### Features
+
+* Adding init to terraform_tflint hook ([#352](https://github.com/antonbabenko/pre-commit-terraform/issues/352)) ([1aff30f](https://github.com/antonbabenko/pre-commit-terraform/commit/1aff30f2a4cb0df65a1e693690b5225a112cf621))
+
 ## [1.64.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.64.0...v1.64.1) (2022-03-31)
 
 
