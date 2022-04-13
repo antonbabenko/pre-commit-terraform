@@ -635,16 +635,23 @@ Example:
       name: Autoupdate Terraform versions
     ```
 
-2. `tfupdate` supports custom arguments, i.e `provider=PROVIDER_NAME`:
+2. If you'd like to pin providers, etc., use custom arguments, i.e `provider=PROVIDER_NAME`:
 
     ```yaml
     - id: tfupdate
-      name: Autoupdate vSphere provider versions
+      name: Autoupdate AWS provider versions
       args:
-        - --args=provider=vsphere
+        - --args=provider aws # Will be pined to latest version
+
+    - id: tfupdate
+      name: Autoupdate Helm provider versions
+      args:
+        - --args=provider helm
+        - --args=--version 2.5.0 # Will be pined to specified version
     ```
 
-See the `tfupdate --help` command line help for available options. No need to pass `--recursive .` as it is added automatically
+Check [`tfupdate` usage instructio](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
+No need to pass `--recursive .` as it is added automatically.
 
 ## Authors
 
