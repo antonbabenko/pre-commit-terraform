@@ -650,7 +650,7 @@ Example:
         - --args=--version 2.5.0 # Will be pined to specified version
     ```
 
-Check [`tfupdate` usage instructio](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
+Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
 No need to pass `--recursive .` as it is added automatically.
 
 ## Authors
