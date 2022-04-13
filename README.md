@@ -51,7 +51,6 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [License](#license)
   * [Additional terms of use for users from Russia and Belarus](#additional-terms-of-use-for-users-from-russia-and-belarus)
 
-
 ## How to install
 
 ### 1. Install dependencies
