@@ -138,7 +138,7 @@ curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/late
 curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E -m 1 "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/ && terrascan init
 sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
-curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_.+_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
 ```
 
 </details>
@@ -158,7 +158,7 @@ curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/release
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
 sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
-curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_.+_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
 ```
 
 </details>
@@ -628,23 +628,22 @@ Example:
 
 ### tfupdate
 
-Out of the box tfupdate will pin the terraform version
+1. Out of the box `tfupdate` will pin the terraform version:
 
-```yaml
-      - id: tfupdate
-  ```
-
-  But you can pass `tfupdate` custom commands like `provider ${PROVIDER_NAME}` :
-
-```yaml
+    ```yaml
     - id: tfupdate
-      name: tfupdate terraform
+      name: Autoupdate Terraform versions
+    ```
+
+2. `tfupdate` supports custom arguments, i.e `provider=PROVIDER_NAME`:
+
+    ```yaml
     - id: tfupdate
-      name: tfupdate provider vsphere
+      name: Autoupdate vSphere provider versions
       args:
-        - --args=provider
-        - --args=vsphere
-```
+        - --args=provider=vsphere
+    ```
+
 See the `tfupdate --help` command line help for available options. No need to pass `--recursive .` as it is added automatically
 
 ## Authors
