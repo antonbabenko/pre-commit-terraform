@@ -48,7 +48,7 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "export TERRAGRUNT_VERSION=latest" >> /.env && \
         echo "export TERRASCAN_VERSION=latest" >> /.env && \
         echo "export TFLINT_VERSION=latest" >> /.env && \
-        echo "export TFSEC_VERSION=latest" >> /.env \
+        echo "export TFSEC_VERSION=latest" >> /.env && \
         echo "export TFUPDATE_VERSION=latest" >> /.env \
     ; else \
         touch /.env \
@@ -133,8 +133,8 @@ RUN . /.env && \
     if [ "$TFUPDATE_VERSION" != "false" ]; then \
     ( \
         TFUPDATE_RELEASES="https://api.github.com/repos/minamijoyo/tfupdate/releases" && \
-        [ "$TFUPDATE_VERSION" = "latest" ] && curl -L "$(curl -s ${TFUPDATE_RELEASES}/latest | grep -o -E "https://.+?/tfupdate_.+_linux_amd64.tar.gz")" > tfupdate.tgz \
-        || curl -L "$(curl -s ${TFUPDATE_RELEASES} | grep -o -E "https://[^,]+?/v${TFUPDATE_VERSION}/tfupdate_${TFUPDATE_VERSION}_linux_amd64.tar.gz")" > tfupdate.tgz \
+        [ "$TFUPDATE_VERSION" = "latest" ] && curl -L "$(curl -s ${TFUPDATE_RELEASES}/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tgz \
+        || curl -L "$(curl -s ${TFUPDATE_RELEASES} | grep -o -E -m 1 "https://.+?${TFUPDATE_VERSION}_linux_amd64.tar.gz")" > tfupdate.tgz \
     ) && tar -xzf tfupdate.tgz tfupdate && rm tfupdate.tgz \
     ; fi
 
