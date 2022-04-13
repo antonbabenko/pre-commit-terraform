@@ -34,6 +34,7 @@ ARG TERRAGRUNT_VERSION=${TERRAGRUNT_VERSION:-false}
 ARG TERRASCAN_VERSION=${TERRASCAN_VERSION:-false}
 ARG TFLINT_VERSION=${TFLINT_VERSION:-false}
 ARG TFSEC_VERSION=${TFSEC_VERSION:-false}
+ARG TFUPDATE_VERSION=${TFUPDATE_VERSION:-false}
 
 
 # Tricky thing to install all tools by set only one arg.
@@ -47,7 +48,8 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "export TERRAGRUNT_VERSION=latest" >> /.env && \
         echo "export TERRASCAN_VERSION=latest" >> /.env && \
         echo "export TFLINT_VERSION=latest" >> /.env && \
-        echo "export TFSEC_VERSION=latest" >> /.env \
+        echo "export TFSEC_VERSION=latest" >> /.env && \
+        echo "export TFUPDATE_VERSION=latest" >> /.env \
     ; else \
         touch /.env \
     ; fi
@@ -126,6 +128,16 @@ RUN . /.env && \
     ) && chmod +x tfsec \
     ; fi
 
+# TFUpdate
+RUN . /.env && \
+    if [ "$TFUPDATE_VERSION" != "false" ]; then \
+    ( \
+        TFUPDATE_RELEASES="https://api.github.com/repos/minamijoyo/tfupdate/releases" && \
+        [ "$TFUPDATE_VERSION" = "latest" ] && curl -L "$(curl -s ${TFUPDATE_RELEASES}/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tgz \
+        || curl -L "$(curl -s ${TFUPDATE_RELEASES} | grep -o -E -m 1 "https://.+?${TFUPDATE_VERSION}_linux_amd64.tar.gz")" > tfupdate.tgz \
+    ) && tar -xzf tfupdate.tgz tfupdate && rm tfupdate.tgz \
+    ; fi
+
 # Checking binaries versions and write it to debug file
 RUN . /.env && \
     F=tools_versions_info && \
@@ -138,6 +150,7 @@ RUN . /.env && \
     (if [ "$TERRASCAN_VERSION"      != "false" ]; then echo "terrascan $(./terrascan version)" >> $F; else echo "terrascan SKIPPED" >> $F      ; fi) && \
     (if [ "$TFLINT_VERSION"         != "false" ]; then ./tflint --version >> $F;                      else echo "tflint SKIPPED" >> $F         ; fi) && \
     (if [ "$TFSEC_VERSION"          != "false" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F          ; fi) && \
+    (if [ "$TFUPDATE_VERSION"       != "false" ]; then echo "tfupdate $(./tfupdate --version)" >> $F; else echo "tfupdate SKIPPED" >> $F       ; fi) && \
     echo -e "\n\n" && cat $F && echo -e "\n\n"
 
 

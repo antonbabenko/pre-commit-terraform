@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-
 set -eo pipefail
 
 # globals variables
 # hook ID, see `- id` for details in .pre-commit-hooks.yaml file
-readonly HOOK_ID='terraform_tflint'
+readonly HOOK_ID='tfupdate'
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 # shellcheck source=_common.sh
@@ -13,28 +12,9 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
-  common::passthrough_env_vars
-  # Support for setting PATH to repo root.
-  # shellcheck disable=SC2178 # It's the simplest syntax for that case
-  ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
-  # shellcheck disable=SC2128 # It's the simplest syntax for that case
-
-  # Run `tflint --init` for check that plugins installed.
-  # It should run once on whole repo.
-  {
-    TFLINT_INIT=$(tflint --init 2>&1) 2> /dev/null &&
-      common::colorify "green" "Command 'tflint --init' successfully done:" &&
-      echo -e "${TFLINT_INIT}\n\n\n"
-  } || {
-    local exit_code=$?
-    common::colorify "red" "Command 'tflint --init' failed:"
-    echo "${TFLINT_INIT}"
-    return ${exit_code}
-  }
-
-  common::per_dir_hook "$ARGS" "$HOOK_ID" "${FILES[@]}"
+  # shellcheck disable=SC2153 # False positive
+  common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
 }
-
 #######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
@@ -47,16 +27,31 @@ function main {
 #######################################################################
 function per_dir_hook_unique_part {
   local -r args="$1"
+  # shellcheck disable=SC2034 # Unused var.
   local -r dir_path="$2"
 
-  # Print checked PATH **only** if TFLint have any messages
-  # shellcheck disable=SC2091,SC2068 # Suppress error output
-  $(tflint ${args[@]} 2>&1) 2> /dev/null || {
-    common::colorify "yellow" "TFLint in $dir_path/:"
+  # pass the arguments to hook
+  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+  tfupdate ${args[@]} "${dir_path}"
 
-    # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-    tflint ${args[@]}
-  }
+  # return exit code to common::per_dir_hook
+  local exit_code=$?
+  return $exit_code
+}
+
+#######################################################################
+# Unique part of `common::per_dir_hook`. The function is executed one time
+# in the root git repo
+# Arguments:
+#   args (string with array) arguments that configure wrapped tool behavior
+#######################################################################
+function run_hook_on_whole_repo {
+  local -r args="$1"
+  # pass the arguments to hook
+  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+  # shellcheck disable=SC2048 # Use "${array[@]}" (with quotes) to prevent whitespace problems.
+  # shellcheck disable=SC2086 #  Double quote to prevent globbing and word splitting.
+  tfupdate ${args[*]} --recursive .
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

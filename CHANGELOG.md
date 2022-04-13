@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.66.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.65.1...v1.66.0) (2022-04-13)
+
+
+### Features
+
+* Added support for `tfupdate` to update version constraints in Terraform configurations ([#342](https://github.com/antonbabenko/pre-commit-terraform/issues/342)) ([ef7a0f2](https://github.com/antonbabenko/pre-commit-terraform/commit/ef7a0f2b467d20f30341d25df3d4012cff2194ec))
+
+## [1.65.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.65.0...v1.65.1) (2022-04-13)
+
+
+### Bug Fixes
+
+* Improve `tflint --init` command execution ([#361](https://github.com/antonbabenko/pre-commit-terraform/issues/361)) ([d31cb69](https://github.com/antonbabenko/pre-commit-terraform/commit/d31cb6936376bd1aaa9ada83021c29e6ca6727e0))
+
+# [1.65.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.64.1...v1.65.0) (2022-04-13)
+
+
+### Features
+
+* Adding init to terraform_tflint hook ([#352](https://github.com/antonbabenko/pre-commit-terraform/issues/352)) ([1aff30f](https://github.com/antonbabenko/pre-commit-terraform/commit/1aff30f2a4cb0df65a1e693690b5225a112cf621))
+
+## [1.64.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.64.0...v1.64.1) (2022-03-31)
+
+
+### Bug Fixes
+
+* Make hooks bash 3.2 compatible ([#339](https://github.com/antonbabenko/pre-commit-terraform/issues/339)) ([4ad825d](https://github.com/antonbabenko/pre-commit-terraform/commit/4ad825d8d39254c69f0e01fb3e7728f0be9acbb9))
+
 # [1.64.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.63.0...v1.64.0) (2022-02-10)
 
 
