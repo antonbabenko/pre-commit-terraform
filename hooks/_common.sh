@@ -56,6 +56,39 @@ function common::parse_cmdline {
 }
 
 #######################################################################
+# Expand environment variables definition into their values in '--args'.
+# Support expansion only for ${ENV_VAR} vars, not $ENV_VAR.
+# Globals (modify):
+#   ARGS (array) arguments that configure wrapped tool behavior
+#######################################################################
+function common::parse_and_export_env_vars {
+  local -r len=${#ARGS[@]}
+  local arg
+
+  for ((i = 0; i < len; i++)); do
+    arg="${ARGS[$i]}"
+
+    while true; do
+      # shellcheck disable=SC2016 # '${' should not be expanded
+      if [[ "$arg" =~ .*'${'[A-Z_][A-Z0-9_]+?'}'.* ]]; then
+        tmp=${arg#*$\{}
+        env_var_name=$(cut -d'}' -f1 <<< "$tmp")
+        env_var_value="${!env_var_name}"
+        # shellcheck disable=SC2016 # '${' should not be expanded
+        common::colorify "green" 'Found ${'"$env_var_name"'} in:        '"'$arg'"
+        # shellcheck disable=SC2016 # '${' should not be expanded
+        arg=${arg/'${'$env_var_name'}'/$env_var_value}
+        ARGS[$i]=$arg
+        # shellcheck disable=SC2016 # '${' should not be expanded
+        common::colorify "green" 'After ${'"$env_var_name"'} expansion: '"'$arg'\n"
+        continue
+      fi
+      break
+    done
+  done
+}
+
+#######################################################################
 # This is a workaround to improve performance when all files are passed
 # See: https://github.com/antonbabenko/pre-commit-terraform/issues/309
 # Arguments:

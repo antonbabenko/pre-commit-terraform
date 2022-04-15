@@ -16,6 +16,7 @@ export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 function main {
   common::initialize "$SCRIPT_DIR"
   parse_cmdline_ "$@"
+  common::parse_and_export_env_vars
   terraform_validate_
 }
 

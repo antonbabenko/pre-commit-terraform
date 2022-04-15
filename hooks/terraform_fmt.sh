@@ -13,6 +13,7 @@ readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
+  common::parse_and_export_env_vars
   # shellcheck disable=SC2153 # False positive
   terraform_fmt_ "${ARGS[*]}" "${FILES[@]}"
 }
