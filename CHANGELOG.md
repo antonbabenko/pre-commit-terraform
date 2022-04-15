@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.67.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.66.0...v1.67.0) (2022-04-15)
+
+
+### Features
+
+* Added `terraform_checkov` (run per folder), deprecated `checkov` hook ([#290](https://github.com/antonbabenko/pre-commit-terraform/issues/290)) ([e3a9834](https://github.com/antonbabenko/pre-commit-terraform/commit/e3a98345bb3be407c476749496827b418b81241c))
+
 # [1.66.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.65.1...v1.66.0) (2022-04-13)
 
 
