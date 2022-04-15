@@ -36,7 +36,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [4. Run](#4-run)
 * [Available Hooks](#available-hooks)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
-  * [checkov](#checkov)
+  * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
   * [infracost_breakdown](#infracost_breakdown)
   * [terraform_docs](#terraform_docs)
   * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
@@ -220,11 +220,11 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 <!-- markdownlint-disable no-inline-html -->
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup>      |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `checkov`                                              | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov)                                                                                          | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
+| `checkov` and `terraform_checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov-deprecated-and-terraform_checkov)                                                                    | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
 | `infracost_breakdown`                                  | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown)                                                                                                                 | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key) |
+| `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md. **DEPRECATED**, see [#248](https://github.com/antonbabenko/pre-commit-terraform/issues/248). [Hook notes](#terraform_docs_replace-deprecated)                              | `python3`, `terraform-docs`                                                          |
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `terraform-docs`                                                                     |
-| `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
 | `terraform_fmt`                                        | Reformat all Terraform configuration files to a canonical format. [Hook notes](#terraform_fmt)                                                                                                                                               | -                                                                                    |
 | `terraform_providers_lock`                             | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                              | -                                                                                    |
 | `terraform_tflint`                                     | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). | `tflint`                                                                             |
@@ -240,9 +240,24 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 
 ## Hooks usage notes and examples
 
-### checkov
+### checkov (deprecated) and terraform_checkov
 
-For [checkov](https://github.com/bridgecrewio/checkov) you need to specify each argument separately:
+> `checkov` hook is deprecated, please use `terraform_checkov`.
+
+Note that `terraform_checkov` runs recursively during `-d .` usage. That means, for example, if you change `.tf` file in repo root, all existing `.tf` files in repo will be checked.
+
+1. You can specify custom arguments. E.g.:
+
+    ```yaml
+    - id: terraform_checkov
+      args:
+        - --args=--quiet
+        - --args=--skip-check CKV2_AWS_8
+    ```
+
+    Check all available arguments [here](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
+
+For deprecated hook you need to specify each argument separately:
 
 ```yaml
 - id: checkov
