@@ -68,7 +68,9 @@ function common::parse_and_export_env_vars {
   for ((i = 0; i < len; i++)); do
     arg="${ARGS[$i]}"
 
+    # Repeat until all env vars will be expanded
     while true; do
+      # Check is at least 1 env var exist in $arg
       # shellcheck disable=SC2016 # '${' should not be expanded
       if [[ "$arg" =~ .*'${'[A-Z_][A-Z0-9_]+?'}'.* ]]; then
         tmp=${arg#*$\{}
@@ -76,6 +78,8 @@ function common::parse_and_export_env_vars {
         env_var_value="${!env_var_name}"
         # shellcheck disable=SC2016 # '${' should not be expanded
         common::colorify "green" 'Found ${'"$env_var_name"'} in:        '"'$arg'"
+        # Replace env var name with it value.
+        # $arg will be checked in if, $ARGS will be used in next functions.
         # shellcheck disable=SC2016 # '${' should not be expanded
         arg=${arg/'${'$env_var_name'}'/$env_var_value}
         ARGS[$i]=$arg
