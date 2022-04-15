@@ -37,7 +37,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [Available Hooks](#available-hooks)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [infracost_breakdown](#infracost_breakdown)
-  * [terraform_checkov and checkov](#terraform_checkov-and-checkov)
+  * [terraform_checkov and checkov (deprecated)](#terraform_checkov-and-checkov-deprecated)
   * [terraform_docs](#terraform_docs)
   * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
   * [terraform_fmt](#terraform_fmt)
@@ -221,7 +221,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup>      |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `infracost_breakdown`                                  | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown)                                                                                                                 | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key) |
-| `terraform_checkov` and `checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_checkov-and-checkov)                                                                    | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
+| `terraform_checkov` and `checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_checkov-and-checkov-deprecated)                                                                    | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md. **DEPRECATED**, see [#248](https://github.com/antonbabenko/pre-commit-terraform/issues/248). [Hook notes](#terraform_docs_replace-deprecated)                              | `python3`, `terraform-docs`                                                          |
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `terraform-docs`                                                                     |
@@ -323,7 +323,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     * You need to provide [Infracost API key](https://www.infracost.io/docs/integrations/environment_variables/#infracost_api_key) via `-e INFRACOST_API_KEY=<your token>`. By default, it is saved in `~/.config/infracost/credentials.yml`
     * Set `-e INFRACOST_SKIP_UPDATE_CHECK=true` to [skip the Infracost update check](https://www.infracost.io/docs/integrations/environment_variables/#infracost_skip_update_check) if you use this hook as part of your CI/CD pipeline.
 
-### terraform_checkov and checkov
+### terraform_checkov and checkov (deprecated)
 
 > `checkov` hook is deprecated, please use `terraform_checkov`.
 
@@ -333,7 +333,7 @@ Note that `terraform_checkov` runs recursively during `-d .` usage. That means, 
 
     ```yaml
     - id: terraform_checkov
-    args:
+      args:
         - --args=--quiet
         - --args=--skip-check CKV2_AWS_8
     ```
