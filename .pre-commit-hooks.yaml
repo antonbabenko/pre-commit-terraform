@@ -93,7 +93,7 @@
   language: script
 
 - id: checkov
-  name: Checkov
+  name: checkov (deprecated, use "terraform_checkov")
   description: Runs checkov on Terraform templates.
   entry: checkov -d .
   language: python
