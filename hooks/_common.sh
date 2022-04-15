@@ -73,7 +73,7 @@ function common::parse_and_export_env_vars {
       # Check if at least 1 env var exists in `$arg`
       # shellcheck disable=SC2016 # '${' should not be expanded
       if [[ "$arg" =~ .*'${'[A-Z_][A-Z0-9_]+?'}'.* ]]; then
-        tmp=${arg#*$\{}
+        env_var_name=${arg#*$\{}
         env_var_name=$(cut -d'}' -f1 <<< "$tmp")
         env_var_value="${!env_var_name}"
         # shellcheck disable=SC2016 # '${' should not be expanded
