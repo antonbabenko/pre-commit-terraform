@@ -29,3 +29,10 @@ jobs:
           push: false
           tags: |
             ghcr.io/${{ github.repository }}:pr-test
+
+      - name: Run structure tests
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: plexsystems/container-structure-test-action@v0.1.0
+        with:
+          image: ghcr.io/${{ github.repository }}:pr-test
+          config: .github/.container-structure-test-config.yaml
