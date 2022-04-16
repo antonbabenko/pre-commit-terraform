@@ -45,5 +45,5 @@ jobs:
         uses: yuichielectric/dive-action@0.0.4
         with:
           image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
-          config-file: ${{ github.workspace }}/.github/.dive-ci.yml
+          config-file: .github/.dive-ci.yaml
           github-token: ${{ secrets.GITHUB_TOKEN }}
