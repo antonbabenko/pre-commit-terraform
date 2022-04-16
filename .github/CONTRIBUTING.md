@@ -12,6 +12,8 @@ Enjoy the clean, valid, and documented code!
   * [Run via Docker](#run-via-docker)
   * [Check results](#check-results)
   * [Cleanup](#cleanup)
+* [Run unit-tests](#run-unit-tests)
+  * [Update `bach`](#update-bach)
 * [Add new hook](#add-new-hook)
   * [Before write code](#before-write-code)
   * [Prepare basic documentation](#prepare-basic-documentation)
@@ -97,6 +99,20 @@ Results will be located at `./test/results` dir.
 ```bash
 sudo rm -rf tests/results
 ```
+
+## Run unit-tests
+
+### Update `bach`
+
+Get last version of [bach](https://github.com/bach-sh/bach) Unit Testing Framework
+
+```bash
+wget https://raw.githubusercontent.com/bach-sh/bach/master/bach.sh tests/bach.sh
+```
+
+
+
+
 
 ## Add new hook
 
