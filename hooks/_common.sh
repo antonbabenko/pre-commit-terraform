@@ -65,8 +65,8 @@ function common::parse_and_export_env_vars {
   local -r len=${#ARGS[@]}
   local arg
 
-  for ((i = 0; i < len; i++)); do
-    arg="${ARGS[$i]}"
+  for arg_idx in "${!ARGS[@]}"; do
+    arg="${ARGS[$arg_idx]}"
 
     # Repeat until all env vars will be expanded
     while true; do
@@ -83,7 +83,7 @@ function common::parse_and_export_env_vars {
         # `$arg` will be checked in `if` conditional, `$ARGS` will be used in the next functions.
         # shellcheck disable=SC2016 # '${' should not be expanded
         arg=${arg/'${'$env_var_name'}'/$env_var_value}
-        ARGS[$i]=$arg
+        ARGS[$arg_idx]=$arg
         # shellcheck disable=SC2016 # '${' should not be expanded
         common::colorify "green" 'After ${'"$env_var_name"'} expansion: '"'$arg'\n"
         continue
