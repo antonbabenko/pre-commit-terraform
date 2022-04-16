@@ -2,6 +2,9 @@ name: "Build Dockerfile if changed and run smoke tests"
 
 on: [pull_request]
 
+env:
+  IMAGE_TAG: pr-test
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
             Dockerfile
 
       - name: Build if Dockerfile changed
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        if:
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -28,11 +31,18 @@ jobs:
           platforms: linux/amd64
           push: false
           tags: |
-            ghcr.io/${{ github.repository }}:pr-test
+            ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
 
       - name: Run structure tests
         if: steps.changed-files-specific.outputs.any_changed == 'true'
         uses: plexsystems/container-structure-test-action@v0.1.0
         with:
-          image: ghcr.io/${{ github.repository }}:pr-test
+          image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
           config: .github/.container-structure-test-config.yaml
+
+      - name: Dive - check image for waste files
+        uses: yuichielectric/dive-action@0.0.4
+        with:
+          image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+          config-file: .github/.dive-ci.yml
+          github-token: ${{ secrets.GITHUB_TOKEN }}
