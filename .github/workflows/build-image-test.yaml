@@ -8,7 +8,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Test changed-files
     steps:
       - uses: actions/checkout@v2
         with:
@@ -45,5 +44,5 @@ jobs:
         uses: yuichielectric/dive-action@0.0.4
         with:
           image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
-          config-file: .github/.dive-ci.yaml
+          config-file: ${{ github.workspace }}/.github/.dive-ci.yaml
           github-token: ${{ secrets.GITHUB_TOKEN }}
