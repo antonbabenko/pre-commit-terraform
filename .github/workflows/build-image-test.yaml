@@ -3,7 +3,8 @@ name: "Build Dockerfile if changed and run smoke tests"
 on: [pull_request]
 
 env:
-  IMAGE_TAG: pr-test
+  # IMAGE_TAG: pr-test
+  IMAGE_TAG: v1.67.0
 
 jobs:
   build:
@@ -20,17 +21,17 @@ jobs:
       #     files: |
       #       Dockerfile
 
-      - name: Build if Dockerfile changed
-        # if: steps.changed-files-specific.outputs.any_changed == 'true'
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          build-args: |
-            INSTALL_ALL=true
-          platforms: linux/amd64
-          push: false
-          tags: |
-            ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+      # - name: Build if Dockerfile changed
+      #   # if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: .
+      #     build-args: |
+      #       INSTALL_ALL=true
+      #     platforms: linux/amd64
+      #     push: false
+      #     tags: |
+      #       ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
 
       # - name: Run structure tests
       #   # if: steps.changed-files-specific.outputs.any_changed == 'true'
@@ -41,7 +42,7 @@ jobs:
 
       - name: Dive - check image for waste files
         # if: steps.changed-files-specific.outputs.any_changed == 'true'
-        uses: MaxymVlasov/dive-action@ef814827c329b775ba8a3ba3a27285e345b1334e
+        uses: MaxymVlasov/dive-action@e974821c51ffedcc4409b1e9a1e91f5da9bc6f8f
         with:
           image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
           config-file: ${{ github.workspace }}/.github/.dive-ci.yaml
