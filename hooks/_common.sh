@@ -62,10 +62,10 @@ function common::parse_cmdline {
 #   ARGS (array) arguments that configure wrapped tool behavior
 #######################################################################
 function common::parse_and_export_env_vars {
-  local arg
+  local arg_idx
 
   for arg_idx in "${!ARGS[@]}"; do
-    arg="${ARGS[$arg_idx]}"
+    local arg="${ARGS[$arg_idx]}"
 
     # Repeat until all env vars will be expanded
     while true; do
@@ -73,9 +73,9 @@ function common::parse_and_export_env_vars {
       # shellcheck disable=SC2016 # '${' should not be expanded
       if [[ "$arg" =~ .*'${'[A-Z_][A-Z0-9_]+?'}'.* ]]; then
         # Get `ENV_VAR` from `.*${ENV_VAR}.*`
-        env_var_name=${arg#*$\{}
+        local env_var_name=${arg#*$\{}
         env_var_name=${env_var_name%%\}*}
-        env_var_value="${!env_var_name}"
+        local env_var_value="${!env_var_name}"
         # shellcheck disable=SC2016 # '${' should not be expanded
         common::colorify "green" 'Found ${'"$env_var_name"'} in:        '"'$arg'"
         # Replace env var name with its value.
