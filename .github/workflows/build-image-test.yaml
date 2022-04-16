@@ -41,7 +41,7 @@ jobs:
 
       - name: Dive - check image for waste files
         # if: steps.changed-files-specific.outputs.any_changed == 'true'
-        uses: yuichielectric/dive-action@0.0.4
+        uses: nwmcsween/dive-action@c4fc3636a0bc38cdc9a8ddcd2665affa59a6e732
         with:
           image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
           config-file: ${{ github.workspace }}/.github/.dive-ci.yaml
