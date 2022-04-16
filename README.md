@@ -299,7 +299,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     <!-- markdownlint-disable-next-line no-inline-html -->
     </details>
 
-2. Note, that there can be a maximum of one `--terraform-plan-flags` argument. Example of right usage:
+2. Note that there can be a maximum of one flag inside `--terraform-plan-flags`. Split into several `--args` to avoid using spaces in `--terraform-plan-flags`. Example of right usage:
 
     ```yaml
     - id: infracost_breakdown
