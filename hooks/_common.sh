@@ -62,7 +62,6 @@ function common::parse_cmdline {
 #   ARGS (array) arguments that configure wrapped tool behavior
 #######################################################################
 function common::parse_and_export_env_vars {
-  local -r len=${#ARGS[@]}
   local arg
 
   for arg_idx in "${!ARGS[@]}"; do
