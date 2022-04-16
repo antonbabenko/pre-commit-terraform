@@ -3,8 +3,7 @@ name: "Build Dockerfile if changed and run smoke tests"
 on: [pull_request]
 
 env:
-  # IMAGE_TAG: pr-test
-  IMAGE_TAG: v1.67.0
+  IMAGE_TAG: pr-test
 
 jobs:
   build:
@@ -14,34 +13,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Get changed Dockerfile
-      #   id: changed-files-specific
-      #   uses: tj-actions/changed-files@v13.1
-      #   with:
-      #     files: |
-      #       Dockerfile
+      - name: Get changed Dockerfile
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v13.1
+        with:
+          files: |
+            Dockerfile
 
-      # - name: Build if Dockerfile changed
-      #   # if: steps.changed-files-specific.outputs.any_changed == 'true'
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     context: .
-      #     build-args: |
-      #       INSTALL_ALL=true
-      #     platforms: linux/amd64
-      #     push: false
-      #     tags: |
-      #       ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+      - name: Build if Dockerfile changed
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          build-args: |
+            INSTALL_ALL=true
+          platforms: linux/amd64
+          push: false
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
 
-      # - name: Run structure tests
-      #   # if: steps.changed-files-specific.outputs.any_changed == 'true'
-      #   uses: plexsystems/container-structure-test-action@v0.1.0
-      #   with:
-      #     image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
-      #     config: .github/.container-structure-test-config.yaml
+      - name: Run structure tests
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: plexsystems/container-structure-test-action@v0.1.0
+        with:
+          image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+          config: .github/.container-structure-test-config.yaml
 
       - name: Dive - check image for waste files
-        # if: steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         uses: MaxymVlasov/dive-action@v0.1.0
         with:
           image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
