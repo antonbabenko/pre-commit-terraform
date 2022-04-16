@@ -299,7 +299,17 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     <!-- markdownlint-disable-next-line no-inline-html -->
     </details>
 
-2. (Optionally) Define `cost constrains` the hook should evaluate successfully in order to pass:
+2. `--terraform-plan-flags` usage limitations. Please, set only one flag per `--terraform-plan-flags` or hook will crash:
+
+    ```yaml
+    - id: infracost_breakdown
+      args:
+        - --args=--path=./env/dev
+        - --args=--terraform-plan-flags="-var-file=terraform.tfvars"
+        - --args=--terraform-plan-flags="-var-file=../terraform.tfvars"
+    ```
+
+3. (Optionally) Define `cost constrains` the hook should evaluate successfully in order to pass:
 
     ```yaml
     - id: infracost_breakdown
@@ -346,7 +356,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         * `.diffTotalHourlyCost` (for Infracost version 0.9.12 or newer) or `[.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add` (for Infracost older than 0.9.12)
     * To disable hook color output, set `PRE_COMMIT_COLOR=never` env var.
 
-3. **Docker usage**. In `docker build` or `docker run` command:
+4. **Docker usage**. In `docker build` or `docker run` command:
     * You need to provide [Infracost API key](https://www.infracost.io/docs/integrations/environment_variables/#infracost_api_key) via `-e INFRACOST_API_KEY=<your token>`. By default, it is saved in `~/.config/infracost/credentials.yml`
     * Set `-e INFRACOST_SKIP_UPDATE_CHECK=true` to [skip the Infracost update check](https://www.infracost.io/docs/integrations/environment_variables/#infracost_skip_update_check) if you use this hook as part of your CI/CD pipeline.
 
