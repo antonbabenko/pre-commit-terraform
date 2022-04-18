@@ -6,7 +6,7 @@ set -eo pipefail
 # shellcheck disable=SC2034 # Unused var.
 readonly HOOK_ID='terraform_validate'
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
-readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
@@ -110,7 +110,7 @@ function terraform_validate_ {
 
     if [[ -n "$(find "$dir_path" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
 
-      pushd "$(realpath "$dir_path")" > /dev/null
+      pushd "$(cd "$dir_path" && pwd -P)" > /dev/null
 
       if [ ! -d .terraform ]; then
         set +e

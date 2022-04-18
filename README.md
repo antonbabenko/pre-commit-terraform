@@ -114,10 +114,8 @@ Set `-e PRE_COMMIT_COLOR=never` to disable the color output in `pre-commit`.
 
 <details><summary><b>MacOS</b></summary><br>
 
-[`coreutils`](https://formulae.brew.sh/formula/coreutils) is required for hooks on MacOS (due to use of `realpath`).
-
 ```bash
-brew install pre-commit terraform-docs tflint tfsec coreutils checkov terrascan infracost tfupdate jq
+brew install pre-commit terraform-docs tflint tfsec checkov terrascan infracost tfupdate jq
 ```
 
 </details>
