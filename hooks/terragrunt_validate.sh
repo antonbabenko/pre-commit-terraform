@@ -5,7 +5,7 @@ set -eo pipefail
 # hook ID, see `- id` for details in .pre-commit-hooks.yaml file
 readonly HOOK_ID='terragrunt_validate'
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
-readonly SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
