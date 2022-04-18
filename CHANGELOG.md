@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.68.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.67.0...v1.68.0) (2022-04-18)
+
+
+### Features
+
+* Removed `coreutils` (realpath) from dependencies for MacOS ([#368](https://github.com/antonbabenko/pre-commit-terraform/issues/368)) ([944a2e5](https://github.com/antonbabenko/pre-commit-terraform/commit/944a2e5fefd50df6130c68bcaa4beb4d770c11b9))
+
 # [1.67.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.66.0...v1.67.0) (2022-04-15)
 
 
