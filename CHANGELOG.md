@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.68.0...v1.68.1) (2022-04-20)
+
+
+### Bug Fixes
+
+* Fixed git fatal error in Dockerfile ([#372](https://github.com/antonbabenko/pre-commit-terraform/issues/372)) ([c3f8dd4](https://github.com/antonbabenko/pre-commit-terraform/commit/c3f8dd40e6d6867c661e2495f8194ee7bd9c7fdd))
+
 # [1.68.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.67.0...v1.68.0) (2022-04-18)
 
 
