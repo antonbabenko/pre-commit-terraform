@@ -1,5 +1,10 @@
 schemaVersion: '2.0.0'
 commandTests:
+  - name: "git"
+    command: "git"
+    args: ["--version"]
+    expectedOutput: ["^git version 2\\.[0-9]+\\.[0-9]+\\n$"]
+
   - name: "pre-commit"
     command: "pre-commit"
     args: ["-V"]

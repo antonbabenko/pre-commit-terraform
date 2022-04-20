@@ -182,7 +182,10 @@ RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = 
     ; fi && \
     if [ "$(grep -o '^infracost SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
         apk add --no-cache jq=~1 \
-    ; fi
+    ; fi && \
+    # Fix git runtime fatal:
+    # unsafe repository ('/lint' is owned by someone else)
+    git config --global --add safe.directory /lint
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
