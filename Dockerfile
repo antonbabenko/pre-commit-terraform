@@ -161,7 +161,8 @@ RUN apk add --no-cache \
     # pre-commit deps
     git=~2 \
     # All hooks deps
-    bash=~5
+    bash=~5 \
+    alpine-sdk
 
 # Copy tools
 COPY --from=builder \
