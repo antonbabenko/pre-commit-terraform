@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.69.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.68.1...v1.69.0) (2022-04-26)
+
+
+### Features
+
+* Allow env vars expansion in `--args` section for all hooks ([#363](https://github.com/antonbabenko/pre-commit-terraform/issues/363)) ([caa01c3](https://github.com/antonbabenko/pre-commit-terraform/commit/caa01c30b33a5a829b75ee6a9e9e08a534a42216))
+
 ## [1.68.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.68.0...v1.68.1) (2022-04-20)
 
 
