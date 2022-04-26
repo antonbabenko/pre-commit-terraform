@@ -36,6 +36,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [4. Run](#4-run)
 * [Available Hooks](#available-hooks)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
+  * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
   * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
   * [infracost_breakdown](#infracost_breakdown)
   * [terraform_docs](#terraform_docs)
@@ -237,6 +238,24 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
 ## Hooks usage notes and examples
+
+### All hooks: Usage of environment variables in `--args`
+
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+
+You can use environment variables for the `--args` section.  
+Note: You _must_ use the `${ENV_VAR}` definition, `$ENV_VAR` will not expand.
+
+Config example:
+
+```yaml
+- id: terraform_tflint
+  args:
+  - --args=--config=${CONFIG_NAME}.${CONFIG_EXT}
+  - --args=--module
+```
+
+If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --module`.
 
 ### checkov (deprecated) and terraform_checkov
 
