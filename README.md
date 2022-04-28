@@ -45,11 +45,12 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform_tflint](#terraform_tflint)
   * [terraform_tfsec](#terraform_tfsec)
   * [terraform_validate](#terraform_validate)
+  * [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
 * [Authors](#authors)
 * [License](#license)
-  * [Additional terms of use for users from Russia and Belarus](#additional-terms-of-use-for-users-from-russia-and-belarus)
+  * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
 
 ## How to install
 
@@ -67,6 +68,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
 * [`jq`](https://github.com/stedolan/jq) required for `infracost_breakdown` hook.
 * [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
+* [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -104,6 +106,7 @@ docker build -t pre-commit-terraform \
     --build-arg TFLINT_VERSION=0.31.0 \
     --build-arg TFSEC_VERSION=latest \
     --build-arg TFUPDATE_VERSION=latest \
+    --build-arg HCLEDIT_VERSION=latest \
     .
 ```
 
@@ -115,7 +118,7 @@ Set `-e PRE_COMMIT_COLOR=never` to disable the color output in `pre-commit`.
 <details><summary><b>MacOS</b></summary><br>
 
 ```bash
-brew install pre-commit terraform-docs tflint tfsec checkov terrascan infracost tfupdate jq
+brew install pre-commit terraform-docs tflint tfsec checkov terrascan infracost tfupdate hcledit jq
 ```
 
 </details>
@@ -137,6 +140,7 @@ curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/late
 sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
 curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > hcledit.tar.gz && tar -xzf hcledit.tar.gz hcledit && rm hcledit.tar.gz && sudo mv hcledit /usr/bin/
 ```
 
 </details>
@@ -157,6 +161,7 @@ curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/late
 sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
 curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > hcledit.tar.gz && tar -xzf hcledit.tar.gz hcledit && rm hcledit.tar.gz && sudo mv hcledit /usr/bin/
 ```
 
 </details>
@@ -217,8 +222,8 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 
 <!-- markdownlint-disable no-inline-html -->
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup>      |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `checkov` and `terraform_checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov-deprecated-and-terraform_checkov)                                                                    | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
+| ------------------------------------------------------ |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| `checkov` and `terraform_checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov-deprecated-and-terraform_checkov)                                                         | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
 | `infracost_breakdown`                                  | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown)                                                                                                                 | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key) |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md. **DEPRECATED**, see [#248](https://github.com/antonbabenko/pre-commit-terraform/issues/248). [Hook notes](#terraform_docs_replace-deprecated)                              | `python3`, `terraform-docs`                                                          |
@@ -230,6 +235,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | -                                                                                    |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
+| `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan](https://github.com/accurics/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                       | `terrascan`                                                                          |
 | `tfupdate`                                             | [tfupdate](https://github.com/minamijoyo/tfupdate) Update version constraints of Terraform core, providers, and modules. [Hook notes](#tfupdate)                                                                                             | `tfupdate`                                                                           |
 <!-- markdownlint-enable no-inline-html -->
@@ -632,6 +638,27 @@ Example:
 
    **Note:** The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
 
+### terraform_wrapper_module_for_each
+
+`terraform_wrapper_module_for_each` generates module wrappers for Terraform modules (useful for Terragrunt where `for_each` is not supported). When using this hook without arguments it will create wrappers for the root module and all modules available in "modules" directory.
+
+You may want to customize some of the options:
+
+1. `--module-dir=...` - Specify a single directory to process. Values: "." (means just root module), "modules/iam-user" (a single module), or empty (means include all submodules found in "modules/*").
+2. `--module-repo-org=...` - Module repository organization.
+3. `--module-repo-shortname=...` - Short name of the repository (e.g. "s3-bucket").
+4. `--module-repo-provider=...` - Name of the repository provider (e.g. "aws" or "google").
+
+Sample configuration:
+
+```yaml
+- id: terraform_wrapper_module_for_each
+  args:
+    - --args=--module-dir=.   # Process only root module
+    - --args=--dry-run        # No files will be created/updated
+    - --args=--verbose        # Verbose output
+```
+
 ### terrascan
 
 1. `terrascan` supports custom arguments so you can pass supported flags like `--non-recursive` and `--policy-type` to disable recursive inspection and set the policy type respectively:
@@ -690,9 +717,7 @@ This repository is managed by [Anton Babenko](https://github.com/antonbabenko) w
 
 MIT licensed. See [LICENSE](LICENSE) for full details.
 
-### Additional terms of use for users from Russia and Belarus
-
-By using the code provided in this repository you agree with the following:
+### Additional information for users from Russia and Belarus
 
 * Russia has [illegally annexed Crimea in 2014](https://en.wikipedia.org/wiki/Annexation_of_Crimea_by_the_Russian_Federation) and [brought the war in Donbas](https://en.wikipedia.org/wiki/War_in_Donbas) followed by [full-scale invasion of Ukraine in 2022](https://en.wikipedia.org/wiki/2022_Russian_invasion_of_Ukraine).
 * Russia has brought sorrow and devastations to millions of Ukrainians, killed hundreds of innocent people, damaged thousands of buildings, and forced several million people to flee.
