@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.70.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.70.0...v1.70.1) (2022-04-28)
+
+
+### Bug Fixes
+
+* Fixed `tfupdate` to work in all cases, not only `pre-commit run --all` ([#375](https://github.com/antonbabenko/pre-commit-terraform/issues/375)) ([297cc75](https://github.com/antonbabenko/pre-commit-terraform/commit/297cc757879f25bed6d3adf3b6254cf0d37b17c2))
+
 # [1.70.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.69.0...v1.70.0) (2022-04-28)
 
 
