@@ -56,6 +56,43 @@ function common::parse_cmdline {
 }
 
 #######################################################################
+# Expand environment variables definition into their values in '--args'.
+# Support expansion only for ${ENV_VAR} vars, not $ENV_VAR.
+# Globals (modify):
+#   ARGS (array) arguments that configure wrapped tool behavior
+#######################################################################
+function common::parse_and_export_env_vars {
+  local arg_idx
+
+  for arg_idx in "${!ARGS[@]}"; do
+    local arg="${ARGS[$arg_idx]}"
+
+    # Repeat until all env vars will be expanded
+    while true; do
+      # Check if at least 1 env var exists in `$arg`
+      # shellcheck disable=SC2016 # '${' should not be expanded
+      if [[ "$arg" =~ .*'${'[A-Z_][A-Z0-9_]+?'}'.* ]]; then
+        # Get `ENV_VAR` from `.*${ENV_VAR}.*`
+        local env_var_name=${arg#*$\{}
+        env_var_name=${env_var_name%%\}*}
+        local env_var_value="${!env_var_name}"
+        # shellcheck disable=SC2016 # '${' should not be expanded
+        common::colorify "green" 'Found ${'"$env_var_name"'} in:        '"'$arg'"
+        # Replace env var name with its value.
+        # `$arg` will be checked in `if` conditional, `$ARGS` will be used in the next functions.
+        # shellcheck disable=SC2016 # '${' should not be expanded
+        arg=${arg/'${'$env_var_name'}'/$env_var_value}
+        ARGS[$arg_idx]=$arg
+        # shellcheck disable=SC2016 # '${' should not be expanded
+        common::colorify "green" 'After ${'"$env_var_name"'} expansion: '"'$arg'\n"
+        continue
+      fi
+      break
+    done
+  done
+}
+
+#######################################################################
 # This is a workaround to improve performance when all files are passed
 # See: https://github.com/antonbabenko/pre-commit-terraform/issues/309
 # Arguments:

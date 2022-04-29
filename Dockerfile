@@ -174,7 +174,10 @@ RUN apk add --no-cache \
     # pre-commit deps
     git=~2 \
     # All hooks deps
-    bash=~5
+    bash=~5 \
+    # pre-commit-hooks deps: https://github.com/pre-commit/pre-commit-hooks
+    musl-dev=~1 \
+    gcc=~10
 
 # Copy tools
 COPY --from=builder \

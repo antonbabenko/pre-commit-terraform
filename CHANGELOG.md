@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.70.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.70.0...v1.70.1) (2022-04-28)
+
+
+### Bug Fixes
+
+* Fixed `tfupdate` to work in all cases, not only `pre-commit run --all` ([#375](https://github.com/antonbabenko/pre-commit-terraform/issues/375)) ([297cc75](https://github.com/antonbabenko/pre-commit-terraform/commit/297cc757879f25bed6d3adf3b6254cf0d37b17c2))
+
+# [1.70.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.69.0...v1.70.0) (2022-04-28)
+
+
+### Features
+
+* Add support for `pre-commit/pre-commit-hooks` in Docker image ([#374](https://github.com/antonbabenko/pre-commit-terraform/issues/374)) ([017da74](https://github.com/antonbabenko/pre-commit-terraform/commit/017da745d0817f94b44c3c773e4aa8d42a80aa09))
+
+# [1.69.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.68.1...v1.69.0) (2022-04-26)
+
+
+### Features
+
+* Allow env vars expansion in `--args` section for all hooks ([#363](https://github.com/antonbabenko/pre-commit-terraform/issues/363)) ([caa01c3](https://github.com/antonbabenko/pre-commit-terraform/commit/caa01c30b33a5a829b75ee6a9e9e08a534a42216))
+
 ## [1.68.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.68.0...v1.68.1) (2022-04-20)
 
 

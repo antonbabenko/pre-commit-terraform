@@ -12,6 +12,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
+  common::parse_and_export_env_vars
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
 }
@@ -32,7 +33,7 @@ function per_dir_hook_unique_part {
 
   # pass the arguments to hook
   # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  tfupdate ${args[@]} "${dir_path}"
+  tfupdate ${args[@]} .
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
