@@ -664,7 +664,7 @@ Example:
 You may want to customize some of the options:
 
 1. `--module-dir=...` - Specify a single directory to process. Values: "." (means just root module), "modules/iam-user" (a single module), or empty (means include all submodules found in "modules/*").
-2. `--module-repo-org=...` - Module repository organization.
+2. `--module-repo-org=...` - Module repository organization (e.g. "terraform-aws-modules").
 3. `--module-repo-shortname=...` - Short name of the repository (e.g. "s3-bucket").
 4. `--module-repo-provider=...` - Name of the repository provider (e.g. "aws" or "google").
 
