@@ -4,7 +4,8 @@ set -eo pipefail
 # globals variables
 # hook ID, see `- id` for details in .pre-commit-hooks.yaml file
 # shellcheck disable=SC2034 # Unused var.
-readonly HOOK_ID='terraform_wrapper_for_each_module'
+HOOK_ID=${0##*/}
+readonly HOOK_ID=${HOOK_ID%%.*}
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
@@ -13,6 +14,10 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
+  common::parse_and_export_env_vars
+
+  check_dependencies
+
   # shellcheck disable=SC2153 # False positive
   terraform_module_wrapper_ "${ARGS[*]}"
 }
@@ -139,26 +144,26 @@ inputs = {
 }
 ```'
 
-terraform_module_wrapper_() {
+function terraform_module_wrapper_() {
   local args
   read -r -a args <<< "$1"
-
-  check_dependencies
 
   local root_dir
   local module_dir="" # values: empty (default), "." (just root module), or a single module (e.g. "modules/iam-user")
   local wrapper_dir="wrappers"
-  local wrapper_relative_source_path="../"      # From "wrappers" to root_dir. @todo: Count relative path for wrapper_dir with multiple directories
-  local module_repo_org="terraform-aws-modules" # @todo: set all module_repo_* values from env vars, if specified
+  local wrapper_relative_source_path="../" # From "wrappers" to root_dir.
+  local module_repo_org
   local module_repo_name
   local module_repo_shortname
-  local module_repo_provider="aws"
+  local module_repo_provider
   local dry_run="false"
   local verbose="false"
 
   root_dir=$(git rev-parse --show-toplevel 2> /dev/null || pwd)
-  module_repo_name=$(basename "$root_dir")
-  module_repo_shortname="${module_repo_name//terraform-aws-/}"
+  module_repo_org="terraform-aws-modules"
+  module_repo_name=${root_dir##*/}
+  module_repo_shortname="${module_repo_name#terraform-aws-}"
+  module_repo_provider="aws"
 
   for argv in "${args[@]}"; do
 
@@ -193,83 +198,93 @@ terraform_module_wrapper_() {
         verbose="true"
         ;;
       *)
-        echo "ERROR: Unrecognized argument: $key"
-        echo "Hook ID: $HOOK_ID."
-        echo "Generate Terraform module wrapper. Available arguments:"
-        echo "--root-dir=...                - Root dir of the repository (Optional)"
-        echo "--module-dir=...              - Single module directory. Values: \".\" (means just root module), \"modules/iam-user\" (a single module), or empty (means include all submodules found in \"modules/*\"). Default: \"${module_dir}\". (Optional)"
-        echo "--wrapper-dir=...             - Directory where 'wrappers' should be saved. Default: \"${wrapper_dir}\". (Optional)"
-        echo "--module-repo-org=...         - Module repository organization (e.g., 'terraform-aws-modules'). (Optional)"
-        echo "--module-repo-shortname=...   - Short name of the repository (e.g., for 'terraform-aws-s3-bucket' it should be 's3-bucket'). (Optional)"
-        echo "--module-repo-provider=...    - Name of the repository provider (e.g., for 'terraform-aws-s3-bucket' it should be 'aws'). (Optional)"
-        echo "--dry-run                     - Whether to run in dry mode. By default, files will be overwritten."
-        echo "--verbose                     - Show verbose output."
-        echo
-        echo "Example:"
-        echo "--module-dir=modules/object   - Generate wrapper for one specific submodule."
-        echo "--module-dir=.                - Generate wrapper for the root module."
-        echo "--module-repo-org=terraform-google-modules --module-repo-shortname=network --module-repo-provider=google  - Generate wrappers for repository available by name \"terraform-google-modules/network/google\" in the Terraform registry and it includes all modules (root and in \"modules/*\")."
+        cat << EOF
+ERROR: Unrecognized argument: $key
+Hook ID: $HOOK_ID.
+Generate Terraform module wrapper. Available arguments:
+--root-dir=...                - Root dir of the repository (Optional)
+--module-dir=...              - Single module directory. Options: "." (means just root module),
+                                "modules/iam-user" (a single module), or empty (means include all
+                                submodules found in "modules/*"). Default: "${module_dir}". (Optional)
+--wrapper-dir=...             - Directory where 'wrappers' should be saved. Default: "${wrapper_dir}". (Optional)
+--module-repo-org=...         - Module repository organization (e.g., 'terraform-aws-modules'). (Optional)
+--module-repo-shortname=...   - Short name of the repository (e.g., for 'terraform-aws-s3-bucket' it should be 's3-bucket'). (Optional)
+--module-repo-provider=...    - Name of the repository provider (e.g., for 'terraform-aws-s3-bucket' it should be 'aws'). (Optional)
+--dry-run                     - Whether to run in dry mode. If not specified, wrapper files will be overwritten.
+--verbose                     - Show verbose output.
+
+Example:
+--module-dir=modules/object   - Generate wrapper for one specific submodule.
+--module-dir=.                - Generate wrapper for the root module.
+--module-repo-org=terraform-google-modules --module-repo-shortname=network --module-repo-provider=google  - Generate wrappers for repository available by name "terraform-google-modules/network/google" in the Terraform registry and it includes all modules (root and in "modules/*").
+EOF
         exit 1
         ;;
     esac
 
   done
 
-  if [[ -z "$root_dir" ]]; then
+  if [[ ! $root_dir ]]; then
     echo "--root-dir can't be empty. Remove it to use default value."
     exit 1
   fi
 
-  if [[ -z "$wrapper_dir" ]]; then
+  if [[ ! $wrapper_dir ]]; then
     echo "--wrapper-dir can't be empty. Remove it to use default value."
     exit 1
   fi
 
-  if [[ -z "$module_repo_org" ]]; then
+  if [[ ! $module_repo_org ]]; then
     echo "--module-repo-org can't be empty. Remove it to use default value."
     exit 1
   fi
 
-  if [[ -z "$module_repo_shortname" ]]; then
+  if [[ ! $module_repo_shortname ]]; then
     echo "--module-repo-shortname can't be empty. It should be part of full repo name (eg, s3-bucket)."
     exit 1
   fi
 
-  if [[ -z "$module_repo_provider" ]]; then
+  if [[ ! $module_repo_provider ]]; then
     echo "--module-repo-provider can't be empty. It should be name of the provider used by the module (eg, aws)."
     exit 1
   fi
 
-  if [ ! -d "$root_dir" ]; then
+  if [[ ! -d "$root_dir" ]]; then
     echo "Root directory $root_dir does not exist!"
     exit 1
   fi
 
-  declare -a all_module_dirs=("./")
+  OLD_IFS="$IFS"
+  IFS=$'\n'
+
+  all_module_dirs=("./")
   # Find all modules directories if nothing was provided via "--module-dir" argument
-  if [[ -z "$module_dir" ]]; then
+  if [[ ! $module_dir ]]; then
     # shellcheck disable=SC2207
-    all_module_dirs+=($(cd "${root_dir}" && find . -path '**/modules/*' -maxdepth 2 -type d -print))
+    all_module_dirs+=($(cd "${root_dir}" && find . -maxdepth 2 -path '**/modules/*' -type d -print))
   else
     all_module_dirs=("$module_dir")
   fi
 
+  IFS="$OLD_IFS"
+
   for module_dir in "${all_module_dirs[@]}"; do
 
     # Remove "./" from the "./modules/iam-user" or "./"
-    module_dir="${module_dir//.\//}"
+    module_dir="${module_dir/.\//}"
 
     full_module_dir="${root_dir}/${module_dir}"
     # echo "FULL=${full_module_dir}"
 
-    if [ ! -d "$full_module_dir" ]; then
-      echo "Module directory $full_module_dir does not exist!"
+    if [[ ! -d "$full_module_dir" ]]; then
+      echo "Module directory \"$full_module_dir\" does not exist!"
       exit 1
     fi
 
     # Remove "modules/" from "modules/iam-user"
-    module_name="${module_dir//modules\//}"
-    if [ "$module_name" == "" ]; then
+    #    module_name="${module_dir//modules\//}"
+    module_name="${module_dir#modules/}"
+    if [[ ! $module_name ]]; then
       wrapper_title="Wrapper for the root module"
       wrapper_path="${wrapper_dir}"
     else
@@ -280,20 +295,20 @@ terraform_module_wrapper_() {
     # Wrappers will be stored in "wrappers/{module_name}"
     output_dir="${root_dir}/${wrapper_dir}/${module_name}"
 
-    [ ! -d "$output_dir" ] && mkdir -p "$output_dir"
+    [[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
 
     # Calculate relative depth for module source by number of slashes
     module_depth="${module_dir//[^\/]/}"
 
     local relative_source_path=$wrapper_relative_source_path
 
-    for _ in $(seq 0 ${#module_depth} | tail -n +2); do
+    for ((c = 0; c < ${#module_depth}; c++)); do
       relative_source_path+="../"
     done
 
     create_tmp_file_tf
 
-    if [ "$verbose" == "true" ]; then
+    if [[ "$verbose" == "true" ]]; then
       echo "Root directory: $root_dir"
       echo "Module directory: $module_dir"
       echo "Output directory: $output_dir"
@@ -305,18 +320,18 @@ terraform_module_wrapper_() {
     # shellcheck disable=SC2207
     all_tf_content=$(find "${full_module_dir}" -name '*.tf' -maxdepth 1 -type f -exec cat {} +)
 
-    if [[ -z "$all_tf_content" ]]; then
+    if [[ ! $all_tf_content ]]; then
       common::colorify "yellow" "Skipping ${full_module_dir} because there are no *.tf files."
       continue
     fi
 
     # Get names of module variables in all terraform files
     # shellcheck disable=SC2207
-    declare -a module_vars=($(echo "$all_tf_content" | hcledit block list | grep variable. | cut -d'.' -f 2))
+    module_vars=($(echo "$all_tf_content" | hcledit block list | grep variable. | cut -d'.' -f 2))
 
     # Get names of module outputs in all terraform files
     # shellcheck disable=SC2207
-    declare -a module_outputs=($(echo "$all_tf_content" | hcledit block list | grep output. | cut -d'.' -f 2))
+    module_outputs=($(echo "$all_tf_content" | hcledit block list | grep output. | cut -d'.' -f 2))
 
     # Looking for sensitive output
     local wrapper_output_sensitive="# sensitive = false  # No sensitive module output found"
@@ -324,7 +339,7 @@ terraform_module_wrapper_() {
       module_output_sensitive=$(echo "$all_tf_content" | hcledit attribute get "output.${module_output}.sensitive")
 
       # At least one output is sensitive - the wrapper's output should be sensitive, too
-      if [ "$module_output_sensitive" == "true" ]; then
+      if [[ "$module_output_sensitive" == "true" ]]; then
         wrapper_output_sensitive="sensitive   = true  # At least one sensitive module output (${module_output}) found (requires Terraform 0.14+)"
         break
       fi
@@ -342,9 +357,9 @@ terraform_module_wrapper_() {
       var_default=$(echo "$all_tf_content" | hcledit attribute get "variable.${module_var}.default")
 
       # Empty default means that the variable is required
-      if [ "$var_default" == "" ]; then
+      if [[ ! $var_default ]]; then
         var_value="try(each.value.${module_var}, var.defaults.${module_var})"
-      elif [ "$var_default" == "{" ]; then
+      elif [[ "$var_default" == "{" ]]; then
         # BUG in hcledit ( https://github.com/minamijoyo/hcledit/issues/31 ) which breaks on inline comments
         # https://github.com/terraform-aws-modules/terraform-aws-security-group/blob/0bd31aa88339194efff470d3b3f58705bd008db0/rules.tf#L8
         # As a result, wrappers in terraform-aws-security-group module are missing values of the rules variable and is not useful. :(
@@ -358,12 +373,10 @@ terraform_module_wrapper_() {
       newline=""
     done
 
-    if [ "$verbose" == "true" ]; then
-      cat "$tmp_file_tf"
-    fi
+    [[ "$verbose" == "true" ]] && cat "$tmp_file_tf"
 
-    if [ "$dry_run" == "false" ]; then
-      common::colorify "green" "Saving files into ${output_dir}"
+    if [[ "$dry_run" == "false" ]]; then
+      common::colorify "green" "Saving files into \"${output_dir}\""
 
       mv "$tmp_file_tf" "${output_dir}/main.tf"
 
@@ -375,11 +388,13 @@ terraform_module_wrapper_() {
       rm -rf "${output_dir}/outputs.tf.bak"
 
       echo "$CONTENT_README" > "${output_dir}/README.md"
-      sed -i.bak "s#WRAPPER_TITLE#${wrapper_title}#g" "${output_dir}/README.md"
-      sed -i.bak "s#WRAPPER_PATH#${wrapper_path}#g" "${output_dir}/README.md"
-      sed -i.bak "s#MODULE_REPO_ORG#${module_repo_org}#g" "${output_dir}/README.md"
-      sed -i.bak "s#MODULE_REPO_SHORTNAME#${module_repo_shortname}#g" "${output_dir}/README.md"
-      sed -i.bak "s#MODULE_REPO_PROVIDER#${module_repo_provider}#g" "${output_dir}/README.md"
+      sed -i.bak -e "
+      s#WRAPPER_TITLE#${wrapper_title}#g
+      s#WRAPPER_PATH#${wrapper_path}#g
+      s#MODULE_REPO_ORG#${module_repo_org}#g
+      s#MODULE_REPO_SHORTNAME#${module_repo_shortname}#g
+      s#MODULE_REPO_PROVIDER#${module_repo_provider}#g
+      " "${output_dir}/README.md"
       rm -rf "${output_dir}/README.md.bak"
     else
       common::colorify "yellow" "There is nothing to save. Remove --dry-run flag to write files."
@@ -389,15 +404,15 @@ terraform_module_wrapper_() {
 
 }
 
-check_dependencies() {
-  if [[ ! $(command -v hcledit) ]]; then
-    echo "ERROR: The binary 'hcledit' is required by this hook but is not installed or in the system's PATH."
+function check_dependencies() {
+  if ! command -v hcledit > /dev/null; then
+    echo "ERROR: The binary 'hcledit' is required by this hook but is not installed or is not in the system's PATH."
     echo "Check documentation: https://github.com/minamijoyo/hcledit"
     exit 1
   fi
 }
 
-create_tmp_file_tf() {
+function create_tmp_file_tf() {
   # Can't append extension for mktemp, so renaming instead
   tmp_file=$(mktemp "${TMPDIR:-/tmp}/tfwrapper-XXXXXXXXXX")
   mv "$tmp_file" "$tmp_file.tf"
@@ -406,4 +421,4 @@ create_tmp_file_tf() {
   echo "$CONTENT_MAIN_TF" > "$tmp_file_tf"
 }
 
-[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
+[[ "${BASH_SOURCE[0]}" != "$0" ]] || main "$@"
