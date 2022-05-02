@@ -113,6 +113,17 @@
   exclude: \.terraform\/.*$
   require_serial: true
 
+- id: terraform_wrapper_module_for_each
+  name: Terraform wrapper with for_each in module
+  description: Generate Terraform wrappers with for_each in module.
+  entry: hooks/terraform_wrapper_module_for_each.sh
+  language: script
+  pass_filenames: false
+  always_run: false
+  require_serial: true
+  files: \.tf$
+  exclude: \.terraform\/.*$
+
 - id: terrascan
   name: terrascan
   description: Runs terrascan on Terraform templates.
