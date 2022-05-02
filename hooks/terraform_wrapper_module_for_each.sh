@@ -144,7 +144,7 @@ inputs = {
 }
 ```'
 
-function terraform_module_wrapper_() {
+function terraform_module_wrapper_ {
   local args
   read -r -a args <<< "$1"
 
@@ -169,8 +169,8 @@ function terraform_module_wrapper_() {
 
     IFS="=" read -r -a onearg <<< "$argv"
 
-    local key="${onearg[0]}"
-    local value="${onearg[1]}"
+    local key="${argv%%=*}"
+    local value="${argv#*=}"
 
     case "$key" in
       --root-dir)
@@ -404,7 +404,7 @@ EOF
 
 }
 
-function check_dependencies() {
+function check_dependencies {
   if ! command -v hcledit > /dev/null; then
     echo "ERROR: The binary 'hcledit' is required by this hook but is not installed or is not in the system's PATH."
     echo "Check documentation: https://github.com/minamijoyo/hcledit"
@@ -412,7 +412,7 @@ function check_dependencies() {
   fi
 }
 
-function create_tmp_file_tf() {
+function create_tmp_file_tf {
   # Can't append extension for mktemp, so renaming instead
   tmp_file=$(mktemp "${TMPDIR:-/tmp}/tfwrapper-XXXXXXXXXX")
   mv "$tmp_file" "$tmp_file.tf"
