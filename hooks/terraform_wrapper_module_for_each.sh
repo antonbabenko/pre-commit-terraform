@@ -167,8 +167,6 @@ function terraform_module_wrapper_ {
 
   for argv in "${args[@]}"; do
 
-    IFS="=" read -r -a onearg <<< "$argv"
-
     local key="${argv%%=*}"
     local value="${argv#*=}"
 
