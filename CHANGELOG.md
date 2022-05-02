@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.71.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.70.1...v1.71.0) (2022-05-02)
+
+
+### Features
+
+* Added terraform_wrapper_module_for_each hook ([#376](https://github.com/antonbabenko/pre-commit-terraform/issues/376)) ([e4e9a73](https://github.com/antonbabenko/pre-commit-terraform/commit/e4e9a73d7eb8182bcad5ffca17876d1c0a4a8a49))
+
 ## [1.70.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.70.0...v1.70.1) (2022-04-28)
 
 
