@@ -417,6 +417,8 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
       args:
         - --args=--config=.terraform-docs.yml
 
+    Note: Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
+
 5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
 
     ```yaml
