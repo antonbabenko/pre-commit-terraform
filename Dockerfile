@@ -103,7 +103,7 @@ RUN . /.env \
 RUN . /.env && \
     if [ "$TERRASCAN_VERSION" != "false" ]; then \
     ( \
-        TERRASCAN_RELEASES="https://api.github.com/repos/accurics/terrascan/releases" && \
+        TERRASCAN_RELEASES="https://api.github.com/repos/tenable/terrascan/releases" && \
         [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
         || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
     ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
