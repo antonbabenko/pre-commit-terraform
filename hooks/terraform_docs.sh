@@ -141,7 +141,7 @@ function terraform_docs {
   local tf_docs_formatter="md"
   if [[ "$args" == *"--config"* ]]; then
     # Allow config file to specify formatter
-    tf_docs_formatter=""
+    unset tf_docs_formatter
   fi
 
   local dir_path
