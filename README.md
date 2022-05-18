@@ -416,6 +416,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     - id: terraform_docs
       args:
         - --args=--config=.terraform-docs.yml
+    ```
 
     Note: Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
