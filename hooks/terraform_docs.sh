@@ -136,13 +136,9 @@ function terraform_docs {
   done
 
   #
-  # Decide formatter to use
+  # Override formatter if no config file set
   #
-  local tf_docs_formatter="md"
-  if [[ "$args" == *"--config"* ]]; then
-    # Allow config file to specify formatter
-    unset tf_docs_formatter
-  fi
+  [[ "$args" != *"--config"* ]] && local tf_docs_formatter="md"
 
   local dir_path
   for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
