@@ -138,7 +138,7 @@ function terraform_docs {
   #
   # Override formatter if no config file set
   #
-  [[ "$args" != *"--config"* ]] && local tf_docs_formatter="md"
+  [[ ! $args =~ (^|[[:space:]])--config=[^[:space:]]+ ]] && local tf_docs_formatter="md"
 
   local dir_path
   for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
