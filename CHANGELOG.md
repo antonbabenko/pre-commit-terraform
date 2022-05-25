@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.72.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.71.0...v1.72.0) (2022-05-25)
+
+
+### Features
+
+* When a config file is given, do not specify formatter on cli (terraform_docs) ([#386](https://github.com/antonbabenko/pre-commit-terraform/issues/386)) ([962054b](https://github.com/antonbabenko/pre-commit-terraform/commit/962054b923e7a4fff5338fd3f5cb76f957797dd3))
+
 # [1.71.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.70.1...v1.71.0) (2022-05-02)
 
 
