@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.72.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.72.0...v1.72.1) (2022-05-25)
+
+
+### Bug Fixes
+
+* Fixed `terraform_fmt` with `tfenv`, when `terraform` default version is not specified ([#389](https://github.com/antonbabenko/pre-commit-terraform/issues/389)) ([1b9476a](https://github.com/antonbabenko/pre-commit-terraform/commit/1b9476a2798f49c474cb59e812ddaf66b2cc6ca2))
+
 # [1.72.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.71.0...v1.72.0) (2022-05-25)
 
 
