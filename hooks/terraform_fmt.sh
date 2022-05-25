@@ -42,11 +42,7 @@ function terraform_fmt_ {
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
     dir_paths[index]=$(dirname "$file_with_path")
-    # TODO Unique part
-    if [[ "$file_with_path" == *".tfvars" ]]; then
-      tfvars_files+=("$file_with_path")
-    fi
-    #? End for unique part
+
     ((index += 1))
   done
 
