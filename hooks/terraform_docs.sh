@@ -135,6 +135,11 @@ function terraform_docs {
     esac
   done
 
+  #
+  # Override formatter if no config file set
+  #
+  [[ "$args" != *"--config="* ]] && local tf_docs_formatter="md"
+
   local dir_path
   for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
@@ -181,7 +186,7 @@ function terraform_docs {
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs md $args ./ > "$tmp_file"
+      terraform-docs $tf_docs_formatter $args ./ > "$tmp_file"
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
@@ -192,7 +197,7 @@ function terraform_docs {
 
       awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
       # shellcheck disable=SC2086
-      terraform-docs md $args "$tmp_file_docs_tf" > "$tmp_file"
+      terraform-docs $tf_docs_formatter $args "$tmp_file_docs_tf" > "$tmp_file"
       rm -f "$tmp_file_docs_tf"
     fi
 
