@@ -70,19 +70,6 @@ function terraform_fmt_ {
 
     popd > /dev/null
   done
-
-  # TODO: Unique part
-  # terraform.tfvars are excluded by `terraform fmt`
-  for tfvars_file in "${tfvars_files[@]}"; do
-    tfvars_file="${tfvars_file//__REPLACED__SPACE__/ }"
-
-    terraform fmt "${ARGS[@]}" "$tfvars_file"
-    local exit_code=$?
-    if [ $exit_code -ne 0 ]; then
-      final_exit_code=$exit_code
-    fi
-  done
-  #? End for unique part
   # restore errexit if it was set before the "for" loop
   [[ $ERREXIT_IS_SET ]] && set -e
   # return the hook final exit_code
