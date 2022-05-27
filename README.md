@@ -322,14 +322,14 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     <!-- markdownlint-disable-next-line no-inline-html -->
     </details>
 
-2. Note that there can be a maximum of one flag inside `--terraform-plan-flags`. Split into several `--args` to avoid using spaces in `--terraform-plan-flags`. Example of right usage:
+2. Note that spaces are not allowed in `--args`, so you need to split it, like this:
 
     ```yaml
     - id: infracost_breakdown
       args:
         - --args=--path=./env/dev
-        - --args=--terraform-plan-flags="-var-file=terraform.tfvars"
-        - --args=--terraform-plan-flags="-var-file=../terraform.tfvars"
+        - --args=--terraform-var-file="terraform.tfvars"
+        - --args=--terraform-var-file="../terraform.tfvars"
     ```
 
 3. (Optionally) Define `cost constrains` the hook should evaluate successfully in order to pass:
