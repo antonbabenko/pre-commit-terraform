@@ -171,10 +171,10 @@ curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/late
 
 We highly recommend using [WSL/WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) with Ubuntu and following the Ubuntu installation guide. Or use Docker.
 
-> Note: We (maintainers) can't help you with not reproducible in Linux/Mac issues.  
+> Note: We won't be able to help with issues that can't be reproduced in Linux/Mac.
 > So, try to find a working solution and send PR before open an issue.
 
-Otherwise, you can try, as specified in [this gist](https://gist.github.com/etiennejeanneaurevolve/1ed387dc73c5d4cb53ab313049587d09), next:
+Otherwise, you can follow [this gist](https://gist.github.com/etiennejeanneaurevolve/1ed387dc73c5d4cb53ab313049587d09):
 
 1. Install [`git`](https://git-scm.com/downloads) and [`gitbash`](https://gitforwindows.org/)
 2. Install [Python 3](https://www.python.org/downloads/)
