@@ -167,6 +167,26 @@ curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/late
 
 </details>
 
+<details><summary><b>Windows 10/11</b></summary>
+
+We highly recommend using [WSL/WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) with Ubuntu and following the Ubuntu installation guide. Or use Docker.
+
+> Note: We (maintainers) can't help you with not reproducible in Linux/Mac issues.  
+> So, try to find a working solution and send PR before open an issue.
+
+Otherwise, you can try, as specified in [this gist](https://gist.github.com/etiennejeanneaurevolve/1ed387dc73c5d4cb53ab313049587d09), next:
+
+1. Install [`git`](https://git-scm.com/downloads) and [`gitbash`](https://gitforwindows.org/)
+2. Install [Python 3](https://www.python.org/downloads/)
+3. Install all prerequisites needed (see above)
+
+Ensure your PATH environment variable looks for `bash.exe` in `C:\Program Files\Git\bin` (the one present in `C:\Windows\System32\bash.exe` does not work with `pre-commit.exe`)
+
+For `checkov`, you may need to also set your `PYTHONPATH` environment variable with the path to your Python modules.  
+E.g. `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages`
+
+</details>
+
 <!-- markdownlint-enable no-inline-html -->
 
 ### 2. Install the pre-commit hook globally
