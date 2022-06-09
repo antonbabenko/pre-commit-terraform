@@ -312,11 +312,11 @@ For deprecated hook you need to specify each argument separately:
 
 ### infracost_breakdown
 
-`infracost_breakdown` executes `infracost breakdown` command and compare the estimated costs with those specified in the hook-config. `infracost breakdown` normally runs `terraform init`, `terraform plan`, and calls Infracost Cloud Pricing API (remote version or [self-hosted version](https://www.infracost.io/docs/cloud_pricing_api/self_hosted)).
+`infracost_breakdown` executes `infracost breakdown` command and compare the estimated costs with those specified in the hook-config. `infracost breakdown` parses Terraform HCL code, and calls Infracost Cloud Pricing API (remote version or [self-hosted version](https://www.infracost.io/docs/cloud_pricing_api/self_hosted)).
 
 Unlike most other hooks, this hook triggers once if there are any changed files in the repository.
 
-1. `infracost_breakdown` supports [all `infracost breakdown` arguments](https://www.infracost.io/docs/#useful-options). The following example only shows costs:
+1. `infracost_breakdown` supports all `infracost breakdown` arguments (run `infracost breakdown --help` to see them). The following example only shows costs:
 
     ```yaml
     - id: infracost_breakdown
