@@ -18,8 +18,7 @@ function main {
   # shellcheck disable=SC2178 # It's the simplest syntax for that case
   ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
   # shellcheck disable=SC2128 # It's the simplest syntax for that case
-  # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
+  common::per_dir_hook "$ARGS" "$HOOK_ID" "${FILES[@]}"
 }
 
 #######################################################################
