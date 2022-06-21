@@ -111,7 +111,7 @@ function terraform_validate_ {
 
     if [[ -n "$(find "$dir_path" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
 
-      pushd "$(cd "$dir_path" && pwd -P)" > /dev/null
+      pushd "$(cd "$dir_path" > /dev/null && pwd -P)" > /dev/null
 
       if [ ! -d .terraform ]; then
         set +e
