@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.72.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.72.1...v1.72.2) (2022-06-21)
+
+
+### Bug Fixes
+
+* Pre-commit-terraform terraform_validate hook ([#401](https://github.com/antonbabenko/pre-commit-terraform/issues/401)) ([d9f482c](https://github.com/antonbabenko/pre-commit-terraform/commit/d9f482c0c6fa0bd464bbaa7444b4f853f1bc4fb9))
+
 ## [1.72.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.72.0...v1.72.1) (2022-05-25)
 
 
