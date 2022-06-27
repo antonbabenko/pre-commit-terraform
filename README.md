@@ -310,6 +310,14 @@ For deprecated hook you need to specify each argument separately:
   ]
 ```
 
+2. When you have multiple directories and want to run `terraform_checkov` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_checkov` hooks with Git working directory (repo root) at run time. For example:
+
+    ```yaml
+    - id: terraform_checkov
+      args:
+        - --args=--config-file __GIT_WORKING_DIR__/.checkov.yml
+    ```
+
 ### infracost_breakdown
 
 `infracost_breakdown` executes `infracost breakdown` command and compare the estimated costs with those specified in the hook-config. `infracost breakdown` parses Terraform HCL code, and calls Infracost Cloud Pricing API (remote version or [self-hosted version](https://www.infracost.io/docs/cloud_pricing_api/self_hosted)).

@@ -14,8 +14,11 @@ function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
   common::parse_and_export_env_vars
-  # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
+  # Support for setting PATH to repo root.
+  # shellcheck disable=SC2178 # It's the simplest syntax for that case
+  ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
+  # shellcheck disable=SC2128 # It's the simplest syntax for that case
+  common::per_dir_hook "$ARGS" "$HOOK_ID" "${FILES[@]}"
 }
 
 #######################################################################
