@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.73.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.72.2...v1.73.0) (2022-06-27)
+
+
+### Features
+
+* Add __GIT_WORKING_DIR__ to terraform_checkov ([#399](https://github.com/antonbabenko/pre-commit-terraform/issues/399)) ([ae88ed7](https://github.com/antonbabenko/pre-commit-terraform/commit/ae88ed73cfb63398270608d4e68f46bb4424f150))
+
 ## [1.72.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.72.1...v1.72.2) (2022-06-21)
 
 
