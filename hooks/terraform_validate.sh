@@ -37,7 +37,7 @@ function main {
 # Globals (init and populate):
 #   ARGS (array) arguments that configure wrapped tool behavior
 #   HOOK_CONFIG (array) arguments that configure hook behavior
-#   INIT_ARGS (array) arguments to `terraform init` command
+#   TF_INIT_ARGS (array) arguments to `terraform init` command
 #   ENVS (array) environment variables that will be used with
 #     `terraform` commands
 #   FILES (array) filenames to check
@@ -62,9 +62,10 @@ function parse_cmdline_ {
         HOOK_CONFIG+=("$1;")
         shift
         ;;
-      -i | --init-args)
+      # TODO: Planned breaking change: remove `--init-args` as not self-descriptive
+      -i | --init-args | --tf-init-args)
         shift
-        INIT_ARGS+=("$1")
+        TF_INIT_ARGS+=("$1")
         shift
         ;;
       -e | --envs)
