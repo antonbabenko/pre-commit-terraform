@@ -36,6 +36,7 @@ function main {
 # global variables with appropriate values
 # Globals (init and populate):
 #   ARGS (array) arguments that configure wrapped tool behavior
+#   HOOK_CONFIG (array) arguments that configure hook behavior
 #   INIT_ARGS (array) arguments to `terraform init` command
 #   ENVS (array) environment variables that will be used with
 #     `terraform` commands
@@ -54,6 +55,11 @@ function parse_cmdline_ {
       -a | --args)
         shift
         ARGS+=("$1")
+        shift
+        ;;
+      -h | --hook-config)
+        shift
+        HOOK_CONFIG+=("$1;")
         shift
         ;;
       -i | --init-args)
