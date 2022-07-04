@@ -19,6 +19,7 @@ function common::initialize {
 # Globals (init and populate):
 #   ARGS (array) arguments that configure wrapped tool behavior
 #   HOOK_CONFIG (array) arguments that configure hook behavior
+#   INIT_ARGS (array) arguments for `terraform init` command
 #   FILES (array) filenames to check
 # Arguments:
 #   $@ (array) all specified in `hooks.[].args` in
@@ -28,6 +29,8 @@ function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
   ARGS=() HOOK_CONFIG=() FILES=()
+  # Used inside `common::terraform_init` function
+  INIT_ARGS=()
 
   local argv
   argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
@@ -43,6 +46,11 @@ function common::parse_cmdline {
       -h | --hook-config)
         shift
         HOOK_CONFIG+=("$1;")
+        shift
+        ;;
+      -i | --init-args)
+        shift
+        INIT_ARGS+=("$1")
         shift
         ;;
       --)
@@ -223,4 +231,35 @@ function common::colorify {
   fi
 
   echo -e "${COLOR}${TEXT}${RESET}"
+}
+
+#######################################################################
+# Run terraform init command
+# Arguments:
+#   command_name (string) command that will tun after successful init
+#   dir_path (string) PATH to dir relative to git repo root.
+#     Can be used in error logging
+# Globals (init and populate):
+#   INIT_ARGS (array) arguments for `terraform init` command
+# Outputs:
+#   If failed - print out terraform init output
+#######################################################################
+function common::terraform_init {
+  local command_name=$1
+  local dir_path=$2
+
+  local exit_code=0
+  local init_output
+
+  if [ ! -d .terraform ]; then
+    init_output=$(terraform init -backend=false "${INIT_ARGS[@]}" 2>&1)
+    exit_code=$?
+
+    if [ $exit_code -ne 0 ]; then
+      common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
+      echo -e "$init_output\n\n"
+    fi
+  fi
+
+  return $exit_code
 }

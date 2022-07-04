@@ -91,8 +91,6 @@ function parse_cmdline_ {
 #   args (string with array) arguments that configure wrapped tool behavior
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
-# Globals:
-#   INIT_ARGS (array) arguments for `terraform init` command`
 #   ENVS (array) environment variables that will be used with
 #     `terraform` commands
 # Outputs:
@@ -103,19 +101,12 @@ function per_dir_hook_unique_part {
   local -r dir_path="$2"
 
   local exit_code
-  local init_output
   local validate_output
 
-  if [ ! -d .terraform ]; then
-    init_output=$(terraform init -backend=false "${INIT_ARGS[@]}" 2>&1)
+  common::terraform_init 'terraform validate' "$dir_path" || {
     exit_code=$?
-
-    if [ $exit_code -ne 0 ]; then
-      common::colorify "yellow" "'terraform init' failed, 'terraform validate' skipped: $dir_path"
-      echo "$init_output"
-      return $exit_code
-    fi
-  fi
+    return $exit_code
+  }
 
   # pass the arguments to hook
   # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
@@ -132,7 +123,6 @@ function per_dir_hook_unique_part {
 }
 
 # global arrays
-declare -a INIT_ARGS
 declare -a ENVS
 
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

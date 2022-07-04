@@ -32,23 +32,19 @@ function per_dir_hook_unique_part {
   local -r args="$1"
   local -r dir_path="$2"
 
-  if [ ! -d ".terraform" ]; then
-    init_output=$(terraform init -backend=false 2>&1)
-    init_code=$?
+  local exit_code
 
-    if [ $init_code -ne 0 ]; then
-      common::colorify "red" "Init before validation failed: $dir_path"
-      common::colorify "red" "$init_output"
-      exit $init_code
-    fi
-  fi
+  common::terraform_init 'terraform providers lock' "$dir_path" || {
+    exit_code=$?
+    return $exit_code
+  }
 
   # pass the arguments to hook
   # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
   terraform providers lock ${args[@]}
 
   # return exit code to common::per_dir_hook
-  local exit_code=$?
+  exit_code=$?
   return $exit_code
 }
 
