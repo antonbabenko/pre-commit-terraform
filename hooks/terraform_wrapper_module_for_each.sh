@@ -2,10 +2,6 @@
 set -eo pipefail
 
 # globals variables
-# hook ID, see `- id` for details in .pre-commit-hooks.yaml file
-# shellcheck disable=SC2034 # Unused var.
-HOOK_ID=${0##*/}
-readonly HOOK_ID=${HOOK_ID%%.*}
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
