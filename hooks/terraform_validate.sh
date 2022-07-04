@@ -17,7 +17,18 @@ function main {
   common::initialize "$SCRIPT_DIR"
   parse_cmdline_ "$@"
   common::parse_and_export_env_vars
-  terraform_validate_
+
+  # Export provided env var K/V pairs to environment
+  local var var_name var_value
+  for var in "${ENVS[@]}"; do
+    var_name="${var%%=*}"
+    var_value="${var#*=}"
+    # shellcheck disable=SC2086
+    export $var_name="$var_value"
+  done
+
+  # shellcheck disable=SC2153 # False positive
+  common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
 }
 
 #######################################################################
@@ -25,6 +36,7 @@ function main {
 # global variables with appropriate values
 # Globals (init and populate):
 #   ARGS (array) arguments that configure wrapped tool behavior
+#   HOOK_CONFIG (array) arguments that configure hook behavior
 #   INIT_ARGS (array) arguments to `terraform init` command
 #   ENVS (array) environment variables that will be used with
 #     `terraform` commands
@@ -43,6 +55,11 @@ function parse_cmdline_ {
       -a | --args)
         shift
         ARGS+=("$1")
+        shift
+        ;;
+      -h | --hook-config)
+        shift
+        HOOK_CONFIG+=("$1;")
         shift
         ;;
       -i | --init-args)
@@ -65,88 +82,53 @@ function parse_cmdline_ {
 }
 
 #######################################################################
-# Wrapper around `terraform validate` tool that checks if code is valid
-# 1. Export provided env var K/V pairs to environment
-# 2. Because hook runs on whole dir, reduce file paths to uniq dir paths
-# 3. In each dir that have *.tf files:
-# 3.1. Check if `.terraform` dir exists and if not - run `terraform init`
-# 3.2. Run `terraform validate`
-# 3.3. If at least 1 check failed - change exit code to non-zero
-# 4. Complete hook execution and return exit code
+# Unique part of `common::per_dir_hook`. The function is executed in loop
+# on each provided dir path. Run wrapped tool with specified arguments
+# 1. Check if `.terraform` dir exists and if not - run `terraform init`
+# 2. Run `terraform validate`
+# 3. If at least 1 check failed - change the exit code to non-zero
+# Arguments:
+#   args (string with array) arguments that configure wrapped tool behavior
+#   dir_path (string) PATH to dir relative to git repo root.
+#     Can be used in error logging
 # Globals:
-#   ARGS (array) arguments that configure wrapped tool behavior
 #   INIT_ARGS (array) arguments for `terraform init` command`
 #   ENVS (array) environment variables that will be used with
 #     `terraform` commands
-#   FILES (array) filenames to check
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
-function terraform_validate_ {
+function per_dir_hook_unique_part {
+  local -r args="$1"
+  local -r dir_path="$2"
 
-  # Setup environment variables
-  local var var_name var_value
-  for var in "${ENVS[@]}"; do
-    var_name="${var%%=*}"
-    var_value="${var#*=}"
-    # shellcheck disable=SC2086
-    export $var_name="$var_value"
-  done
+  local exit_code
+  local init_output
+  local validate_output
 
-  declare -a paths
-  local index=0
-  local error=0
+  if [ ! -d .terraform ]; then
+    init_output=$(terraform init -backend=false "${INIT_ARGS[@]}" 2>&1)
+    exit_code=$?
 
-  local file_with_path
-  for file_with_path in "${FILES[@]}"; do
-    file_with_path="${file_with_path// /__REPLACED__SPACE__}"
-
-    paths[index]=$(dirname "$file_with_path")
-    ((index += 1))
-  done
-
-  local dir_path
-  for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
-    dir_path="${dir_path//__REPLACED__SPACE__/ }"
-
-    if [[ -n "$(find "$dir_path" -maxdepth 1 -name '*.tf' -print -quit)" ]]; then
-
-      pushd "$(cd "$dir_path" > /dev/null && pwd -P)" > /dev/null
-
-      if [ ! -d .terraform ]; then
-        set +e
-        init_output=$(terraform init -backend=false "${INIT_ARGS[@]}" 2>&1)
-        init_code=$?
-        set -e
-
-        if [ $init_code -ne 0 ]; then
-          error=1
-          echo "Init before validation failed: $dir_path"
-          echo "$init_output"
-          popd > /dev/null
-          continue
-        fi
-      fi
-
-      set +e
-      validate_output=$(terraform validate "${ARGS[@]}" 2>&1)
-      validate_code=$?
-      set -e
-
-      if [ $validate_code -ne 0 ]; then
-        error=1
-        echo "Validation failed: $dir_path"
-        echo "$validate_output"
-        echo
-      fi
-
-      popd > /dev/null
+    if [ $exit_code -ne 0 ]; then
+      common::colorify "yellow" "'terraform init' failed, 'terraform validate' skipped: $dir_path"
+      echo "$init_output"
+      return $exit_code
     fi
-  done
-
-  if [ $error -ne 0 ]; then
-    exit 1
   fi
+
+  # pass the arguments to hook
+  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+  validate_output=$(terraform validate ${args[@]} 2>&1)
+  exit_code=$?
+
+  if [ $exit_code -ne 0 ]; then
+    common::colorify "red" "Validation failed: $dir_path"
+    echo -e "$validate_output\n\n"
+  fi
+
+  # return exit code to common::per_dir_hook
+  return $exit_code
 }
 
 # global arrays
