@@ -245,8 +245,8 @@ function common::colorify {
 #   If failed - print out terraform init output
 #######################################################################
 function common::terraform_init {
-  local command_name=$1
-  local dir_path=$2
+  local -r command_name=$1
+  local -r dir_path=$2
 
   local exit_code=0
   local init_output
