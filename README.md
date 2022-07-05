@@ -520,7 +520,7 @@ Example:
     ```yaml
     - id: terraform_providers_lock
       args:
-        - --init-args=-upgrade
+        - --tf-init-args=-upgrade
     ```
 
 
@@ -629,7 +629,7 @@ Example:
     ```yaml
     - id: terraform_validate
       args:
-        - --init-args=-lockfile=readonly
+        - --tf-init-args=-lockfile=readonly
     ```
 
 4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:

@@ -25,7 +25,7 @@ function common::initialize {
 # Globals (init and populate):
 #   ARGS (array) arguments that configure wrapped tool behavior
 #   HOOK_CONFIG (array) arguments that configure hook behavior
-#   INIT_ARGS (array) arguments for `terraform init` command
+#   TF_INIT_ARGS (array) arguments for `terraform init` command
 #   FILES (array) filenames to check
 # Arguments:
 #   $@ (array) all specified in `hooks.[].args` in
@@ -36,10 +36,10 @@ function common::parse_cmdline {
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
   ARGS=() HOOK_CONFIG=() FILES=()
   # Used inside `common::terraform_init` function
-  INIT_ARGS=()
+  TF_INIT_ARGS=()
 
   local argv
-  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
+  argv=$(getopt -o a:,h:,i: --long args:,hook-config:,init-args:,tf-init-args: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -54,9 +54,10 @@ function common::parse_cmdline {
         HOOK_CONFIG+=("$1;")
         shift
         ;;
-      -i | --init-args)
+      # TODO: Planned breaking change: remove `--init-args` as not self-descriptive
+      -i | --init-args | --tf-init-args)
         shift
-        INIT_ARGS+=("$1")
+        TF_INIT_ARGS+=("$1")
         shift
         ;;
       --)
@@ -246,7 +247,7 @@ function common::colorify {
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
 # Globals (init and populate):
-#   INIT_ARGS (array) arguments for `terraform init` command
+#   TF_INIT_ARGS (array) arguments for `terraform init` command
 # Outputs:
 #   If failed - print out terraform init output
 #######################################################################
@@ -258,7 +259,7 @@ function common::terraform_init {
   local init_output
 
   if [ ! -d .terraform ]; then
-    init_output=$(terraform init -backend=false "${INIT_ARGS[@]}" 2>&1)
+    init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
     exit_code=$?
 
     if [ $exit_code -ne 0 ]; then
