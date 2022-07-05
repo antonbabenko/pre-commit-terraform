@@ -26,6 +26,8 @@ function common::initialize {
 #   ARGS (array) arguments that configure wrapped tool behavior
 #   HOOK_CONFIG (array) arguments that configure hook behavior
 #   TF_INIT_ARGS (array) arguments for `terraform init` command
+#   ENVS (array) environment variables will be available
+#     for all 3rd-party tools executed by a hook.
 #   FILES (array) filenames to check
 # Arguments:
 #   $@ (array) all specified in `hooks.[].args` in
@@ -37,9 +39,11 @@ function common::parse_cmdline {
   ARGS=() HOOK_CONFIG=() FILES=()
   # Used inside `common::terraform_init` function
   TF_INIT_ARGS=()
+  # Used inside `common::export_provided_env_vars` function
+  ENVS=()
 
   local argv
-  argv=$(getopt -o a:,h:,i: --long args:,hook-config:,init-args:,tf-init-args: -- "$@") || return
+  argv=$(getopt -o a:,h:,i:,e: --long args:,hook-config:,init-args:,tf-init-args:,envs: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -58,6 +62,11 @@ function common::parse_cmdline {
       -i | --init-args | --tf-init-args)
         shift
         TF_INIT_ARGS+=("$1")
+        shift
+        ;;
+      -e | --envs)
+        shift
+        ENVS+=("$1")
         shift
         ;;
       --)
@@ -269,4 +278,25 @@ function common::terraform_init {
   fi
 
   return $exit_code
+}
+
+#######################################################################
+# Export provided K/V as environment variables.
+# Arguments:
+#   env_vars (array)  environment variables will be available
+#     for all 3rd-party tools executed by a hook.
+#######################################################################
+function common::export_provided_env_vars {
+  local -a -r env_vars=("$@")
+
+  local var
+  local var_name
+  local var_value
+
+  for var in "${env_vars[@]}"; do
+    var_name="${var%%=*}"
+    var_value="${var#*=}"
+    # shellcheck disable=SC2086
+    export $var_name="$var_value"
+  done
 }

@@ -11,6 +11,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
+  common::export_provided_env_vars "${ENVS[@]}"
   common::parse_and_export_env_vars
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
