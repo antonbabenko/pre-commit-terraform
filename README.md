@@ -37,7 +37,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [Available Hooks](#available-hooks)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
-  * [All hooks: Set env vars inside hook runtime](#all-hooks-set-env-vars-inside-hook-runtime)
+  * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
   * [infracost_breakdown](#infracost_breakdown)
   * [terraform_docs](#terraform_docs)
@@ -284,11 +284,11 @@ Config example:
 
 If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --module`.
 
-### All hooks: Set env vars inside hook runtime
+### All hooks: Set env vars inside hook at runtime
 
 > All, except deprecated hooks: `checkov`, `terraform_docs_replace`
 
-You can specify environment variables that will be passed to the hook runtime.
+You can specify environment variables that will be passed to the hook at runtime.
 
 Config example:
 

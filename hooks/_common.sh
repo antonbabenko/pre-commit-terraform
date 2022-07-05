@@ -26,8 +26,8 @@ function common::initialize {
 #   ARGS (array) arguments that configure wrapped tool behavior
 #   HOOK_CONFIG (array) arguments that configure hook behavior
 #   TF_INIT_ARGS (array) arguments for `terraform init` command
-#   ENVS (array) environment variables that will be with all
-#     3rd-party tools that will read them.
+#   ENVS (array) environment variables will be available 
+#     for all 3rd-party tools executed by a hook.
 #   FILES (array) filenames to check
 # Arguments:
 #   $@ (array) all specified in `hooks.[].args` in
@@ -283,8 +283,8 @@ function common::terraform_init {
 #######################################################################
 # Export provided K/V as environment variables.
 # Arguments:
-#   env_vars (array) environment variables that will be with all
-#     3rd-party tools that will read them.
+#   env_vars (array)  environment variables will be available 
+#     for all 3rd-party tools executed by a hook.
 #######################################################################
 function common::export_provided_env_vars {
   local -a -r env_vars=("$@")
