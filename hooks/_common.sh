@@ -39,7 +39,7 @@ function common::parse_cmdline {
   TF_INIT_ARGS=()
 
   local argv
-  argv=$(getopt -o a:,h: --long args:,hook-config: -- "$@") || return
+  argv=$(getopt -o a:,h:,i: --long args:,hook-config:,init-args:,tf-init-args: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do

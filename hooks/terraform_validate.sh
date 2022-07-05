@@ -44,7 +44,7 @@ function main {
 #######################################################################
 function parse_cmdline_ {
   declare argv
-  argv=$(getopt -o e:i:a: --long envs:,init-args:,args: -- "$@") || return
+  argv=$(getopt -o e:i:a:h: --long envs:,tf-init-args:,init-args:,args: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
