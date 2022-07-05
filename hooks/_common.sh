@@ -299,5 +299,4 @@ function common::export_provided_env_vars {
     # shellcheck disable=SC2086
     export $var_name="$var_value"
   done
-  exit 1
 }
