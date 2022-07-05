@@ -515,6 +515,15 @@ Example:
 
     `terraform_providers_lock` hook will try to reinitialize directories before running the `terraform providers lock` command.
 
+5. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
+
+    ```yaml
+    - id: terraform_providers_lock
+      args:
+        - --init-args=-upgrade
+    ```
+
+
 ### terraform_tflint
 
 1. `terraform_tflint` supports custom arguments so you can enable module inspection, deep check mode, etc.
