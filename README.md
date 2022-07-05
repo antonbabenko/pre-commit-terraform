@@ -37,6 +37,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [Available Hooks](#available-hooks)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
+  * [All hooks: Set env vars inside hook runtime](#all-hooks-set-env-vars-inside-hook-runtime)
   * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
   * [infracost_breakdown](#infracost_breakdown)
   * [terraform_docs](#terraform_docs)
@@ -282,6 +283,22 @@ Config example:
 ```
 
 If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --module`.
+
+### All hooks: Set env vars inside hook runtime
+
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+
+You can specify environment variables that will be passed to the hook runtime.
+
+Config example:
+
+```yaml
+- id: terraform_validate
+  args:
+    - --envs=AWS_DEFAULT_REGION="us-west-2"
+    - --envs=AWS_ACCESS_KEY_ID="anaccesskey"
+    - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
+```
 
 ### checkov (deprecated) and terraform_checkov
 
@@ -614,17 +631,7 @@ Example:
          - --args=-no-color
     ```
 
-2. `terraform_validate` also supports custom environment variables passed to the pre-commit runtime:
-
-    ```yaml
-    - id: terraform_validate
-      args:
-        - --envs=AWS_DEFAULT_REGION="us-west-2"
-        - --envs=AWS_ACCESS_KEY_ID="anaccesskey"
-        - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
-    ```
-
-3. `terraform_validate` also supports passing custom arguments to its `terraform init`:
+2. `terraform_validate` also supports passing custom arguments to its `terraform init`:
 
     ```yaml
     - id: terraform_validate
@@ -632,7 +639,7 @@ Example:
         - --tf-init-args=-lockfile=readonly
     ```
 
-4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
+3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -648,7 +655,7 @@ Example:
 
     **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
-5. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
+4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
    When running the hook against Terraform code where you have provider `configuration_aliases` defined in a `required_providers` configuration block, terraform will throw an error like:
    >

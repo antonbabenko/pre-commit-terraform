@@ -12,71 +12,11 @@ export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 
 function main {
   common::initialize "$SCRIPT_DIR"
-  parse_cmdline_ "$@"
+  common::parse_cmdline "$@"
+  common::export_provided_env_vars "${ENVS[@]}"
   common::parse_and_export_env_vars
-
-  # Export provided env var K/V pairs to environment
-  local var var_name var_value
-  for var in "${ENVS[@]}"; do
-    var_name="${var%%=*}"
-    var_value="${var#*=}"
-    # shellcheck disable=SC2086
-    export $var_name="$var_value"
-  done
-
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
-}
-
-#######################################################################
-# Parse args and filenames passed to script and populate respective
-# global variables with appropriate values
-# Globals (init and populate):
-#   ARGS (array) arguments that configure wrapped tool behavior
-#   HOOK_CONFIG (array) arguments that configure hook behavior
-#   TF_INIT_ARGS (array) arguments to `terraform init` command
-#   ENVS (array) environment variables that will be used with
-#     `terraform` commands
-#   FILES (array) filenames to check
-# Arguments:
-#   $@ (array) all specified in `hooks.[].args` in
-#     `.pre-commit-config.yaml` and filenames.
-#######################################################################
-function parse_cmdline_ {
-  declare argv
-  argv=$(getopt -o e:i:a:h: --long envs:,tf-init-args:,init-args:,args: -- "$@") || return
-  eval "set -- $argv"
-
-  for argv; do
-    case $argv in
-      -a | --args)
-        shift
-        ARGS+=("$1")
-        shift
-        ;;
-      -h | --hook-config)
-        shift
-        HOOK_CONFIG+=("$1;")
-        shift
-        ;;
-      # TODO: Planned breaking change: remove `--init-args` as not self-descriptive
-      -i | --init-args | --tf-init-args)
-        shift
-        TF_INIT_ARGS+=("$1")
-        shift
-        ;;
-      -e | --envs)
-        shift
-        ENVS+=("$1")
-        shift
-        ;;
-      --)
-        shift
-        FILES=("$@")
-        break
-        ;;
-    esac
-  done
 }
 
 #######################################################################
@@ -119,8 +59,5 @@ function per_dir_hook_unique_part {
   # return exit code to common::per_dir_hook
   return $exit_code
 }
-
-# global arrays
-declare -a ENVS
 
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

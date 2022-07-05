@@ -13,6 +13,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
+  common::export_provided_env_vars "${ENVS[@]}"
   common::parse_and_export_env_vars
   # Support for setting relative PATH to .terraform-docs.yml config.
   # shellcheck disable=SC2178 # It's the simplest syntax for that case
