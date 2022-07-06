@@ -43,6 +43,7 @@ function common::parse_cmdline {
   ENV_VARS=()
 
   local argv
+  # TODO: Planned breaking change: remove `init-args`, `envs` as not self-descriptive
   argv=$(getopt -o a:,h:,i:,e: --long args:,hook-config:,init-args:,tf-init-args:,envs:,env-vars: -- "$@") || return
   eval "set -- $argv"
 
