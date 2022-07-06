@@ -16,7 +16,12 @@ function main {
   # Support for setting PATH to repo root.
   # shellcheck disable=SC2178 # It's the simplest syntax for that case
   ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
-  # shellcheck disable=SC2128 # It's the simplest syntax for that case
+
+  # Suppress tflint color
+  # Also, it already suppressed  via PRE_COMMIT_COLOR=never without `if`` below
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    ARGS+=("--no-color")
+  fi
 
   # Run `tflint --init` for check that plugins installed.
   # It should run once on whole repo.
@@ -30,7 +35,7 @@ function main {
     echo "${TFLINT_INIT}"
     return ${exit_code}
   }
-
+  # shellcheck disable=SC2128 # It's the simplest syntax for that case
   common::per_dir_hook "$ARGS" "$HOOK_ID" "${FILES[@]}"
 }
 
