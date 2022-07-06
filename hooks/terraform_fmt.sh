@@ -12,6 +12,12 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENVS[@]}"
   common::parse_and_export_env_vars
+
+  # Suppress terraform fmt color
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    ARGS+=("-no-color")
+  fi
+
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
 }
