@@ -19,7 +19,7 @@ function main {
   # Suppress tfsec color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     # shellcheck disable=SC2178,SC2128 # It's the simplest syntax for that case
-    ARGS="${ARGS} --no-color"
+    ARGS+=" --no-color"
   fi
 
   # shellcheck disable=SC2128 # It's the simplest syntax for that case

@@ -2,7 +2,6 @@
 set -eo pipefail
 
 # globals variables
-
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
@@ -231,7 +230,7 @@ function terraform_docs {
   done
 
   # Cleanup
-  rm -f "$config_file_no_color"
+  [ -e "$config_file_no_color" ] && rm -f "$config_file_no_color"
 }
 
 #######################################################################
