@@ -15,6 +15,13 @@ function main {
   # Support for setting PATH to repo root.
   # shellcheck disable=SC2178 # It's the simplest syntax for that case
   ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
+
+  # Suppress tfsec color
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    # shellcheck disable=SC2178,SC2128 # It's the simplest syntax for that case
+    ARGS="${ARGS} --no-color"
+  fi
+
   # shellcheck disable=SC2128 # It's the simplest syntax for that case
   common::per_dir_hook "$ARGS" "$HOOK_ID" "${FILES[@]}"
 }
