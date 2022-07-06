@@ -26,7 +26,7 @@ function common::initialize {
 #   ARGS (array) arguments that configure wrapped tool behavior
 #   HOOK_CONFIG (array) arguments that configure hook behavior
 #   TF_INIT_ARGS (array) arguments for `terraform init` command
-#   ENVS (array) environment variables will be available
+#   ENV_VARS (array) environment variables will be available
 #     for all 3rd-party tools executed by a hook.
 #   FILES (array) filenames to check
 # Arguments:
@@ -40,7 +40,7 @@ function common::parse_cmdline {
   # Used inside `common::terraform_init` function
   TF_INIT_ARGS=()
   # Used inside `common::export_provided_env_vars` function
-  ENVS=()
+  ENV_VARS=()
 
   local argv
   argv=$(getopt -o a:,h:,i:,e: --long args:,hook-config:,init-args:,tf-init-args:,envs:,env-vars: -- "$@") || return
@@ -67,7 +67,7 @@ function common::parse_cmdline {
       # TODO: Planned breaking change: remove `--envs` as not self-descriptive
       -e | --envs | --env-vars)
         shift
-        ENVS+=("$1")
+        ENV_VARS+=("$1")
         shift
         ;;
       --)

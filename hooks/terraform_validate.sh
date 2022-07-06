@@ -13,7 +13,7 @@ export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
-  common::export_provided_env_vars "${ENVS[@]}"
+  common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
@@ -29,7 +29,7 @@ function main {
 #   args (string with array) arguments that configure wrapped tool behavior
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
-#   ENVS (array) environment variables that will be used with
+#   ENV_VARS (array) environment variables that will be used with
 #     `terraform` commands
 # Outputs:
 #   If failed - print out hook checks status
