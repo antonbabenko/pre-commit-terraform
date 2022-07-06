@@ -38,6 +38,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
+  * [All hooks: Disable color output](#all-hooks-disable-color-output)
   * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
   * [infracost_breakdown](#infracost_breakdown)
   * [terraform_docs](#terraform_docs)
@@ -300,6 +301,16 @@ Config example:
     - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
 ```
 
+### All hooks: Disable color output
+
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+
+To disable color output for all hooks, set `PRE_COMMIT_COLOR=never` var. Eg:
+
+```bash
+PRE_COMMIT_COLOR=never pre-commit run
+```
+
 ### checkov (deprecated) and terraform_checkov
 
 > `checkov` hook is deprecated, please use `terraform_checkov`.
@@ -422,7 +433,6 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         * `.projects[].diff.totalHourlyCost` - show the difference in hourly cost for the existing infra and tf plan
         * `.projects[].diff.totalMonthlyCost` - show the difference in monthly cost for the existing infra and tf plan
         * `.diffTotalHourlyCost` (for Infracost version 0.9.12 or newer) or `[.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add` (for Infracost older than 0.9.12)
-    * To disable hook color output, set `PRE_COMMIT_COLOR=never` env var.
 
 4. **Docker usage**. In `docker build` or `docker run` command:
     * You need to provide [Infracost API key](https://www.infracost.io/docs/integrations/environment_variables/#infracost_api_key) via `-e INFRACOST_API_KEY=<your token>`. By default, it is saved in `~/.config/infracost/credentials.yml`

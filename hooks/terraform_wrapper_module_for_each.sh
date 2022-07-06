@@ -12,6 +12,7 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENVS[@]}"
   common::parse_and_export_env_vars
+  # JFYI: suppress color for `hcledit` is N/A`
 
   check_dependencies
 
