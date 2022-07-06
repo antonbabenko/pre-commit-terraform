@@ -2,9 +2,6 @@
 set -eo pipefail
 
 # globals variables
-# hook ID, see `- id` for details in .pre-commit-hooks.yaml file
-# shellcheck disable=SC2034 # Unused var.
-readonly HOOK_ID='terraform_docs'
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
@@ -90,7 +87,7 @@ function terraform_docs_ {
 function terraform_docs {
   local -r terraform_docs_awk_file="$1"
   local -r hook_config="$2"
-  local -r args="$3"
+  local args="$3"
   shift 3
   local -a -r files=("$@")
 
@@ -136,10 +133,29 @@ function terraform_docs {
     esac
   done
 
-  #
   # Override formatter if no config file set
-  #
-  [[ "$args" != *"--config="* ]] && local tf_docs_formatter="md"
+  if [[ "$args" != *"--config"* ]]; then
+    local tf_docs_formatter="md"
+
+  # Suppress terraform_docs color
+  else
+
+    local config_file=${args#*--config}
+    config_file=${config_file#*=}
+    config_file=${config_file% *}
+
+    local config_file_no_color
+    config_file_no_color="$config_file$(date +%s).yml"
+
+    if [ "$PRE_COMMIT_COLOR" = "never" ] &&
+      [[ $(grep -e '^formatter:' "$config_file") == *"pretty"* ]] &&
+      [[ $(grep '  color: ' "$config_file") != *"false"* ]]; then
+
+      cp "$config_file" "$config_file_no_color"
+      echo -e "settings:\n  color: false" >> "$config_file_no_color"
+      args=${args/$config_file/$config_file_no_color}
+    fi
+  fi
 
   local dir_path
   for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
@@ -212,6 +228,9 @@ function terraform_docs {
 
     popd > /dev/null
   done
+
+  # Cleanup
+  [ -e "$config_file_no_color" ] && rm -f "$config_file_no_color"
 }
 
 #######################################################################

@@ -267,6 +267,11 @@ function common::terraform_init {
   local exit_code=0
   local init_output
 
+  # Suppress terraform init color
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    TF_INIT_ARGS+=("-no-color")
+  fi
+
   if [ ! -d .terraform ]; then
     init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
     exit_code=$?

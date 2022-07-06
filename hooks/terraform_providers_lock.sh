@@ -13,6 +13,8 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENVS[@]}"
   common::parse_and_export_env_vars
+  # JFYI: suppress color for `terraform providers lock` is N/A`
+
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
 }

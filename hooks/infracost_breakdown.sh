@@ -35,7 +35,7 @@ function infracost_breakdown_ {
 
   # Get hook settings
   IFS=";" read -r -a checks <<< "$hook_config"
-
+  # Suppress infracost color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     args+=("--no-color")
   fi
