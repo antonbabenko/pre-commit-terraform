@@ -43,7 +43,7 @@ function common::parse_cmdline {
   ENVS=()
 
   local argv
-  argv=$(getopt -o a:,h:,i:,e: --long args:,hook-config:,init-args:,tf-init-args:,envs: -- "$@") || return
+  argv=$(getopt -o a:,h:,i:,e: --long args:,hook-config:,init-args:,tf-init-args:,envs:,env-vars: -- "$@") || return
   eval "set -- $argv"
 
   for argv; do
@@ -64,7 +64,8 @@ function common::parse_cmdline {
         TF_INIT_ARGS+=("$1")
         shift
         ;;
-      -e | --envs)
+      # TODO: Planned breaking change: remove `--envs` as not self-descriptive
+      -e | --envs | --env-vars)
         shift
         ENVS+=("$1")
         shift

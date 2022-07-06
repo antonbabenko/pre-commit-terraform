@@ -295,9 +295,9 @@ Config example:
 ```yaml
 - id: terraform_validate
   args:
-    - --envs=AWS_DEFAULT_REGION="us-west-2"
-    - --envs=AWS_ACCESS_KEY_ID="anaccesskey"
-    - --envs=AWS_SECRET_ACCESS_KEY="asecretkey"
+    - --env-vars=AWS_DEFAULT_REGION="us-west-2"
+    - --env-vars=AWS_ACCESS_KEY_ID="anaccesskey"
+    - --env-vars=AWS_SECRET_ACCESS_KEY="asecretkey"
 ```
 
 ### checkov (deprecated) and terraform_checkov
