@@ -10,7 +10,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
-  common::export_provided_env_vars "${ENVS[@]}"
+  common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
   # JFYI: suppress color for `tfupdate` is N/A`
 
