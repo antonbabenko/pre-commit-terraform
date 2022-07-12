@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.74.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.73.0...v1.74.0) (2022-07-12)
+
+
+### Bug Fixes
+
+* Add `--env-vars`, deprecate `--envs` ([#410](https://github.com/antonbabenko/pre-commit-terraform/issues/410)) ([2b35cad](https://github.com/antonbabenko/pre-commit-terraform/commit/2b35cad50fd7fe1c662cab1bfaab2a4ef7baa3c9))
+* Add `--tf-init-args`, deprecate `--init-args` ([#407](https://github.com/antonbabenko/pre-commit-terraform/issues/407)) ([c4f8251](https://github.com/antonbabenko/pre-commit-terraform/commit/c4f8251d302260953c62a6b2116ea89584ce04a6))
+
+
+### Features
+
+* Add support for set env vars inside hook runtime ([#408](https://github.com/antonbabenko/pre-commit-terraform/issues/408)) ([d490231](https://github.com/antonbabenko/pre-commit-terraform/commit/d4902313ce11cc12c738397463f307b830a9ba3e))
+* Allow `terraform_providers_lock` specify terraform init args ([#406](https://github.com/antonbabenko/pre-commit-terraform/issues/406)) ([32b232f](https://github.com/antonbabenko/pre-commit-terraform/commit/32b232f039ceee24b2db8e09de57047c78c6005b))
+* Suppress color for all hooks if `PRE_COMMIT_COLOR=never` set ([#409](https://github.com/antonbabenko/pre-commit-terraform/issues/409)) ([b12f0c6](https://github.com/antonbabenko/pre-commit-terraform/commit/b12f0c662c4ebd104b27880fc380854590c0ca22))
+
 # [1.73.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.72.2...v1.73.0) (2022-06-27)
 
 
