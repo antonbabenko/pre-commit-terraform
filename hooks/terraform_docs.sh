@@ -230,7 +230,7 @@ function terraform_docs {
   done
 
   # Cleanup
-  [ -e "$config_file_no_color" ] && rm -f "$config_file_no_color"
+  rm -f "$config_file_no_color"
 }
 
 #######################################################################
