@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.74.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.74.0...v1.74.1) (2022-07-13)
+
+
+### Bug Fixes
+
+* Passed scenario in `terraform_docs` hook now works as expected ([7ac2736](https://github.com/antonbabenko/pre-commit-terraform/commit/7ac2736ab9544455b06fb66f2fb40d3609a010b6))
+
 # [1.74.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.73.0...v1.74.0) (2022-07-12)
 
 
