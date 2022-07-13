@@ -76,6 +76,7 @@ Linux DESKTOP-C7315EF 5.4.72-microsoft-standard-WSL2 #1 SMP Wed Oct 28 23:40:43 
 <!--  For check all needed version run next script:
 
 $0 << EOF
+bash --version | head -n 1                2>/dev/null || echo "bash SKIPPED"
 pre-commit --version                      2>/dev/null || echo "pre-commit SKIPPED"
 terraform --version | head -n 1           2>/dev/null || echo "terraform SKIPPED"
 python --version                          2>/dev/null || echo "python SKIPPED"
