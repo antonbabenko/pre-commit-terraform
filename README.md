@@ -677,7 +677,7 @@ Example:
    This is a [known issue](https://github.com/hashicorp/terraform/issues/28490) with Terraform and how providers are initialized in Terraform 0.15 and later. To work around this you can add an `exclude` parameter to the configuration of `terraform_validate` hook like this:
    ```yaml
    - id: terraform_validate
-     exclude: '[^/]+$'
+     exclude: '^[^/]+$'
    ```
    This will exclude the root directory from being processed by this hook. Then add a subdirectory like "examples" or "tests" and put an example implementation in place that defines the providers with the proper aliases, and this will give you validation of your module through the example. If instead you are using this with multiple modules in one repository you'll want to set the path prefix in the regular expression, such as `exclude: modules/offendingmodule/[^/]+$`.
 
