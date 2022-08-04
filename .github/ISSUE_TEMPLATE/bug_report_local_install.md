@@ -88,7 +88,7 @@ echo -n "terrascan " && terrascan version 2>/dev/null || echo "terrascan SKIPPED
 tflint --version                          2>/dev/null || echo "tflint SKIPPED"
 echo -n "tfsec " && tfsec --version       2>/dev/null || echo "tfsec SKIPPED"
 echo -n "tfupdate " && tfupdate --version 2>/dev/null || echo "tfupdate SKIPPED"
-echo -n "hcledit " && hcledit version     2>/dev/null || echo "hcledit SKIPPED" 
+echo -n "hcledit " && hcledit version     2>/dev/null || echo "hcledit SKIPPED"
 EOF
 
 -->
