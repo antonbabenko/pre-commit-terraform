@@ -75,7 +75,7 @@ Linux DESKTOP-C7315EF 5.4.72-microsoft-standard-WSL2 #1 SMP Wed Oct 28 23:40:43 
 
 <!--  For check all needed version run next script:
 
-$0 << EOF
+bash << EOF
 bash --version | head -n 1                2>/dev/null || echo "bash SKIPPED"
 pre-commit --version                      2>/dev/null || echo "pre-commit SKIPPED"
 terraform --version | head -n 1           2>/dev/null || echo "terraform SKIPPED"
@@ -87,6 +87,8 @@ terragrunt --version                      2>/dev/null || echo "terragrunt SKIPPE
 echo -n "terrascan " && terrascan version 2>/dev/null || echo "terrascan SKIPPED"
 tflint --version                          2>/dev/null || echo "tflint SKIPPED"
 echo -n "tfsec " && tfsec --version       2>/dev/null || echo "tfsec SKIPPED"
+echo -n "tfupdate " && tfupdate --version 2>/dev/null || echo "tfupdate SKIPPED"
+echo -n "hcledit " && hcledit version     2>/dev/null || echo "hcledit SKIPPED"
 EOF
 
 -->
