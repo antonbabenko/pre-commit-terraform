@@ -553,14 +553,14 @@ Example:
 
 ### terraform_tflint
 
-1. `terraform_tflint` supports custom arguments so you can enable module inspection, deep check mode, etc.
+1. `terraform_tflint` supports custom arguments so you can enable module inspection, enable / disable rules, etc.
 
     Example:
 
     ```yaml
     - id: terraform_tflint
       args:
-        - --args=--deep
+        - --args=--module
         - --args=--enable-rule=terraform_documented_variables
     ```
 
