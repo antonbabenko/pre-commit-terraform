@@ -51,6 +51,10 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
+* [Docker Usage](#docker-usage)
+  * [File Permissions](#file-permissions)
+  * [Other Settings](#other-settings)
+    * [1. Module short name for terraform_wrapper_module_for_each](#1-module-short-name-for-terraformwrappermoduleforeach)
 * [Authors](#authors)
 * [License](#license)
   * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
@@ -229,14 +233,14 @@ Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-te
 
 ```bash
 TAG=latest
-docker run -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run -v $(pwd):/lint -w /lint -e HOME=/tmp --user $(id -u):$(id -g) ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 ```
 
 Execute this command to list the versions of the tools in Docker:
 
 ```bash
 TAG=latest
-docker run --entrypoint cat ghcr.io/antonbabenko/pre-commit-terraform:$TAG /usr/bin/tools_versions_info
+docker run --rm --entrypoint cat ghcr.io/antonbabenko/pre-commit-terraform:$TAG /usr/bin/tools_versions_info
 ```
 
 ## Available Hooks
@@ -778,6 +782,36 @@ Sample configuration:
 
 Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
 No need to pass `--recursive .` as it is added automatically.
+
+## Docker Usage
+
+### File Permissions
+
+The docker container runs as the ```root``` user by default.  This can cause file permission issues in the repository on which pre-commit is run, as the source repo is mounted to the container via a bind mount.  This will cause files owned by ```root``` to be created in the source repo directory.  The recommended command to run pre-commit sets the container user and group to the user that is calling ```docker run```.  This user will not exist in the container, so the container's home directory is set to ```/tmp``` to allow storing settings and caches for the various tools.
+
+```bash
+TAG=latest
+docker run -v $(pwd):/lint -w /lint -e HOME=/tmp --user $(id -u):$(id -g) ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+```
+
+If the local repository is using a different user or group for permissions, the ```--user``` option can be modified based on the ownership of the repository directory.  It can be retrieved from the 2nd (user) and 3rd (group) columns of ```ls``` output.
+
+```bash
+$ ls -aldn .
+drwxr-xr-x 9 1000 1000 4096 Sep  1 16:23 .
+```
+
+### Other Settings
+
+#### 1. Module short name for ```terraform_wrapper_module_for_each```
+
+The [terraform_wrapper_module_for_each](#terraformwrappermoduleforeach) hook attempts to determine the module's short name to be inserted into the generated ```README.md``` files for the ```source``` URLs.  Since the container uses a bind mount at a static location, it can cause this short name to be incorrect.  If the generated name is incorrect, it can be set by providing the ```module-repo-shortname``` option to the hook.
+
+```yaml
+- id: terraform_wrapper_module_for_each
+  args:
+    - '--args=--module-repo-shortname=ec2-instance'   # module repo short name
+```
 
 ## Authors
 
