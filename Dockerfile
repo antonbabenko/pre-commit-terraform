@@ -205,6 +205,7 @@ RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = 
     apk add --no-cache su-exec=~0
 
 COPY tools/entrypoint.sh /entrypoint.sh
+RUN cp -r /root/ /etc/skel/
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
