@@ -201,11 +201,14 @@ RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = 
     ; fi && \
     # Fix git runtime fatal:
     # unsafe repository ('/lint' is owned by someone else)
-    git config --global --add safe.directory /lint
+    git config --global --add safe.directory /lint && \
+    apk add --no-cache su-exec=~0
+
+COPY tools/entrypoint.sh /entrypoint.sh
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
 ENV INFRACOST_API_KEY=${INFRACOST_API_KEY:-}
 ENV INFRACOST_SKIP_UPDATE_CHECK=${INFRACOST_SKIP_UPDATE_CHECK:-false}
 
-ENTRYPOINT [ "pre-commit" ]
+ENTRYPOINT [ "/entrypoint.sh" ]
