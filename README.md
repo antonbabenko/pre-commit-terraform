@@ -231,9 +231,11 @@ pre-commit run -a
 
 Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions)):
 
+**NOTE:** This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the ```USERID``` environment variable.  See [File Permissions](#file-permissions) for more information.
+
 ```bash
 TAG=latest
-docker run -v $(pwd):/lint -w /lint -e HOME=/tmp --user $(id -u):$(id -g) ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 ```
 
 Execute this command to list the versions of the tools in Docker:
@@ -787,14 +789,18 @@ No need to pass `--recursive .` as it is added automatically.
 
 ### File Permissions
 
-The docker container runs as the ```root``` user by default.  This can cause file permission issues in the repository on which pre-commit is run, as the source repo is mounted to the container via a bind mount.  This will cause files owned by ```root``` to be created in the source repo directory.  The recommended command to run pre-commit sets the container user and group to the user that is calling ```docker run```.  This user will not exist in the container, so the container's home directory is set to ```/tmp``` to allow storing settings and caches for the various tools.
+A mismatch between the Docker container's user and the local repository file ownership can cause permission issues in the repository where pre-commit is run.  The container runs as the ```root``` user by default, and uses an entrypoint script to assume a user ID and group ID if specified by environment variable ```USERID```.
+
+The [recommended command](#4-run) to run the Docker container is:
 
 ```bash
 TAG=latest
-docker run -v $(pwd):/lint -w /lint -e HOME=/tmp --user $(id -u):$(id -g) ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 ```
 
-If the local repository is using a different user or group for permissions, the ```--user``` option can be modified based on the ownership of the repository directory.  It can be retrieved from the 2nd (user) and 3rd (group) columns of ```ls``` output.
+which uses your current session's user ID and group ID to set the variable in the run command.  Without this setting, you may find files and directories owned by ```root``` in your local repository.
+
+If the local repository is using a different user or group for permissions, you can modify the USERID to the user ID and group ID needed.  **Do not use the username or groupname in the environment variable, as it has no meaning in the container.**  You can get the current directory's owner user ID and group ID from the 3rd (user) and 4th (group) columns in ```ls``` output:
 
 ```bash
 $ ls -aldn .
