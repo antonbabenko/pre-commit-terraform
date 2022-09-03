@@ -19,7 +19,7 @@ gid=${USERID##*:}
 
 # if requested UID:GID is root, go ahead and run without other processing
 if [[ ${uid} == 0 && ${gid} == 0 ]]; then
-  exec su-exec 0:0 pre-commit "$@"
+  exec su-exec "0:0" pre-commit "$@"
 fi
 
 # make sure workdir and some files are readable/writable by the provided UID/GID
@@ -54,7 +54,7 @@ if userinfo="$(getent passwd "${uid}")"; then
   username="${userinfo%%:*}"
 else
   username="${USERBASE}${uid}"
-  if ! err="$(adduser -h "/home/${username}" -s "/bin/bash" -G "${groupname}" -D -u "${uid}" -k "/etc/skel" "${username}")"; then
+  if ! err="$(adduser -h "/home/${username}" -s "/bin/bash" -G "${groupname}" -D -u "${uid}" -k "${HOME}" "${username}")"; then
     echo "failed to create uid \"${uid}\" with name \"${username}\" and group \"${groupname}\""
     echo "command output: ${err}"
     exit 1
