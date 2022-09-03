@@ -4,6 +4,10 @@ set -eo pipefail
 # globals variables
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+
+# expected base to strip from repository name to get the module resource name
+readonly REPO_BASE_PATTERN="terraform-aws-(.*)"
+
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
@@ -415,6 +419,103 @@ function create_tmp_file_tf {
   tmp_file_tf="$tmp_file.tf"
 
   echo "$CONTENT_MAIN_TF" > "$tmp_file_tf"
+}
+
+#######################################
+# Take provided path/url and strip any path or URL markings, .git ending,
+# and the REPO_BASE_PATTERN
+# Globals:
+#   REPO_BASE_PATTERN
+# Arguments:
+#   Path or URL to strip
+# Outputs:
+#   Remaining string after stripping, if failed return
+#     string with path/URL markings and .git ending removed
+# Returns:
+#   0 if stripped and matched REPO_BASE_PATTERN, 1 on error
+#######################################
+function strip_path_url_to_shortname {
+  if [[ -n "$1" ]]; then
+
+    local reponame
+    # if last character is /, remove it
+    reponame="${1%/}"
+    # only keep anything to the right of the last /
+    reponame="${reponame##*/}"
+    # remove trailing .git if there
+    reponame="${reponame%.git}"
+    # remove the repo base pattern if matches
+    if [[ "$reponame" =~ $REPO_BASE_PATTERN ]]; then
+      echo "${BASH_REMATCH[1]}"
+      return 0
+    fi
+
+  fi
+
+  # doesn't match pattern, return param stripped of .git and path
+  echo "$reponame"
+  return 1
+}
+
+#######################################
+# Take provided directory/url, and provide the "short name" of the module
+# after it's stripped using strip_path_url_to_shortname
+#
+# ie for "terraform-aws-ec2-instance" return "ec2-instance"
+#    for "/a/b/c/terraform-aws-ec2-instance" return "ec2-instance"
+#    for "https://github.com/terraform-aws-modules/terraform-aws-ec2-instance.git"
+#      return "ec2-instance"
+#    for "lint" this will attempt to find a respository name through existing
+#      git remotes configuration, otherwise will return "lint"
+#    for "/x/lint" will attempt to find repo as above, otherwise will return
+#      "lint"
+#
+# This was created to work around issue where directory name does not
+# match repository name (for example, Docker container mounting repo at /lint).
+#
+# Function tries provided path/url first (or $(pwd) if none provided),
+# then tries using the repo's remote URLs for "origin" and "upstream".
+# If all fails, return original parameter (or $(pwd)) with directory/path
+# info and trailing .git stripped
+#
+# Globals:
+#   REPO_BASE_PATTERN
+# Arguments:
+#   path to use to gather short module name
+# Outputs:
+#   short name of the module, ie provided "terraform-aws-ec2-instance",
+#     return "ec2-instance"
+#   if one could not be determined, return the provided path (or $(pwd)
+#     if none provided) stripped of path/url markings
+# Returns:
+#   0
+#######################################
+function determine_repo_shortname {
+  local topdir="${1:-$(pwd)}"
+
+  # if provided name can be stripped and matches repo pattern, return
+  local paramshortname
+  if paramshortname="$(strip_path_url_to_shortname "${topdir}")"; then
+    echo "$paramshortname"
+    return 0
+  fi
+
+  # try the URLs for remote repos, and strip those, return the first match
+  local remotenames=("origin" "upstream")
+  local remote remoteurl shortname
+  for remote in "${remotenames[@]}"; do
+    if remoteurl="$(git remote get-url "${remote}" 2> /dev/null)"; then
+      if shortname="$(strip_path_url_to_shortname "${remoteurl}")"; then
+        echo "${shortname}"
+        return 0
+      fi
+    fi
+  done
+
+  # fall back to returning provided param (or $(pwd)) with path and trailing
+  # .git stripped
+  echo "${paramshortname}"
+  return 0
 }
 
 [[ "${BASH_SOURCE[0]}" != "$0" ]] || main "$@"
