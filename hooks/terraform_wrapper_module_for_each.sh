@@ -155,7 +155,6 @@ function terraform_module_wrapper_ {
   local wrapper_dir="wrappers"
   local wrapper_relative_source_path="../" # From "wrappers" to root_dir.
   local module_repo_org
-  local module_repo_name
   local module_repo_shortname
   local module_repo_provider
   local dry_run="false"
@@ -163,8 +162,7 @@ function terraform_module_wrapper_ {
 
   root_dir=$(git rev-parse --show-toplevel 2> /dev/null || pwd)
   module_repo_org="terraform-aws-modules"
-  module_repo_name=${root_dir##*/}
-  module_repo_shortname="${module_repo_name#terraform-aws-}"
+  module_repo_shortname="$(determine_repo_shortname "${root_dir}")"
   module_repo_provider="aws"
 
   for argv in "${args[@]}"; do
