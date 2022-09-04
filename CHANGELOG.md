@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.74.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.74.1...v1.74.2) (2022-09-02)
+
+
+### Bug Fixes
+
+* Fixed url for wrappers in generated README (terraform_wrapper_module_for_each) ([#429](https://github.com/antonbabenko/pre-commit-terraform/issues/429)) ([fe29c6c](https://github.com/antonbabenko/pre-commit-terraform/commit/fe29c6c71abf31e5e7fbba6ed1d3555971e89ee4))
+
 ## [1.74.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.74.0...v1.74.1) (2022-07-13)
 
 
