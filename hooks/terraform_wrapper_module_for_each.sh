@@ -61,7 +61,7 @@ This wrapper does not implement any extra functionality.
 terraform {
   source = "tfr:///MODULE_REPO_ORG/MODULE_REPO_SHORTNAME/MODULE_REPO_PROVIDER//WRAPPER_PATH"
   # Alternative source:
-  # source = "git::git@github.com:MODULE_REPO_ORG/terraform-MODULE_REPO_PROVIDER-MODULE_REPO_SHORTNAME.git?ref=master//WRAPPER_PATH"
+  # source = "git::git@github.com:MODULE_REPO_ORG/terraform-MODULE_REPO_PROVIDER-MODULE_REPO_SHORTNAME.git//WRAPPER_PATH?ref=master"
 }
 
 inputs = {
@@ -119,7 +119,7 @@ module "wrapper" {
 terraform {
   source = "tfr:///terraform-aws-modules/s3-bucket/aws//wrappers"
   # Alternative source:
-  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-s3-bucket.git?ref=master//wrappers"
+  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-s3-bucket.git//wrappers?ref=master"
 }
 
 inputs = {
