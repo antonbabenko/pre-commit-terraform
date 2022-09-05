@@ -11,6 +11,12 @@ function echo_error_and_exit {
   exit 1
 }
 
+# make sure entrypoint is running as root
+[[ ! $(id -u) == "0" ]] && \
+  echo_error_and_exit "Container must run as root.  Use environment variable USERID to set user.\n"\
+    " example: \"TAG=latest &&" \
+    "docker run -e USERID=$(id -u):$(id -g) -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a\""
+
 # make sure USERID makes sense as UID:GID
 # it looks like the alpine distro limits UID and GID to 256000, but
 # could be more, so we accept any valid integers
