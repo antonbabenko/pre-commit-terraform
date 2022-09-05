@@ -18,9 +18,7 @@ uid=${USERID%%:*}
 gid=${USERID##*:}
 
 # if requested UID:GID is root, go ahead and run without other processing
-if [[ ${uid} == 0 && ${gid} == 0 ]]; then
-  exec su-exec "0:0" pre-commit "$@"
-fi
+[[ $USERID == "0:0" ]] && exec su-exec "$USERID" pre-commit "$@"
 
 # make sure workdir and some files are readable/writable by the provided UID/GID
 # combo, otherwise will have errors when processing hooks
