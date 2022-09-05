@@ -5,8 +5,7 @@ WORKDIR /bin_dir
 
 RUN apk add --no-cache \
     # Builder deps
-    curl=~7 \
-    unzip=~6 && \
+    curl=~7 && \
     # Upgrade pip for be able get latest Checkov
     python3 -m pip install --no-cache-dir --upgrade pip
 
@@ -177,7 +176,9 @@ RUN apk add --no-cache \
     bash=~5 \
     # pre-commit-hooks deps: https://github.com/pre-commit/pre-commit-hooks
     musl-dev=~1 \
-    gcc=~10
+    gcc=~10 \
+    # entrypoint wrapper deps
+    su-exec=~0
 
 # Copy tools
 COPY --from=builder \
@@ -201,8 +202,7 @@ RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = 
     ; fi && \
     # Fix git runtime fatal:
     # unsafe repository ('/lint' is owned by someone else)
-    git config --global --add safe.directory /lint && \
-    apk add --no-cache su-exec=~0
+    git config --global --add safe.directory /lint
 
 COPY tools/entrypoint.sh /entrypoint.sh
 
