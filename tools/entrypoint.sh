@@ -5,13 +5,17 @@ set -e
 readonly USERBASE="run"
 readonly BASHPATH="/bin/bash"
 
+function echo_error_and_exit {
+  echo -e "ERROR: $@" >&2
+  exit 1
+}
+
 # make sure USERID makes sense as UID:GID
 # it looks like the alpine distro limits UID and GID to 256000, but
 # could be more, so we accept any valid integers
 USERID=${USERID:-"0:0"}
 if [[ ! $USERID =~ ^[0-9]+:[0-9]+$ ]]; then
-  echo "USERID environment variable invalid, format is userid:groupid.  Received: \"${USERID}\""
-  exit 1
+  echo_error_and_exit "USERID environment variable invalid, format is userid:groupid.  Received: \"${USERID}\""
 fi
 
 # separate uid and gid
@@ -25,13 +29,11 @@ gid=${USERID##*:}
 # combo, otherwise will have errors when processing hooks
 wdir="$(pwd)"
 if ! su-exec "$USERID" "$BASHPATH" -c "test -w ${wdir} && test -r ${wdir}"; then
-  echo "uid:gid $USERID lacks permissions to ${wdir}/"
-  exit 1
+  echo_error_and_exit "uid:gid $USERID lacks permissions to ${wdir}/"
 fi
 wdirgitindex="$wdir/.git/index"
 if ! su-exec "$USERID" "$BASHPATH" -c "test -w $wdirgitindex && test -r $wdirgitindex"; then
-  echo "uid:gid $USERID cannot write to ${wdir}/.git/index"
-  exit 1
+  echo_error_and_exit "uid:gid $USERID cannot write to ${wdir}/.git/index"
 fi
 
 # check if group by this GID already exists, if so get the name since adduser
@@ -42,9 +44,7 @@ else
   # create group in advance in case GID is different than UID
   groupname="${USERBASE}${gid}"
   if ! err="$(addgroup -g "${gid}" "${groupname}" 2>&1)"; then
-    echo "failed to create gid \"${gid}\" with name \"${groupname}\""
-    echo "command output: ${err}"
-    exit 1
+    echo_error_and_exit "failed to create gid \"${gid}\" with name \"${groupname}\" command output: \"$err\""
   fi
 fi
 
@@ -54,24 +54,18 @@ if userinfo="$(getent passwd "${uid}")"; then
   username="${userinfo%%:*}"
 else
   username="${USERBASE}${uid}"
-  if ! err="$(adduser -h "/home/${username}" -s "$BASHPATH" -G "${groupname}" -D -u "${uid}" -k "${HOME}" "${username}")"; then
-    echo "failed to create uid \"${uid}\" with name \"${username}\" and group \"${groupname}\""
-    echo "command output: ${err}"
-    exit 1
+  if ! err="$(adduser -h "/home/${username}" -s "$BASHPATH" -G "${groupname}" -D -u "${uid}" -k "${HOME}" "${username}" 2>&1)"; then
+    echo_error_and_exit "failed to create uid \"${uid}\" with name \"${username}\" and group \"${groupname}\" command output: \"$err\""
   fi
 fi
 
 # it's possible it was not in the group specified, add it
 if ! idgroupinfo="$(id -G "${username}" 2>&1)"; then
-  echo "failed to get group list for username \"${username}\""
-  echo "command output: ${idgroupinfo}"
-  exit 1
+  echo_error_and_exit "failed to get group list for username \"${username}\" command output: \"$idgroupinfo\""
 fi
 if [[ ! " ${idgroupinfo} " =~ [:blank:]${gid}[:blank:] ]]; then
-  if ! err="$(addgroup "${username}" "${groupname}")"; then
-    echo "failed to add user \"${username}\" to group \"${groupname}\""
-    echo "command output: ${err}"
-    exit 1
+  if ! err="$(addgroup "${username}" "${groupname}" 2>&1)"; then
+    echo_error_and_exit "failed to add user \"${username}\" to group \"${groupname}\" command output: \"${err}\""
   fi
 fi
 
