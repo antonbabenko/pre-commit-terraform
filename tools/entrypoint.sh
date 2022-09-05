@@ -3,6 +3,7 @@
 set -e
 
 readonly USERBASE="run"
+readonly BASHPATH="/bin/bash"
 
 # make sure USERID makes sense as UID:GID
 # it looks like the alpine distro limits UID and GID to 256000, but
@@ -23,12 +24,13 @@ gid=${USERID##*:}
 # make sure workdir and some files are readable/writable by the provided UID/GID
 # combo, otherwise will have errors when processing hooks
 wdir="$(pwd)"
-if ! su-exec "${uid}:${gid}" "/bin/bash" -c "test -w ${wdir} && test -r ${wdir}"; then
-  echo "user:gid ${uid}:${gid} lacks permissions to ${wdir}/"
+if ! su-exec "$USERID" "$BASHPATH" -c "test -w ${wdir} && test -r ${wdir}"; then
+  echo "uid:gid $USERID lacks permissions to ${wdir}/"
   exit 1
 fi
-if ! su-exec "${uid}:${gid}" "/bin/bash" -c "test -w ${wdir}/.git/index && test -r ${wdir}/.git/index"; then
-  echo "user:gid ${uid}:${gid} cannot write to ${wdir}/.git/index2"
+wdirgitindex="$wdir/.git/index"
+if ! su-exec "$USERID" "$BASHPATH" -c "test -w $wdirgitindex && test -r $wdirgitindex"; then
+  echo "uid:gid $USERID cannot write to ${wdir}/.git/index"
   exit 1
 fi
 
@@ -52,7 +54,7 @@ if userinfo="$(getent passwd "${uid}")"; then
   username="${userinfo%%:*}"
 else
   username="${USERBASE}${uid}"
-  if ! err="$(adduser -h "/home/${username}" -s "/bin/bash" -G "${groupname}" -D -u "${uid}" -k "${HOME}" "${username}")"; then
+  if ! err="$(adduser -h "/home/${username}" -s "$BASHPATH" -G "${groupname}" -D -u "${uid}" -k "${HOME}" "${username}")"; then
     echo "failed to create uid \"${uid}\" with name \"${username}\" and group \"${groupname}\""
     echo "command output: ${err}"
     exit 1
@@ -75,4 +77,4 @@ fi
 
 # user and group of specified UID/GID should exist now, and user should be
 # a member of group, so execute pre-commit
-exec su-exec "${uid}:${gid}" pre-commit "$@"
+exec su-exec "$USERID" pre-commit "$@"
