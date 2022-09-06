@@ -71,7 +71,7 @@ fi
 if ! idgroupinfo="$(id -G "$username" 2>&1)"; then
   echo_error_and_exit "failed to get group list for username \"$username\"\ncommand output: \"$idgroupinfo\""
 fi
-if [[ ! " $idgroupinfo " =~ [:blank:]${gid}[:blank:] ]]; then
+if [[ ! " $idgroupinfo " =~ [[:blank:]]${gid}[[:blank:]] ]]; then
   if ! err="$(addgroup "$username" "$groupname" 2>&1)"; then
     echo_error_and_exit "failed to add user \"$username\" to group \"$groupname\"\ncommand output: \"$err\""
   fi
