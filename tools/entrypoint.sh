@@ -63,7 +63,7 @@ if userinfo="$(getent passwd "$uid")"; then
 else
   username="$USERBASE$uid"
   if ! err="$(adduser -h "$HOMEPATH$username" -s "$BASHPATH" -G "$groupname" -D -u "$uid" -k "$HOME" "$username" 2>&1)"; then
-    echo_error_and_exit "failed to create uid \"$uid\" with name \"$username\" and group \"$groupname\" command output: \"$err\""
+    echo_error_and_exit "failed to create uid \"$uid\" with name \"$username\" and group \"$groupname\"\ncommand output: \"$err\""
   fi
 fi
 
