@@ -52,7 +52,7 @@ else
   # create group in advance in case GID is different than UID
   groupname="$USERBASE$gid"
   if ! err="$(addgroup -g "$gid" "$groupname" 2>&1)"; then
-    echo_error_and_exit "failed to create gid \"$gid\" with name \"$groupname\" command output: \"$err\""
+    echo_error_and_exit "failed to create gid \"$gid\" with name \"$groupname\"\ncommand output: \"$err\""
   fi
 fi
 
