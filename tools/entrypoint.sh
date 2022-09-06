@@ -7,7 +7,7 @@ readonly BASHPATH="/bin/bash"
 readonly HOMEPATH="/home"
 
 function echo_error_and_exit {
-  echo -e "ERROR: $@" >&2
+  echo -e "ERROR: " "$@" >&2
   exit 1
 }
 
