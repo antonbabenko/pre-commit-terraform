@@ -69,7 +69,7 @@ fi
 
 # it's possible it was not in the group specified, add it
 if ! idgroupinfo="$(id -G "$username" 2>&1)"; then
-  echo_error_and_exit "failed to get group list for username \"$username\" command output: \"$idgroupinfo\""
+  echo_error_and_exit "failed to get group list for username \"$username\"\ncommand output: \"$idgroupinfo\""
 fi
 if [[ ! " $idgroupinfo " =~ [:blank:]${gid}[:blank:] ]]; then
   if ! err="$(addgroup "$username" "$groupname" 2>&1)"; then
