@@ -178,7 +178,7 @@ RUN apk add --no-cache \
     musl-dev=~1 \
     gcc=~10 \
     # entrypoint wrapper deps
-    su-exec=~0
+    su-exec=~0.2
 
 # Copy tools
 COPY --from=builder \
