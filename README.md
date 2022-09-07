@@ -745,7 +745,7 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 ```yaml
 - id: terraform_wrapper_module_for_each
   args:
-    - '--args=--module-repo-shortname=ec2-instance'   # module repo short name
+    - '--args=--module-repo-shortname=ec2-instance'
 ```
 
 ### terrascan
