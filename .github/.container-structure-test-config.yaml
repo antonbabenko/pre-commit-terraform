@@ -60,6 +60,19 @@ commandTests:
     args: [ "version" ]
     expectedOutput: [ "([0-9]+\\.){2}[0-9]+\\n$" ]
 
+  - name: "entrypoint.sh"
+    envVars:
+      - key: "USERID"
+        value: "1000:1000"
+    command: "/entrypoint.sh"
+    args: [ "-V" ]
+    expectedError: ["^ERROR:  uid:gid 1000:1000 lacks permissions to //\\n$"]
+    exitCode: 1
+
+  - name: "su-exec"
+    command: "su-exec"
+    expectedOutput: ["^Usage: su-exec user-spec command \\[args\\]\\n$"]
+
 fileExistenceTests:
   - name: 'terrascan init'
     path: '/root/.terrascan/pkg/policies/opa/rego/github/github_repository/privateRepoEnabled.rego'

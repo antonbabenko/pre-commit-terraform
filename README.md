@@ -51,6 +51,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
+* [Docker Usage: File Permissions](#docker-usage-file-permissions)
 * [Authors](#authors)
 * [License](#license)
   * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
@@ -227,16 +228,18 @@ pre-commit run -a
 
 Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions)):
 
+**NOTE:** This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#docker-usage-file-permissions) for more information.
+
 ```bash
 TAG=latest
-docker run -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 ```
 
 Execute this command to list the versions of the tools in Docker:
 
 ```bash
 TAG=latest
-docker run --entrypoint cat ghcr.io/antonbabenko/pre-commit-terraform:$TAG /usr/bin/tools_versions_info
+docker run --rm --entrypoint cat ghcr.io/antonbabenko/pre-commit-terraform:$TAG /usr/bin/tools_versions_info
 ```
 
 ## Available Hooks
@@ -735,6 +738,16 @@ Sample configuration:
     - --args=--verbose        # Verbose output
 ```
 
+**If you use hook inside Docker:**  
+The `terraform_wrapper_module_for_each` hook attempts to determine the module's short name to be inserted into the generated `README.md` files for the `source` URLs. Since the container uses a bind mount at a static location, it can cause this short name to be incorrect.  
+If the generated name is incorrect, set them by providing the `module-repo-shortname` option to the hook:
+
+```yaml
+- id: terraform_wrapper_module_for_each
+  args:
+    - '--args=--module-repo-shortname=ec2-instance'
+```
+
 ### terrascan
 
 1. `terrascan` supports custom arguments so you can pass supported flags like `--non-recursive` and `--policy-type` to disable recursive inspection and set the policy type respectively:
@@ -778,6 +791,26 @@ Sample configuration:
 
 Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
 No need to pass `--recursive .` as it is added automatically.
+
+## Docker Usage: File Permissions
+
+A mismatch between the Docker container's user and the local repository file ownership can cause permission issues in the repository where `pre-commit` is run.  The container runs as the `root` user by default, and uses a `tools/entrypoint.sh` script to assume a user ID and group ID if specified by the environment variable `USERID`.
+
+The [recommended command](#4-run) to run the Docker container is:
+
+```bash
+TAG=latest
+docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+```
+
+which uses your current session's user ID and group ID to set the variable in the run command.  Without this setting, you may find files and directories owned by `root` in your local repository.
+
+If the local repository is using a different user or group for permissions, you can modify the `USERID` to the user ID and group ID needed.  **Do not use the username or groupname in the environment variable, as it has no meaning in the container.**  You can get the current directory's owner user ID and group ID from the 3rd (user) and 4th (group) columns in `ls` output:
+
+```bash
+$ ls -aldn .
+drwxr-xr-x 9 1000 1000 4096 Sep  1 16:23 .
+```
 
 ## Authors
 

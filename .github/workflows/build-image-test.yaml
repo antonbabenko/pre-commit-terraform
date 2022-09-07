@@ -19,6 +19,8 @@ jobs:
         with:
           files: |
             Dockerfile
+            .dockerignore
+            tools/entrypoint.sh
 
       - name: Build if Dockerfile changed
         if: steps.changed-files-specific.outputs.any_changed == 'true'

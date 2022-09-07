@@ -414,6 +414,9 @@ function create_tmp_file_tf {
   mv "$tmp_file" "$tmp_file.tf"
   tmp_file_tf="$tmp_file.tf"
 
+  # mktemp creates with no group/other read permissions
+  chmod a+r "$tmp_file_tf"
+
   echo "$CONTENT_MAIN_TF" > "$tmp_file_tf"
 }
 
