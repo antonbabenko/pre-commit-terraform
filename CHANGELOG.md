@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.75.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.74.2...v1.75.0) (2022-09-07)
+
+
+### Features
+
+* Allow running container as non-root UID/GID for ownership issues (docker) ([#433](https://github.com/antonbabenko/pre-commit-terraform/issues/433)) ([abc2570](https://github.com/antonbabenko/pre-commit-terraform/commit/abc2570e42d3b01b56d34a474eedbf13063d3c31))
+
 ## [1.74.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.74.1...v1.74.2) (2022-09-02)
 
 
