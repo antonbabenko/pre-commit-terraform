@@ -31,10 +31,41 @@ function per_dir_hook_unique_part {
   local -r args="$1"
   # shellcheck disable=SC2034 # Unused var.
   local -r dir_path="$2"
+  #
+  # Expand array, but not substrings inside it.
+  # If no substrings - execute hook.
+  #
+  if [[ "$args" == *'"'* ]]; then
+    IFS='"' read -r expand_args version version2 <<< "$args"
+  elif [[ "$args" == *"'"* ]]; then
+    IFS="'" read -r expand_args version version2 <<< "$args"
+  else
+    # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+    tfupdate ${args[@]} .
+    # return exit code to common::per_dir_hook
+    local exit_code=$?
+    return $exit_code
+  fi
+
+  # Check that user pass vars to hook in right order.
+  # If not - swap elements to right order.
+  # Without this fix, wrong order make hook as PASSED for unknown reason.
+
+  #   right order result:
+  #     expand_args: provider aws --version
+  #     version: ~> 4.2.0
+  #     version2:
+  #   wrong order result:
+  #     expand_args: --version
+  #     version: ~> 4.2.0
+  #     version2: provider aws
+  if [[ -n $version2 ]]; then
+    expand_args="$version2 $expand_args"
+  fi
 
   # pass the arguments to hook
   # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  tfupdate ${args[@]} .
+  tfupdate ${expand_args[@]} "$version" .
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
@@ -49,11 +80,41 @@ function per_dir_hook_unique_part {
 #######################################################################
 function run_hook_on_whole_repo {
   local -r args="$1"
+  #
+  # Expand array, but not substrings inside it.
+  # If no substrings - execute hook.
+  #
+  if [[ "$args" == *'"'* ]]; then
+    IFS='"' read -r expand_args version version2 <<< "$args"
+  elif [[ "$args" == *"'"* ]]; then
+    IFS="'" read -r expand_args version version2 <<< "$args"
+  else
+    # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
+    tfupdate ${args[@]} --recursive .
+    # return exit code to common::per_dir_hook
+    local exit_code=$?
+    return $exit_code
+  fi
+
+  # Check that user pass args to hook in right order.
+  # If not - swap elements to right order.
+  # Without this fix, wrong order make hook as PASSED for unknown reason.
+
+  #   right order result:
+  #     expand_args: provider aws --version
+  #     version: ~> 4.2.0
+  #     version2:
+  #   wrong order result:
+  #     expand_args: --version
+  #     version: ~> 4.2.0
+  #     version2: provider aws
+  if [[ -n $version2 ]]; then
+    expand_args="$version2 $expand_args"
+  fi
+
   # pass the arguments to hook
   # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  # shellcheck disable=SC2048 # Use "${array[@]}" (with quotes) to prevent whitespace problems.
-  # shellcheck disable=SC2086 #  Double quote to prevent globbing and word splitting.
-  tfupdate ${args[*]} --recursive .
+  tfupdate ${expand_args[@]} "$version" --recursive .
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
