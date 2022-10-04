@@ -212,7 +212,7 @@ function common::per_dir_hook {
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
     pushd "$dir_path" > /dev/null || continue
 
-    per_dir_hook_unique_part "${args[@]}" "$dir_path"
+    per_dir_hook_unique_part "$dir_path" "${args[@]}"
 
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then

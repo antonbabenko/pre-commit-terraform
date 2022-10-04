@@ -21,20 +21,96 @@ function main {
 # Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
 # Arguments:
-#   args (string with array) arguments that configure wrapped tool behavior
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   args (array) arguments that configure wrapped tool behavior
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
-  local -r args="$1"
   # shellcheck disable=SC2034 # Unused var.
-  local -r dir_path="$2"
+  local -r dir_path="$1"
+  shift 1
+  declare -a -r args=("$@")
+
+  local expand_args=()
+  for arg in "${args[@]}"; do
+    if [[ "$arg" == *'"'* ]]; then
+      elements=($arg)
+      unset start
+      unset end
+      unset quoted_var
+
+      for i in "${!elements[@]}"; do
+
+        if [[ "${elements[i]}" =~ ^\" ]]; then
+          start=$i
+        fi
+
+        if [[ "${elements[i]}" =~ \"$ ]]; then
+          end=$i
+        fi
+      done
+
+      for i in $(seq 0 $((start - 1))); do
+        expand_args+=("${elements[i]}")
+      done
+
+      for i in $(seq "$start" "$end"); do
+        quoted_var+="${elements[i]} "
+      done
+      quoted_var2=${quoted_var#'"'}
+      quoted_var2=${quoted_var2%'" '}
+      expand_args+=("$quoted_var2")
+
+      for i in $(seq $((end + 1)) $((${#elements[@]} - 1))); do
+        expand_args+=("${elements[i]}")
+      done
+
+    elif
+      [[ "$arg" == *"'"* ]]
+    then
+      # Mostly copy-paste
+
+      elements=($arg)
+      unset start
+      unset end
+      unset quoted_var
+
+      for i in "${!elements[@]}"; do
+
+        if [[ "${elements[i]}" =~ ^\' ]]; then
+          start=$i
+        fi
+
+        if [[ "${elements[i]}" =~ \'$ ]]; then
+          end=$i
+        fi
+      done
+
+      for i in $(seq 0 $((start - 1))); do
+        expand_args+=("${elements[i]}")
+      done
+
+      for i in $(seq "$start" "$end"); do
+        quoted_var+="${elements[i]} "
+      done
+      quoted_var2=${quoted_var#"'"}
+      quoted_var2=${quoted_var2%"' "}
+      expand_args+=("$quoted_var2")
+
+      for i in $(seq $((end + 1)) $((${#elements[@]} - 1))); do
+        expand_args+=("${elements[i]}")
+      done
+
+    else
+      #
+      expand_args+=($arg)
+    fi
+  done
 
   # pass the arguments to hook
-  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  tfupdate ${args[@]} .
+  tfupdate "${expand_args[@]}" .
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
