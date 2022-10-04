@@ -13,14 +13,16 @@ function main {
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
   # Support for setting PATH to repo root.
-  # shellcheck disable=SC2178 # It's the simplest syntax for that case
-  ARGS=${ARGS[*]/__GIT_WORKING_DIR__/$(pwd)\/}
+  for i in "${!ARGS[@]}"; do
+    ARGS[i]=${ARGS[i]/__GIT_WORKING_DIR__/$(pwd)\/}
+  done
+
   # Suppress checkov color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     export ANSI_COLORS_DISABLED=true
   fi
-  # shellcheck disable=SC2128 # It's the simplest syntax for that case
-  common::per_dir_hook "$HOOK_ID" "$ARGS" "${FILES[@]}"
+
+  common::per_dir_hook "$HOOK_ID" "${ARGS[*]}" "${FILES[@]}"
 }
 
 #######################################################################
