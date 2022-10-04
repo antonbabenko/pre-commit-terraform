@@ -163,21 +163,30 @@ function common::is_hook_run_on_whole_repo {
 # 2.1. If at least 1 check failed - change exit code to non-zero
 # 3. Complete hook execution and return exit code
 # Arguments:
-#   args (string with array) arguments that configure wrapped tool behavior
 #   hook_id (string) hook ID, see `- id` for details in .pre-commit-hooks.yaml file
+#   args_array_length (integer) Count of arguments in args array.
+#   args (array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
 function common::per_dir_hook {
   local -r hook_id="$1"
-  local -r args="$2"
+  declare -i args_array_length=$2
   shift 2
+  declare -a args=()
+  # Expand args to a true array.
+  # Based on https://stackoverflow.com/a/10953834
+  while ((args_array_length-- > 0)); do
+    args+=("$1")
+    shift
+  done
+
   local -a -r files=("$@")
 
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
     # check is hook run via `pre-commit run --all`
     common::is_hook_run_on_whole_repo "$hook_id" "${files[@]}"; then
-    run_hook_on_whole_repo "$args"
+    run_hook_on_whole_repo "${args[@]}"
     exit 0
   fi
 
@@ -203,7 +212,7 @@ function common::per_dir_hook {
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
     pushd "$dir_path" > /dev/null || continue
 
-    per_dir_hook_unique_part "$args" "$dir_path"
+    per_dir_hook_unique_part "${args[@]}" "$dir_path"
 
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
