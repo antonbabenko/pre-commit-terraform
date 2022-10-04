@@ -23,7 +23,7 @@ function main {
   fi
 
   # shellcheck disable=SC2128 # It's the simplest syntax for that case
-  common::per_dir_hook "$ARGS" "$HOOK_ID" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "$ARGS" "${FILES[@]}"
 }
 
 #######################################################################

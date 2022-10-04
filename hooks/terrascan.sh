@@ -15,7 +15,7 @@ function main {
   # JFYI: terrascan color already suppressed via PRE_COMMIT_COLOR=never
 
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "${ARGS[*]}" "${FILES[@]}"
 }
 
 #######################################################################

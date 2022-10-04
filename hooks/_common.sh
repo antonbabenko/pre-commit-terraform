@@ -168,8 +168,8 @@ function common::is_hook_run_on_whole_repo {
 #   files (array) filenames to check
 #######################################################################
 function common::per_dir_hook {
-  local -r args="$1"
-  local -r hook_id="$2"
+  local -r hook_id="$1"
+  local -r args="$2"
   shift 2
   local -a -r files=("$@")
 
