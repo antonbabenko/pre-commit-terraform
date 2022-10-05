@@ -33,7 +33,7 @@ function per_dir_hook_unique_part {
   shift
   local -a -r args=("$@")
 
-  local expand_args=()
+  local -a expand_args=()
 
   while read -r -d '' ARG; do
     expand_args+=("$ARG")
@@ -56,7 +56,7 @@ function per_dir_hook_unique_part {
 function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
-  local expand_args=()
+  local -a expand_args=()
 
   while read -r -d '' ARG; do
     expand_args+=("$ARG")
