@@ -164,21 +164,17 @@ function common::is_hook_run_on_whole_repo {
 # 3. Complete hook execution and return exit code
 # Arguments:
 #   hook_id (string) hook ID, see `- id` for details in .pre-commit-hooks.yaml file
-#   args_array_length (integer) Count of arguments in args array.
-#   args (array) arguments that configure wrapped tool behavior
+#   args (string with array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
 function common::per_dir_hook {
   local -r hook_id="$1"
-  local -i args_array_length=$2
-  shift 2
+  # Expand args to a true array
   local -a args=()
-  # Expand args to a true array.
-  # Based on https://stackoverflow.com/a/10953834
-  while ((args_array_length-- > 0)); do
-    args+=("$1")
-    shift
-  done
+  while read -r -d '' ARG; do
+    args+=("$ARG")
+  done < <(echo "$2" | xargs printf '%s\0')
+  shift 2
   # assign rest of function's positional ARGS into `files` array,
   # despite there's only one positional ARG left
   local -a -r files=("$@")

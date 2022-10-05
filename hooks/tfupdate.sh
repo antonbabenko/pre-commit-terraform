@@ -15,7 +15,7 @@ function main {
   # JFYI: suppress color for `tfupdate` is N/A`
 
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "${ARGS[*]}" "${FILES[@]}"
 }
 #######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
