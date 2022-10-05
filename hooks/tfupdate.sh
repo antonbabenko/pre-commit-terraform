@@ -34,7 +34,20 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   local -a expand_args=()
+  # `args` is an array with content like:
+  #     ('provider aws' '--version "> 0.14"' '--ignore-path "some/path"')
+  #   where each element is the value of each `--args` from hook config.
+  # `echo` prints contents of `args` array as an expanded string:
+  #     `provider aws --version "> 0.14" --ignore-path "some/path"`
+  # `xargs` passes expanded string to `printf`
+  # `printf` which splits it into NUL-separated elements,
+  # NUL-separated elements read by `read` using empty separator
+  #     (`-d ''` or `-d $'\0'`)
+  #     into an `expand_args` array
 
+  # This allows to "rebuild" initial `args` array of sort of groupped elements
+  # into a proper array, where each element is a standalone array slice
+  # with quoted elements being treated as a standalone slice of array as well.
   while read -r -d '' ARG; do
     expand_args+=("$ARG")
   done < <(echo "${args[@]}" | xargs printf '%s\0')
