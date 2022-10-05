@@ -30,8 +30,8 @@ function main {
 function per_dir_hook_unique_part {
   # shellcheck disable=SC2034 # Unused var.
   local -r dir_path="$1"
-  shift 1
-  declare -a -r args=("$@")
+  shift
+  local -a -r args=("$@")
 
   local expand_args=()
 
@@ -54,7 +54,7 @@ function per_dir_hook_unique_part {
 #   args (string with array) arguments that configure wrapped tool behavior
 #######################################################################
 function run_hook_on_whole_repo {
-  declare -a -r args=("$@")
+  local -a -r args=("$@")
 
   local expand_args=()
 

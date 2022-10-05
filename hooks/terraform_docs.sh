@@ -91,7 +91,7 @@ function terraform_docs {
   shift 3
   local -a -r files=("$@")
 
-  declare -a paths
+  local -a paths
 
   local index=0
   local file_with_path

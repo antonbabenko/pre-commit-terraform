@@ -129,7 +129,7 @@ function common::parse_and_export_env_vars {
 #######################################################################
 function common::is_hook_run_on_whole_repo {
   local -r hook_id="$1"
-  shift 1
+  shift
   local -a -r files=("$@")
   # get directory containing `.pre-commit-hooks.yaml` file
   local -r root_config_dir="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)")"
@@ -170,16 +170,17 @@ function common::is_hook_run_on_whole_repo {
 #######################################################################
 function common::per_dir_hook {
   local -r hook_id="$1"
-  declare -i args_array_length=$2
+  local -i args_array_length=$2
   shift 2
-  declare -a args=()
+  local -a args=()
   # Expand args to a true array.
   # Based on https://stackoverflow.com/a/10953834
   while ((args_array_length-- > 0)); do
     args+=("$1")
     shift
   done
-
+  # assign rest of function's positional ARGS into `files` array,
+  # despite there's only one positional ARG left
   local -a -r files=("$@")
 
   # check is (optional) function defined
