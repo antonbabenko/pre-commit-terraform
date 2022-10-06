@@ -12,7 +12,7 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
-  # Support for setting PATH to repo root.
+  # Support for setting relative PATH to .terraform-docs.yml config.
   for i in "${!ARGS[@]}"; do
     ARGS[i]=${ARGS[i]/--config=/--config=$(pwd)\/}
   done
