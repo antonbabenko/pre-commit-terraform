@@ -14,6 +14,17 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: suppress color for `tfupdate` is N/A`
 
+
+  # Prevent PASSED scenarios for things like:
+  #   - --args=--version '~> 4.2.0'
+  #   - --args=provider aws
+  if ! [[ ${ARGS[0]} =~ ^[a-z] ]]; then
+    common::colorify 'red' "Check the hook args order in .pre-commit.config.yaml."
+    common::colorify 'red' "Current command looks like:"
+    common::colorify 'red' "tfupdate ${ARGS[*]}"
+    exit 1
+  fi
+
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
