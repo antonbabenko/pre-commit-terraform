@@ -51,7 +51,7 @@ function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  tfupdate "${args[@]}" .
+  tfupdate "${args[@]}" --recursive .
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
