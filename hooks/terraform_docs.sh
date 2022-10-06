@@ -14,7 +14,7 @@ function main {
   common::parse_and_export_env_vars
   # Support for setting PATH to repo root.
   for i in "${!ARGS[@]}"; do
-    ARGS[i]=${ARGS[i]/__GIT_WORKING_DIR__/$(pwd)\/}
+    ARGS[i]=${ARGS[i]/--config=/--config=$(pwd)\/}
   done
   # shellcheck disable=SC2153 # False positive
   terraform_docs_ "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
