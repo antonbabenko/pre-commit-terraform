@@ -32,30 +32,30 @@ function main {
     return ${exit_code}
   }
 
-  common::per_dir_hook "$HOOK_ID" "${ARGS[*]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
 # Arguments:
-#   args (string with array) arguments that configure wrapped tool behavior
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   args (array) arguments that configure wrapped tool behavior
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
-  local -r args="$1"
-  local -r dir_path="$2"
+  local -r dir_path="$1"
+  shift
+  local -a -r args=("$@")
 
   # Print checked PATH **only** if TFLint have any messages
   # shellcheck disable=SC2091,SC2068 # Suppress error output
   $(tflint ${args[@]} 2>&1) 2> /dev/null || {
     common::colorify "yellow" "TFLint in $dir_path/:"
 
-    # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-    tflint ${args[@]}
+    tflint "${args[@]}"
   }
 
   # return exit code to common::per_dir_hook

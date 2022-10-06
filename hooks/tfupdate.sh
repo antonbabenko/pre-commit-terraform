@@ -56,7 +56,7 @@ function per_dir_hook_unique_part {
 # Unique part of `common::per_dir_hook`. The function is executed one time
 # in the root git repo
 # Arguments:
-#   args (string with array) arguments that configure wrapped tool behavior
+#   args (array) arguments that configure wrapped tool behavior
 #######################################################################
 function run_hook_on_whole_repo {
   local -a -r args=("$@")
