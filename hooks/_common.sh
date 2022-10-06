@@ -51,7 +51,22 @@ function common::parse_cmdline {
     case $argv in
       -a | --args)
         shift
-        ARGS+=("$1")
+        # `argv` is an string from array with content like:
+        #     ('provider aws' '--version "> 0.14"' '--ignore-path "some/path"')
+        #   where each element is the value of each `--args` from hook config.
+        # `echo` prints contents of `argv` as an expanded string
+        # `xargs` passes expanded string to `printf`
+        # `printf` which splits it into NUL-separated elements,
+        # NUL-separated elements read by `read` using empty separator
+        #     (`-d ''` or `-d $'\0'`)
+        #     into an `ARGS` array
+
+        # This allows to "rebuild" initial `args` array of sort of grouped elements
+        # into a proper array, where each element is a standalone array slice
+        # with quoted elements being treated as a standalone slice of array as well.
+        while read -r -d '' ARG; do
+          ARGS+=("$ARG")
+        done < <(echo "$1" | xargs printf '%s\0')
         shift
         ;;
       -h | --hook-config)
@@ -129,7 +144,7 @@ function common::parse_and_export_env_vars {
 #######################################################################
 function common::is_hook_run_on_whole_repo {
   local -r hook_id="$1"
-  shift 1
+  shift
   local -a -r files=("$@")
   # get directory containing `.pre-commit-hooks.yaml` file
   local -r root_config_dir="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)")"
@@ -163,21 +178,31 @@ function common::is_hook_run_on_whole_repo {
 # 2.1. If at least 1 check failed - change exit code to non-zero
 # 3. Complete hook execution and return exit code
 # Arguments:
-#   args (string with array) arguments that configure wrapped tool behavior
 #   hook_id (string) hook ID, see `- id` for details in .pre-commit-hooks.yaml file
+#   args_array_length (integer) Count of arguments in args array.
+#   args (array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
 function common::per_dir_hook {
-  local -r args="$1"
-  local -r hook_id="$2"
+  local -r hook_id="$1"
+  local -i args_array_length=$2
   shift 2
+  local -a args=()
+  # Expand args to a true array.
+  # Based on https://stackoverflow.com/a/10953834
+  while ((args_array_length-- > 0)); do
+    args+=("$1")
+    shift
+  done
+  # assign rest of function's positional ARGS into `files` array,
+  # despite there's only one positional ARG left
   local -a -r files=("$@")
 
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
     # check is hook run via `pre-commit run --all`
     common::is_hook_run_on_whole_repo "$hook_id" "${files[@]}"; then
-    run_hook_on_whole_repo "$args"
+    run_hook_on_whole_repo "${args[@]}"
     exit 0
   fi
 
@@ -203,7 +228,7 @@ function common::per_dir_hook {
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
     pushd "$dir_path" > /dev/null || continue
 
-    per_dir_hook_unique_part "$args" "$dir_path"
+    per_dir_hook_unique_part "$dir_path" "${args[@]}"
 
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then

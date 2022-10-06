@@ -14,27 +14,38 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: suppress color for `tfupdate` is N/A`
 
+  # Prevent PASSED scenarios for things like:
+  #   - --args=--version '~> 4.2.0'
+  #   - --args=provider aws
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
+  if ! [[ ${ARGS[0]} =~ ^[a-z] ]]; then
+    common::colorify 'red' "Check the hook args order in .pre-commit.config.yaml."
+    common::colorify 'red' "Current command looks like:"
+    common::colorify 'red' "tfupdate ${ARGS[*]}"
+    exit 1
+  fi
+
+  # shellcheck disable=SC2153 # False positive
+  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 #######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
 # Arguments:
-#   args (string with array) arguments that configure wrapped tool behavior
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   args (array) arguments that configure wrapped tool behavior
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
-  local -r args="$1"
   # shellcheck disable=SC2034 # Unused var.
-  local -r dir_path="$2"
+  local -r dir_path="$1"
+  shift
+  local -a -r args=("$@")
 
   # pass the arguments to hook
-  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  tfupdate ${args[@]} .
+  tfupdate "${args[@]}" .
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
@@ -45,15 +56,13 @@ function per_dir_hook_unique_part {
 # Unique part of `common::per_dir_hook`. The function is executed one time
 # in the root git repo
 # Arguments:
-#   args (string with array) arguments that configure wrapped tool behavior
+#   args (array) arguments that configure wrapped tool behavior
 #######################################################################
 function run_hook_on_whole_repo {
-  local -r args="$1"
+  local -a -r args=("$@")
+
   # pass the arguments to hook
-  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  # shellcheck disable=SC2048 # Use "${array[@]}" (with quotes) to prevent whitespace problems.
-  # shellcheck disable=SC2086 #  Double quote to prevent globbing and word splitting.
-  tfupdate ${args[*]} --recursive .
+  tfupdate "${args[@]}" --recursive .
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

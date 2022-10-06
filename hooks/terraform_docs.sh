@@ -13,11 +13,11 @@ function main {
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
   # Support for setting relative PATH to .terraform-docs.yml config.
-  # shellcheck disable=SC2178 # It's the simplest syntax for that case
-  ARGS=${ARGS[*]/--config=/--config=$(pwd)\/}
-  # shellcheck disable=SC2128 # It's the simplest syntax for that case
+  for i in "${!ARGS[@]}"; do
+    ARGS[i]=${ARGS[i]/--config=/--config=$(pwd)\/}
+  done
   # shellcheck disable=SC2153 # False positive
-  terraform_docs_ "${HOOK_CONFIG[*]}" "$ARGS" "${FILES[@]}"
+  terraform_docs_ "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -91,7 +91,7 @@ function terraform_docs {
   shift 3
   local -a -r files=("$@")
 
-  declare -a paths
+  local -a paths
 
   local index=0
   local file_with_path

@@ -21,7 +21,7 @@ function main {
     ARGS+=("-no-color")
   fi
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "${ARGS[*]}" "$HOOK_ID" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -31,17 +31,16 @@ function main {
 # 2. Run `terraform validate`
 # 3. If at least 1 check failed - change the exit code to non-zero
 # Arguments:
-#   args (string with array) arguments that configure wrapped tool behavior
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
-#   ENV_VARS (array) environment variables that will be used with
-#     `terraform` commands
+#   args (array) arguments that configure wrapped tool behavior
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
-  local -r args="$1"
-  local -r dir_path="$2"
+  local -r dir_path="$1"
+  shift
+  local -a -r args=("$@")
 
   local exit_code
   local validate_output
@@ -52,8 +51,7 @@ function per_dir_hook_unique_part {
   }
 
   # pass the arguments to hook
-  # shellcheck disable=SC2068 # hook fails when quoting is used ("$arg[@]")
-  validate_output=$(terraform validate ${args[@]} 2>&1)
+  validate_output=$(terraform validate "${args[@]}" 2>&1)
   exit_code=$?
 
   if [ $exit_code -ne 0 ]; then
