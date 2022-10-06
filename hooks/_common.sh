@@ -51,7 +51,22 @@ function common::parse_cmdline {
     case $argv in
       -a | --args)
         shift
-        ARGS+=("$1")
+        # `argv` is an string from array with content like:
+        #     ('provider aws' '--version "> 0.14"' '--ignore-path "some/path"')
+        #   where each element is the value of each `--args` from hook config.
+        # `echo` prints contents of `argv` as an expanded string
+        # `xargs` passes expanded string to `printf`
+        # `printf` which splits it into NUL-separated elements,
+        # NUL-separated elements read by `read` using empty separator
+        #     (`-d ''` or `-d $'\0'`)
+        #     into an `ARGS` array
+
+        # This allows to "rebuild" initial `args` array of sort of grouped elements
+        # into a proper array, where each element is a standalone array slice
+        # with quoted elements being treated as a standalone slice of array as well.
+        while read -r -d '' ARG; do
+          ARGS+=("$ARG")
+        done < <(echo "$1" | xargs printf '%s\0')
         shift
         ;;
       -h | --hook-config)
