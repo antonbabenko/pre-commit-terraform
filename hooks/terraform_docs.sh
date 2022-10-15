@@ -5,10 +5,10 @@ set -eo pipefail
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
-. "$SCRIPT_DIR/_common.sh"
+. "${SCRIPT_DIR}/_common.sh"
 
 function main {
-  common::initialize "$SCRIPT_DIR"
+  common::initialize "${SCRIPT_DIR}"
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
@@ -35,7 +35,7 @@ function terraform_docs_ {
   local -a -r files=("$@")
 
   # Get hook settings
-  IFS=";" read -r -a configs <<< "$hook_config"
+  IFS=";" read -r -a configs <<< "${hook_config}"
 
   local hack_terraform_docs
   hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
@@ -48,11 +48,11 @@ function terraform_docs_ {
   local is_old_terraform_docs
   is_old_terraform_docs=$(terraform-docs version | grep -o "v0.[1-7]\." | tail -1) || true
 
-  if [[ -z "$is_old_terraform_docs" ]]; then # Using terraform-docs 0.8+ (preferred)
+  if [[ -z "${is_old_terraform_docs}" ]]; then # Using terraform-docs 0.8+ (preferred)
 
-    terraform_docs "0" "${configs[*]}" "$args" "${files[@]}"
+    terraform_docs "0" "${configs[*]}" "${args}" "${files[@]}"
 
-  elif [[ "$hack_terraform_docs" == "1" ]]; then # Using awk script because terraform-docs is older than 0.8 and terraform 0.12 is used
+  elif [[ "${hack_terraform_docs}" == "1" ]]; then # Using awk script because terraform-docs is older than 0.8 and terraform 0.12 is used
 
     if [[ ! $(command -v awk) ]]; then
       echo "ERROR: awk is required for terraform-docs hack to work with Terraform 0.12."
@@ -61,13 +61,13 @@ function terraform_docs_ {
 
     local tmp_file_awk
     tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
-    terraform_docs_awk "$tmp_file_awk"
-    terraform_docs "$tmp_file_awk" "${configs[*]}" "$args" "${files[@]}"
-    rm -f "$tmp_file_awk"
+    terraform_docs_awk "${tmp_file_awk}"
+    terraform_docs "${tmp_file_awk}" "${configs[*]}" "${args}" "${files[@]}"
+    rm -f "${tmp_file_awk}"
 
   else # Using terraform 0.11 and no awk script is needed for that
 
-    terraform_docs "0" "${configs[*]}" "$args" "${files[@]}"
+    terraform_docs "0" "${configs[*]}" "${args}" "${files[@]}"
 
   fi
 }
@@ -98,7 +98,7 @@ function terraform_docs {
   for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
-    paths[index]=$(dirname "$file_with_path")
+    paths[index]=$(dirname "${file_with_path}")
 
     ((index += 1))
   done
@@ -112,29 +112,29 @@ function terraform_docs {
   local add_to_existing=false
   local create_if_not_exist=false
 
-  read -r -a configs <<< "$hook_config"
+  read -r -a configs <<< "${hook_config}"
 
   for c in "${configs[@]}"; do
 
-    IFS="=" read -r -a config <<< "$c"
+    IFS="=" read -r -a config <<< "${c}"
     key=${config[0]}
     value=${config[1]}
 
-    case $key in
+    case ${key} in
       --path-to-file)
-        text_file=$value
+        text_file=${value}
         ;;
       --add-to-existing-file)
-        add_to_existing=$value
+        add_to_existing=${value}
         ;;
       --create-file-if-not-exist)
-        create_if_not_exist=$value
+        create_if_not_exist=${value}
         ;;
     esac
   done
 
   # Override formatter if no config file set
-  if [[ "$args" != *"--config"* ]]; then
+  if [[ "${args}" != *"--config"* ]]; then
     local tf_docs_formatter="md"
 
   # Suppress terraform_docs color
@@ -145,15 +145,15 @@ function terraform_docs {
     config_file=${config_file% *}
 
     local config_file_no_color
-    config_file_no_color="$config_file$(date +%s).yml"
+    config_file_no_color="${config_file}$(date +%s).yml"
 
-    if [ "$PRE_COMMIT_COLOR" = "never" ] &&
-      [[ $(grep -e '^formatter:' "$config_file") == *"pretty"* ]] &&
-      [[ $(grep '  color: ' "$config_file") != *"false"* ]]; then
+    if [ "${PRE_COMMIT_COLOR}" = "never" ] &&
+      [[ $(grep -e '^formatter:' "${config_file}") == *"pretty"* ]] &&
+      [[ $(grep '  color: ' "${config_file}") != *"false"* ]]; then
 
-      cp "$config_file" "$config_file_no_color"
-      echo -e "settings:\n  color: false" >> "$config_file_no_color"
-      args=${args/$config_file/$config_file_no_color}
+      cp "${config_file}" "${config_file_no_color}"
+      echo -e "settings:\n  color: false" >> "${config_file_no_color}"
+      args=${args/${config_file}/${config_file_no_color}}
     fi
   fi
 
@@ -161,76 +161,76 @@ function terraform_docs {
   for dir_path in $(echo "${paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
 
-    pushd "$dir_path" > /dev/null || continue
+    pushd "${dir_path}" > /dev/null || continue
 
     #
     # Create file if it not exist and `--create-if-not-exist=true` provided
     #
-    if $create_if_not_exist && [[ ! -f "$text_file" ]]; then
+    if ${create_if_not_exist} && [[ ! -f "${text_file}" ]]; then
       dir_have_tf_files="$(
         find . -maxdepth 1 -type f | sed 's|.*\.||' | sort -u | grep -oE '^tf$|^tfvars$' ||
           exit 0
       )"
 
       # if no TF files - skip dir
-      [ ! "$dir_have_tf_files" ] && popd > /dev/null && continue
+      [ ! "${dir_have_tf_files}" ] && popd > /dev/null && continue
 
-      dir="$(dirname "$text_file")"
+      dir="$(dirname "${text_file}")"
 
-      mkdir -p "$dir"
+      mkdir -p "${dir}"
       {
         echo -e "# ${PWD##*/}\n"
         echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
         echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
-      } >> "$text_file"
+      } >> "${text_file}"
     fi
 
     # If file still not exist - skip dir
-    [[ ! -f "$text_file" ]] && popd > /dev/null && continue
+    [[ ! -f "${text_file}" ]] && popd > /dev/null && continue
 
     #
     # If `--add-to-existing-file=true` set, check is in file exist "hook markers",
     # and if not - append "hook markers" to the end of file.
     #
-    if $add_to_existing; then
-      HAVE_MARKER=$(grep -o '<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->' "$text_file" || exit 0)
+    if ${add_to_existing}; then
+      HAVE_MARKER=$(grep -o '<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->' "${text_file}" || exit 0)
 
-      if [ ! "$HAVE_MARKER" ]; then
-        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
-        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+      if [ ! "${HAVE_MARKER}" ]; then
+        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "${text_file}"
+        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "${text_file}"
       fi
     fi
 
-    if [[ "$terraform_docs_awk_file" == "0" ]]; then
+    if [[ "${terraform_docs_awk_file}" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs $tf_docs_formatter $args ./ > "$tmp_file"
+      terraform-docs ${tf_docs_formatter} ${args} ./ > "${tmp_file}"
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
       tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
-      mv "$tmp_file_docs" "$tmp_file_docs.tf"
+      mv "${tmp_file_docs}" "${tmp_file_docs}.tf"
       local tmp_file_docs_tf
-      tmp_file_docs_tf="$tmp_file_docs.tf"
+      tmp_file_docs_tf="${tmp_file_docs}.tf"
 
-      awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
+      awk -f "${terraform_docs_awk_file}" ./*.tf > "${tmp_file_docs_tf}"
       # shellcheck disable=SC2086
-      terraform-docs $tf_docs_formatter $args "$tmp_file_docs_tf" > "$tmp_file"
-      rm -f "$tmp_file_docs_tf"
+      terraform-docs ${tf_docs_formatter} ${args} "${tmp_file_docs_tf}" > "${tmp_file}"
+      rm -f "${tmp_file_docs_tf}"
     fi
 
     # Replace content between markers with the placeholder - https://stackoverflow.com/questions/1212799/how-do-i-extract-lines-between-two-line-delimiters-in-perl#1212834
-    perl -i -ne 'if (/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/../END OF PRE-COMMIT-TERRAFORM DOCS HOOK/) { print $_ if /BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/; print "I_WANT_TO_BE_REPLACED\n$_" if /END OF PRE-COMMIT-TERRAFORM DOCS HOOK/;} else { print $_ }' "$text_file"
+    perl -i -ne 'if (/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/../END OF PRE-COMMIT-TERRAFORM DOCS HOOK/) { print $_ if /BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/; print "I_WANT_TO_BE_REPLACED\n$_" if /END OF PRE-COMMIT-TERRAFORM DOCS HOOK/;} else { print $_ }' "${text_file}"
 
     # Replace placeholder with the content of the file
-    perl -i -e 'open(F, "'"$tmp_file"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "$text_file"
+    perl -i -e 'open(F, "'"${tmp_file}"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "${text_file}"
 
-    rm -f "$tmp_file"
+    rm -f "${tmp_file}"
 
     popd > /dev/null
   done
 
   # Cleanup
-  rm -f "$config_file_no_color"
+  rm -f "${config_file_no_color}"
 }
 
 #######################################################################
@@ -242,7 +242,7 @@ function terraform_docs {
 function terraform_docs_awk {
   local -r output_file=$1
 
-  cat << "EOF" > "$output_file"
+  cat << "EOF" > "${output_file}"
 # This script converts Terraform 0.12 variables/outputs to something suitable for `terraform-docs`
 # As of terraform-docs v0.6.0, HCL2 is not supported. This script is a *dirty hack* to get around it.
 # https://github.com/terraform-docs/terraform-docs/

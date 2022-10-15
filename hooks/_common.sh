@@ -16,7 +16,7 @@ function common::initialize {
   local -r script_dir=$1
   # source getopt function
   # shellcheck source=../lib_getopt
-  . "$script_dir/../lib_getopt"
+  . "${script_dir}/../lib_getopt"
 }
 
 #######################################################################
@@ -45,10 +45,10 @@ function common::parse_cmdline {
   local argv
   # TODO: Planned breaking change: remove `init-args`, `envs` as not self-descriptive
   argv=$(getopt -o a:,h:,i:,e: --long args:,hook-config:,init-args:,tf-init-args:,envs:,env-vars: -- "$@") || return
-  eval "set -- $argv"
+  eval "set -- ${argv}"
 
   for argv; do
-    case $argv in
+    case ${argv} in
       -a | --args)
         shift
         # `argv` is an string from array with content like:
@@ -65,7 +65,7 @@ function common::parse_cmdline {
         # into a proper array, where each element is a standalone array slice
         # with quoted elements being treated as a standalone slice of array as well.
         while read -r -d '' ARG; do
-          ARGS+=("$ARG")
+          ARGS+=("${ARG}")
         done < <(echo "$1" | xargs printf '%s\0')
         shift
         ;;
@@ -106,26 +106,26 @@ function common::parse_and_export_env_vars {
   local arg_idx
 
   for arg_idx in "${!ARGS[@]}"; do
-    local arg="${ARGS[$arg_idx]}"
+    local arg="${ARGS[${arg_idx}]}"
 
     # Repeat until all env vars will be expanded
     while true; do
       # Check if at least 1 env var exists in `$arg`
       # shellcheck disable=SC2016 # '${' should not be expanded
-      if [[ "$arg" =~ .*'${'[A-Z_][A-Z0-9_]+?'}'.* ]]; then
+      if [[ "${arg}" =~ .*'${'[A-Z_][A-Z0-9_]+?'}'.* ]]; then
         # Get `ENV_VAR` from `.*${ENV_VAR}.*`
         local env_var_name=${arg#*$\{}
         env_var_name=${env_var_name%%\}*}
         local env_var_value="${!env_var_name}"
         # shellcheck disable=SC2016 # '${' should not be expanded
-        common::colorify "green" 'Found ${'"$env_var_name"'} in:        '"'$arg'"
+        common::colorify "green" 'Found ${'"${env_var_name}"'} in:        '"'${arg}'"
         # Replace env var name with its value.
         # `$arg` will be checked in `if` conditional, `$ARGS` will be used in the next functions.
         # shellcheck disable=SC2016 # '${' should not be expanded
-        arg=${arg/'${'$env_var_name'}'/$env_var_value}
-        ARGS[$arg_idx]=$arg
+        arg=${arg/'${'${env_var_name}'}'/${env_var_value}}
+        ARGS[${arg_idx}]=${arg}
         # shellcheck disable=SC2016 # '${' should not be expanded
-        common::colorify "green" 'After ${'"$env_var_name"'} expansion: '"'$arg'\n"
+        common::colorify "green" 'After ${'"${env_var_name}"'} expansion: '"'${arg}'\n"
         continue
       fi
       break
@@ -149,21 +149,21 @@ function common::is_hook_run_on_whole_repo {
   # get directory containing `.pre-commit-hooks.yaml` file
   local -r root_config_dir="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)")"
   # get included and excluded files from .pre-commit-hooks.yaml file
-  local -r hook_config_block=$(sed -n "/^- id: $hook_id$/,/^$/p" "$root_config_dir/.pre-commit-hooks.yaml")
-  local -r included_files=$(awk '$1 == "files:" {print $2; exit}' <<< "$hook_config_block")
-  local -r excluded_files=$(awk '$1 == "exclude:" {print $2; exit}' <<< "$hook_config_block")
+  local -r hook_config_block=$(sed -n "/^- id: ${hook_id}$/,/^$/p" "${root_config_dir}/.pre-commit-hooks.yaml")
+  local -r included_files=$(awk '$1 == "files:" {print $2; exit}' <<< "${hook_config_block}")
+  local -r excluded_files=$(awk '$1 == "exclude:" {print $2; exit}' <<< "${hook_config_block}")
   # sorted string with the files passed to the hook by pre-commit
   local -r files_to_check=$(printf '%s\n' "${files[@]}" | sort | tr '\n' ' ')
   # git ls-files sorted string
   local all_files_that_can_be_checked
 
-  if [ -z "$excluded_files" ]; then
-    all_files_that_can_be_checked=$(git ls-files | sort | grep -e "$included_files" | tr '\n' ' ')
+  if [ -z "${excluded_files}" ]; then
+    all_files_that_can_be_checked=$(git ls-files | sort | grep -e "${included_files}" | tr '\n' ' ')
   else
-    all_files_that_can_be_checked=$(git ls-files | sort | grep -e "$included_files" | grep -v -e "$excluded_files" | tr '\n' ' ')
+    all_files_that_can_be_checked=$(git ls-files | sort | grep -e "${included_files}" | grep -v -e "${excluded_files}" | tr '\n' ' ')
   fi
 
-  if [ "$files_to_check" == "$all_files_that_can_be_checked" ]; then
+  if [ "${files_to_check}" == "${all_files_that_can_be_checked}" ]; then
     return 0
   else
     return 1
@@ -201,7 +201,7 @@ function common::per_dir_hook {
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
     # check is hook run via `pre-commit run --all`
-    common::is_hook_run_on_whole_repo "$hook_id" "${files[@]}"; then
+    common::is_hook_run_on_whole_repo "${hook_id}" "${files[@]}"; then
     run_hook_on_whole_repo "${args[@]}"
     exit 0
   fi
@@ -212,7 +212,7 @@ function common::per_dir_hook {
   for file_with_path in "${files[@]}"; do
     file_with_path="${file_with_path// /__REPLACED__SPACE__}"
 
-    dir_paths[index]=$(dirname "$file_with_path")
+    dir_paths[index]=$(dirname "${file_with_path}")
 
     ((index += 1))
   done
@@ -226,22 +226,22 @@ function common::per_dir_hook {
   # run hook for each path
   for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
-    pushd "$dir_path" > /dev/null || continue
+    pushd "${dir_path}" > /dev/null || continue
 
-    per_dir_hook_unique_part "$dir_path" "${args[@]}"
+    per_dir_hook_unique_part "${dir_path}" "${args[@]}"
 
     local exit_code=$?
-    if [ $exit_code -ne 0 ]; then
-      final_exit_code=$exit_code
+    if [ ${exit_code} -ne 0 ]; then
+      final_exit_code=${exit_code}
     fi
 
     popd > /dev/null
   done
 
   # restore errexit if it was set before the "for" loop
-  [[ $ERREXIT_IS_SET ]] && set -e
+  [[ ${ERREXIT_IS_SET} ]] && set -e
   # return the hook final exit_code
-  exit $final_exit_code
+  exit ${final_exit_code}
 }
 
 #######################################################################
@@ -269,8 +269,8 @@ function common::colorify {
   local -r TEXT=$2
   # Params end #
 
-  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
-    COLOR=$RESET
+  if [ "${PRE_COMMIT_COLOR}" = "never" ]; then
+    COLOR=${RESET}
   fi
 
   echo -e "${COLOR}${TEXT}${RESET}"
@@ -295,7 +295,7 @@ function common::terraform_init {
   local init_output
 
   # Suppress terraform init color
-  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+  if [ "${PRE_COMMIT_COLOR}" = "never" ]; then
     TF_INIT_ARGS+=("-no-color")
   fi
 
@@ -303,13 +303,13 @@ function common::terraform_init {
     init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
     exit_code=$?
 
-    if [ $exit_code -ne 0 ]; then
-      common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
-      echo -e "$init_output\n\n"
+    if [ ${exit_code} -ne 0 ]; then
+      common::colorify "red" "'terraform init' failed, '${command_name}' skipped: ${dir_path}"
+      echo -e "${init_output}\n\n"
     fi
   fi
 
-  return $exit_code
+  return ${exit_code}
 }
 
 #######################################################################
@@ -329,6 +329,6 @@ function common::export_provided_env_vars {
     var_name="${var%%=*}"
     var_value="${var#*=}"
     # shellcheck disable=SC2086
-    export $var_name="$var_value"
+    export ${var_name}="${var_value}"
   done
 }

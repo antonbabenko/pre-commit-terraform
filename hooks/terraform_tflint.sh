@@ -6,10 +6,10 @@ set -eo pipefail
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
-. "$SCRIPT_DIR/_common.sh"
+. "${SCRIPT_DIR}/_common.sh"
 
 function main {
-  common::initialize "$SCRIPT_DIR"
+  common::initialize "${SCRIPT_DIR}"
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
@@ -32,7 +32,7 @@ function main {
     return ${exit_code}
   }
 
-  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "${HOOK_ID}" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -53,14 +53,14 @@ function per_dir_hook_unique_part {
   # Print checked PATH **only** if TFLint have any messages
   # shellcheck disable=SC2091,SC2068 # Suppress error output
   $(tflint ${args[@]} 2>&1) 2> /dev/null || {
-    common::colorify "yellow" "TFLint in $dir_path/:"
+    common::colorify "yellow" "TFLint in ${dir_path}/:"
 
     tflint "${args[@]}"
   }
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
-  return $exit_code
+  return ${exit_code}
 }
 
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
