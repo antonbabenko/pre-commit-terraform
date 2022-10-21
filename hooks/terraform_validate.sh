@@ -43,16 +43,56 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   local exit_code
-  local validate_output
 
-  common::terraform_init 'terraform validate' "$dir_path" || {
+  #
+  # Get hook settings
+  #
+  local retry_once_with_cleanup=false
+
+  IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
+
+  for c in "${configs[@]}"; do
+
+    IFS="=" read -r -a config <<< "$c"
+    key=${config[0]}
+    value=${config[1]}
+
+    case $key in
+      --retry-once-with-cleanup)
+        retry_once_with_cleanup=$value
+        ;;
+    esac
+  done
+
+  function do_validate {
+
+    local exit_code
+    local validate_output
+
+    common::terraform_init 'terraform validate' "$dir_path" || {
+      exit_code=$?
+      return $exit_code
+    }
+
+    # pass the arguments to hook
+    validate_output=$(terraform validate "${args[@]}" 2>&1)
     exit_code=$?
+
     return $exit_code
   }
 
-  # pass the arguments to hook
-  validate_output=$(terraform validate "${args[@]}" 2>&1)
+  do_validate
   exit_code=$?
+
+  if [ $exit_code -ne 0 ] && [ "$retry_once_with_cleanup" = true ]; then
+    if [ -d .terraform ]; then
+      # Will only be displayed if validation fails again.
+      common::colorify "yellow" "Validation failed. Re-initialising: $dir_path"
+      rm -r .terraform
+      do_validate
+      exit_code=$?
+    fi
+  fi
 
   if [ $exit_code -ne 0 ]; then
     common::colorify "red" "Validation failed: $dir_path"
