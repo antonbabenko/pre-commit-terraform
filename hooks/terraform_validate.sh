@@ -43,7 +43,6 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   local exit_code
-
   #
   # Get hook settings
   #
@@ -64,31 +63,64 @@ function per_dir_hook_unique_part {
     esac
   done
 
-  function do_validate {
-
-    local exit_code
-    local validate_output
-
-    common::terraform_init 'terraform validate' "$dir_path" || {
-      exit_code=$?
-      return $exit_code
-    }
-
-    # pass the arguments to hook
-    validate_output=$(terraform validate "${args[@]}" 2>&1)
+  common::terraform_init 'terraform validate' "$dir_path" || {
     exit_code=$?
-
     return $exit_code
   }
 
-  do_validate
-  exit_code=$?
+  function do_validate {
+    validate_output=$(terraform validate "${args[@]}" 2>&1)
+    exit_code=$?
+    return $exit_code
+  }
 
-  if [ $exit_code -ne 0 ] && [ "$retry_once_with_cleanup" = true ]; then
+  function parse_validate {
+    # Requires jq
+    local exit_code
+    local validate_output
+    local valid
+    local summary
+
+    validate_output=$(terraform validate -json "${args[@]}" 2>&1)
+    exit_code=$?
+
+    valid="$(jq -rc '.valid' <<< "$validate_output")"
+
+    if [ "$valid" == "true" ]; then
+      return 0
+    fi
+
+    # Pretty-print error information
+    echo "$validate_output" | jq '.diagnostics[]'
+
+    # Parse error message
+    while IFS= read -r error_message; do
+      summary="$(jq -rc '.summary' <<< "$error_message")"
+      case $summary in
+        "missing or corrupted provider plugins")
+          return 10
+          ;;
+        "Module source has changed")
+          return 10
+          ;;
+      esac
+    done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
+    return $exit_code
+  }
+
+  if [ "$retry_once_with_cleanup" = true ]; then
+    parse_validate
+    exit_code=$?
+  else
+    do_validate
+    exit_code=$?
+  fi
+
+  if [ $exit_code -eq 10 ] && [ "$retry_once_with_cleanup" = true ]; then
     if [ -d .terraform ]; then
       # Will only be displayed if validation fails again.
-      common::colorify "yellow" "Validation failed. Re-initialising: $dir_path"
-      rm -r .terraform
+      common::colorify "yellow" "Validation failed. Removing .terraform from: $dir_path"
+      rm -rf .terraform
       do_validate
       exit_code=$?
     fi
