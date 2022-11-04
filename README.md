@@ -228,7 +228,7 @@ pre-commit run -a
 
 Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions)):
 
-**NOTE:** This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#docker-usage-file-permissions) for more information.
+> Note: This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#docker-usage-file-permissions) for more information.
 
 ```bash
 TAG=latest
@@ -274,8 +274,9 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 
 > All, except deprecated hooks: `checkov`, `terraform_docs_replace`
 
-You can use environment variables for the `--args` section.  
-Note: You _must_ use the `${ENV_VAR}` definition, `$ENV_VAR` will not expand.
+You can use environment variables for the `--args` section.
+
+> **Warning**: You _must_ use the `${ENV_VAR}` definition, `$ENV_VAR` will not expand.
 
 Config example:
 
@@ -476,7 +477,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --args=--config=.terraform-docs.yml
     ```
 
-    Note: Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
+    > **Warning**: Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
 5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
 
@@ -654,11 +655,18 @@ Example:
 
 3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can delete broken `.terraform` directories in your repository:
 
+    > **Warning:** If you use Terraform workspaces, DO NOT try to use workarounds in this item ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
+
+    > **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform` directories will be deleted without prompting for consent.
+
     ```yaml
     - id: terraform_validate
       args:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
+
+    > Note: That flag require additional installed dependency: `jq`.
+
 
     If `--retry-once-with-cleanup=true`, then in each failed directory the `.terraform` directory will first be deleted before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
 
@@ -667,7 +675,6 @@ Example:
     * Module version requirements have changed
     * Module not installed
 
-    **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform` directories will be deleted without prompting for consent.
 
     An alternative solution is to find and delete all `.terraform` directories in your repository:
 
@@ -682,8 +689,6 @@ Example:
     ```
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
-
-    **Warning:** If you use Terraform workspaces, DO NOT use either of these workarounds ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
@@ -734,7 +739,7 @@ Example:
    [...]
    ```
 
-   **Note:** The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
+   > Note: The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
 
 ### terraform_wrapper_module_for_each
 
