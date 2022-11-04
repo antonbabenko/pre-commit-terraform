@@ -27,35 +27,34 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 ## Table of content
 
-- [Collection of git hooks for Terraform to be used with pre-commit framework](#collection-of-git-hooks-for-terraform-to-be-used-with-pre-commit-framework)
-  - [Sponsors](#sponsors)
-  - [Table of content](#table-of-content)
-  - [How to install](#how-to-install)
-    - [1. Install dependencies](#1-install-dependencies)
-    - [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
-    - [3. Add configs and hooks](#3-add-configs-and-hooks)
-    - [4. Run](#4-run)
-  - [Available Hooks](#available-hooks)
-  - [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
-    - [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
-    - [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
-    - [All hooks: Disable color output](#all-hooks-disable-color-output)
-    - [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
-    - [infracost_breakdown](#infracost_breakdown)
-    - [terraform_docs](#terraform_docs)
-    - [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
-    - [terraform_fmt](#terraform_fmt)
-    - [terraform_providers_lock](#terraform_providers_lock)
-    - [terraform_tflint](#terraform_tflint)
-    - [terraform_tfsec](#terraform_tfsec)
-    - [terraform_validate](#terraform_validate)
-    - [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
-    - [terrascan](#terrascan)
-    - [tfupdate](#tfupdate)
-  - [Docker Usage: File Permissions](#docker-usage-file-permissions)
-  - [Authors](#authors)
-  - [License](#license)
-    - [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
+* [Sponsors](#sponsors)
+* [Table of content](#table-of-content)
+* [How to install](#how-to-install)
+  * [1. Install dependencies](#1-install-dependencies)
+  * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
+  * [3. Add configs and hooks](#3-add-configs-and-hooks)
+  * [4. Run](#4-run)
+* [Available Hooks](#available-hooks)
+* [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
+  * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
+  * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
+  * [All hooks: Disable color output](#all-hooks-disable-color-output)
+  * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
+  * [infracost_breakdown](#infracost_breakdown)
+  * [terraform_docs](#terraform_docs)
+  * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
+  * [terraform_fmt](#terraform_fmt)
+  * [terraform_providers_lock](#terraform_providers_lock)
+  * [terraform_tflint](#terraform_tflint)
+  * [terraform_tfsec](#terraform_tfsec)
+  * [terraform_validate](#terraform_validate)
+  * [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
+  * [terrascan](#terrascan)
+  * [tfupdate](#tfupdate)
+* [Docker Usage: File Permissions](#docker-usage-file-permissions)
+* [Authors](#authors)
+* [License](#license)
+  * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
 
 ## How to install
 
@@ -518,7 +517,7 @@ Example:
 
 1. The hook requires Terraform 0.14 or later.
 2. The hook invokes two operations that can be really slow:
-    * `terraform init` (in case `.terraform` directory is not initialised)
+    * `terraform init` (in case `.terraform` directory is not initialized)
     * `terraform providers lock`
 
     Both operations require downloading data from remote Terraform registries, and not all of that downloaded data or meta-data is currently being cached by Terraform.
@@ -661,12 +660,12 @@ Example:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
 
-    If `--retry-once-with-cleanup=true`, then in each failed directory the `.terraform` directory will first be deleted before retrying once more. To avoid unecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
+    If `--retry-once-with-cleanup=true`, then in each failed directory the `.terraform` directory will first be deleted before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
 
-    - Missing or corrupted provider plugins
-    - Module source has changed
-    - Module version requirements have changed
-    - Module not installed
+    * Missing or corrupted provider plugins
+    * Module source has changed
+    * Module version requirements have changed
+    * Module not installed
 
     **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform` directories will be deleted without prompting for consent.
 
@@ -689,17 +688,18 @@ Example:
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
    When running the hook against Terraform code where you have provider `configuration_aliases` defined in a `required_providers` configuration block, terraform will throw an error like:
-   >
-   >
+
    > Error: Provider configuration not present
-   > To work with <resource> its original provider configuration at provider["registry.terraform.io/hashicorp/aws"].<provider_alias> is required, but it has been removed. This occurs when a provider configuration is removed while
-   > objects created by that provider still exist in the state. Re-add the provider configuration to destroy <resource>, after which you can remove the provider configuration again.
+   > To work with `<resource>` its original provider configuration at provider `["registry.terraform.io/hashicorp/aws"].<provider_alias>` is required, but it has been removed. This occurs when a provider configuration is removed while
+   > objects created by that provider still exist in the state. Re-add the provider configuration to destroy `<resource>`, after which you can remove the provider configuration again.
 
    This is a [known issue](https://github.com/hashicorp/terraform/issues/28490) with Terraform and how providers are initialized in Terraform 0.15 and later. To work around this you can add an `exclude` parameter to the configuration of `terraform_validate` hook like this:
+
    ```yaml
    - id: terraform_validate
      exclude: '^[^/]+$'
    ```
+
    This will exclude the root directory from being processed by this hook. Then add a subdirectory like "examples" or "tests" and put an example implementation in place that defines the providers with the proper aliases, and this will give you validation of your module through the example. If instead you are using this with multiple modules in one repository you'll want to set the path prefix in the regular expression, such as `exclude: modules/offendingmodule/[^/]+$`.
 
    Alternately, you can use [terraform-config-inspect](https://github.com/hashicorp/terraform-config-inspect) and use a variant of [this script](https://github.com/bendrucker/terraform-configuration-aliases-action/blob/main/providers.sh) to generate a providers file at runtime:
@@ -717,6 +717,7 @@ Example:
    ```
 
    Save it as `.generate-providers.sh` in the root of your repository and add a `pre-commit` hook to run it before all other hooks, like so:
+
    ```yaml
    - repos:
      - repo: local
@@ -779,7 +780,7 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
     See the `terrascan run -h` command line help for available options.
 
-2. Use the `--args=--verbose` parameter to see the rule ID in the scaning output. Usuful to skip validations.
+2. Use the `--args=--verbose` parameter to see the rule ID in the scanning output. Useful to skip validations.
 3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
 4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
 
