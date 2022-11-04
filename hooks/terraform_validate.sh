@@ -84,18 +84,18 @@ function per_dir_hook_unique_part {
     validate_output=$(terraform validate -json "${args[@]}" 2>&1)
     exit_code=$?
 
-    valid="$(jq -rc '.valid' <<< "$validate_output")"
+    valid=$(jq -rc '.valid' <<< "$validate_output")
 
     if [ "$valid" == "true" ]; then
       return 0
     fi
 
     # Pretty-print error information
-    echo "$validate_output" | jq '.diagnostics[]'
+    jq '.diagnostics[]' <<< "$validate_output"
 
-    # Parse error message
+    # Parse error message, return code 10 to indicate a catch
     while IFS= read -r error_message; do
-      summary="$(jq -rc '.summary' <<< "$error_message")"
+      summary=$(jq -rc '.summary' <<< "$error_message")
       case $summary in
         "missing or corrupted provider plugins")
           return 10
@@ -103,12 +103,20 @@ function per_dir_hook_unique_part {
         "Module source has changed")
           return 10
           ;;
+        "Module version requirements have changed")
+          return 10
+          ;;
+        "Module not installed")
+          return 10
+          ;;
       esac
     done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
+    # Return `terraform validate`'s original exit code
+    # when `$summary` isn't covered by `case` block above
     return $exit_code
   }
 
-  if [ "$retry_once_with_cleanup" = true ]; then
+  if [ "$retry_once_with_cleanup" == "true" ]; then
     parse_validate
     exit_code=$?
   else
@@ -116,11 +124,12 @@ function per_dir_hook_unique_part {
     exit_code=$?
   fi
 
-  if [ $exit_code -eq 10 ] && [ "$retry_once_with_cleanup" = true ]; then
+  if [ $exit_code -eq 10 ] && [ "$retry_once_with_cleanup" == "true" ]; then
     if [ -d .terraform ]; then
       # Will only be displayed if validation fails again.
       common::colorify "yellow" "Validation failed. Removing .terraform from: $dir_path"
       rm -rf .terraform
+      common::colorify "yellow" "Re-validating: $dir_path"
       do_validate
       exit_code=$?
     fi

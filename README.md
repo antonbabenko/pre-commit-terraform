@@ -27,34 +27,35 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 ## Table of content
 
-* [Sponsors](#sponsors)
-* [Table of content](#table-of-content)
-* [How to install](#how-to-install)
-  * [1. Install dependencies](#1-install-dependencies)
-  * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
-  * [3. Add configs and hooks](#3-add-configs-and-hooks)
-  * [4. Run](#4-run)
-* [Available Hooks](#available-hooks)
-* [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
-  * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
-  * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
-  * [All hooks: Disable color output](#all-hooks-disable-color-output)
-  * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
-  * [infracost_breakdown](#infracost_breakdown)
-  * [terraform_docs](#terraform_docs)
-  * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
-  * [terraform_fmt](#terraform_fmt)
-  * [terraform_providers_lock](#terraform_providers_lock)
-  * [terraform_tflint](#terraform_tflint)
-  * [terraform_tfsec](#terraform_tfsec)
-  * [terraform_validate](#terraform_validate)
-  * [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
-  * [terrascan](#terrascan)
-  * [tfupdate](#tfupdate)
-* [Docker Usage: File Permissions](#docker-usage-file-permissions)
-* [Authors](#authors)
-* [License](#license)
-  * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
+- [Collection of git hooks for Terraform to be used with pre-commit framework](#collection-of-git-hooks-for-terraform-to-be-used-with-pre-commit-framework)
+  - [Sponsors](#sponsors)
+  - [Table of content](#table-of-content)
+  - [How to install](#how-to-install)
+    - [1. Install dependencies](#1-install-dependencies)
+    - [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
+    - [3. Add configs and hooks](#3-add-configs-and-hooks)
+    - [4. Run](#4-run)
+  - [Available Hooks](#available-hooks)
+  - [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
+    - [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
+    - [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
+    - [All hooks: Disable color output](#all-hooks-disable-color-output)
+    - [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
+    - [infracost_breakdown](#infracost_breakdown)
+    - [terraform_docs](#terraform_docs)
+    - [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
+    - [terraform_fmt](#terraform_fmt)
+    - [terraform_providers_lock](#terraform_providers_lock)
+    - [terraform_tflint](#terraform_tflint)
+    - [terraform_tfsec](#terraform_tfsec)
+    - [terraform_validate](#terraform_validate)
+    - [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
+    - [terrascan](#terrascan)
+    - [tfupdate](#tfupdate)
+  - [Docker Usage: File Permissions](#docker-usage-file-permissions)
+  - [Authors](#authors)
+  - [License](#license)
+    - [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
 
 ## How to install
 
@@ -70,7 +71,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
-* [`jq`](https://github.com/stedolan/jq) required for `infracost_breakdown` hook.
+* [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` and `infracost_breakdown` hook.
 * [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
 * [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
 
@@ -660,8 +661,15 @@ Example:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
 
-    If `--retry-once-with-cleanup=true`, then in each failed directory the `.terraform` directory will first be deleted before retrying once more.
-    
+    If `--retry-once-with-cleanup=true`, then in each failed directory the `.terraform` directory will first be deleted before retrying once more. To avoid unecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
+
+    - Missing or corrupted provider plugins
+    - Module source has changed
+    - Module version requirements have changed
+    - Module not installed
+
+    **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform` directories will be deleted without prompting for consent.
+
     An alternative solution is to find and delete all `.terraform` directories in your repository:
 
     ```bash
@@ -676,7 +684,7 @@ Example:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    **Warning:** If you use Terraform workspaces, DO NOT use these workarounds ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
+    **Warning:** If you use Terraform workspaces, DO NOT use either of these workarounds ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
