@@ -71,7 +71,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   <sub><sup>Some hardware where this OS will run,
   <sub><sup>Electricity for hardware and internet connection,
   <sub><sup>Some basic physical laws,
-  <sub><sup>Hope that it all will works.
+  <sub><sup>Hope that it all will work.
   </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
 * [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook.
