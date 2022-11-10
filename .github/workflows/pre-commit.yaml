@@ -15,7 +15,7 @@ jobs:
       run: |
         export DIFF=$(git diff --name-only origin/${{ github.base_ref }} ${{ github.sha }})
         echo "Diff between ${{ github.base_ref }} and ${{ github.sha }}"
-        echo "::set-output name=files::$( echo "$DIFF" | xargs echo )"
+        echo "name=files::$( echo "$DIFF" | xargs echo )" >> $GITHUB_OUTPUT
 
     - name: Install shfmt
       run: |
