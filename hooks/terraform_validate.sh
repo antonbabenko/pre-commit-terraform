@@ -25,6 +25,74 @@ function main {
 }
 
 #######################################################################
+# Run `terraform validate`
+# Arguments:
+#   args (array) arguments that configure wrapped tool behavior
+# Outputs:
+#   Returns the exit_code from `terraform validate`
+#######################################################################
+
+function do_validate {
+  validate_output=$(terraform validate "${args[@]}" 2>&1)
+  exit_code=$?
+  return $exit_code
+}
+
+#######################################################################
+# Run `terraform validate` and handle errors
+# Arguments:
+#   args (array) arguments that configure wrapped tool behavior
+# Outputs:
+#   Usually returns the exit_code from `terraform validate`.
+#   If there is an error and the error is recognised then the
+#     magic number 42 is returned instead.
+#######################################################################
+
+function do_validate_and_handle_errors {
+  # Requires jq
+  local exit_code
+  local validate_output
+  local valid
+  local summary
+
+  validate_output=$(terraform validate -json "${args[@]}" 2>&1)
+  exit_code=$?
+
+  valid=$(jq -rc '.valid' <<< "$validate_output")
+
+  if [ "$valid" == "true" ]; then
+    return 0
+  fi
+
+  # Pretty-print error information
+  jq '.diagnostics[]' <<< "$validate_output"
+
+  # Parse error message.
+  # return code 42 (magic number) to indicate a catch so we can respond to it later.
+  # 42 is used as it is distinct from terraform validate return codes.
+  while IFS= read -r error_message; do
+    summary=$(jq -rc '.summary' <<< "$error_message")
+    case $summary in
+      "missing or corrupted provider plugins")
+        return 42
+        ;;
+      "Module source has changed")
+        return 42
+        ;;
+      "Module version requirements have changed")
+        return 42
+        ;;
+      "Module not installed")
+        return 42
+        ;;
+    esac
+  done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
+  # Return `terraform validate`'s original exit code
+  # when `$summary` isn't covered by `case` block above
+  return $exit_code
+}
+
+#######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
 # 1. Check if `.terraform` dir exists and if not - run `terraform init`
@@ -68,67 +136,22 @@ function per_dir_hook_unique_part {
     return $exit_code
   }
 
-  function do_validate {
-    validate_output=$(terraform validate "${args[@]}" 2>&1)
-    exit_code=$?
-    return $exit_code
-  }
-
-  function parse_validate {
-    # Requires jq
-    local exit_code
-    local validate_output
-    local valid
-    local summary
-
-    validate_output=$(terraform validate -json "${args[@]}" 2>&1)
-    exit_code=$?
-
-    valid=$(jq -rc '.valid' <<< "$validate_output")
-
-    if [ "$valid" == "true" ]; then
-      return 0
-    fi
-
-    # Pretty-print error information
-    jq '.diagnostics[]' <<< "$validate_output"
-
-    # Parse error message, return code 10 to indicate a catch
-    while IFS= read -r error_message; do
-      summary=$(jq -rc '.summary' <<< "$error_message")
-      case $summary in
-        "missing or corrupted provider plugins")
-          return 10
-          ;;
-        "Module source has changed")
-          return 10
-          ;;
-        "Module version requirements have changed")
-          return 10
-          ;;
-        "Module not installed")
-          return 10
-          ;;
-      esac
-    done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
-    # Return `terraform validate`'s original exit code
-    # when `$summary` isn't covered by `case` block above
-    return $exit_code
-  }
-
   if [ "$retry_once_with_cleanup" == "true" ]; then
-    parse_validate
+    do_validate_and_handle_errors
     exit_code=$?
   else
     do_validate
     exit_code=$?
   fi
 
-  if [ $exit_code -eq 10 ] && [ "$retry_once_with_cleanup" == "true" ]; then
+  if [ $exit_code -eq 42 ] && [ "$retry_once_with_cleanup" == "true" ]; then
     if [ -d .terraform ]; then
       # Will only be displayed if validation fails again.
-      common::colorify "yellow" "Validation failed. Removing .terraform from: $dir_path"
-      rm -rf .terraform
+      common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
+      # `.terraform` dir may comprise some extra files, like `environment`
+      # which stores info about current TF workspace, so we can't just remove
+      # `.terraform` dir completely.
+      rm -rf .terraform/{modules,providers}/
       common::colorify "yellow" "Re-validating: $dir_path"
       do_validate
       exit_code=$?

@@ -655,9 +655,7 @@ Example:
 
 3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can delete broken `.terraform` directories in your repository:
 
-    > **Warning:** If you use Terraform workspaces, DO NOT try to use workarounds in this item ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
-
-    > **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform` directories will be deleted without prompting for consent.
+    **Option 1**
 
     ```yaml
     - id: terraform_validate
@@ -667,14 +665,16 @@ Example:
 
     > Note: That flag require additional installed dependency: `jq`.
 
-
-    If `--retry-once-with-cleanup=true`, then in each failed directory the `.terraform` directory will first be deleted before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
+    If `--retry-once-with-cleanup=true`, then in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
 
     * Missing or corrupted provider plugins
     * Module source has changed
     * Module version requirements have changed
     * Module not installed
 
+    **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform/modules/` and `.terraform/providers/` directories will be recursively deleted without prompting for consent. Other files and directories will not be affected, such as the `.terraform/environment` file.
+
+    **Option 2**
 
     An alternative solution is to find and delete all `.terraform` directories in your repository:
 
@@ -689,6 +689,8 @@ Example:
     ```
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
+
+    **Warning:** If you use Terraform workspaces, DO NOT use this second workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first workaround, or wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
