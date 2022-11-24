@@ -293,22 +293,22 @@ function common::terraform_init {
 
   local exit_code=0
   local init_output
-
+echo "terraform_init"
   # Suppress terraform init color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     TF_INIT_ARGS+=("-no-color")
   fi
-
+echo "terraform_init2"
   if [ ! -d .terraform ]; then
     init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
     exit_code=$?
-
+echo "terraform_init3"
     if [ $exit_code -ne 0 ]; then
       common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
       echo -e "$init_output\n\n"
     fi
   fi
-
+echo "terraform_init4"
   return $exit_code
 }
 
