@@ -28,13 +28,11 @@ function main {
 # Run `terraform validate` and handle errors. Requires `jq``
 # Arguments:
 #   validate_output (string with json) output of `terraform validate` command
-#   exit_code (int) `terraform validate` exit code
 # Outputs:
 #   Returns "boolean" - 1 (true, have errors), 0 (false, no errors)
 #######################################################################
 function find_validate_errors {
   local validate_output=$1
-  local -i exit_code=$2
 
   local valid
   local summary
@@ -59,8 +57,7 @@ function find_validate_errors {
       "Could not load plugin") return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
-  # Return `terraform validate`'s original exit code
-  # when `$summary` isn't covered by `case` block above
+
   return 0
 }
 
