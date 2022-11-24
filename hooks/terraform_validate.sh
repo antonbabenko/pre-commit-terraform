@@ -30,11 +30,9 @@ function main {
 #   validate_output (string with json) output of `terraform validate` command
 #   exit_code (int) `terraform validate` exit code
 # Outputs:
-#   Usually returns the exit_code from `terraform validate`.
-#   If there is an error and the error is recognized then will be
-#     returned exit_code `42`.
+#   Returns "boolean" - 1 (true, have errors), 0 (false, no errors)
 #######################################################################
-function handle_validate_errors {
+function find_validate_errors {
   local validate_output=$1
   local -i exit_code=$2
 
@@ -56,23 +54,15 @@ function handle_validate_errors {
   while IFS= read -r error_message; do
     summary=$(jq -rc '.summary' <<< "$error_message")
     case $summary in
-      "missing or corrupted provider plugins")
-        return 42
-        ;;
-      "Module source has changed")
-        return 42
-        ;;
-      "Module version requirements have changed")
-        return 42
-        ;;
-      "Module not installed")
-        return 42
-        ;;
+      "missing or corrupted provider plugins") return 1 ;;
+      "Module source has changed") return 1 ;;
+      "Module version requirements have changed") return 1 ;;
+      "Module not installed") return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
   # Return `terraform validate`'s original exit code
   # when `$summary` isn't covered by `case` block above
-  return $exit_code
+  return 0
 }
 
 #######################################################################
@@ -123,11 +113,10 @@ function per_dir_hook_unique_part {
   exit_code=$?
 
   if [ "$retry_once_with_cleanup" == "true" ]; then
-    handle_validate_errors "$validate_output" "$exit_code"
-    exit_code=$?
-    # Rinit providers and rerun validation if errors detected
-    # 42 will be returned from `handle_validate_errors` when errors happen.
-    if [ $exit_code -eq 42 ] && [ -d .terraform ]; then
+    local validate_have_errors
+    validate_have_errors=$(find_validate_errors "$validate_output")
+
+    if [ "$validate_have_errors" -eq 1 ] && [ -d .terraform ]; then
       common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
       # `.terraform` dir may comprise some extra files, like `environment`
       # which stores info about current TF workspace, so we can't just remove
