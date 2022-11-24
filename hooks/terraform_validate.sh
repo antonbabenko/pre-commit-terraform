@@ -111,7 +111,7 @@ echo "validate_have_errors"
     local -i validate_have_errors
     validate_have_errors=$(find_validate_errors "$validate_output")
 echo "validate_have_errors == 0"
-    if [ "$validate_have_errors" == "0" ]; then
+    if [ "$validate_have_errors" = "0" ]; then
       return 0
     fi
 
