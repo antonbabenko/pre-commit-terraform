@@ -45,7 +45,7 @@ function find_validate_errors {
 
   # Pretty-print error information
   jq '.diagnostics[]' <<< "$validate_output"
-
+echo "from module before while"
   # Parse error message.
   while IFS= read -r error_message; do
     summary=$(jq -rc '.summary' <<< "$error_message")
@@ -57,6 +57,7 @@ function find_validate_errors {
       "Could not load plugin") return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
+echo "from module after while"
 
   return 0
 }
