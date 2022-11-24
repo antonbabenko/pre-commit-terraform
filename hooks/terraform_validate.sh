@@ -114,10 +114,10 @@ function per_dir_hook_unique_part {
   exit_code=$?
 
   if [ "$retry_once_with_cleanup" == "true" ]; then
-    local validate_have_errors
+    local validate_have_errors -i
     validate_have_errors=$(find_validate_errors "$validate_output")
-
-    if [ "$validate_have_errors" -eq 1 ] && [ -d .terraform ]; then
+    # shellcheck disable=SC2086 # False positive
+    if [ $validate_have_errors -eq 1 ] && [ -d .terraform ]; then
       common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
       # `.terraform` dir may comprise some extra files, like `environment`
       # which stores info about current TF workspace, so we can't just remove
