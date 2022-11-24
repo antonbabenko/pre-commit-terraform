@@ -111,10 +111,10 @@ function per_dir_hook_unique_part {
   if [ "$retry_once_with_cleanup" == "true" ]; then
     validate_output=$(terraform validate -json "${args[@]}" 2>&1)
 
-    local validate_have_errors
+    local -i validate_have_errors
     validate_have_errors=$(find_validate_errors "$validate_output")
 
-    if [ "$validate_have_errors" -eq 0 ]; then
+    if [ "$validate_have_errors" == "0" ]; then
       return 0
     fi
 
