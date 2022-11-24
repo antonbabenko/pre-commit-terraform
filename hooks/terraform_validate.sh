@@ -108,9 +108,11 @@ function per_dir_hook_unique_part {
     return $exit_code
   }
 
-  # pass the arguments to hook
-  validate_output=$(terraform validate -json "${args[@]}" 2>&1)
-  exit_code=$?
+  if [ "$retry_once_with_cleanup" == "true" ]; then
+    validate_output=$(terraform validate -json "${args[@]}" 2>&1)
+  else
+    validate_output=$(terraform validate "${args[@]}" 2>&1)
+  fi
 
   if [ "$retry_once_with_cleanup" == "true" ]; then
     local validate_have_errors
