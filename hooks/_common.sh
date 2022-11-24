@@ -307,7 +307,6 @@ function common::terraform_init {
       common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
       echo -e "$init_output\n\n"
     else
-
       common::colorify "green" "Command 'terraform init' successfully done: $dir_path"
     fi
   fi
