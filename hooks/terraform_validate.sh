@@ -36,16 +36,13 @@ function find_validate_errors {
 
   local valid
   local summary
-echo "module before valid"
+
   valid=$(jq -rc '.valid' <<< "$validate_output")
-echo "module valid"
+
   if [ "$valid" == "true" ]; then
     return 0
   fi
-echo "module if valid after"
-  # Pretty-print error information
-  jq '.diagnostics[]' <<< "$validate_output"
-echo "from module before while"
+
   # Parse error message.
   while IFS= read -r error_message; do
     summary=$(jq -rc '.summary' <<< "$error_message")
@@ -57,7 +54,6 @@ echo "from module before while"
       "Could not load plugin") return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
-echo "from module after while"
 
   return 0
 }
@@ -100,20 +96,19 @@ function per_dir_hook_unique_part {
         ;;
     esac
   done
-echo "init 1"
+
   common::terraform_init 'terraform validate' "$dir_path" || {
     exit_code=$?
     return $exit_code
   }
-echo "before if"
+
   if [ "$retry_once_with_cleanup" == "true" ]; then
     validate_output=$(terraform validate -json "${args[@]}" 2>&1)
-echo "validate_have_errors"
+
     local -i validate_have_errors
     find_validate_errors "$validate_output"
     validate_have_errors=$?
 
-echo "validate_have_errors == 0"
     if [ "$validate_have_errors" = "0" ]; then
       return 0
     fi
@@ -124,12 +119,11 @@ echo "validate_have_errors == 0"
     # `.terraform` dir completely.
     rm -rf .terraform/{modules,providers}/
     common::colorify "yellow" "Re-validating: $dir_path"
-echo "common::colorify Re-validating"
   fi
-echo "after if"
+
   validate_output=$(terraform validate "${args[@]}" 2>&1)
   exit_code=$?
-echo "end"
+
   if [ $exit_code -ne 0 ]; then
     common::colorify "red" "Validation failed: $dir_path"
     echo -e "$validate_output\n\n"
