@@ -99,18 +99,18 @@ function per_dir_hook_unique_part {
         ;;
     esac
   done
-
+echo "init 1"
   common::terraform_init 'terraform validate' "$dir_path" || {
     exit_code=$?
     return $exit_code
   }
-
+echo "before if"
   if [ "$retry_once_with_cleanup" == "true" ]; then
     validate_output=$(terraform validate -json "${args[@]}" 2>&1)
-
+echo "validate_have_errors"
     local -i validate_have_errors
     validate_have_errors=$(find_validate_errors "$validate_output")
-
+echo "validate_have_errors == 0"
     if [ "$validate_have_errors" == "0" ]; then
       return 0
     fi
@@ -121,11 +121,12 @@ function per_dir_hook_unique_part {
     # `.terraform` dir completely.
     rm -rf .terraform/{modules,providers}/
     common::colorify "yellow" "Re-validating: $dir_path"
+echo "common::colorify Re-validating"
   fi
-
+echo "after if"
   validate_output=$(terraform validate "${args[@]}" 2>&1)
   exit_code=$?
-
+echo "end"
   if [ $exit_code -ne 0 ]; then
     common::colorify "red" "Validation failed: $dir_path"
     echo -e "$validate_output\n\n"
