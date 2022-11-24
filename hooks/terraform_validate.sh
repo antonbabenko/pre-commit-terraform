@@ -49,8 +49,6 @@ function find_validate_errors {
   jq '.diagnostics[]' <<< "$validate_output"
 
   # Parse error message.
-  # return code 42 (magic number) to indicate a catch so we can respond to it later.
-  # 42 is used as it is distinct from `terraform validate`` return codes.
   while IFS= read -r error_message; do
     summary=$(jq -rc '.summary' <<< "$error_message")
     case $summary in
@@ -111,14 +109,14 @@ function per_dir_hook_unique_part {
   }
 
   # pass the arguments to hook
-  validate_output=$(terraform validate "${args[@]}" 2>&1)
+  validate_output=$(terraform validate -json "${args[@]}" 2>&1)
   exit_code=$?
 
   if [ "$retry_once_with_cleanup" == "true" ]; then
     local validate_have_errors
     validate_have_errors=$(find_validate_errors "$validate_output")
 
-    if [[ $validate_have_errors ]] && [ -d .terraform ]; then
+    if [ "$validate_have_errors" -eq 1 ] && [ -d .terraform ]; then
       common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
       # `.terraform` dir may comprise some extra files, like `environment`
       # which stores info about current TF workspace, so we can't just remove
