@@ -36,13 +36,13 @@ function find_validate_errors {
 
   local valid
   local summary
-
+echo "module before valid"
   valid=$(jq -rc '.valid' <<< "$validate_output")
-
+echo "module valid"
   if [ "$valid" == "true" ]; then
     return 0
   fi
-
+echo "module if valid after"
   # Pretty-print error information
   jq '.diagnostics[]' <<< "$validate_output"
 echo "from module before while"
