@@ -119,15 +119,10 @@ function per_dir_hook_unique_part {
     # `.terraform` dir completely.
     rm -rf .terraform/{modules,providers}/
 
-echo before reinit $(ls .terraform)
-ls .terraform
-pwd
     common::terraform_init 'terraform validate' "$dir_path" || {
       exit_code=$?
       return $exit_code
     }
-echo after reinit
-ls .terraform
 
     common::colorify "yellow" "Re-validating: $dir_path"
   fi
