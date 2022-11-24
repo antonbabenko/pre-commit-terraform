@@ -308,7 +308,7 @@ function common::terraform_init {
       echo -e "$init_output\n\n"
     else
 
-      common::colorify "green" "Command 'terraform init' successfully done: $(pwd)"
+      common::colorify "green" "Command 'terraform init' successfully done: $dir_path"
     fi
   fi
 
