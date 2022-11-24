@@ -124,6 +124,11 @@ function per_dir_hook_unique_part {
       rm -rf .terraform/{modules,providers}/
       common::colorify "yellow" "Re-validating: $dir_path"
 
+      common::terraform_init 'terraform validate' "$dir_path" || {
+        exit_code=$?
+        return $exit_code
+      }
+
       validate_output=$(terraform validate "${args[@]}" 2>&1)
       exit_code=$?
     fi
