@@ -58,6 +58,7 @@ function find_validate_errors {
       "Module source has changed") return 1 ;;
       "Module version requirements have changed") return 1 ;;
       "Module not installed") return 1 ;;
+      "Could not load plugin") return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
   # Return `terraform validate`'s original exit code
@@ -117,7 +118,7 @@ function per_dir_hook_unique_part {
     local validate_have_errors
     validate_have_errors=$(find_validate_errors "$validate_output")
 
-    if [ "$validate_have_errors" == 1 ] && [ -d .terraform ]; then
+    if [[ $validate_have_errors ]] && [ -d .terraform ]; then
       common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
       # `.terraform` dir may comprise some extra files, like `environment`
       # which stores info about current TF workspace, so we can't just remove
