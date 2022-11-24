@@ -109,7 +109,9 @@ echo "before if"
     validate_output=$(terraform validate -json "${args[@]}" 2>&1)
 echo "validate_have_errors"
     local -i validate_have_errors
-    validate_have_errors=$(find_validate_errors "$validate_output")
+    find_validate_errors "$validate_output"
+    validate_have_errors=$?
+
 echo "validate_have_errors == 0"
     if [ "$validate_have_errors" = "0" ]; then
       return 0
