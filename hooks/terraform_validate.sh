@@ -110,31 +110,24 @@ function per_dir_hook_unique_part {
 
   if [ "$retry_once_with_cleanup" == "true" ]; then
     validate_output=$(terraform validate -json "${args[@]}" 2>&1)
-  else
-    validate_output=$(terraform validate "${args[@]}" 2>&1)
-  fi
 
-  if [ "$retry_once_with_cleanup" == "true" ]; then
     local validate_have_errors
     validate_have_errors=$(find_validate_errors "$validate_output")
 
-    if [ "$validate_have_errors" -eq 1 ] && [ -d .terraform ]; then
-      common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
-      # `.terraform` dir may comprise some extra files, like `environment`
-      # which stores info about current TF workspace, so we can't just remove
-      # `.terraform` dir completely.
-      rm -rf .terraform/{modules,providers}/
-      common::colorify "yellow" "Re-validating: $dir_path"
-
-      common::terraform_init 'terraform validate' "$dir_path" || {
-        exit_code=$?
-        return $exit_code
-      }
-
-      validate_output=$(terraform validate "${args[@]}" 2>&1)
-      exit_code=$?
+    if [ "$validate_have_errors" -eq 0 ]; then
+      return 0
     fi
+
+    common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
+    # `.terraform` dir may comprise some extra files, like `environment`
+    # which stores info about current TF workspace, so we can't just remove
+    # `.terraform` dir completely.
+    rm -rf .terraform/{modules,providers}/
+    common::colorify "yellow" "Re-validating: $dir_path"
   fi
+
+  validate_output=$(terraform validate "${args[@]}" 2>&1)
+  exit_code=$?
 
   if [ $exit_code -ne 0 ]; then
     common::colorify "red" "Validation failed: $dir_path"
