@@ -25,38 +25,21 @@ function main {
 }
 
 #######################################################################
-# Run `terraform validate`
+# Run `terraform validate` and handle errors. Requires `jq``
 # Arguments:
-#   args (array) arguments that configure wrapped tool behavior
-# Outputs:
-#   Returns the exit_code from `terraform validate`
-#######################################################################
-
-function do_validate {
-  validate_output=$(terraform validate "${args[@]}" 2>&1)
-  exit_code=$?
-  return $exit_code
-}
-
-#######################################################################
-# Run `terraform validate` and handle errors
-# Arguments:
-#   args (array) arguments that configure wrapped tool behavior
+#   validate_output (string with json) output of `terraform validate` command
+#   exit_code (int) `terraform validate` exit code
 # Outputs:
 #   Usually returns the exit_code from `terraform validate`.
-#   If there is an error and the error is recognised then the
-#     magic number 42 is returned instead.
+#   If there is an error and the error is recognized then will be
+#     returned exit_code `42`.
 #######################################################################
+function handle_validate_errors {
+  local validate_output=$1
+  local -i exit_code=$2
 
-function do_validate_and_handle_errors {
-  # Requires jq
-  local exit_code
-  local validate_output
   local valid
   local summary
-
-  validate_output=$(terraform validate -json "${args[@]}" 2>&1)
-  exit_code=$?
 
   valid=$(jq -rc '.valid' <<< "$validate_output")
 
@@ -69,7 +52,7 @@ function do_validate_and_handle_errors {
 
   # Parse error message.
   # return code 42 (magic number) to indicate a catch so we can respond to it later.
-  # 42 is used as it is distinct from terraform validate return codes.
+  # 42 is used as it is distinct from `terraform validate`` return codes.
   while IFS= read -r error_message; do
     summary=$(jq -rc '.summary' <<< "$error_message")
     case $summary in
@@ -136,24 +119,23 @@ function per_dir_hook_unique_part {
     return $exit_code
   }
 
-  if [ "$retry_once_with_cleanup" == "true" ]; then
-    do_validate_and_handle_errors
-    exit_code=$?
-  else
-    do_validate
-    exit_code=$?
-  fi
+  validate_output=$(terraform validate "${args[@]}" 2>&1)
+  exit_code=$?
 
-  if [ $exit_code -eq 42 ] && [ "$retry_once_with_cleanup" == "true" ]; then
-    if [ -d .terraform ]; then
-      # Will only be displayed if validation fails again.
+  if [ "$retry_once_with_cleanup" == "true" ]; then
+    handle_validate_errors "$validate_output" "$exit_code"
+    exit_code=$?
+    # Rinit providers and rerun validation if errors detected
+    # 42 will be returned from `handle_validate_errors` when errors happen.
+    if [ $exit_code -eq 42 ] && [ -d .terraform ]; then
       common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
       # `.terraform` dir may comprise some extra files, like `environment`
       # which stores info about current TF workspace, so we can't just remove
       # `.terraform` dir completely.
       rm -rf .terraform/{modules,providers}/
       common::colorify "yellow" "Re-validating: $dir_path"
-      do_validate
+
+      validate_output=$(terraform validate "${args[@]}" 2>&1)
       exit_code=$?
     fi
   fi

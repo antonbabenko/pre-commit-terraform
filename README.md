@@ -39,16 +39,16 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
-  * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
-  * [infracost_breakdown](#infracost_breakdown)
-  * [terraform_docs](#terraform_docs)
-  * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
-  * [terraform_fmt](#terraform_fmt)
-  * [terraform_providers_lock](#terraform_providers_lock)
-  * [terraform_tflint](#terraform_tflint)
-  * [terraform_tfsec](#terraform_tfsec)
-  * [terraform_validate](#terraform_validate)
-  * [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
+  * [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
+  * [infracost\_breakdown](#infracost_breakdown)
+  * [terraform\_docs](#terraform_docs)
+  * [terraform\_docs\_replace (deprecated)](#terraform_docs_replace-deprecated)
+  * [terraform\_fmt](#terraform_fmt)
+  * [terraform\_providers\_lock](#terraform_providers_lock)
+  * [terraform\_tflint](#terraform_tflint)
+  * [terraform\_tfsec](#terraform_tfsec)
+  * [terraform\_validate](#terraform_validate)
+  * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
 * [Docker Usage: File Permissions](#docker-usage-file-permissions)
@@ -690,7 +690,7 @@ Example:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    **Warning:** If you use Terraform workspaces, DO NOT use this second workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first workaround, or wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
+    **Warning:** If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
