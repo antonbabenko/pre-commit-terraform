@@ -118,6 +118,12 @@ function per_dir_hook_unique_part {
     # which stores info about current TF workspace, so we can't just remove
     # `.terraform` dir completely.
     rm -rf .terraform/{modules,providers}/
+
+    common::terraform_init 'terraform validate' "$dir_path" || {
+      exit_code=$?
+      return $exit_code
+    }
+
     common::colorify "yellow" "Re-validating: $dir_path"
   fi
 
