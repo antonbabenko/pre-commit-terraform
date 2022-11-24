@@ -109,6 +109,7 @@ function per_dir_hook_unique_part {
     return $exit_code
   }
 
+  # pass the arguments to hook
   validate_output=$(terraform validate "${args[@]}" 2>&1)
   exit_code=$?
 
