@@ -25,7 +25,7 @@ function main {
 }
 
 #######################################################################
-# Run `terraform validate` and handle errors. Requires `jq``
+# Run `terraform validate` and handle errors. Requires `jq`
 # Arguments:
 #   validate_output (string with json) output of `terraform validate` command
 # Outputs:
