@@ -500,11 +500,11 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 
 **DEPRECATED**. Will be merged in [`terraform_docs`](#terraform_docs).
 
-`terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in.
+`terraform_docs_replace` replaces the entire `README.md` rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in.
 
 To replicate functionality in `terraform_docs` hook:
 
-1. Create `.terraform-docs.yml` in the repo root with the next context:
+1. Create `.terraform-docs.yml` in the repo root with the following content:
 
     ```yaml
     formatter: "markdown"
