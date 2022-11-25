@@ -25,13 +25,16 @@ function main {
 }
 
 #######################################################################
-# Run `terraform validate` and handle errors. Requires `jq`
+# Run `terraform validate` and match errors. Requires `jq`
 # Arguments:
 #   validate_output (string with json) output of `terraform validate` command
 # Outputs:
-#   Returns "boolean" - 1 (true, have errors), 0 (false, no errors)
+#   Returns integer:
+#    - 0 (no errors)
+#    - 1 (matched errors; retry)
+#    - 2 (no matched errors; do not retry)
 #######################################################################
-function find_validate_errors {
+function match_validate_errors {
   local validate_output=$1
 
   local valid
@@ -43,7 +46,7 @@ function find_validate_errors {
     return 0
   fi
 
-  # Parse error message.
+  # Parse error message for retry-able errors.
   while IFS= read -r error_message; do
     summary=$(jq -rc '.summary' <<< "$error_message")
     case $summary in
@@ -55,7 +58,7 @@ function find_validate_errors {
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
 
-  return 0
+  return 2 # Some other error; dont retry
 }
 
 #######################################################################
@@ -102,33 +105,39 @@ function per_dir_hook_unique_part {
     return $exit_code
   }
 
-  if [ "$retry_once_with_cleanup" == "true" ]; then
+  if [ "$retry_once_with_cleanup" != "true" ]; then
+    # terraform validate only
+    validate_output=$(terraform validate "${args[@]}" 2>&1)
+    exit_code=$?
+  else
+    # terraform validate, plus capture possible errors
     validate_output=$(terraform validate -json "${args[@]}" 2>&1)
+    exit_code=$?
 
-    local -i validate_have_errors
-    find_validate_errors "$validate_output"
-    validate_have_errors=$?
+    # Match specific validation errors
+    local -i validate_errors_matched
+    match_validate_errors "$validate_output"
+    validate_errors_matched=$?
 
-    if [ "$validate_have_errors" = "0" ]; then
-      return 0
-    fi
+    # Errors matched; Retry validation
+    if [ "$validate_errors_matched" = "1" ]; then
+      common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
+      # `.terraform` dir may comprise some extra files, like `environment`
+      # which stores info about current TF workspace, so we can't just remove
+      # `.terraform` dir completely.
+      rm -rf .terraform/{modules,providers}/
 
-    common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
-    # `.terraform` dir may comprise some extra files, like `environment`
-    # which stores info about current TF workspace, so we can't just remove
-    # `.terraform` dir completely.
-    rm -rf .terraform/{modules,providers}/
+      common::colorify "yellow" "Re-validating: $dir_path"
 
-    common::terraform_init 'terraform validate' "$dir_path" || {
+      common::terraform_init 'terraform validate' "$dir_path" || {
+        exit_code=$?
+        return $exit_code
+      }
+
+      validate_output=$(terraform validate "${args[@]}" 2>&1)
       exit_code=$?
-      return $exit_code
-    }
-
-    common::colorify "yellow" "Re-validating: $dir_path"
+    fi
   fi
-
-  validate_output=$(terraform validate "${args[@]}" 2>&1)
-  exit_code=$?
 
   if [ $exit_code -ne 0 ]; then
     common::colorify "red" "Validation failed: $dir_path"
