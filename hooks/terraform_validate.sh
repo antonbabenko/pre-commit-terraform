@@ -120,8 +120,8 @@ function per_dir_hook_unique_part {
     validate_errors_matched=$?
 
     # Errors matched; Retry validation
-    if [ "$validate_errors_matched" = "1" ]; then
-      common::colorify "yellow" "Validation failed. Removing cached providers and modules from $dir_path/.terraform"
+    if [ "$validate_errors_matched" -eq 1 ]; then
+      common::colorify "yellow" "Validation failed. Removing cached providers and modules from \"$dir_path/.terraform\" directory"
       # `.terraform` dir may comprise some extra files, like `environment`
       # which stores info about current TF workspace, so we can't just remove
       # `.terraform` dir completely.

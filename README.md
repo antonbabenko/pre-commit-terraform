@@ -663,14 +663,15 @@ Example:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
 
-    > Note: That flag require additional installed dependency: `jq`.
+    > Note: The flag requires additional dependency to be installed: `jq`.
 
     If `--retry-once-with-cleanup=true`, then in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
 
-    * Missing or corrupted provider plugins
-    * Module source has changed
-    * Module version requirements have changed
-    * Module not installed
+    * "Missing or corrupted provider plugins"
+    * "Module source has changed"
+    * "Module version requirements have changed"
+    * "Module not installed"
+    * "Could not load plugin"
 
     **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform/modules/` and `.terraform/providers/` directories will be recursively deleted without prompting for consent. Other files and directories will not be affected, such as the `.terraform/environment` file.
 
@@ -690,7 +691,7 @@ Example:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    **Warning:** If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
+    **Warning:** If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
