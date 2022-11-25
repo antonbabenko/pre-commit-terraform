@@ -95,10 +95,6 @@ function per_dir_hook_unique_part {
 
     case $key in
       --retry-once-with-cleanup)
-        if [ $retry_once_with_cleanup ]; then 
-          common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--retry-once-with-cleanup" flag'
-          exit 1
-        fi
         retry_once_with_cleanup=$value
         ;;
     esac
