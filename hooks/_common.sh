@@ -256,13 +256,13 @@ function common::per_dir_hook {
 #######################################################################
 function common::colorify {
   # shellcheck disable=SC2034
-  local -r red="\e[0m\e[31m"
+  local -r red="\x1b[0m\x1b[31m"
   # shellcheck disable=SC2034
-  local -r green="\e[0m\e[32m"
+  local -r green="\x1b[0m\x1b[32m"
   # shellcheck disable=SC2034
-  local -r yellow="\e[0m\e[33m"
+  local -r yellow="\x1b[0m\x1b[33m"
   # Color reset
-  local -r RESET="\e[0m"
+  local -r RESET="\x1b[0m"
 
   # Params start #
   local COLOR="${!1}"
