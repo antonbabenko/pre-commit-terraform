@@ -58,7 +58,7 @@ function match_validate_errors {
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
 
-  return 2 # Some other error; dont retry
+  return 2 # Some other error; don't retry
 }
 
 #######################################################################
