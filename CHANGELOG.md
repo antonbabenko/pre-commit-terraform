@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.77.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.76.1...v1.77.0) (2022-11-26)
+
+
+### Features
+
+* Add `--retry-once-with-cleanup` to `terraform_validate` ([#441](https://github.com/antonbabenko/pre-commit-terraform/issues/441)) ([96fe3ef](https://github.com/antonbabenko/pre-commit-terraform/commit/96fe3ef6577705ee72ae33cba5f366ce32b9a5f7))
+
 ## [1.76.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.76.0...v1.76.1) (2022-11-26)
 
 
