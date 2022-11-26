@@ -39,16 +39,16 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
-  * [checkov (deprecated) and terraform_checkov](#checkov-deprecated-and-terraform_checkov)
-  * [infracost_breakdown](#infracost_breakdown)
-  * [terraform_docs](#terraform_docs)
-  * [terraform_docs_replace (deprecated)](#terraform_docs_replace-deprecated)
-  * [terraform_fmt](#terraform_fmt)
-  * [terraform_providers_lock](#terraform_providers_lock)
-  * [terraform_tflint](#terraform_tflint)
-  * [terraform_tfsec](#terraform_tfsec)
-  * [terraform_validate](#terraform_validate)
-  * [terraform_wrapper_module_for_each](#terraform_wrapper_module_for_each)
+  * [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
+  * [infracost\_breakdown](#infracost_breakdown)
+  * [terraform\_docs](#terraform_docs)
+  * [terraform\_docs\_replace (deprecated)](#terraform_docs_replace-deprecated)
+  * [terraform\_fmt](#terraform_fmt)
+  * [terraform\_providers\_lock](#terraform_providers_lock)
+  * [terraform\_tflint](#terraform_tflint)
+  * [terraform\_tfsec](#terraform_tfsec)
+  * [terraform\_validate](#terraform_validate)
+  * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
 * [Docker Usage: File Permissions](#docker-usage-file-permissions)
@@ -498,18 +498,31 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 
 ### terraform_docs_replace (deprecated)
 
-**DEPRECATED**. Will be merged in [`terraform_docs`](#terraform_docs). See [#248](https://github.com/antonbabenko/pre-commit-terraform/issues/248) for details.
+**DEPRECATED**. Will be merged in [`terraform_docs`](#terraform_docs).
 
-`terraform_docs_replace` replaces the entire README.md rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in. The optional `--dest` argument lets you change the filename that gets created/modified.
+`terraform_docs_replace` replaces the entire `README.md` rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in.
 
-Example:
+To replicate functionality in `terraform_docs` hook:
 
-```yaml
-- id: terraform_docs_replace
-  args:
-    - --sort-by-required
-    - --dest=TEST.md
-```
+1. Create `.terraform-docs.yml` in the repo root with the following content:
+
+    ```yaml
+    formatter: "markdown"
+
+    output:
+    file: "README.md"
+    mode: replace
+    template: |-
+        {{/** End of file fixer */}}
+    ```
+
+2. Replace `terraform_docs_replace` hook config in `.pre-commit-config.yaml` with:
+
+    ```yaml
+    - id: terraform_docs
+    args:
+        - --args=--config=.terraform-docs.yml
+    ```
 
 ### terraform_fmt
 
