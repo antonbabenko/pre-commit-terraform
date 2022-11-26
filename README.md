@@ -80,7 +80,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
-* [`jq`](https://github.com/stedolan/jq) required for `infracost_breakdown` hook.
+* [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
 * [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
 * [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
 
@@ -238,7 +238,7 @@ pre-commit run -a
 
 Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions)):
 
-**NOTE:** This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#docker-usage-file-permissions) for more information.
+> Note: This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#docker-usage-file-permissions) for more information.
 
 ```bash
 TAG=latest
@@ -258,7 +258,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 
 <!-- markdownlint-disable no-inline-html -->
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup>      |
-| ------------------------------------------------------ |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `checkov` and `terraform_checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov-deprecated-and-terraform_checkov)                                                         | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
 | `infracost_breakdown`                                  | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown)                                                                                                                 | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key) |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
@@ -268,11 +268,11 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_providers_lock`                             | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                              | -                                                                                    |
 | `terraform_tflint`                                     | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). | `tflint`                                                                             |
 | `terraform_tfsec`                                      | [TFSec](https://github.com/aquasecurity/tfsec) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_tfsec)                                                                                      | `tfsec`                                                                              |
-| `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | -                                                                                    |
+| `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
-| `terrascan`                                            | [terrascan](https://github.com/tenable/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                       | `terrascan`                                                                          |
+| `terrascan`                                            | [terrascan](https://github.com/tenable/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                        | `terrascan`                                                                          |
 | `tfupdate`                                             | [tfupdate](https://github.com/minamijoyo/tfupdate) Update version constraints of Terraform core, providers, and modules. [Hook notes](#tfupdate)                                                                                             | `tfupdate`                                                                           |
 <!-- markdownlint-enable no-inline-html -->
 
@@ -284,8 +284,9 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 
 > All, except deprecated hooks: `checkov`, `terraform_docs_replace`
 
-You can use environment variables for the `--args` section.  
-Note: You _must_ use the `${ENV_VAR}` definition, `$ENV_VAR` will not expand.
+You can use environment variables for the `--args` section.
+
+> **Warning**: You _must_ use the `${ENV_VAR}` definition, `$ENV_VAR` will not expand.
 
 Config example:
 
@@ -486,7 +487,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --args=--config=.terraform-docs.yml
     ```
 
-    Note: Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
+    > **Warning**: Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
 5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
 
@@ -540,7 +541,7 @@ To replicate functionality in `terraform_docs` hook:
 
 1. The hook requires Terraform 0.14 or later.
 2. The hook invokes two operations that can be really slow:
-    * `terraform init` (in case `.terraform` directory is not initialised)
+    * `terraform init` (in case `.terraform` directory is not initialized)
     * `terraform providers lock`
 
     Both operations require downloading data from remote Terraform registries, and not all of that downloaded data or meta-data is currently being cached by Terraform.
@@ -675,7 +676,31 @@ To replicate functionality in `terraform_docs` hook:
         - --tf-init-args=-lockfile=readonly
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
+3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can delete broken `.terraform` directories in your repository:
+
+    **Option 1**
+
+    ```yaml
+    - id: terraform_validate
+      args:
+        - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
+    ```
+
+    > Note: The flag requires additional dependency to be installed: `jq`.
+
+    If `--retry-once-with-cleanup=true`, then in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
+
+    * "Missing or corrupted provider plugins"
+    * "Module source has changed"
+    * "Module version requirements have changed"
+    * "Module not installed"
+    * "Could not load plugin"
+
+    **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform/modules/` and `.terraform/providers/` directories will be recursively deleted without prompting for consent. Other files and directories will not be affected, such as the `.terraform/environment` file.
+
+    **Option 2**
+
+    An alternative solution is to find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -689,22 +714,23 @@ To replicate functionality in `terraform_docs` hook:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    **Warning:** If you use Terraform workspaces, DO NOT use this workaround ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Wait to [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
+    **Warning:** If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
    When running the hook against Terraform code where you have provider `configuration_aliases` defined in a `required_providers` configuration block, terraform will throw an error like:
-   >
-   >
+
    > Error: Provider configuration not present
-   > To work with <resource> its original provider configuration at provider["registry.terraform.io/hashicorp/aws"].<provider_alias> is required, but it has been removed. This occurs when a provider configuration is removed while
-   > objects created by that provider still exist in the state. Re-add the provider configuration to destroy <resource>, after which you can remove the provider configuration again.
+   > To work with `<resource>` its original provider configuration at provider `["registry.terraform.io/hashicorp/aws"].<provider_alias>` is required, but it has been removed. This occurs when a provider configuration is removed while
+   > objects created by that provider still exist in the state. Re-add the provider configuration to destroy `<resource>`, after which you can remove the provider configuration again.
 
    This is a [known issue](https://github.com/hashicorp/terraform/issues/28490) with Terraform and how providers are initialized in Terraform 0.15 and later. To work around this you can add an `exclude` parameter to the configuration of `terraform_validate` hook like this:
+
    ```yaml
    - id: terraform_validate
      exclude: '^[^/]+$'
    ```
+
    This will exclude the root directory from being processed by this hook. Then add a subdirectory like "examples" or "tests" and put an example implementation in place that defines the providers with the proper aliases, and this will give you validation of your module through the example. If instead you are using this with multiple modules in one repository you'll want to set the path prefix in the regular expression, such as `exclude: modules/offendingmodule/[^/]+$`.
 
    Alternately, you can use [terraform-config-inspect](https://github.com/hashicorp/terraform-config-inspect) and use a variant of [this script](https://github.com/bendrucker/terraform-configuration-aliases-action/blob/main/providers.sh) to generate a providers file at runtime:
@@ -722,6 +748,7 @@ To replicate functionality in `terraform_docs` hook:
    ```
 
    Save it as `.generate-providers.sh` in the root of your repository and add a `pre-commit` hook to run it before all other hooks, like so:
+
    ```yaml
    - repos:
      - repo: local
@@ -738,7 +765,7 @@ To replicate functionality in `terraform_docs` hook:
    [...]
    ```
 
-   **Note:** The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
+   > Note: The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
 
 ### terraform_wrapper_module_for_each
 
@@ -784,7 +811,7 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
     See the `terrascan run -h` command line help for available options.
 
-2. Use the `--args=--verbose` parameter to see the rule ID in the scaning output. Usuful to skip validations.
+2. Use the `--args=--verbose` parameter to see the rule ID in the scanning output. Useful to skip validations.
 3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
 4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
 

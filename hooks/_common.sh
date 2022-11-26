@@ -299,13 +299,15 @@ function common::terraform_init {
     TF_INIT_ARGS+=("-no-color")
   fi
 
-  if [ ! -d .terraform ]; then
+  if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
     init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
     exit_code=$?
 
     if [ $exit_code -ne 0 ]; then
       common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
       echo -e "$init_output\n\n"
+    else
+      common::colorify "green" "Command 'terraform init' successfully done: $dir_path"
     fi
   fi
 
