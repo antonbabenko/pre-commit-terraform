@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.76.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.76.0...v1.76.1) (2022-11-26)
+
+
+### Bug Fixes
+
+* Describe migration instructions from `terraform_docs_replace` ([#451](https://github.com/antonbabenko/pre-commit-terraform/issues/451)) ([a8bcaa7](https://github.com/antonbabenko/pre-commit-terraform/commit/a8bcaa7975175679f2da0a5d1379f0e20446a2f9))
+
 # [1.76.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.75.0...v1.76.0) (2022-10-06)
 
 
