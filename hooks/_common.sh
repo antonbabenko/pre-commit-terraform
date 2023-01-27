@@ -42,6 +42,12 @@ function common::parse_cmdline {
   # Used inside `common::export_provided_env_vars` function
   ENV_VARS=()
 
+  echo "$@"
+  echo
+  echo
+  echo $@
+  echo
+  exit 1
   local argv
   # TODO: Planned breaking change: remove `init-args`, `envs` as not self-descriptive
   argv=$(getopt -o a:,h:,i:,e: --long args:,hook-config:,init-args:,tf-init-args:,envs:,env-vars: -- "$@") || return
