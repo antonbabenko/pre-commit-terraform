@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@dc323e67f16fb5f7663d20ff7941f27f5809e9b6 # v2.6.0
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
       - name: Set up QEMU
         uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480 # v1.2.0
       - name: Set up Docker Buildx
