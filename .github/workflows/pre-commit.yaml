@@ -40,7 +40,7 @@ jobs:
       with:
         python-version: '3.9'
     - name: Execute pre-commit
-      uses: pre-commit/action@v2.0.0
+      uses: pre-commit/action@9b88afc9cd57fd75b655d5c71bd38146d07135fe # v2.0.3
       env:
         SKIP: no-commit-to-branch,hadolint
       with:
@@ -49,7 +49,7 @@ jobs:
     # Run only skipped checks
     - name: Execute pre-commit check that have no auto-fixes
       if: always()
-      uses: pre-commit/action@v2.0.0
+      uses: pre-commit/action@9b88afc9cd57fd75b655d5c71bd38146d07135fe # v2.0.3
       env:
         SKIP: check-added-large-files,check-merge-conflict,check-vcs-permalinks,forbid-new-submodules,no-commit-to-branch,end-of-file-fixer,trailing-whitespace,check-yaml,check-merge-conflict,check-executables-have-shebangs,check-case-conflict,mixed-line-ending,detect-aws-credentials,detect-private-key,shfmt,shellcheck
       with:
