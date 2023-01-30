@@ -29,7 +29,7 @@ jobs:
           echo IMAGE_TAG=$([ ${{ github.ref_type }} == 'tag' ] && echo ${{ github.ref_name }} || echo 'latest') >> $GITHUB_ENV
       - name: Build and Push release
         if: github.event_name != 'schedule'
-        uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a # v2.10.0
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5 # v3.2.0
         with:
           context: .
           build-args: |
@@ -41,7 +41,7 @@ jobs:
             ghcr.io/${{ github.repository }}:latest
       - name: Build and Push nightly
         if: github.event_name == 'schedule'
-        uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a # v2.10.0
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5 # v3.2.0
         with:
           context: .
           build-args: |
