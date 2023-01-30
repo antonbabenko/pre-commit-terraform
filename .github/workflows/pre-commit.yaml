@@ -36,7 +36,7 @@ jobs:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha }}
     # Skip terraform_tflint which interferes to commit pre-commit auto-fixes
-    - uses: actions/setup-python@75f3110429a8c05be0e1bf360334e4cced2b63fa # v2.3.3
+    - uses: actions/setup-python@98f2ad02fd48d057ee3b4d4f66525b231c3e52b6 # v3.1.2
       with:
         python-version: '3.9'
     - name: Execute pre-commit
