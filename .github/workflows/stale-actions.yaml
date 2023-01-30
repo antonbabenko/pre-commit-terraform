@@ -7,7 +7,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/stale@7fb802b3079a276cf3c7e6ba9aa003c665b3f838 # v4.1.0
+    - uses: actions/stale@5ebf00ea0e4c1561e9b43a292ed34424fb1d4578 # v6.0.1
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         # Staling issues and PR's
