@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.77.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.0...v1.77.1) (2023-02-03)
+
+
+### Bug Fixes
+
+* Pass command line arguments to tflint init ([#487](https://github.com/antonbabenko/pre-commit-terraform/issues/487)) ([29a8c00](https://github.com/antonbabenko/pre-commit-terraform/commit/29a8c00251e16941059df0f460b1e55890d4d7b5))
+
 # [1.77.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.76.1...v1.77.0) (2022-11-26)
 
 
