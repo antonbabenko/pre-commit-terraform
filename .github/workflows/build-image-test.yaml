@@ -24,7 +24,7 @@ jobs:
 
       - name: Build if Dockerfile changed
         if: steps.changed-files-specific.outputs.any_changed == 'true'
-        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5 # v3.2.0
+        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3.3.1
         with:
           context: .
           build-args: |
