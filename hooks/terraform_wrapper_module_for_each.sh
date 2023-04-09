@@ -330,13 +330,13 @@ EOF
     module_outputs=($(echo "$all_tf_content" | hcledit block list | grep output. | cut -d'.' -f 2))
 
     # Looking for sensitive output
-    local wrapper_output_sensitive="# sensitive = false  # No sensitive module output found"
+    local wrapper_output_sensitive="# sensitive = false # No sensitive module output found"
     for module_output in "${module_outputs[@]}"; do
       module_output_sensitive=$(echo "$all_tf_content" | hcledit attribute get "output.${module_output}.sensitive")
 
       # At least one output is sensitive - the wrapper's output should be sensitive, too
       if [[ "$module_output_sensitive" == "true" ]]; then
-        wrapper_output_sensitive="sensitive   = true  # At least one sensitive module output (${module_output}) found (requires Terraform 0.14+)"
+        wrapper_output_sensitive="sensitive   = true # At least one sensitive module output (${module_output}) found (requires Terraform 0.14+)"
         break
       fi
     done
