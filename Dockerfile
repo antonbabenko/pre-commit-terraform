@@ -5,7 +5,7 @@ WORKDIR /bin_dir
 
 RUN apk add --no-cache \
     # Builder deps
-    curl=~7 && \
+    curl=~8 && \
     # Upgrade pip for be able get latest Checkov
     python3 -m pip install --no-cache-dir --upgrade pip
 
