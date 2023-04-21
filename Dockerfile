@@ -1,4 +1,4 @@
-ARG TAG=3.10.1-alpine3.15@sha256:dce56d40d885d2c8847aa2a278a29d50450c8e3d10f9d7ffeb2f38dcc1eb0ea4
+ARG TAG=3.11.1-alpine3.17
 FROM python:${TAG} as builder
 
 WORKDIR /bin_dir
@@ -6,8 +6,10 @@ WORKDIR /bin_dir
 RUN apk add --no-cache \
     # Builder deps
     curl=~8 && \
-    # Upgrade pip for be able get latest Checkov
-    python3 -m pip install --no-cache-dir --upgrade pip
+    # Upgrade packages for be able get latest Checkov
+    python3 -m pip install --no-cache-dir --upgrade \
+        pip \
+        setuptools
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
@@ -60,7 +62,7 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
 RUN . /.env && \
     if [ "$CHECKOV_VERSION" != "false" ]; then \
     ( \
-        apk add --no-cache gcc=~10 libffi-dev=~3 musl-dev=~1; \
+        apk add --no-cache gcc=~12 libffi-dev=~3 musl-dev=~1; \
         [ "$CHECKOV_VERSION" = "latest" ] && pip3 install --no-cache-dir checkov \
         || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION}; \
         apk del gcc libffi-dev musl-dev \
@@ -176,7 +178,7 @@ RUN apk add --no-cache \
     bash=~5 \
     # pre-commit-hooks deps: https://github.com/pre-commit/pre-commit-hooks
     musl-dev=~1 \
-    gcc=~10 \
+    gcc=~12 \
     # entrypoint wrapper deps
     su-exec=~0.2
 
@@ -189,7 +191,7 @@ COPY --from=builder \
     /usr/local/bin/checkov* \
         /usr/bin/
 # Copy pre-commit packages
-COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
+COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 # Copy terrascan policies
 COPY --from=builder /root/ /root/
 
