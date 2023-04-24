@@ -1,4 +1,4 @@
-ARG TAG=3.11.1-alpine3.17
+ARG TAG=3.11.1-alpine3.17@sha256:d8b0703ce84fe5a52d485f212e9d852bcdb8606798064f5f21af57325a7cf73f
 FROM python:${TAG} as builder
 
 WORKDIR /bin_dir
