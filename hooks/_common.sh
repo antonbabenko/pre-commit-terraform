@@ -299,7 +299,8 @@ function common::terraform_init {
     TF_INIT_ARGS+=("-no-color")
   fi
 
-  if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
+  # only check for providers directory here as /modules is only present if code uses terraform modules
+  if [ ! -d .terraform/providers ]; then
     init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
     exit_code=$?
 
