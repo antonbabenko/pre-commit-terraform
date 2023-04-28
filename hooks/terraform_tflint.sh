@@ -50,7 +50,7 @@ function per_dir_hook_unique_part {
   shift
   local -a -r args=("$@")
 
-  TFLINT_OUTPUT=$({ tflint "${args[@]}"; } 2>&1)
+  TFLINT_OUTPUT=$(tflint "${args[@]}" 2>&1)
   local exit_code=$?
 
   if [ $exit_code -ne 0 ]; then
