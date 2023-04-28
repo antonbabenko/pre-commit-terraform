@@ -50,12 +50,12 @@ function per_dir_hook_unique_part {
   shift
   local -a -r args=("$@")
 
-  COMMAND_OUTPUT=$({ tflint "${args[@]}"; } 2>&1)
+  TFLINT_OUTPUT=$({ tflint "${args[@]}"; } 2>&1)
   local exit_code=$?
 
   if [ $exit_code -ne 0 ]; then
     common::colorify "yellow" "TFLint in $dir_path/:"
-    echo "$COMMAND_OUTPUT"
+    echo "$TFLINT_OUTPUT"
   fi
 
   # return exit code to common::per_dir_hook
