@@ -1,5 +1,5 @@
 ARG TAG=3.11.1-alpine3.17@sha256:d8b0703ce84fe5a52d485f212e9d852bcdb8606798064f5f21af57325a7cf73f
-FROM --platform=$TARGETPLATFORM python:${TAG} as builder
+FROM python:${TAG} as builder
 ARG TARGETPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
@@ -109,8 +109,8 @@ RUN . /.env && \
     if [ "$TERRASCAN_VERSION" != "false" ]; then \
     ( \
         TERRASCAN_RELEASES="https://api.github.com/repos/tenable/terrascan/releases" && \
-        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_x86_64.tar.gz")" > terrascan.tar.gz \
-        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${TARGETOS}_x86_64.tar.gz")" > terrascan.tar.gz \
+        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > terrascan.tar.gz \
+        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > terrascan.tar.gz \
     ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
     ./terrascan init \
     ; fi
