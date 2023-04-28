@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.77.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.2...v1.77.3) (2023-04-21)
+
+
+### Bug Fixes
+
+* Updates all dependencies used in Dockerfile and fix Docker image ([#507](https://github.com/antonbabenko/pre-commit-terraform/issues/507)) ([dc177fe](https://github.com/antonbabenko/pre-commit-terraform/commit/dc177fe29ed250fbb98702248c7de232bdb75f58))
+
+## [1.77.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.1...v1.77.2) (2023-04-09)
+
+
+### Bug Fixes
+
+* Fixed spacing in `terraform_wrapper_module_for_each` hook ([#503](https://github.com/antonbabenko/pre-commit-terraform/issues/503)) ([ddc0d81](https://github.com/antonbabenko/pre-commit-terraform/commit/ddc0d81d31a2571de95246b9970216ae0e4432c4))
+
 ## [1.77.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.0...v1.77.1) (2023-02-03)
 
 
