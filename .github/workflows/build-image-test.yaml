@@ -33,6 +33,8 @@ jobs:
           push: false
           tags: |
             ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+          # Fix multi-platform: https://github.com/docker/buildx/issues/1533
+          provenance: false
 
       - name: Run structure tests
         if: steps.changed-files-specific.outputs.any_changed == 'true'
