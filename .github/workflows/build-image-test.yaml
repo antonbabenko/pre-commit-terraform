@@ -4,8 +4,6 @@ on: [pull_request]
 
 env:
   IMAGE_TAG: pr-test
-  # Prevent GH API rate-limit issue
-  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
   build:
@@ -36,6 +34,7 @@ jobs:
             INSTALL_ALL=true
           platforms: linux/amd64,linux/arm64
           push: false
+          load: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
           # Fix multi-platform: https://github.com/docker/buildx/issues/1533
