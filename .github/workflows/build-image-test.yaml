@@ -4,6 +4,8 @@ on: [pull_request]
 
 env:
   IMAGE_TAG: pr-test
+  # Prevent GH API rate-limit issue
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
   build:
