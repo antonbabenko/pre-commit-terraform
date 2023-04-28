@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.78.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.4...v1.78.0) (2023-04-28)
+
+
+### Features
+
+* **ci:** Build multi-arch Docker images (`amd64`, `arm64`) ([#496](https://github.com/antonbabenko/pre-commit-terraform/issues/496)) ([923c2c6](https://github.com/antonbabenko/pre-commit-terraform/commit/923c2c6a1e093620980790e864801f48a13ecf57))
+
 ## [1.77.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.3...v1.77.4) (2023-04-28)
 
 
