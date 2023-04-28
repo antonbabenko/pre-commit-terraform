@@ -1,5 +1,7 @@
 ARG TAG=3.11.1-alpine3.17@sha256:d8b0703ce84fe5a52d485f212e9d852bcdb8606798064f5f21af57325a7cf73f
 FROM python:${TAG} as builder
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /bin_dir
 
@@ -22,7 +24,7 @@ RUN [ ${PRE_COMMIT_VERSION} = "latest" ] && pip3 install --no-cache-dir pre-comm
 RUN if [ "${TERRAFORM_VERSION}" = "latest" ]; then \
         TERRAFORM_VERSION="$(curl -s https://api.github.com/repos/hashicorp/terraform/releases/latest | grep tag_name | grep -o -E -m 1 "[0-9.]+")" \
     ; fi && \
-    curl -L "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > terraform.zip && \
+    curl -L "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip" > terraform.zip && \
     unzip terraform.zip terraform && rm terraform.zip
 
 #
@@ -74,9 +76,9 @@ RUN . /.env && \
     if [ "$INFRACOST_VERSION" != "false" ]; then \
     ( \
         INFRACOST_RELEASES="https://api.github.com/repos/infracost/infracost/releases" && \
-        [ "$INFRACOST_VERSION" = "latest" ] && curl -L "$(curl -s ${INFRACOST_RELEASES}/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz \
-        || curl -L "$(curl -s ${INFRACOST_RELEASES} | grep -o -E "https://.+?v${INFRACOST_VERSION}/infracost-linux-amd64.tar.gz")" > infracost.tgz \
-    ) && tar -xzf infracost.tgz && rm infracost.tgz && mv infracost-linux-amd64 infracost \
+        [ "$INFRACOST_VERSION" = "latest" ] && curl -L "$(curl -s ${INFRACOST_RELEASES}/latest | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > infracost.tgz \
+        || curl -L "$(curl -s ${INFRACOST_RELEASES} | grep -o -E "https://.+?v${INFRACOST_VERSION}/infracost-${TARGETOS}-${TARGETARCH}.tar.gz")" > infracost.tgz \
+    ) && tar -xzf infracost.tgz && rm infracost.tgz && mv infracost-${TARGETOS}-${TARGETARCH} infracost \
     ; fi
 
 # Terraform docs
@@ -84,8 +86,8 @@ RUN . /.env && \
     if [ "$TERRAFORM_DOCS_VERSION" != "false" ]; then \
     ( \
         TERRAFORM_DOCS_RELEASES="https://api.github.com/repos/terraform-docs/terraform-docs/releases" && \
-        [ "$TERRAFORM_DOCS_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES}/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz \
-        || curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES} | grep -o -E "https://.+?v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz")" > terraform-docs.tgz \
+        [ "$TERRAFORM_DOCS_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES}/latest | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > terraform-docs.tgz \
+        || curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES} | grep -o -E "https://.+?v${TERRAFORM_DOCS_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz")" > terraform-docs.tgz \
     ) && tar -xzf terraform-docs.tgz terraform-docs && rm terraform-docs.tgz && chmod +x terraform-docs \
     ; fi
 
@@ -94,8 +96,8 @@ RUN . /.env \
     && if [ "$TERRAGRUNT_VERSION" != "false" ]; then \
     ( \
         TERRAGRUNT_RELEASES="https://api.github.com/repos/gruntwork-io/terragrunt/releases" && \
-        [ "$TERRAGRUNT_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRAGRUNT_RELEASES}/latest | grep -o -E -m 1 "https://.+?/terragrunt_linux_amd64")" > terragrunt \
-        || curl -L "$(curl -s ${TERRAGRUNT_RELEASES} | grep -o -E -m 1 "https://.+?v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64")" > terragrunt \
+        [ "$TERRAGRUNT_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRAGRUNT_RELEASES}/latest | grep -o -E -m 1 "https://.+?/terragrunt_${TARGETOS}_${TARGETARCH}")" > terragrunt \
+        || curl -L "$(curl -s ${TERRAGRUNT_RELEASES} | grep -o -E -m 1 "https://.+?v${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}")" > terragrunt \
     ) && chmod +x terragrunt \
     ; fi
 
@@ -103,10 +105,13 @@ RUN . /.env \
 # Terrascan
 RUN . /.env && \
     if [ "$TERRASCAN_VERSION" != "false" ]; then \
+    if [ "$TARGETARCH" != "amd64" ]; then ARCH="$TARGETARCH"; else ARCH="x86_64"; fi; \
+    # Convert the first letter to Uppercase
+    OS="$(echo ${TARGETOS} | cut -c1 | tr '[:lower:]' '[:upper:]' | xargs echo -n; echo ${TARGETOS} | cut -c2-)"; \
     ( \
         TERRASCAN_RELEASES="https://api.github.com/repos/tenable/terrascan/releases" && \
-        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
-        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_Linux_x86_64.tar.gz")" > terrascan.tar.gz \
+        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${OS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
+        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${OS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
     ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
     ./terrascan init \
     ; fi
@@ -116,8 +121,8 @@ RUN . /.env && \
     if [ "$TFLINT_VERSION" != "false" ]; then \
     ( \
         TFLINT_RELEASES="https://api.github.com/repos/terraform-linters/tflint/releases" && \
-        [ "$TFLINT_VERSION" = "latest" ] && curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E -m 1 "https://.+?_linux_amd64.zip")" > tflint.zip \
-        || curl -L "$(curl -s ${TFLINT_RELEASES} | grep -o -E "https://.+?/v${TFLINT_VERSION}/tflint_linux_amd64.zip")" > tflint.zip \
+        [ "$TFLINT_VERSION" = "latest" ] && curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.zip")" > tflint.zip \
+        || curl -L "$(curl -s ${TFLINT_RELEASES} | grep -o -E "https://.+?/v${TFLINT_VERSION}/tflint_${TARGETOS}_${TARGETARCH}.zip")" > tflint.zip \
     ) && unzip tflint.zip && rm tflint.zip \
     ; fi
 
@@ -126,8 +131,8 @@ RUN . /.env && \
     if [ "$TFSEC_VERSION" != "false" ]; then \
     ( \
         TFSEC_RELEASES="https://api.github.com/repos/aquasecurity/tfsec/releases" && \
-        [ "$TFSEC_VERSION" = "latest" ] && curl -L "$(curl -s ${TFSEC_RELEASES}/latest | grep -o -E -m 1 "https://.+?/tfsec-linux-amd64")" > tfsec \
-        || curl -L "$(curl -s ${TFSEC_RELEASES} | grep -o -E -m 1 "https://.+?v${TFSEC_VERSION}/tfsec-linux-amd64")" > tfsec \
+        [ "$TFSEC_VERSION" = "latest" ] && curl -L "$(curl -s ${TFSEC_RELEASES}/latest | grep -o -E -m 1 "https://.+?/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec \
+        || curl -L "$(curl -s ${TFSEC_RELEASES} | grep -o -E -m 1 "https://.+?v${TFSEC_VERSION}/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec \
     ) && chmod +x tfsec \
     ; fi
 
@@ -136,8 +141,8 @@ RUN . /.env && \
     if [ "$TFUPDATE_VERSION" != "false" ]; then \
     ( \
         TFUPDATE_RELEASES="https://api.github.com/repos/minamijoyo/tfupdate/releases" && \
-        [ "$TFUPDATE_VERSION" = "latest" ] && curl -L "$(curl -s ${TFUPDATE_RELEASES}/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tgz \
-        || curl -L "$(curl -s ${TFUPDATE_RELEASES} | grep -o -E -m 1 "https://.+?${TFUPDATE_VERSION}_linux_amd64.tar.gz")" > tfupdate.tgz \
+        [ "$TFUPDATE_VERSION" = "latest" ] && curl -L "$(curl -s ${TFUPDATE_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > tfupdate.tgz \
+        || curl -L "$(curl -s ${TFUPDATE_RELEASES} | grep -o -E -m 1 "https://.+?${TFUPDATE_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > tfupdate.tgz \
     ) && tar -xzf tfupdate.tgz tfupdate && rm tfupdate.tgz \
     ; fi
 
@@ -146,8 +151,8 @@ RUN . /.env && \
     if [ "$HCLEDIT_VERSION" != "false" ]; then \
     ( \
         HCLEDIT_RELEASES="https://api.github.com/repos/minamijoyo/hcledit/releases" && \
-        [ "$HCLEDIT_VERSION" = "latest" ] && curl -L "$(curl -s ${HCLEDIT_RELEASES}/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > hcledit.tgz \
-        || curl -L "$(curl -s ${HCLEDIT_RELEASES} | grep -o -E -m 1 "https://.+?${HCLEDIT_VERSION}_linux_amd64.tar.gz")" > hcledit.tgz \
+        [ "$HCLEDIT_VERSION" = "latest" ] && curl -L "$(curl -s ${HCLEDIT_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > hcledit.tgz \
+        || curl -L "$(curl -s ${HCLEDIT_RELEASES} | grep -o -E -m 1 "https://.+?${HCLEDIT_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > hcledit.tgz \
     ) && tar -xzf hcledit.tgz hcledit && rm hcledit.tgz \
     ; fi
 

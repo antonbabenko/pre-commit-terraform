@@ -97,7 +97,10 @@ All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/p
 
 **Build from scratch**:
 
-When `--build-arg` is not specified, the latest version of `pre-commit` and `terraform` will be only installed.
+> **Note**: To build image you need to have [`docker buildx`](https://docs.docker.com/build/install-buildx/) enabled as default builder.  
+> Otherwise - provide `TARGETOS` and `TARGETARCH` as additional `--build-arg`'s to `docker build`.
+
+When hooks-related `--build-arg`s are not specified, only the latest version of `pre-commit` and `terraform` will be installed.
 
 ```bash
 git clone git@github.com:antonbabenko/pre-commit-terraform.git
@@ -184,7 +187,7 @@ curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/late
 
 We highly recommend using [WSL/WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) with Ubuntu and following the Ubuntu installation guide. Or use Docker.
 
-> Note: We won't be able to help with issues that can't be reproduced in Linux/Mac.
+> **Note**: We won't be able to help with issues that can't be reproduced in Linux/Mac.
 > So, try to find a working solution and send PR before open an issue.
 
 Otherwise, you can follow [this gist](https://gist.github.com/etiennejeanneaurevolve/1ed387dc73c5d4cb53ab313049587d09):
@@ -204,7 +207,7 @@ E.g. `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages
 
 ### 2. Install the pre-commit hook globally
 
-> Note: not needed if you use the Docker image
+> **Note**: not needed if you use the Docker image
 
 ```bash
 DIR=~/.git-template
@@ -238,7 +241,7 @@ pre-commit run -a
 
 Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions)):
 
-> Note: This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#docker-usage-file-permissions) for more information.
+> **Note**: This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#docker-usage-file-permissions) for more information.
 
 ```bash
 TAG=latest
@@ -686,7 +689,7 @@ To replicate functionality in `terraform_docs` hook:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
 
-    > Note: The flag requires additional dependency to be installed: `jq`.
+    > **Note**: The flag requires additional dependency to be installed: `jq`.
 
     If `--retry-once-with-cleanup=true`, then in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
 
@@ -696,7 +699,7 @@ To replicate functionality in `terraform_docs` hook:
     * "Module not installed"
     * "Could not load plugin"
 
-    **Warning:** When using `--retry-once-with-cleanup=true`, problematic `.terraform/modules/` and `.terraform/providers/` directories will be recursively deleted without prompting for consent. Other files and directories will not be affected, such as the `.terraform/environment` file.
+    **Warning**: When using `--retry-once-with-cleanup=true`, problematic `.terraform/modules/` and `.terraform/providers/` directories will be recursively deleted without prompting for consent. Other files and directories will not be affected, such as the `.terraform/environment` file.
 
     **Option 2**
 
@@ -714,7 +717,7 @@ To replicate functionality in `terraform_docs` hook:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    **Warning:** If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
+    **Warning**: If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
