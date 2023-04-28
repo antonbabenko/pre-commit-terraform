@@ -100,7 +100,7 @@ All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/p
 > **Note**: To build image you need have [`docker buildx`](https://docs.docker.com/build/install-buildx/) enabled as default builder.  
 > Otherwise - provide `TARGETOS` and `TARGETARCH` as additional `--build-arg`'s to `docker build`.
 
-When hooks-related `--build-arg`'s is not specified, only the latest version of `pre-commit` and `terraform` will be installed.
+When hooks-related `--build-arg`s are not specified, only the latest version of `pre-commit` and `terraform` will be installed.
 
 ```bash
 git clone git@github.com:antonbabenko/pre-commit-terraform.git
