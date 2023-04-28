@@ -108,10 +108,12 @@ RUN . /.env \
 RUN . /.env && \
     if [ "$TERRASCAN_VERSION" != "false" ]; then \
     if [ "$TARGETARCH" != "amd64" ]; then ARCH="$TARGETARCH"; else ARCH="x86_64"; fi; \
+    # Convert the first letter to Uppercase
+    OS="$(echo ${TARGETOS} | cut -c1 | tr '[:lower:]' '[:upper:]' | xargs echo -n; echo ${TARGETOS} | cut -c2-100)"; \
     ( \
         TERRASCAN_RELEASES="https://api.github.com/repos/tenable/terrascan/releases" && \
-        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
-        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${TARGETOS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
+        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${OS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
+        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${OS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
     ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
     ./terrascan init \
     ; fi
