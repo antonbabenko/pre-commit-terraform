@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.77.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.3...v1.77.4) (2023-04-28)
+
+
+### Bug Fixes
+
+* Speed up x2 TFLint hook execution in dirs with violations ([#514](https://github.com/antonbabenko/pre-commit-terraform/issues/514)) ([49974ab](https://github.com/antonbabenko/pre-commit-terraform/commit/49974ab9ef37e199d65778e6055aaf8130c6a875))
+
 ## [1.77.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.2...v1.77.3) (2023-04-21)
 
 
