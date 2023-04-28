@@ -257,7 +257,7 @@ function common::per_dir_hook {
       final_exit_code=$exit_code
     fi
 
-    if ! $DELEGATE_CHDIR; then
+    if [[ $DELEGATE_CHDIR != true ]]; then
       popd > /dev/null
     fi
 
