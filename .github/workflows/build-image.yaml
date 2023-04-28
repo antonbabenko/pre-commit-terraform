@@ -45,6 +45,8 @@ jobs:
             ghcr.io/${{ github.repository }}:latest
           # Fix multi-platform: https://github.com/docker/buildx/issues/1533
           provenance: false
+          secrets: |
+            "github_token=${{ secrets.GITHUB_TOKEN }}"
 
       - name: Build and Push nightly
         if: github.event_name == 'schedule'
@@ -59,3 +61,5 @@ jobs:
             ghcr.io/${{ github.repository }}:nightly
           # Fix multi-platform: https://github.com/docker/buildx/issues/1533
           provenance: false
+          secrets: |
+            "github_token=${{ secrets.GITHUB_TOKEN }}"
