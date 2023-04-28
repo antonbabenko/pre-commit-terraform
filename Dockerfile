@@ -107,10 +107,11 @@ RUN . /.env \
 # Terrascan
 RUN . /.env && \
     if [ "$TERRASCAN_VERSION" != "false" ]; then \
+    if [ "$TARGETARCH" != "amd64" ]; then ARCH="$TARGETARCH"; else ARCH="x86_64"; fi; \
     ( \
         TERRASCAN_RELEASES="https://api.github.com/repos/tenable/terrascan/releases" && \
-        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > terrascan.tar.gz \
-        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > terrascan.tar.gz \
+        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
+        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${TARGETOS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
     ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
     ./terrascan init \
     ; fi
