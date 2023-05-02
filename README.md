@@ -865,6 +865,41 @@ $ ls -aldn .
 drwxr-xr-x 9 1000 1000 4096 Sep  1 16:23 .
 ```
 
+## Docker usage: Download Terraform modules from private GitHub repositories
+
+If you use a private git repository as your Terraform module source, you are required to authenticate to GitHub using a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+
+When running pre-commit on Docker, both locally or on CI, you need to configure the [~/.netrc](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html) file, which contains login and initialization information used by the auto-login process.
+
+This can be achieved by firstly creating the `~/.netrc` file including your `GITHUB_PAT` and `GITHUB_SERVER_URL`
+
+```bash
+# set GH values (replace with your own values)
+GITHUB_PAT=ghp_bl481aBlabl481aBla
+GITHUB_SERVER_URL=github.com
+
+# create .netrc file
+echo -e "machine $GITHUB_SERVER_URL\n  login $GITHUB_PAT" > ~/.netrc
+```
+
+The `~/.netrc` file will look similar to the following:
+
+```
+machine github.com
+  login ghp_bl481aBlabl481aBla
+```
+
+> Note: The value of `GITHUB_SERVER_URL` can also refer to a GitHub Enterprise server (i.e. `github.my-enterprise.com`).
+
+Finally, you can execute `docker run` with an additional volume mount so that the `~/.netrc` is accessible within the container
+
+```bash
+# run pre-commit-terraform with docker
+# adding volume for .netrc file
+# .netrc needs to be in /root/ dir
+docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:latest run -a
+```
+
 ## Authors
 
 This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
