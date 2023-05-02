@@ -63,6 +63,7 @@ function per_dir_hook_unique_part {
     echo -e "$TFLINT_OUTPUT"
   fi
 
+  # return exit code to common::per_dir_hook
   return $exit_code
 }
 
