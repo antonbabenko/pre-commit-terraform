@@ -52,6 +52,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
 * [Docker Usage: File Permissions](#docker-usage-file-permissions)
+* [Docker usage: Download Terraform modules from private GitHub repositories](#docker-usage-download-terraform-modules-from-private-github-repositories)
 * [Authors](#authors)
 * [License](#license)
   * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
@@ -867,19 +868,19 @@ drwxr-xr-x 9 1000 1000 4096 Sep  1 16:23 .
 
 ## Docker usage: Download Terraform modules from private GitHub repositories
 
-If you use a private git repository as your Terraform module source, you are required to authenticate to GitHub using a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+If you use a private Git repository as your Terraform module source, you are required to authenticate to GitHub using a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 
 When running pre-commit on Docker, both locally or on CI, you need to configure the [~/.netrc](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html) file, which contains login and initialization information used by the auto-login process.
 
-This can be achieved by firstly creating the `~/.netrc` file including your `GITHUB_PAT` and `GITHUB_SERVER_URL`
+This can be achieved by firstly creating the `~/.netrc` file including your `GITHUB_PAT` and `GITHUB_SERVER_HOSTNAME`
 
 ```bash
 # set GH values (replace with your own values)
 GITHUB_PAT=ghp_bl481aBlabl481aBla
-GITHUB_SERVER_URL=github.com
+GITHUB_SERVER_HOSTNAME=github.com
 
 # create .netrc file
-echo -e "machine $GITHUB_SERVER_URL\n  login $GITHUB_PAT" > ~/.netrc
+echo -e "machine $GITHUB_SERVER_HOSTNAME\n\tlogin $GITHUB_PAT" >> ~/.netrc
 ```
 
 The `~/.netrc` file will look similar to the following:
@@ -889,7 +890,7 @@ machine github.com
   login ghp_bl481aBlabl481aBla
 ```
 
-> Note: The value of `GITHUB_SERVER_URL` can also refer to a GitHub Enterprise server (i.e. `github.my-enterprise.com`).
+> **Note**: The value of `GITHUB_SERVER_HOSTNAME` can also refer to a GitHub Enterprise server (i.e. `github.my-enterprise.com`).
 
 Finally, you can execute `docker run` with an additional volume mount so that the `~/.netrc` is accessible within the container
 
