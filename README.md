@@ -51,8 +51,9 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
-* [Docker Usage: File Permissions](#docker-usage-file-permissions)
-* [Docker usage: Download Terraform modules from private GitHub repositories](#docker-usage-download-terraform-modules-from-private-github-repositories)
+* [Docker Usage](#docker-usage)
+  * [File Permissions](#file-permissions)
+  * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
 * [Authors](#authors)
 * [License](#license)
   * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
@@ -242,7 +243,7 @@ pre-commit run -a
 
 Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions)):
 
-> **Note**: This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#docker-usage-file-permissions) for more information.
+> **Note**: This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#file-permissions) for more information.
 
 ```bash
 TAG=latest
@@ -846,7 +847,9 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
 No need to pass `--recursive .` as it is added automatically.
 
-## Docker Usage: File Permissions
+## Docker Usage
+
+### File Permissions
 
 A mismatch between the Docker container's user and the local repository file ownership can cause permission issues in the repository where `pre-commit` is run.  The container runs as the `root` user by default, and uses a `tools/entrypoint.sh` script to assume a user ID and group ID if specified by the environment variable `USERID`.
 
@@ -866,7 +869,7 @@ $ ls -aldn .
 drwxr-xr-x 9 1000 1000 4096 Sep  1 16:23 .
 ```
 
-## Docker usage: Download Terraform modules from private GitHub repositories
+### Download Terraform modules from private GitHub repositories
 
 If you use a private Git repository as your Terraform module source, you are required to authenticate to GitHub using a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 
