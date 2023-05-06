@@ -62,17 +62,16 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 <!-- markdownlint-disable no-inline-html -->
 
-* [`pre-commit`](https://pre-commit.com/#install),
-  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
-  <sub><sup>[`git`](https://git-scm.com/downloads),
-  <sub><sup>POSIX compatible shell,
-  <sub><sup>Internet connection (on first run),
-  <sub><sup>x86_64 compatible operation system,
-  <sub><sup>Some hardware where this OS will run,
-  <sub><sup>Electricity for hardware and internet connection,
-  <sub><sup>Some basic physical laws,
-  <sub><sup>Hope that it all will work.
-  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
+* [`pre-commit`](https://pre-commit.com/#install)
+* [`terraform`](https://www.terraform.io/downloads.html)
+* [`git`](https://git-scm.com/downloads)
+* POSIX compatible shell. <br>
+* Internet connection (on first run). <br>
+* x86_64 compatible operation system. <br>
+* Some hardware where this OS will run. <br>
+* Electricity for hardware and internet connection. <br>
+* Some basic physical laws. <br>
+* Hope that it all will work. <br>
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `checkov` hook.
 * [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook.
 * [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook.
