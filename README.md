@@ -67,7 +67,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   <sub><sup>[`git`](https://git-scm.com/downloads),
   <sub><sup>POSIX compatible shell,
   <sub><sup>Internet connection (on first run),
-  <sub><sup>x86_64 compatible operation system,
+  <sub><sup>x86_64 or arm64 compatible operation system,
   <sub><sup>Some hardware where this OS will run,
   <sub><sup>Electricity for hardware and internet connection,
   <sub><sup>Some basic physical laws,
