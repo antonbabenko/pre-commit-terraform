@@ -25,6 +25,9 @@ function main {
 # Arguments:
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   change_dir_in_unique_part (string/false) Modifier which creates
+#     possibilities to use non-common chdir strategies.
+#     Availability depends on hook.
 #   args (array) arguments that configure wrapped tool behavior
 # Outputs:
 #   If failed - print out hook checks status

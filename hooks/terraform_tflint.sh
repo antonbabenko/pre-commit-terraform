@@ -41,16 +41,20 @@ function main {
 # Arguments:
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   change_dir_in_unique_part (string/false) Modifier which creates
+#     possibilities to use non-common chdir strategies.
+#     Availability depends on hook.
 #   args (array) arguments that configure wrapped tool behavior
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
   local -r dir_path="$1"
-  shift
+  local -r change_dir_in_unique_part="$2"
+  shift 2
   local -a -r args=("$@")
 
-  if [[ $DELEGATE_CHDIR == true ]]; then
+  if [ "$change_dir_in_unique_part" == "delegate_chdir" ]; then
     local dir_args="--chdir=$dir_path"
   fi
 
