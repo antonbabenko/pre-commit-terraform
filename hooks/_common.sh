@@ -217,6 +217,25 @@ function common::per_dir_hook {
     ((index += 1))
   done
 
+  # Lookup hook-config for modifiers that impact common behavior
+  local change_dir_in_unique_part=false
+  IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
+  for c in "${configs[@]}"; do
+    IFS="=" read -r -a config <<< "$c"
+    key=${config[0]}
+    value=${config[1]}
+
+    case $key in
+      --delegate-chdir)
+        # this flag will skip pushing and popping directories
+        # delegating the responsibility to the hooked plugin/binary
+        if [[ ! $value || $value == true ]]; then
+          change_dir_in_unique_part="delegate_chdir"
+        fi
+        ;;
+    esac
+  done
+
   # preserve errexit status
   shopt -qo errexit && ERREXIT_IS_SET=true
   # allow hook to continue if exit_code is greater than 0
@@ -226,16 +245,22 @@ function common::per_dir_hook {
   # run hook for each path
   for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
     dir_path="${dir_path//__REPLACED__SPACE__/ }"
-    pushd "$dir_path" > /dev/null || continue
 
-    per_dir_hook_unique_part "$dir_path" "${args[@]}"
+    if [[ $change_dir_in_unique_part == false ]]; then
+      pushd "$dir_path" > /dev/null || continue
+    fi
+
+    per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "${args[@]}"
 
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
       final_exit_code=$exit_code
     fi
 
-    popd > /dev/null
+    if [[ $change_dir_in_unique_part == false ]]; then
+      popd > /dev/null
+    fi
+
   done
 
   # restore errexit if it was set before the "for" loop
