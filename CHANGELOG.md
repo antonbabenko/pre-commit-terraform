@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.79.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.78.0...v1.79.0) (2023-05-08)
+
+
+### Features
+
+* TFLint: Add `--hook-config=--delegate-chdir` to use `tflint -chdir` ([#512](https://github.com/antonbabenko/pre-commit-terraform/issues/512)) ([1e9debc](https://github.com/antonbabenko/pre-commit-terraform/commit/1e9debc02f558156823fc1ddd5cf2b48b1593167))
+
 # [1.78.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.4...v1.78.0) (2023-04-28)
 
 
