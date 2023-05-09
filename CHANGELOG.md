@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.79.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.79.0...v1.79.1) (2023-05-09)
+
+
+### Bug Fixes
+
+* Fix `terraform_providers_lock` hook broken in v1.79.0 ([#521](https://github.com/antonbabenko/pre-commit-terraform/issues/521)) ([6bfc5bf](https://github.com/antonbabenko/pre-commit-terraform/commit/6bfc5bf7670a6d9fbf21d1a686fdaa941ab34aa6))
+
 # [1.79.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.78.0...v1.79.0) (2023-05-08)
 
 
