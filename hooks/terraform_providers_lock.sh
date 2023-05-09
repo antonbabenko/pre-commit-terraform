@@ -34,7 +34,9 @@ function main {
 #######################################################################
 function per_dir_hook_unique_part {
   local -r dir_path="$1"
-  shift
+  # shellcheck disable=SC2034 # Unused var.
+  local -r change_dir_in_unique_part="$2"
+  shift 2
   local -a -r args=("$@")
 
   local exit_code
