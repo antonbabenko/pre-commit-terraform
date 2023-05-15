@@ -112,8 +112,8 @@ function per_dir_hook_unique_part {
     return $exit_code
   }
 
-# In case `terraform validate` failed to execute 
-# - check is simple `terraform init` will help
+  # In case `terraform validate` failed to execute 
+  # - check is simple `terraform init` will help
   common::terraform_init 'terraform validate' "$dir_path" || {
     exit_code=$?
     return $exit_code
