@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+
 # globals variables
 # shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -103,6 +104,12 @@ function per_dir_hook_unique_part {
         ;;
     esac
   done
+
+  # first try to terraform validate without prior terraform init call
+  terraform validate "${args[@]}" 2>&1 && {
+    exit_code=$?
+    return $exit_code
+  }
 
   common::terraform_init 'terraform validate' "$dir_path" || {
     exit_code=$?
