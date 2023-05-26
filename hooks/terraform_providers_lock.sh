@@ -64,9 +64,9 @@ function lockfile_contains_all_needed_sha {
     # `files: (\.terraform\.lock\.hcl)$`
   done < ".terraform.lock.hcl"
 
-# When you specify `-platform``, but don't specify current platform -
-# platforms_count will be less than `h1:` headers`
-[ $h1_counter -lt 0 ] && h1_counter=0
+  # When you specify `-platform``, but don't specify current platform -
+  # platforms_count will be less than `h1:` headers`
+  [ "$h1_counter" -lt 0 ] && h1_counter=0
 
   # 0 if all OK, 2+ when invalid lockfile
   return $((h1_counter + zh_counter))
@@ -124,32 +124,44 @@ function per_dir_hook_unique_part {
     esac
   done
 
-  # only-check-is-current-lockfile-cross-platform
-  # check-is-there-new-providers-added---run-terraform-init
-  # always-regenerate-lockfile (default)
-  [ ! "$mode" ] && mode="always-regenerate-lockfile"
+  # Available options:
+  #   only-check-is-current-lockfile-cross-platform (will be default)
+  #   check-is-there-new-providers-added---run-terraform-init
+  #   always-regenerate-lockfile
+  #   no-mode # TODO: Remove in 2.0
+  [ ! "$mode" ] && mode="no-mode"
+
+  if [ "$mode" == "no-mode" ]; then
+    common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
+Please specify '--hook-config=--mode=always-regenerate-lockfile' in 'args:' if you'd like to continue using this hook as before.
+When v2.x will be introduced - the default mode will be changed.
+
+You can check available hook modes at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
+"
+  fi
 
   if [ "$mode" == "only-check-is-current-lockfile-cross-platform" ] &&
     lockfile_contains_all_needed_sha "$platforms_count"; then
-echo "inside if only-check-is-current-lockfile-cross-platform"
+
     exit 0
   fi
 
-echo before tf init
   common::terraform_init 'terraform providers lock' "$dir_path" || {
     exit_code=$?
     return $exit_code
   }
 
-echo after tf init
-
   if [ "$mode" == "check-is-there-new-providers-added---run-terraform-init" ] &&
-    lockfile_contains_all_needed_sha "$platforms_count"; then
-echo inside if check-is-there-new-providers-added---run-terraform-init
+    lockfile_contains_all_needed_sha "$platforms_count" &&
+    # Check that lockfile contains all providers
+    #? Don't require `tf init`` for providers, but required `tf init` for modules
+    terraform providers schema -json > /dev/null 2>&1; then
+
     exit 0
   fi
 
-echo before providers lock command
+  #? Don't require `tf init`` for providers, but required `tf init` for modules
+  #? Could be mitigated by `function match_validate_errors {` from tf_validate hook
   # pass the arguments to hook
   terraform providers lock "${args[@]}"
 
