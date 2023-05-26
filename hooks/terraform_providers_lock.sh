@@ -68,7 +68,6 @@ function lockfile_contains_all_needed_sha {
 # platforms_count will be less than `h1:` headers`
 [ $h1_counter -lt 0 ] && h1_counter=0
 
-echo lockfile_contains_all_needed_sha return $((h1_counter + zh_counter))
   # 0 if all OK, 2+ when invalid lockfile
   return $((h1_counter + zh_counter))
 }
@@ -100,8 +99,6 @@ function per_dir_hook_unique_part {
     fi
   done
 
-echo platforms_count $platforms_count
-
   local exit_code
   #
   # Get hook settings
@@ -132,12 +129,8 @@ echo platforms_count $platforms_count
   # always-regenerate-lockfile (default)
   [ ! "$mode" ] && mode="always-regenerate-lockfile"
 
-lockfile_contains_all_needed_sha "$platforms_count"
-echo $?
-exit 1
-
   if [ "$mode" == "only-check-is-current-lockfile-cross-platform" ] &&
-    [ "$(lockfile_contains_all_needed_sha "$platforms_count")" == "0" ]; then
+    lockfile_contains_all_needed_sha "$platforms_count"; then
 echo "inside if only-check-is-current-lockfile-cross-platform"
     exit 0
   fi
@@ -151,7 +144,7 @@ echo before tf init
 echo after tf init
 
   if [ "$mode" == "check-is-there-new-providers-added---run-terraform-init" ] &&
-    [ "$(lockfile_contains_all_needed_sha "$platforms_count")" == "0" ]; then
+    lockfile_contains_all_needed_sha "$platforms_count"; then
 echo inside if check-is-there-new-providers-added---run-terraform-init
     exit 0
   fi
