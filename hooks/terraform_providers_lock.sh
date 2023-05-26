@@ -56,13 +56,17 @@ function lockfile_contains_all_needed_sha {
     # No all SHA in provider found
     if [ "$(echo "$line" | grep -o '^}')" == "}" ]; then
       if [ "$h1_counter" -ge 1 ] || [ "$zh_counter" -ge 1 ]; then
-        return $((100 + h1_counter + zh_counter))
+        return $((150 + h1_counter + zh_counter))
       fi
     fi
 
     # lockfile always exists, because the hook triggered only on
     # `files: (\.terraform\.lock\.hcl)$`
   done < ".terraform.lock.hcl"
+
+# When you specify `-platform``, but don't specify current platform -
+# platforms_count will be less than `h1:` headers`
+[ $h1_counter -lt 0 ] && h1_counter=0
 
 echo lockfile_contains_all_needed_sha return $((h1_counter + zh_counter))
   # 0 if all OK, 2+ when invalid lockfile
