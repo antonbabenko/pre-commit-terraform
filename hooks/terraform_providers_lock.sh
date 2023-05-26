@@ -64,6 +64,7 @@ function lockfile_contains_all_needed_sha {
     # `files: (\.terraform\.lock\.hcl)$`
   done < ".terraform.lock.hcl"
 
+echo lockfile_contains_all_needed_sha return $((h1_counter + zh_counter))
   # 0 if all OK, 2+ when invalid lockfile
   return $((h1_counter + zh_counter))
 }
@@ -95,11 +96,13 @@ function per_dir_hook_unique_part {
     fi
   done
 
+echo platforms_count $platforms_count
+
   local exit_code
   #
   # Get hook settings
   #
-  local hook_mode
+  local mode
 
   IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
 
@@ -110,12 +113,12 @@ function per_dir_hook_unique_part {
     value=${config[1]}
 
     case $key in
-      --hook-mode)
-        if [ "$hook_mode" ]; then
-          common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--hook-mode" flag'
+      --mode)
+        if [ "$mode" ]; then
+          common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--mode" flag'
           exit 1
         fi
-        hook_mode=$value
+        mode=$value
         ;;
     esac
   done
@@ -123,23 +126,33 @@ function per_dir_hook_unique_part {
   # only-check-is-current-lockfile-cross-platform
   # check-is-there-new-providers-added---run-terraform-init
   # always-regenerate-lockfile (default)
-  [ ! "$hook_mode" ] && hook_mode="always-regenerate-lockfile"
+  [ ! "$mode" ] && mode="always-regenerate-lockfile"
 
-  if [ "$hook_mode" == "only-check-is-current-lockfile-cross-platform" ] &&
-    [ "$(lockfile_contains_all_needed_sha "$platforms_count")" == 0 ]; then
+lockfile_contains_all_needed_sha "$platforms_count"
+echo $?
+exit 1
+
+  if [ "$mode" == "only-check-is-current-lockfile-cross-platform" ] &&
+    [ "$(lockfile_contains_all_needed_sha "$platforms_count")" == "0" ]; then
+echo "inside if only-check-is-current-lockfile-cross-platform"
     exit 0
   fi
 
+echo before tf init
   common::terraform_init 'terraform providers lock' "$dir_path" || {
     exit_code=$?
     return $exit_code
   }
 
-  if [ "$hook_mode" == "check-is-there-new-providers-added---run-terraform-init" ] &&
-    [ "$(lockfile_contains_all_needed_sha "$platforms_count")" == 0 ]; then
+echo after tf init
+
+  if [ "$mode" == "check-is-there-new-providers-added---run-terraform-init" ] &&
+    [ "$(lockfile_contains_all_needed_sha "$platforms_count")" == "0" ]; then
+echo inside if check-is-there-new-providers-added---run-terraform-init
     exit 0
   fi
 
+echo before providers lock command
   # pass the arguments to hook
   terraform providers lock "${args[@]}"
 
