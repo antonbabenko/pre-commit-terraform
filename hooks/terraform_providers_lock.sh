@@ -126,17 +126,32 @@ function per_dir_hook_unique_part {
 
   # Available options:
   #   only-check-is-current-lockfile-cross-platform (will be default)
-  #   check-is-there-new-providers-added---run-terraform-init
   #   always-regenerate-lockfile
   #   no-mode # TODO: Remove in 2.0
   [ ! "$mode" ] && mode="no-mode"
 
   if [ "$mode" == "no-mode" ]; then
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
-Please specify '--hook-config=--mode=always-regenerate-lockfile' in 'args:' if you'd like to continue using this hook as before.
-When v2.x will be introduced - the default mode will be changed.
+If you'd like to continue using this hook as before, please:
+* Specify '--hook-config=--mode=always-regenerate-lockfile' in 'args:'
+* Before 'terraform_providers_lock', add 'terraform_validate' hook with '--hook-config=--retry-once-with-cleanup=true'
+* Move '--tf-init-args=' to 'terraform_validate' hook
 
-You can check available hook modes at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
+At the end, you should get config like this:
+
+        - id: terraform_validate
+          args:
+            - --hook-config=--retry-once-with-cleanup=true
+            # - --tf-init-args=-upgrade
+
+        - id: terraform_providers_lock
+          args:
+          - --hook-config=--mode=always-regenerate-lockfile
+
+
+Why? When v2.x will be introduced - the default mode will be changed.
+
+You can check available modes for hook at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
 "
   fi
 
@@ -146,22 +161,15 @@ You can check available hook modes at https://github.com/antonbabenko/pre-commit
     exit 0
   fi
 
-  common::terraform_init 'terraform providers lock' "$dir_path" || {
-    exit_code=$?
-    return $exit_code
-  }
-
-  if [ "$mode" == "check-is-there-new-providers-added---run-terraform-init" ] &&
-    lockfile_contains_all_needed_sha "$platforms_count" &&
-    # Check that lockfile contains all providers
-    #? Don't require `tf init`` for providers, but required `tf init` for modules
-    terraform providers schema -json > /dev/null 2>&1; then
-
-    exit 0
+  if [ "$mode" == "no-mode" ]; then
+    common::terraform_init 'terraform providers lock' "$dir_path" || {
+      exit_code=$?
+      return $exit_code
+    }
   fi
 
   #? Don't require `tf init`` for providers, but required `tf init` for modules
-  #? Could be mitigated by `function match_validate_errors {` from tf_validate hook
+  #? Mitigated by `function match_validate_errors` from terraform_validate hook
   # pass the arguments to hook
   terraform providers lock "${args[@]}"
 
