@@ -334,7 +334,7 @@ PRE_COMMIT_COLOR=never pre-commit run
 
 > `checkov` hook is deprecated, please use `terraform_checkov`.
 
-Note that `terraform_checkov` runs recursively during `-d .` usage. That means, for example, if you change `.tf` file in repo root, all existing `.tf` files in repo will be checked.
+Note that `terraform_checkov` runs recursively during `-d .` usage. That means, for example, if you change `.tf` file in repo root, all existing `.tf` files in the repo will be checked.
 
 1. You can specify custom arguments. E.g.:
 
@@ -357,7 +357,7 @@ For deprecated hook you need to specify each argument separately:
   ]
 ```
 
-2. When you have multiple directories and want to run `terraform_checkov` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_checkov` hooks with Git working directory (repo root) at run time. For example:
+2. When you have multiple directories and want to run `terraform_checkov` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_checkov` hooks with the Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_checkov
@@ -407,7 +407,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --args=--terraform-var-file="../terraform.tfvars"
     ```
 
-3. (Optionally) Define `cost constrains` the hook should evaluate successfully in order to pass:
+3. (Optionally) Define `cost constraints` the hook should evaluate successfully in order to pass:
 
     ```yaml
     - id: infracost_breakdown
@@ -596,7 +596,7 @@ To replicate functionality in `terraform_docs` hook:
         - --args=--enable-rule=terraform_documented_variables
     ```
 
-2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to the `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with Git working directory (repo root) at run time. For example:
+2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to the `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with the Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_tflint
@@ -604,7 +604,7 @@ To replicate functionality in `terraform_docs` hook:
         - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
     ```
 
-3. By default pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delgate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
+3. By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delgate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
 
     ```yaml
     - id: terraform_tflint
@@ -686,6 +686,7 @@ To replicate functionality in `terraform_docs` hook:
     ```yaml
     - id: terraform_validate
       args:
+        - --tf-init-args=-upgrade
         - --tf-init-args=-lockfile=readonly
     ```
 
@@ -701,7 +702,9 @@ To replicate functionality in `terraform_docs` hook:
 
     > **Note**: The flag requires additional dependency to be installed: `jq`.
 
-    If `--retry-once-with-cleanup=true`, then in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
+    > **Note**: Reinit can be very slow and require downloading data from remote Terraform registries, and not all of that downloaded data or meta-data is currently being cached by Terraform.
+
+    When `--retry-once-with-cleanup=true`, in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
 
     * "Missing or corrupted provider plugins"
     * "Module source has changed"
