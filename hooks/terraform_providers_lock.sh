@@ -153,19 +153,16 @@ Why? When v2.x will be introduced - the default mode will be changed.
 
 You can check available modes for hook at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
 "
+    common::terraform_init 'terraform providers lock' "$dir_path" || {
+      exit_code=$?
+      return $exit_code
+    }
   fi
 
   if [ "$mode" == "only-check-is-current-lockfile-cross-platform" ] &&
     lockfile_contains_all_needed_sha "$platforms_count"; then
 
     exit 0
-  fi
-
-  if [ "$mode" == "no-mode" ]; then
-    common::terraform_init 'terraform providers lock' "$dir_path" || {
-      exit_code=$?
-      return $exit_code
-    }
   fi
 
   #? Don't require `tf init`` for providers, but required `tf init` for modules
