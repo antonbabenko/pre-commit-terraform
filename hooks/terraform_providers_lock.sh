@@ -53,7 +53,7 @@ function lockfile_contains_all_needed_sha {
       zh_counter=$((zh_counter + 1))
       continue
     fi
-    # No all SHA in provider found
+    # No all SHA inside provider found
     if [ "$(echo "$line" | grep -o '^}')" == "}" ]; then
       if [ "$h1_counter" -ge 1 ] || [ "$zh_counter" -ge 1 ]; then
         # h1_counter can be less than 0, in the case when lockfile

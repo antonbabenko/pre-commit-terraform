@@ -549,7 +549,7 @@ To replicate functionality in `terraform_docs` hook:
 
 1. The hook can work in a few different modes: `only-check-is-current-lockfile-cross-platform` with and without [terraform_validate hook](#terraform_validate) and `always-regenerate-lockfile` - only with terraform_validate hook.
 
-    * `only-check-is-current-lockfile-cross-platform` without terraform_validate - only checks that lockfile have all required SHAs for all already added to lockfile providers.
+    * `only-check-is-current-lockfile-cross-platform` without terraform_validate - only checks that lockfile has all required SHAs for all providers already added to lockfile.
 
         ```yaml
         - id: terraform_providers_lock
@@ -610,7 +610,7 @@ To replicate functionality in `terraform_docs` hook:
 
 5. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
 
-    > **Warning** - DEPRECATION NOTICE: This available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
+    > **Warning** - DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
 
     ```yaml
     - id: terraform_providers_lock
