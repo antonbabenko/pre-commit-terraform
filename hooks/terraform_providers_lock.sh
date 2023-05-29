@@ -127,10 +127,8 @@ function per_dir_hook_unique_part {
   # Available options:
   #   only-check-is-current-lockfile-cross-platform (will be default)
   #   always-regenerate-lockfile
-  #   no-mode # TODO: Remove in 2.0
-  [ ! "$mode" ] && mode="no-mode"
-
-  if [ "$mode" == "no-mode" ]; then
+  # TODO: Remove in 2.0
+  if [ ! "$mode" ]; then
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
 If you'd like to continue using this hook as before, please:
 * Specify '--hook-config=--mode=always-regenerate-lockfile' in 'args:'
