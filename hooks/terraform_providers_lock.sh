@@ -56,6 +56,10 @@ function lockfile_contains_all_needed_sha {
     # No all SHA in provider found
     if [ "$(echo "$line" | grep -o '^}')" == "}" ]; then
       if [ "$h1_counter" -ge 1 ] || [ "$zh_counter" -ge 1 ]; then
+        # h1_counter can be less than 0, in the case when lockfile
+        # contains more platforms than you currently specify
+        # That's why here extra +50 - for safety reasons, to be sure
+        # that error goes exactly from this part of the function
         return $((150 + h1_counter + zh_counter))
       fi
     fi
