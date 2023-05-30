@@ -148,7 +148,7 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
     exit 0
   fi
 
-  #? Don't require `tf init`` for providers, but required `tf init` for modules
+  #? Don't require `tf init` for providers, but required `tf init` for modules
   #? Mitigated by `function match_validate_errors` from terraform_validate hook
   # pass the arguments to hook
   terraform providers lock "${args[@]}"
