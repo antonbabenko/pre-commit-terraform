@@ -545,7 +545,34 @@ To replicate functionality in `terraform_docs` hook:
 ### terraform_providers_lock
 
 > **Note**: The hook requires Terraform 0.14 or later.
+
 > **Note**: The hook can invoke `terraform providers lock` that can be really slow and requires fetching metadata from remote Terraform registries - not all of that metadata is currently being cached by Terraform.
+
+> <details><summary><b>Note</b>: Read this if you used this hook before v1.80.0 | Planned breaking changes in v2.0</summary>
+> We introduced '--mode' flag for this hook. If you'd like to continue using this hook as before, please:
+>
+> * Specify `--hook-config=--mode=always-regenerate-lockfile` in `args:`
+> * Before `terraform_providers_lock`, add `terraform_validate` hook with `--hook-config=--retry-once-with-cleanup=true`
+> * Move `--tf-init-args=` to `terraform_validate` hook
+>
+> In the end, you should get config like this:
+>
+> ```yaml
+> - id: terraform_validate
+>   args:
+>     - --hook-config=--retry-once-with-cleanup=true
+>     # - --tf-init-args=-upgrade
+>
+> - id: terraform_providers_lock
+>   args:
+>   - --hook-config=--mode=always-regenerate-lockfile
+> ```
+>
+> Why? When v2.x will be introduced - the default mode will be changed, probably, to `only-check-is-current-lockfile-cross-platform`.
+>
+> You can check available modes for hook below.
+> </details>
+
 
 1. The hook can work in a few different modes: `only-check-is-current-lockfile-cross-platform` with and without [terraform_validate hook](#terraform_validate) and `always-regenerate-lockfile` - only with terraform_validate hook.
 

@@ -53,7 +53,7 @@ function lockfile_contains_all_needed_sha {
       zh_counter=$((zh_counter + 1))
       continue
     fi
-    # Not all SHA inside provider found
+    # Not all SHA inside provider lock definition block found
     if [ "$(echo "$line" | grep -o '^}')" == "}" ]; then
       if [ "$h1_counter" -ge 1 ] || [ "$zh_counter" -ge 1 ]; then
         # h1_counter can be less than 0, in the case when lockfile
@@ -134,26 +134,7 @@ function per_dir_hook_unique_part {
   # TODO: Remove in 2.0
   if [ ! "$mode" ]; then
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
-If you'd like to continue using this hook as before, please:
-* Specify '--hook-config=--mode=always-regenerate-lockfile' in 'args:'
-* Before 'terraform_providers_lock', add 'terraform_validate' hook with '--hook-config=--retry-once-with-cleanup=true'
-* Move '--tf-init-args=' to 'terraform_validate' hook
-
-At the end, you should get config like this:
-
-        - id: terraform_validate
-          args:
-            - --hook-config=--retry-once-with-cleanup=true
-            # - --tf-init-args=-upgrade
-
-        - id: terraform_providers_lock
-          args:
-          - --hook-config=--mode=always-regenerate-lockfile
-
-
-Why? When v2.x will be introduced - the default mode will be changed.
-
-You can check available modes for hook at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
+Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
 "
     common::terraform_init 'terraform providers lock' "$dir_path" || {
       exit_code=$?
