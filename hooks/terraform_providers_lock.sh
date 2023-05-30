@@ -38,7 +38,7 @@ function lockfile_contains_all_needed_sha {
   # Reading each line
   while read -r line; do
 
-    if [ "$(echo "$line" | grep -o '^"h1:')" == '"h1:' ]; then
+    if grep -Eq '^"h1:' <<< "$line"; then
       h1_counter=$((h1_counter - 1))
       continue
     fi
