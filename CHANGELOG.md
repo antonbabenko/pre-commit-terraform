@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.80.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.79.1...v1.80.0) (2023-05-30)
+
+
+### Features
+
+* **`terraform_providers_lock`:** Add `--mode` option and deprecate previous workflow ([#528](https://github.com/antonbabenko/pre-commit-terraform/issues/528)) ([2426b52](https://github.com/antonbabenko/pre-commit-terraform/commit/2426b527aeee39aad0386cbbd734747d883ed7b6))
+
 ## [1.79.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.79.0...v1.79.1) (2023-05-09)
 
 
