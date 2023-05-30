@@ -43,18 +43,18 @@ function lockfile_contains_all_needed_sha {
       continue
     fi
 
-    if [ "$(echo "$line" | grep -o '^"zh:')" == '"zh:' ]; then
+    if grep -Eq '^"zh:' <<< "$line"; then
       zh_counter=0
       continue
     fi
 
-    if [ "$(echo "$line" | grep -o ^provider)" == "provider" ]; then
+    if grep -Eq '^provider' <<< "$line"; then
       h1_counter="$platforms_count"
       zh_counter=$((zh_counter + 1))
       continue
     fi
     # Not all SHA inside provider lock definition block found
-    if [ "$(echo "$line" | grep -o '^}')" == "}" ]; then
+    if grep -Eq '^}' <<< "$line"; then
       if [ "$h1_counter" -ge 1 ] || [ "$zh_counter" -ge 1 ]; then
         # h1_counter can be less than 0, in the case when lockfile
         # contains more platforms than you currently specify
@@ -98,7 +98,7 @@ function per_dir_hook_unique_part {
 
   local platforms_count=0
   for arg in "${args[@]}"; do
-    if [ "$(echo "$arg" | grep -o '^-platform=')" == "-platform=" ]; then
+    if grep -Eq '^-platform=' <<< "$arg"; then
       platforms_count=$((platforms_count + 1))
     fi
   done
