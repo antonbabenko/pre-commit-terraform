@@ -544,12 +544,73 @@ To replicate functionality in `terraform_docs` hook:
 
 ### terraform_providers_lock
 
-1. The hook requires Terraform 0.14 or later.
-2. The hook invokes two operations that can be really slow:
-    * `terraform init` (in case `.terraform` directory is not initialized)
-    * `terraform providers lock`
+> **Note**: The hook requires Terraform 0.14 or later.
 
-    Both operations require downloading data from remote Terraform registries, and not all of that downloaded data or meta-data is currently being cached by Terraform.
+> **Note**: The hook can invoke `terraform providers lock` that can be really slow and requires fetching metadata from remote Terraform registries - not all of that metadata is currently being cached by Terraform.
+
+> <details><summary><b>Note</b>: Read this if you used this hook before v1.80.0 | Planned breaking changes in v2.0</summary>
+> We introduced '--mode' flag for this hook. If you'd like to continue using this hook as before, please:
+>
+> * Specify `--hook-config=--mode=always-regenerate-lockfile` in `args:`
+> * Before `terraform_providers_lock`, add `terraform_validate` hook with `--hook-config=--retry-once-with-cleanup=true`
+> * Move `--tf-init-args=` to `terraform_validate` hook
+>
+> In the end, you should get config like this:
+>
+> ```yaml
+> - id: terraform_validate
+>   args:
+>     - --hook-config=--retry-once-with-cleanup=true
+>     # - --tf-init-args=-upgrade
+>
+> - id: terraform_providers_lock
+>   args:
+>   - --hook-config=--mode=always-regenerate-lockfile
+> ```
+>
+> Why? When v2.x will be introduced - the default mode will be changed, probably, to `only-check-is-current-lockfile-cross-platform`.
+>
+> You can check available modes for hook below.
+> </details>
+
+
+1. The hook can work in a few different modes: `only-check-is-current-lockfile-cross-platform` with and without [terraform_validate hook](#terraform_validate) and `always-regenerate-lockfile` - only with terraform_validate hook.
+
+    * `only-check-is-current-lockfile-cross-platform` without terraform_validate - only checks that lockfile has all required SHAs for all providers already added to lockfile.
+
+        ```yaml
+        - id: terraform_providers_lock
+          args:
+          - --hook-config=--mode=only-check-is-current-lockfile-cross-platform
+        ```
+
+    * `only-check-is-current-lockfile-cross-platform` with [terraform_validate hook](#terraform_validate) - make up-to-date lockfile by adding/removing providers and only then check that lockfile has all required SHAs.
+
+        > **Note**: Next `terraform_validate` flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
+
+        ```yaml
+        - id: terraform_validate
+          args:
+            - --hook-config=--retry-once-with-cleanup=true
+
+        - id: terraform_providers_lock
+          args:
+          - --hook-config=--mode=only-check-is-current-lockfile-cross-platform
+        ```
+
+    * `always-regenerate-lockfile` only with [terraform_validate hook](#terraform_validate) - regenerate lockfile from scratch. Can be useful for upgrading providers in lockfile to latest versions
+
+        ```yaml
+        - id: terraform_validate
+          args:
+            - --hook-config=--retry-once-with-cleanup=true
+            - --tf-init-args=-upgrade
+
+        - id: terraform_providers_lock
+          args:
+          - --hook-config=--mode=always-regenerate-lockfile
+        ```
+
 
 3. `terraform_providers_lock` supports custom arguments:
 
@@ -575,6 +636,8 @@ To replicate functionality in `terraform_docs` hook:
     `terraform_providers_lock` hook will try to reinitialize directories before running the `terraform providers lock` command.
 
 5. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
+
+    > **Warning** - DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
 
     ```yaml
     - id: terraform_providers_lock

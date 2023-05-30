@@ -312,6 +312,7 @@ function common::colorify {
 # Outputs:
 #   If failed - print out terraform init output
 #######################################################################
+# TODO: v2.0: Move it inside terraform_validate.sh
 function common::terraform_init {
   local -r command_name=$1
   local -r dir_path=$2
