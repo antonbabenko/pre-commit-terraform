@@ -109,6 +109,16 @@ function per_dir_hook_unique_part {
     esac
   done
 
+  # First try `terraform validate` with the hope that all deps are
+  # pre-installed. That is needed for cases when `.terraform/modules`
+  # or `.terraform/providers` missed AND that is expected.
+  terraform validate "${args[@]}" 2>&1 && {
+    exit_code=$?
+    return $exit_code
+  }
+
+  # In case `terraform validate` failed to execute 
+  # - check is simple `terraform init` will help
   common::terraform_init 'terraform validate' "$dir_path" || {
     exit_code=$?
     return $exit_code
