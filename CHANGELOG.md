@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.81.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.80.0...v1.81.0) (2023-06-12)
+
+
+### Features
+
+* Speedup `terraform_validate` - firstly try run validate without checking is `.terraform/` is valid ([#524](https://github.com/antonbabenko/pre-commit-terraform/issues/524)) ([d0d08ac](https://github.com/antonbabenko/pre-commit-terraform/commit/d0d08ac63cebd23e4ee7ff58fb91ea20c398ab69))
+
 # [1.80.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.79.1...v1.80.0) (2023-05-30)
 
 
