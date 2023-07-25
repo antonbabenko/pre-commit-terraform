@@ -44,7 +44,7 @@ jobs:
 
       - name: Run structure tests
         if: steps.changed-files-specific.outputs.any_changed == 'true'
-        uses: plexsystems/container-structure-test-action@fc4492b7bf1d5bbca12490f416808ea75c1ae75e # v0.2.0
+        uses: plexsystems/container-structure-test-action@c0a028aa96e8e82ae35be556040340cbb3e280ca # v0.3.0
         with:
           image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
           config: .github/.container-structure-test-config.yaml
