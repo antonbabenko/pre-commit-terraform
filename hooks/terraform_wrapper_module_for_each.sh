@@ -323,11 +323,11 @@ EOF
 
     # Get names of module variables in all terraform files
     # shellcheck disable=SC2207
-    module_vars=($(echo "$all_tf_content" | hcledit block list | { grep variable. || true; } | cut -d'.' -f 2))
+    module_vars=($(echo "$all_tf_content" | hcledit block list | { grep variable. || true } | cut -d'.' -f 2))
 
     # Get names of module outputs in all terraform files
     # shellcheck disable=SC2207
-    module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep output. || true; } | cut -d'.' -f 2))
+    module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep output. || true } | cut -d'.' -f 2))
 
     # Looking for sensitive output
     local wrapper_output_sensitive="# sensitive = false # No sensitive module output found"
