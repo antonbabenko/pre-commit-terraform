@@ -360,7 +360,7 @@ EOF
         # https://github.com/terraform-aws-modules/terraform-aws-security-group/blob/0bd31aa88339194efff470d3b3f58705bd008db0/rules.tf#L8
         # As a result, wrappers in terraform-aws-security-group module are missing values of the rules variable and is not useful. :(
         var_value="try(each.value.${module_var}, var.defaults.${module_var}, {})"
-      elif [[ $var_default == *EOF || $var_default == *EOT ]]; then
+      elif [[ $var_default == \<\<* ]]; then
         # Heredoc style default values produce HCL parsing error:
         # 'Unterminated template string; No closing marker was found for the string.'
         # Because closing marker must be alone on it's own line:
