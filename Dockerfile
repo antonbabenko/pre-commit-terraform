@@ -187,7 +187,7 @@ RUN apk add --no-cache \
     # entrypoint wrapper deps
     su-exec=~0.2 \
     # ssh-client for external private module in ssh
-    openssh-client
+    openssh-client=~9
 
 # Copy tools
 COPY --from=builder \
