@@ -189,7 +189,7 @@ RUN apk add --no-cache \
     
 # ssh-client for external private module in ssh
 RUN apk add --no-cache \
-    ssh-client
+    openssh-client
 
 # Copy tools
 COPY --from=builder \
