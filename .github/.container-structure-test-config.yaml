@@ -75,7 +75,7 @@ commandTests:
 
   - name: "ssh"
     command: "ssh"
-    expectedOutput: ["^usage: ssh [-46AaCfGgKkMNnqsTtVvXxYy] [-B bind_interface]$"]
+    expectedOutput: ["^usage: ssh \\[-46AaCfGgKkMNnqsTtVvXxYy\\] \\[-B bind_interface\\]\\n$"]
    
 
 fileExistenceTests:
