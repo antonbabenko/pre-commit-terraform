@@ -73,6 +73,11 @@ commandTests:
     command: "su-exec"
     expectedOutput: ["^Usage: su-exec user-spec command \\[args\\]\\n$"]
 
+  - name: "ssh"
+    command: "ssh"
+    expectedOutput: ["^usage: ssh [-46AaCfGgKkMNnqsTtVvXxYy] [-B bind_interface]$"]
+   
+
 fileExistenceTests:
   - name: 'terrascan init'
     path: '/root/.terrascan/pkg/policies/opa/rego/github/github_repository/privateRepoEnabled.rego'
