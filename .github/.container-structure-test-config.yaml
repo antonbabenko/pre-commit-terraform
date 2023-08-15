@@ -76,7 +76,7 @@ commandTests:
   - name: "ssh"
     command: "ssh"
     args: [ "-V" ]
-    expectedOutput: ["^OpenSSH_[0-9]+\\.[0-9]+"]
+    expectedOutput: ["^OpenSSH_9\\.[0-9]+"]
 
 fileExistenceTests:
   - name: 'terrascan init'
