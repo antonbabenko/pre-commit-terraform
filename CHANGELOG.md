@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.82.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.81.2...v1.82.0) (2023-08-15)
+
+
+### Features
+
+* **docker:** Add ssh-client to Docker image to access private modules via ssh ([#553](https://github.com/antonbabenko/pre-commit-terraform/issues/553)) ([1d76157](https://github.com/antonbabenko/pre-commit-terraform/commit/1d76157c9d67a2cbc1b08a4d7bc5ad53a3b663e7))
+
 ## [1.81.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.81.1...v1.81.2) (2023-08-10)
 
 
