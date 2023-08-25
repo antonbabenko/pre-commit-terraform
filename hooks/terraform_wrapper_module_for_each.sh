@@ -291,8 +291,6 @@ EOF
     # Wrappers will be stored in "wrappers/{module_name}"
     output_dir="${root_dir}/${wrapper_dir}/${module_name}"
 
-    [[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
-
     # Calculate relative depth for module source by number of slashes
     module_depth="${module_dir//[^\/]/}"
 
@@ -328,6 +326,14 @@ EOF
     # Get names of module outputs in all terraform files
     # shellcheck disable=SC2207
     module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep output. | cut -d'.' -f 2 || true; }))
+
+    # Get names of module providers in all terraform files
+    module_providers=$(echo "$all_tf_content" | hcledit block list | { grep provider. || true; })
+
+    if [[ $module_providers ]]; then
+      common::colorify "yellow" "Skipping ${full_module_dir} because it is a legacy module which contains its own local provider configurations and so calls to it may not use the for_each argument."
+      break
+    fi
 
     # Looking for sensitive output
     local wrapper_output_sensitive="# sensitive = false # No sensitive module output found"
@@ -380,6 +386,9 @@ EOF
 
     if [[ "$dry_run" == "false" ]]; then
       common::colorify "green" "Saving files into \"${output_dir}\""
+
+      # Create output dir
+      [[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
 
       mv "$tmp_file_tf" "${output_dir}/main.tf"
 
