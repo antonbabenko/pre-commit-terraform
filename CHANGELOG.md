@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.83.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.82.0...v1.83.0) (2023-08-25)
+
+
+### Features
+
+* Skip legacy modules (with provider block) in terraform_wrapper_module_for_each hook ([#560](https://github.com/antonbabenko/pre-commit-terraform/issues/560)) ([456cc76](https://github.com/antonbabenko/pre-commit-terraform/commit/456cc7616ac4facc3392c51ed9606a7535f8fd0f))
+
 # [1.82.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.81.2...v1.82.0) (2023-08-15)
 
 
