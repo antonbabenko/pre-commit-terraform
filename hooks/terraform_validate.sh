@@ -101,8 +101,7 @@ function per_dir_hook_unique_part {
 
     case $key in
       --retry-once-with-cleanup)
-        # shellcheck disable=SC2086 # It's just works. Maybe will be fixed later
-        if [ $retry_once_with_cleanup ]; then
+        if [ "$retry_once_with_cleanup" ]; then
           common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--retry-once-with-cleanup" flag'
           exit 1
         fi
