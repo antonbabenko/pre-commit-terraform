@@ -55,6 +55,7 @@ function match_validate_errors {
       "Module version requirements have changed") return 1 ;;
       "Module not installed") return 1 ;;
       "Could not load plugin") return 1 ;;
+      *"there is no package for"*"cached in .terraform/providers") return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
 
@@ -100,6 +101,7 @@ function per_dir_hook_unique_part {
 
     case $key in
       --retry-once-with-cleanup)
+        # shellcheck disable=SC2086 # It's just works. Maybe will be fixed later
         if [ $retry_once_with_cleanup ]; then
           common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--retry-once-with-cleanup" flag'
           exit 1
@@ -117,7 +119,7 @@ function per_dir_hook_unique_part {
     return $exit_code
   }
 
-  # In case `terraform validate` failed to execute 
+  # In case `terraform validate` failed to execute
   # - check is simple `terraform init` will help
   common::terraform_init 'terraform validate' "$dir_path" || {
     exit_code=$?
