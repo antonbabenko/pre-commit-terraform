@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.83.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.1...v1.83.2) (2023-09-04)
+
+
+### Bug Fixes
+
+* Extend `terraform_validate` `--retry-once-with-cleanup` errors list ([#566](https://github.com/antonbabenko/pre-commit-terraform/issues/566)) ([19188e5](https://github.com/antonbabenko/pre-commit-terraform/commit/19188e5c384a1803bca607e4e79faf61cc55a5b9))
+
 ## [1.83.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.0...v1.83.1) (2023-09-04)
 
 
