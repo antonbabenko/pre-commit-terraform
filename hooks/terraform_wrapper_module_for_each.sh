@@ -325,7 +325,7 @@ EOF
 
     # Get names of module outputs in all terraform files
     # shellcheck disable=SC2207
-    module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep output. | cut -d'.' -f 2 | sort || true; }))
+    module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep output. | cut -d'.' -f 2 || true; }))
 
     # Get names of module providers in all terraform files
     module_providers=$(echo "$all_tf_content" | hcledit block list | { grep provider. || true; })
