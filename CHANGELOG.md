@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.83.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.0...v1.83.1) (2023-09-04)
+
+
+### Bug Fixes
+
+* Fixed ordering issue in terraform_wrapper_module_for_each hook ([#565](https://github.com/antonbabenko/pre-commit-terraform/issues/565)) ([dc12be1](https://github.com/antonbabenko/pre-commit-terraform/commit/dc12be1faff4b73a3fc9bd62296c40a351597a20))
+
 # [1.83.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.82.0...v1.83.0) (2023-08-25)
 
 
