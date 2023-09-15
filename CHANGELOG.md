@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.83.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.2...v1.83.3) (2023-09-15)
+
+
+### Bug Fixes
+
+* Run `terraform_tfsec` only on terraform code changes ([#571](https://github.com/antonbabenko/pre-commit-terraform/issues/571)) ([4253162](https://github.com/antonbabenko/pre-commit-terraform/commit/42531626144fb8cdca3d5750c7206393f501feb4))
+
 ## [1.83.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.1...v1.83.2) (2023-09-04)
 
 
