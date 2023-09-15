@@ -90,6 +90,7 @@
   description: Static analysis of Terraform templates to spot potential security issues.
   require_serial: true
   entry: hooks/terraform_tfsec.sh
+  files: (\.tf|\.tfvars)$
   language: script
 
 - id: checkov
