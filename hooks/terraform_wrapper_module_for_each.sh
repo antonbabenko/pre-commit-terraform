@@ -321,14 +321,14 @@ EOF
 
     # Get names of module variables in all terraform files
     # shellcheck disable=SC2207
-    module_vars=($(echo "$all_tf_content" | hcledit block list | { grep variable. | cut -d'.' -f 2 | sort || true; }))
+    module_vars=($(echo "$all_tf_content" | hcledit block list | { grep "^variable\." | cut -d'.' -f 2 | sort || true; }))
 
     # Get names of module outputs in all terraform files
     # shellcheck disable=SC2207
-    module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep output. | cut -d'.' -f 2 || true; }))
+    module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep "^output\." | cut -d'.' -f 2 || true; }))
 
     # Get names of module providers in all terraform files
-    module_providers=$(echo "$all_tf_content" | hcledit block list | { grep provider. || true; })
+    module_providers=$(echo "$all_tf_content" | hcledit block list | { grep "^provider\." || true; })
 
     if [[ $module_providers ]]; then
       common::colorify "yellow" "Skipping ${full_module_dir} because it is a legacy module which contains its own local provider configurations and so calls to it may not use the for_each argument."
