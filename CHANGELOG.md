@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.83.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.3...v1.83.4) (2023-09-22)
+
+
+### Bug Fixes
+
+* Fix terraform_wrapper_module_for_each for when resource name contains 'variable' ([#573](https://github.com/antonbabenko/pre-commit-terraform/issues/573)) ([941177e](https://github.com/antonbabenko/pre-commit-terraform/commit/941177e066e8de255f58f0a5afbda72995eb3f08))
+
 ## [1.83.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.2...v1.83.3) (2023-09-15)
 
 
