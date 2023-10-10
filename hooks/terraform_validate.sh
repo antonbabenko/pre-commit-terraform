@@ -113,7 +113,7 @@ function per_dir_hook_unique_part {
   # First try `terraform validate` with the hope that all deps are
   # pre-installed. That is needed for cases when `.terraform/modules`
   # or `.terraform/providers` missed AND that is expected.
-  terraform validate "${args[@]}" > /dev/null 2>&1 && {
+  terraform validate "${args[@]}" &> /dev/null && {
     exit_code=$?
     return $exit_code
   }
