@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.83.5](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.4...v1.83.5) (2023-10-11)
+
+
+### Bug Fixes
+
+* Suppress duplicate error messages in `terraform_validate` ([#577](https://github.com/antonbabenko/pre-commit-terraform/issues/577)) ([4ea6b14](https://github.com/antonbabenko/pre-commit-terraform/commit/4ea6b14c6fdf48e33fa6e116cbe332bba0888bbb))
+
 ## [1.83.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.3...v1.83.4) (2023-09-22)
 
 
