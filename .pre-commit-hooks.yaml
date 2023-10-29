@@ -77,6 +77,22 @@
   files: (\.hcl)$
   exclude: \.terraform\/.*$
 
+- id: terraform_test
+  name: Terraform test
+  description: Runs all terraform tests
+  entry: hooks/terraform_test.sh
+  language: script
+  files: (\.tf)$
+  exclude: \.terraform\/.*$
+
+- id: terragrunt_test
+  name: Terragrunt test
+  description: Runs all terraform tests
+  entry: hooks/terragrunt_test.sh
+  language: script
+  files: (\.tf)$d
+  exclude: \.terraform\/.*$
+
 - id: terragrunt_validate
   name: Terragrunt validate
   description: Validates all Terragrunt configuration files.
