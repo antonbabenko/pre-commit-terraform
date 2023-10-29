@@ -90,7 +90,11 @@
   description: Runs all terraform tests
   entry: hooks/terragrunt_test.sh
   language: script
+<<<<<<< HEAD
   files: (\.tf)$d
+=======
+  files: (\.tf)$
+>>>>>>> c943481 (Add terraform and terragrunt testing)
   exclude: \.terraform\/.*$
 
 - id: terragrunt_validate
