@@ -36,6 +36,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [4. Run](#4-run)
 * [Available Hooks](#available-hooks)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
+  * [Known limitations](#known-limitations)
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
@@ -284,6 +285,10 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
 ## Hooks usage notes and examples
+
+### Known limitations
+
+Terraform operates on a per-dir basis, while `pre-commit` framework only supports files and files that exist. This means if you only remove the TF-related file without any other changes in the same dir, checks will be skipped. Example and details [here](https://github.com/pre-commit/pre-commit/issues/3048).
 
 ### All hooks: Usage of environment variables in `--args`
 
