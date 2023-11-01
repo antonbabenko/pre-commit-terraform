@@ -288,7 +288,7 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 
 ### Known limitations
 
-Terraform operate on per-dir basic, when `pre-commit` only supports files and files that exist. That means if you only remove tf-related file without any other changes in same dir, check will be skipped. Example and details [here](https://github.com/pre-commit/pre-commit/issues/3048)
+Terraform operates on per-dir basis, when `pre-commit` only supports files and files that exist. That means if you only remove the tf-related file without any other changes in the same dir, checks will be skipped. Example and details [here](https://github.com/pre-commit/pre-commit/issues/3048)
 
 ### All hooks: Usage of environment variables in `--args`
 
