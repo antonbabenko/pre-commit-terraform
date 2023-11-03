@@ -23,24 +23,12 @@ function main {
 }
 
 #######################################################################
-# Unique part of `common::per_dir_hook`. The function is executed in loop
-# on each provided dir path. Run wrapped tool with specified arguments
+# Unique part of `common::per_dir_hook`. The function is executed one time
+# in the root git repo
 # Arguments:
-#   dir_path (string) PATH to dir relative to git repo root.
-#     Can be used in error logging
-#   change_dir_in_unique_part (string/false) Modifier which creates
-#     possibilities to use non-common chdir strategies.
-#     Availability depends on hook.
 #   args (array) arguments that configure wrapped tool behavior
-# Outputs:
-#   If failed - print out hook checks status
 #######################################################################
-function per_dir_hook_unique_part {
-  # shellcheck disable=SC2034 # Unused var.
-  local -r dir_path="$1"
-  # shellcheck disable=SC2034 # Unused var.
-  local -r change_dir_in_unique_part="$2"
-  shift 2
+function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
   # pass the arguments to hook
