@@ -55,6 +55,7 @@ function match_validate_errors {
       "Module version requirements have changed") return 1 ;;
       "Module not installed") return 1 ;;
       "Could not load plugin") return 1 ;;
+      "Missing required provider") return 1 ;;
       *"there is no package for"*"cached in .terraform/providers") return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
