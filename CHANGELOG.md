@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.83.6](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.5...v1.83.6) (2023-11-16)
+
+
+### Bug Fixes
+
+* **`terraform_validate`:** Run `terraform init` on "Missing required provider" error ([#586](https://github.com/antonbabenko/pre-commit-terraform/issues/586)) ([6e2bb2e](https://github.com/antonbabenko/pre-commit-terraform/commit/6e2bb2e2a12528903d8b8a21f2924473e498385a))
+
 ## [1.83.5](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.4...v1.83.5) (2023-10-11)
 
 
