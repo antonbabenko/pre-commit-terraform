@@ -46,6 +46,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform\_docs\_replace (deprecated)](#terraform_docs_replace-deprecated)
   * [terraform\_fmt](#terraform_fmt)
   * [terraform\_providers\_lock](#terraform_providers_lock)
+  * [terraform\_test](#terraform_test)
   * [terraform\_tflint](#terraform_tflint)
   * [terraform\_tfsec](#terraform_tfsec)
   * [terraform\_validate](#terraform_validate)
@@ -272,9 +273,10 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `terraform-docs`                                                                     |
 | `terraform_fmt`                                        | Reformat all Terraform configuration files to a canonical format. [Hook notes](#terraform_fmt)                                                                                                                                               | -                                                                                    |
 | `terraform_providers_lock`                             | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                              | -                                                                                    |
+| `terraform_test`                                        | Runs any Terraform Tests, which requires Terraform 1.6 and above. [Hook notes](#terraform_test)                                                                                                                                               | 
 | `terraform_tflint`                                     | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). | `tflint`                                                                             |
 | `terraform_tfsec`                                      | [TFSec](https://github.com/aquasecurity/tfsec) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_tfsec)                                                                                      | `tfsec`                                                                              |
-| `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
+| `terraform_validate`        sd                           | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
@@ -650,6 +652,24 @@ To replicate functionality in `terraform_docs` hook:
         - --tf-init-args=-upgrade
     ```
 
+### terraform_test
+
+1. `terraform_test` supports custom arguments so you can set the test directory, set a variable file, change output to JSON and change the verbosity, filtering which tests runs, and set individual variables.
+
+    Example:
+
+    ```yaml
+    - id: terraform_test
+      args:
+        - --args=-test-directory=path
+        - --arg=-filter=testfile
+        - --args=-json
+        - --arg=-verbose
+        - --arg=-var-file=filename
+        - --arg=-var=variable
+    ```
+
+2. `terraform_test` only runs per repository.
 
 ### terraform_tflint
 
