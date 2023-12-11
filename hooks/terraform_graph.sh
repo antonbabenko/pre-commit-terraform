@@ -64,7 +64,7 @@ function per_dir_hook_unique_part {
 
   # check if files are the same
   cmp -s "$temp_file" "$text_file"
-  
+
   # return exit code to common::per_dir_hook
   local exit_code=$?
   mv "$temp_file" "$text_file"
