@@ -143,3 +143,11 @@
     - --args=terraform
   files: \.tf$
   require_serial: true
+
+- id: terraform_graph
+  name: Terraform graph
+  description: Outputs Terraform dependency graphs in dot format.
+  entry: hooks/terraform_graph.sh
+  language: script
+  files: \.tf$
+  exclude: \.terraform\/.*$
