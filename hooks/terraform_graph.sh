@@ -44,7 +44,7 @@ function per_dir_hook_unique_part {
   fi
 
   # set file name passed from --hook-config
-  local text_file="graph.svg"
+  local text_file="tf-graph.svg"
   IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
   for c in "${configs[@]}"; do
     IFS="=" read -r -a config <<< "$c"
