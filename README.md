@@ -85,6 +85,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
 * [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
 * [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
+* [`graphviz`](https://www.graphviz.org/download)  required for `terraform_graph` hook.
 * [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
 
 <details><summary><b>Docker</b></summary><br>
@@ -138,7 +139,7 @@ Set `-e PRE_COMMIT_COLOR=never` to disable the color output in `pre-commit`.
 <details><summary><b>MacOS</b></summary><br>
 
 ```bash
-brew install pre-commit terraform-docs tflint tfsec checkov terrascan infracost tfupdate minamijoyo/hcledit/hcledit jq
+brew install pre-commit terraform-docs tflint tfsec checkov terrascan infracost tfupdate minamijoyo/hcledit/hcledit jq graphviz
 ```
 
 </details>
@@ -161,6 +162,7 @@ sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
 curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > hcledit.tar.gz && tar -xzf hcledit.tar.gz hcledit && rm hcledit.tar.gz && sudo mv hcledit /usr/bin/
+sudo apt install -y graphviz
 ```
 
 </details>
@@ -182,6 +184,7 @@ sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
 curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > hcledit.tar.gz && tar -xzf hcledit.tar.gz hcledit && rm hcledit.tar.gz && sudo mv hcledit /usr/bin/
+sudo apt install -y graphviz
 ```
 
 </details>
@@ -280,6 +283,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan](https://github.com/tenable/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                        | `terrascan`                                                                          |
 | `tfupdate`                                             | [tfupdate](https://github.com/minamijoyo/tfupdate) Update version constraints of Terraform core, providers, and modules. [Hook notes](#tfupdate)                                                                                             | `tfupdate`                                                                           |
+| `terraform_graph`                                             | Generates charts using [terraform graph](https://developer.hashicorp.com/terraform/cli/commands/graph) and [GraphViz](https://www.graphviz.org/). [Hook notes](#terraform_graph)                                                                                             | `dot` from [GraphViz](https://www.graphviz.org/download)                                                                            |
 <!-- markdownlint-enable no-inline-html -->
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
@@ -925,6 +929,16 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
 Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
 No need to pass `--recursive .` as it is added automatically.
+
+### terraform_graph
+`terraform_graph` utilizes Terraform's built-in [`graph` command](https://developer.hashicorp.com/terraform/cli/commands/graph) and `dot` from [GraphViz](https://www.graphviz.org/) to generate charts of your configuration.
+
+```yaml
+- id: terraform_graph
+  args:
+  - --args=-type=apply # Default is `plan`
+  - --hook-config=--path-to-file=test-config.svg # Default is tf-graph.svg
+```
 
 ## Docker Usage
 
