@@ -71,23 +71,4 @@ function per_dir_hook_unique_part {
   return $exit_code
 }
 
-#######################################################################
-# Unique part of `common::per_dir_hook`. The function is executed one time
-# in the root git repo
-# Arguments:
-#   args (array) arguments that configure wrapped tool behavior
-#######################################################################
-# function run_hook_on_whole_repo {
-#   local -a -r args=("$@")
-#   local text_file="graph.svg"
-
-#   # pass the arguments to hook
-#   echo "${args[@]}" >> run_hook_on_whole_repo
-#   terraform graph "$(pwd)" "${args[@]}" | dot -Tsvg > "$text_file"
-
-#   # return exit code to common::per_dir_hook
-#   local exit_code=$?
-#   return $exit_code
-# }
-
 [ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"
