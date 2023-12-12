@@ -198,7 +198,7 @@ COPY --from=builder \
     /usr/local/bin/checkov* \
         /usr/bin/
 # Copy pre-commit packages
-COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
 # Copy terrascan policies
 COPY --from=builder /root/ /root/
 
