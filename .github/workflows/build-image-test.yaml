@@ -24,7 +24,7 @@ jobs:
             .github/workflows/build-image-test.yaml
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4c0219f9ac95b02789c1075625400b2acbff50b1 # v2.9.1
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
       - name: Build if Dockerfile changed
         if: steps.changed-files-specific.outputs.any_changed == 'true'
