@@ -6,7 +6,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+    - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
     - run: |
         git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
 
@@ -31,7 +31,7 @@ jobs:
         curl -L "$(curl -s https://api.github.com/repos/hadolint/hadolint/releases/latest | grep -o -E -m 1 "https://.+?/hadolint-Linux-x86_64")" > hadolint \
         && chmod +x hadolint && sudo mv hadolint /usr/bin/
     # Need to success pre-commit fix push
-    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+    - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha }}
