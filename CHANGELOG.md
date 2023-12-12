@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.84.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.6...v1.84.0) (2023-12-12)
+
+
+### Features
+
+* **deps:** Bump Python version in docker image from 3.11.5 to v3.12.0 ([#597](https://github.com/antonbabenko/pre-commit-terraform/issues/597)) ([28e3cde](https://github.com/antonbabenko/pre-commit-terraform/commit/28e3cde152370bcc5b38e82beb0345299f8c511d))
+
 ## [1.83.6](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.5...v1.83.6) (2023-11-16)
 
 
