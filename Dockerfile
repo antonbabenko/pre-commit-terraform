@@ -1,4 +1,4 @@
-ARG TAG=3.11.5-alpine3.17@sha256:3b844d1ff63a69d5b634e389b207270c84f6f7a014ec09ae00364b2c03069e20
+ARG TAG=3.12.0-alpine3.17@sha256:fc34b07ec97a4f288bc17083d288374a803dd59800399c76b977016c9fe5b8f2
 FROM python:${TAG} as builder
 ARG TARGETOS
 ARG TARGETARCH
@@ -198,7 +198,7 @@ COPY --from=builder \
     /usr/local/bin/checkov* \
         /usr/bin/
 # Copy pre-commit packages
-COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
 # Copy terrascan policies
 COPY --from=builder /root/ /root/
 
