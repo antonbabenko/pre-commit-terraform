@@ -60,6 +60,7 @@ function per_dir_hook_unique_part {
 
   temp_file=$(mktemp)
   # pass the arguments to hook
+  echo "${args[@]}" >> per_dir_hook_unique_part
   terraform graph "${args[@]}" | dot -Tsvg > "$temp_file"
 
   # check if files are the same
