@@ -767,7 +767,8 @@ To replicate functionality in `terraform_docs` hook:
     Example:
 
     ```hcl
-    #trivy:ignore:AVD-AWS-0006
+    #trivy:ignore:AVD-AWS-0107
+    #trivy:ignore:AVD-AWS-0124
     resource "aws_security_group_rule" "my-rule" {
         type = "ingress"
         cidr_blocks = ["0.0.0.0/0"]
