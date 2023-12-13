@@ -37,6 +37,7 @@ ARG TERRAGRUNT_VERSION=${TERRAGRUNT_VERSION:-false}
 ARG TERRASCAN_VERSION=${TERRASCAN_VERSION:-false}
 ARG TFLINT_VERSION=${TFLINT_VERSION:-false}
 ARG TFSEC_VERSION=${TFSEC_VERSION:-false}
+ARG TRIVY_VERSION=${TRIVY_VERSION:-false}
 ARG TFUPDATE_VERSION=${TFUPDATE_VERSION:-false}
 ARG HCLEDIT_VERSION=${HCLEDIT_VERSION:-false}
 
@@ -53,6 +54,7 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "export TERRASCAN_VERSION=latest" >> /.env && \
         echo "export TFLINT_VERSION=latest" >> /.env && \
         echo "export TFSEC_VERSION=latest" >> /.env && \
+        echo "export TRIVY_VERSION=latest" >> /.env && \
         echo "export TFUPDATE_VERSION=latest" >> /.env && \
         echo "export HCLEDIT_VERSION=latest" >> /.env \
     ; else \
@@ -134,6 +136,16 @@ RUN . /.env && \
         [ "$TFSEC_VERSION" = "latest" ] && curl -L "$(curl -s ${TFSEC_RELEASES}/latest | grep -o -E -m 1 "https://.+?/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec \
         || curl -L "$(curl -s ${TFSEC_RELEASES} | grep -o -E -m 1 "https://.+?v${TFSEC_VERSION}/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec \
     ) && chmod +x tfsec \
+    ; fi
+
+# Trivy
+RUN . /.env && \
+    if [ "$TRIVY_VERSION" != "false" ]; then \
+    ( \
+        TRIVY_RELEASES="https://api.github.com/repos/aquasecurity/trivy/releases" && \
+        [ "$TRIVY_VERSION" = "latest" ] && curl -L "$(curl -s ${TRIVY_RELEASES}/latest | grep -o -E -m 1 "https://.+?/trivy_.+?_${TARGETOS}_${TARGETARCH}")" > trivy \
+        || curl -L "$(curl -s ${TRIVY_RELEASES} | grep -o -E -m 1 "https://.+?v${TRIVY_VERSION}/trivy_${TARGETOS}_${TARGETARCH}")" > trivy \
+    ) && chmod +x trivy \
     ; fi
 
 # TFUpdate
