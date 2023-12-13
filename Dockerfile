@@ -141,10 +141,11 @@ RUN . /.env && \
 # Trivy
 RUN . /.env && \
     if [ "$TRIVY_VERSION" != "false" ]; then \
+    if [ "$TARGETARCH" != "amd64" ]; then ARCH="$TARGETARCH"; else ARCH="64bit"; fi; \
     ( \
         TRIVY_RELEASES="https://api.github.com/repos/aquasecurity/trivy/releases" && \
-        [ "$TRIVY_VERSION" = "latest" ] && curl -L "$(curl -s ${TRIVY_RELEASES}/latest | grep -o -E -i -m 1 "https://.+?/trivy_.+?_${TARGETOS}-${TARGETARCH}.tar.gz")" > trivy.tar.gz \
-        || curl -L "$(curl -s ${TRIVY_RELEASES} | grep -o -E -i -m 1 "https://.+?/v${TRIVY_VERSION}/trivy_.+?_${TARGETOS}-${TARGETARCH}.tar.gz")" > trivy.tar.gz \
+        [ "$TRIVY_VERSION" = "latest" ] && curl -L "$(curl -s ${TRIVY_RELEASES}/latest | grep -o -E -i -m 1 "https://.+?/trivy_.+?_${TARGETOS}-${ARCH}.tar.gz")" > trivy.tar.gz \
+        || curl -L "$(curl -s ${TRIVY_RELEASES} | grep -o -E -i -m 1 "https://.+?/v${TRIVY_VERSION}/trivy_.+?_${TARGETOS}-${ARCH}.tar.gz")" > trivy.tar.gz \
     ) && tar -xzf trivy.tar.gz trivy && rm -rf trivy.tar.gz \
     ; fi
 
