@@ -143,9 +143,9 @@ RUN . /.env && \
     if [ "$TRIVY_VERSION" != "false" ]; then \
     ( \
         TRIVY_RELEASES="https://api.github.com/repos/aquasecurity/trivy/releases" && \
-        [ "$TRIVY_VERSION" = "latest" ] && curl -L "$(curl -s ${TRIVY_RELEASES}/latest | grep -o -E -m 1 "https://.+?/trivy_.+?_${TARGETOS}_${TARGETARCH}")" > trivy \
-        || curl -L "$(curl -s ${TRIVY_RELEASES} | grep -o -E -m 1 "https://.+?v${TRIVY_VERSION}/trivy_${TARGETOS}_${TARGETARCH}")" > trivy \
-    ) && chmod +x trivy \
+        [ "$TRIVY_VERSION" = "latest" ] && curl -L "$(curl -s ${TRIVY_RELEASES}/latest | grep -o -E -i -m 1 "https://.+?/trivy_.+?_${TARGETOS}-${TARGETARCH}.tar.gz")" > trivy.tar.gz \
+        || curl -L "$(curl -s ${TRIVY_RELEASES} | grep -o -E -i -m 1 "https://.+?/v${TRIVY_VERSION}/trivy_.+?_${TARGETOS}-${TARGETARCH}.tar.gz")" > trivy.tar.gz \
+    ) && tar -xzf trivy.tar.gz trivy && rm -rf trivy.tar.gz \
     ; fi
 
 # TFUpdate
