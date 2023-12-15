@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.85.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.84.0...v1.85.0) (2023-12-15)
+
+
+### Features
+
+* **trivy:** Add `terraform_trivy` hook and deprecate `terraform_tfsec` ([#606](https://github.com/antonbabenko/pre-commit-terraform/issues/606)) ([f3c819a](https://github.com/antonbabenko/pre-commit-terraform/commit/f3c819a747662d1257fa6989318d6ede5fabaff3))
+
 # [1.84.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.6...v1.84.0) (2023-12-12)
 
 
