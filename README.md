@@ -689,8 +689,7 @@ To replicate functionality in `terraform_docs` hook:
 
 ### terraform_tfsec (deprecated)
 
-**DEPRECATED**. [tfsec was replaced by trivy](https://github.com/aquasecurity/tfsec/discussions/1994), so please use [`terraform_trivy`](#terraform_trivy).  
-Trivy seems to honor existing `tfsec:ignore:*` comment blocks so you can switch hooks without needing to rewrite existing comments.
+**DEPRECATED**. [tfsec was replaced by trivy](https://github.com/aquasecurity/tfsec/discussions/1994), so please use [`terraform_trivy`](#terraform_trivy).
 
 1. `terraform_tfsec` will consume modified files that pre-commit
     passes to it, so you can perform whitelisting of directories
