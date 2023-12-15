@@ -719,7 +719,7 @@ To replicate functionality in `terraform_docs` hook:
     }
     ```
 
-1. `terraform_tfsec` supports custom arguments, so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
+3. `terraform_tfsec` supports custom arguments, so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
 
     ```yaml
      - id: terraform_tfsec
@@ -730,7 +730,7 @@ To replicate functionality in `terraform_docs` hook:
            -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
     ```
 
-2. When you have multiple directories and want to run `tfsec` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_tfsec` hooks with Git working directory (repo root) at run time. For example:
+4. When you have multiple directories and want to run `tfsec` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_tfsec` hooks with Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_tfsec
