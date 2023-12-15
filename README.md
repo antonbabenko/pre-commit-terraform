@@ -47,7 +47,8 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform\_fmt](#terraform_fmt)
   * [terraform\_providers\_lock](#terraform_providers_lock)
   * [terraform\_tflint](#terraform_tflint)
-  * [terraform\_tfsec](#terraform_tfsec)
+  * [terraform\_tfsec (deprecated)](#terraform_tfsec-deprecated)
+  * [terraform\_trivy](#terraform_trivy)
   * [terraform\_validate](#terraform_validate)
   * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
@@ -686,7 +687,9 @@ To replicate functionality in `terraform_docs` hook:
     ```
 
 
-### terraform_tfsec
+### terraform_tfsec (deprecated)
+
+**DEPRECATED**. [tfsec was replaced by trivy](https://github.com/aquasecurity/tfsec/discussions/1994), so please use [`terraform_trivy`](#terraform_trivy).
 
 1. `terraform_tfsec` will consume modified files that pre-commit
     passes to it, so you can perform whitelisting of directories
@@ -716,7 +719,7 @@ To replicate functionality in `terraform_docs` hook:
     }
     ```
 
-3. `terraform_tfsec` supports custom arguments, so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
+1. `terraform_tfsec` supports custom arguments, so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
 
     ```yaml
      - id: terraform_tfsec
@@ -727,7 +730,7 @@ To replicate functionality in `terraform_docs` hook:
            -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
     ```
 
-4. When you have multiple directories and want to run `tfsec` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_tfsec` hooks with Git working directory (repo root) at run time. For example:
+2. When you have multiple directories and want to run `tfsec` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_tfsec` hooks with Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terraform_tfsec

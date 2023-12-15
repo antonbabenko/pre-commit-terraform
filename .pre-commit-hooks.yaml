@@ -86,7 +86,7 @@
   exclude: \.terraform\/.*$
 
 - id: terraform_tfsec
-  name: Terraform validate with tfsec
+  name: Terraform validate with tfsec (deprecated, use "terraform_trivy")
   description: Static analysis of Terraform templates to spot potential security issues.
   require_serial: true
   entry: hooks/terraform_tfsec.sh

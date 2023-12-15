@@ -22,6 +22,9 @@ function main {
     ARGS+=("--no-color")
   fi
 
+  common::colorify "yellow" "tfsec tool was deprecated, and replaced by trivy. You can check trivy hook here:"
+  common::colorify "yellow" "https://github.com/antonbabenko/pre-commit-terraform/tree/master#terraform_trivy"
+
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
