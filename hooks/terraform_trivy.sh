@@ -17,14 +17,6 @@ function main {
     ARGS[i]=${ARGS[i]/__GIT_WORKING_DIR__/$(pwd)\/}
   done
 
-  # Suppress tfsec color
-  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
-    ARGS+=("--no-color")
-  fi
-
-  common::colorify "yellow" "tfsec tool was deprecated, and replaced by trivy. You can check trivy hook here:"
-  common::colorify "yellow" "https://github.com/antonbabenko/pre-commit-terraform/tree/master#terraform_trivy"
-
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
@@ -50,7 +42,7 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  tfsec "${args[@]}"
+  trivy conf "$(pwd)" --exit-code=1 "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
@@ -67,7 +59,7 @@ function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  tfsec "$(pwd)" "${args[@]}"
+  trivy conf "$(pwd)" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

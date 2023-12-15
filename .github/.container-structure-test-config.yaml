@@ -50,6 +50,11 @@ commandTests:
     args: [ "--version" ]
     expectedOutput: [ "([0-9]+\\.){2}[0-9]+\\n$" ]
 
+  - name: "trivy"
+    command: "trivy"
+    args: [ "--version" ]
+    expectedOutput: [ "Version: ([0-9]+\\.){2}[0-9]+\\n" ]
+
   - name: "tfupdate"
     command: "tfupdate"
     args: [ "--version" ]

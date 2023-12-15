@@ -47,7 +47,8 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform\_fmt](#terraform_fmt)
   * [terraform\_providers\_lock](#terraform_providers_lock)
   * [terraform\_tflint](#terraform_tflint)
-  * [terraform\_tfsec](#terraform_tfsec)
+  * [terraform\_tfsec (deprecated)](#terraform_tfsec-deprecated)
+  * [terraform\_trivy](#terraform_trivy)
   * [terraform\_validate](#terraform_validate)
   * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
@@ -82,6 +83,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook.
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
+* [`Trivy`](https://github.com/aquasecurity/trivy) required for `terraform_trivy` hook.
 * [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
 * [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
 * [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
@@ -125,6 +127,7 @@ docker build -t pre-commit-terraform \
     --build-arg TERRASCAN_VERSION=1.10.0 \
     --build-arg TFLINT_VERSION=0.31.0 \
     --build-arg TFSEC_VERSION=latest \
+    --build-arg TRIVY_VERSION=latest \
     --build-arg TFUPDATE_VERSION=latest \
     --build-arg HCLEDIT_VERSION=latest \
     .
@@ -138,7 +141,7 @@ Set `-e PRE_COMMIT_COLOR=never` to disable the color output in `pre-commit`.
 <details><summary><b>MacOS</b></summary><br>
 
 ```bash
-brew install pre-commit terraform-docs tflint tfsec checkov terrascan infracost tfupdate minamijoyo/hcledit/hcledit jq
+brew install pre-commit terraform-docs tflint tfsec trivy checkov terrascan infracost tfupdate minamijoyo/hcledit/hcledit jq
 ```
 
 </details>
@@ -156,6 +159,7 @@ python3.7 -m pip install -U checkov
 curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar -xzf terraform-docs.tgz && rm terraform-docs.tgz && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep -o -E -i -m 1 "https://.+?/trivy_.+?_Linux-64bit.tar.gz")" > trivy.tar.gz && tar -xzf trivy.tar.gz trivy && rm trivy.tar.gz && sudo mv trivy /usr/bin
 curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E -m 1 "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/ && terrascan init
 sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
@@ -178,6 +182,7 @@ curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/re
 curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E -m 1 "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && sudo mv terrascan /usr/bin/ && terrascan init
 curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
 curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
+curl -L "$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep -o -E -i -m 1 "https://.+?/trivy_.+?_Linux-64bit.tar.gz")" > trivy.tar.gz && tar -xzf trivy.tar.gz trivy && rm trivy.tar.gz && sudo mv trivy /usr/bin
 sudo apt install -y jq && \
 curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz && sudo mv infracost-linux-amd64 /usr/bin/infracost && infracost register
 curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz && sudo mv tfupdate /usr/bin/
@@ -274,6 +279,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_providers_lock`                             | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                              | -                                                                                    |
 | `terraform_tflint`                                     | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). | `tflint`                                                                             |
 | `terraform_tfsec`                                      | [TFSec](https://github.com/aquasecurity/tfsec) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_tfsec)                                                                                      | `tfsec`                                                                              |
+| `terraform_trivy`                                      | [Trivy](https://github.com/aquasecurity/trivy) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_trivy)                                                                                      | `trivy`                                                                              |
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
@@ -681,7 +687,9 @@ To replicate functionality in `terraform_docs` hook:
     ```
 
 
-### terraform_tfsec
+### terraform_tfsec (deprecated)
+
+**DEPRECATED**. [tfsec was replaced by trivy](https://github.com/aquasecurity/tfsec/discussions/1994), so please use [`terraform_trivy`](#terraform_trivy).
 
 1. `terraform_tfsec` will consume modified files that pre-commit
     passes to it, so you can perform whitelisting of directories
@@ -736,6 +744,48 @@ To replicate functionality in `terraform_docs` hook:
     - id: terraform_tfsec
       args:
         - --args=--config-file=.tfsec.json
+    ```
+
+### terraform_trivy
+
+1. `terraform_trivy` will consume modified files that pre-commit
+    passes to it, so you can perform whitelisting of directories
+    or files to run against via [files](https://pre-commit.com/#config-files)
+    pre-commit flag
+
+    Example:
+
+    ```yaml
+    - id: terraform_trivy
+      files: ^prd-infra/
+    ```
+
+    The above will tell pre-commit to pass down files from the `prd-infra/` folder
+    only such that the underlying `trivy` tool can run against changed files in this
+    directory, ignoring any other folders at the root level
+
+2. To ignore specific warnings, follow the convention from the
+[documentation](https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/).
+
+    Example:
+
+    ```hcl
+    #trivy:ignore:AVD-AWS-0107
+    #trivy:ignore:AVD-AWS-0124
+    resource "aws_security_group_rule" "my-rule" {
+        type = "ingress"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    ```
+
+3. `terraform_trivy` supports custom arguments, so you can pass supported `--format` (output), `--skip-dirs` (exclude directories) and other flags:
+
+    ```yaml
+     - id: terraform_trivy
+       args:
+         - >
+           --args=--format json
+           --skip-dirs="**/.terragrunt-cache"
     ```
 
 ### terraform_validate
