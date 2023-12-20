@@ -7,6 +7,11 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
+# set up default insertion markers.  These will be changed to the markers used by
+# terraform-docs if the hook config contains `--use_standard_markers=true`
+insertion_marker_begin="<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+insertion_marker_end="<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
@@ -36,6 +41,34 @@ function terraform_docs_ {
 
   # Get hook settings
   IFS=";" read -r -a configs <<< "$hook_config"
+
+  # Variable to store the standard markers argument
+  use_standard_markers=false
+
+  # Iterate through the array
+  for arg in "${configs[@]}"; do
+    # remove leading whitespace characters
+    arg="${arg#"${arg%%[![:space:]]*}"}"
+    # Check if the argument starts with 'use_standard_markers='
+    if [[ $arg == '--use_standard_markers='* ]]; then
+      # Extract the value after '=' and store it in the use_standard_markers variable
+      use_standard_markers="${arg#*=}"
+
+      # Remove the argument from the array
+      configs=("${configs[@]/$arg/}")
+
+      # Break out of the loop since argument has been found
+      break
+    fi
+  done
+
+  echo "Use standard markers: $use_standard_markers"
+  echo "Remaining hook config: ${configs[@]}"
+
+  if [ "$use_standard_markers" = true ] ; then
+    insertion_marker_begin="<!-- BEGIN_TF_DOCS -->"
+    insertion_marker_end="<!-- END_TF_DOCS -->"
+  fi
 
   local hack_terraform_docs
   hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
@@ -178,10 +211,13 @@ function terraform_docs {
       dir="$(dirname "$text_file")"
 
       mkdir -p "$dir"
+
+      echo "FIRST USE: $insertion_marker_begin (NO README)"
+
       {
         echo -e "# ${PWD##*/}\n"
-        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
-        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+        echo $insertion_marker_begin
+        echo $insertion_marker_end
       } >> "$text_file"
     fi
 
@@ -193,11 +229,13 @@ function terraform_docs {
     # and if not - append "hook markers" to the end of file.
     #
     if $add_to_existing; then
-      HAVE_MARKER=$(grep -o '<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->' "$text_file" || exit 0)
+      HAVE_MARKER=$(grep -o "$insertion_marker_begin" "$text_file" || exit 0)
 
       if [ ! "$HAVE_MARKER" ]; then
-        echo "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
-        echo "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" >> "$text_file"
+        echo "SECOND USE: $insertion_marker_begin (addToExisting with no marker in file)"
+
+        echo $insertion_marker_begin >> "$text_file"
+        echo $insertion_marker_end >> "$text_file"
       fi
     fi
 
@@ -218,8 +256,12 @@ function terraform_docs {
       rm -f "$tmp_file_docs_tf"
     fi
 
+    echo "THIRD USE: $insertion_marker_begin (UPDATE DOC)"
+
     # Replace content between markers with the placeholder - https://stackoverflow.com/questions/1212799/how-do-i-extract-lines-between-two-line-delimiters-in-perl#1212834
-    perl -i -ne 'if (/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/../END OF PRE-COMMIT-TERRAFORM DOCS HOOK/) { print $_ if /BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/; print "I_WANT_TO_BE_REPLACED\n$_" if /END OF PRE-COMMIT-TERRAFORM DOCS HOOK/;} else { print $_ }' "$text_file"
+    perl_expression="if (/$insertion_marker_begin/../$insertion_marker_end/) { print \$_ if /$insertion_marker_begin/; print \"I_WANT_TO_BE_REPLACED\\n\$_\" if /$insertion_marker_end/;} else { print \$_ }"
+    perl -i -ne "$perl_expression" "$text_file"
+    echo "$perl_expression"
 
     # Replace placeholder with the content of the file
     perl -i -e 'open(F, "'"$tmp_file"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "$text_file"
