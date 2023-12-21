@@ -486,6 +486,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     * create a documentation file
     * extend existing documentation file by appending markers to the end of the file (see item 1 above)
     * use different filename for the documentation (default is `README.md`)
+    * use the same insertion markers as `terraform-docs`, i.e. `<!-- BEGIN_TF_DOCS -->...<!-- END_TF_DOCS -->`
 
     ```yaml
     - id: terraform_docs
@@ -493,6 +494,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --hook-config=--path-to-file=README.md        # Valid UNIX path. I.e. ../TFDOC.md or docs/README.md etc.
         - --hook-config=--add-to-existing-file=true     # Boolean. true or false
         - --hook-config=--create-file-if-not-exist=true # Boolean. true or false
+        - --hook-config=--use-standard-markers=true     # Boolean. Defaults to false. Set to true for compatibility with terraform-docs
     ```
 
 4. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_doc` hook, for example:
