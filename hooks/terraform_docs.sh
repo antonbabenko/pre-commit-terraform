@@ -12,6 +12,10 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 insertion_marker_begin="<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
 insertion_marker_end="<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
 
+# these are the standard insertion markers used by terraform-docs
+readonly standard_insertion_marker_begin="<!-- BEGIN_TF_DOCS -->"
+readonly standard_insertion_marker_end="<!-- END_TF_DOCS -->"
+
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
@@ -41,31 +45,6 @@ function terraform_docs_ {
 
   # Get hook settings
   IFS=";" read -r -a configs <<< "$hook_config"
-
-  use_standard_markers=false
-
-  for arg in "${configs[@]}"; do
-    # remove leading whitespace characters
-    arg="${arg#"${arg%%[![:space:]]*}"}"
-    # Check if the argument starts with '--use-standard-markers='
-    if [[ $arg == '--use-standard-markers='* ]]; then
-      # Extract the value after '=' and store it in the use_standard_markers variable
-      use_standard_markers="${arg#*=}"
-
-      # Remove the argument from the array and break out of the loop
-      configs=("${configs[@]/$arg/}")
-      break
-    fi
-  done
-
-  echo "Use standard markers: $use_standard_markers"
-  echo "Remaining hook config: ${configs[@]}"
-
-  if [ "$use_standard_markers" = true ] ; then
-    # update the insertion markers to those used by terraform-docs
-    insertion_marker_begin="<!-- BEGIN_TF_DOCS -->"
-    insertion_marker_end="<!-- END_TF_DOCS -->"
-  fi
 
   local hack_terraform_docs
   hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
@@ -141,6 +120,7 @@ function terraform_docs {
   local text_file="README.md"
   local add_to_existing=false
   local create_if_not_exist=false
+  local use_standard_markers=false
 
   read -r -a configs <<< "$hook_config"
 
@@ -160,8 +140,17 @@ function terraform_docs {
       --create-file-if-not-exist)
         create_if_not_exist=$value
         ;;
+      --use-standard-markers)
+        use_standard_markers=$value
+        ;;
     esac
   done
+
+  if [ "$use_standard_markers" = true ]; then
+    # update the insertion markers to those used by terraform-docs
+    insertion_marker_begin="$standard_insertion_marker_begin"
+    insertion_marker_end="$standard_insertion_marker_end"
+  fi
 
   # Override formatter if no config file set
   if [[ "$args" != *"--config"* ]]; then
@@ -212,8 +201,8 @@ function terraform_docs {
       # Use of insertion markers, where there is no existing README file
       {
         echo -e "# ${PWD##*/}\n"
-        echo $insertion_marker_begin
-        echo $insertion_marker_end
+        echo "$insertion_marker_begin"
+        echo "$insertion_marker_end"
       } >> "$text_file"
     fi
 
@@ -229,8 +218,8 @@ function terraform_docs {
 
       if [ ! "$HAVE_MARKER" ]; then
         # Use of insertion markers, where addToExisting=true, with no markers in the existing file
-        echo $insertion_marker_begin >> "$text_file"
-        echo $insertion_marker_end >> "$text_file"
+        echo "$insertion_marker_begin" >> "$text_file"
+        echo "$insertion_marker_end" >> "$text_file"
       fi
     fi
 
