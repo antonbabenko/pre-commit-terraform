@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.86.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.85.0...v1.86.0) (2023-12-21)
+
+
+### Features
+
+* **`terraform_docs`:** Add `terraform-docs` default markers support and describe how to migrate to them ([#609](https://github.com/antonbabenko/pre-commit-terraform/issues/609)) ([4a0e1fe](https://github.com/antonbabenko/pre-commit-terraform/commit/4a0e1fed008230b65085da0e42b7695bc4e0a5f1))
+
 # [1.85.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.84.0...v1.85.0) (2023-12-15)
 
 
