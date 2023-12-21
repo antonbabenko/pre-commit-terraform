@@ -47,7 +47,7 @@ function terraform_docs_ {
   for arg in "${configs[@]}"; do
     # remove leading whitespace characters
     arg="${arg#"${arg%%[![:space:]]*}"}"
-    # Check if the argument starts with 'use-standard-markers='
+    # Check if the argument starts with '--use-standard-markers='
     if [[ $arg == '--use-standard-markers='* ]]; then
       # Extract the value after '=' and store it in the use_standard_markers variable
       use_standard_markers="${arg#*=}"
