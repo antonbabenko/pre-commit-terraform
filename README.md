@@ -488,7 +488,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     * use different filename for the documentation (default is `README.md`)
     * use the same insertion markers as `terraform-docs` by default. It will be default in `v2.0`.  
       To migrate to `terraform-docs` insertion markers, run in repo root:
-      
+
       ```bash
       grep -rl 'BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK' . | xargs sed -i 's/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/BEGIN_TF_DOCS/g'
       grep -rl 'END OF PRE-COMMIT-TERRAFORM DOCS HOOK' . | xargs sed -i 's/END OF PRE-COMMIT-TERRAFORM DOCS HOOK/END_TF_DOCS/g'
