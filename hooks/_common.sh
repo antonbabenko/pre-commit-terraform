@@ -135,7 +135,7 @@ function common::parse_and_export_env_vars {
 
 #######################################################################
 # This is a workaround to improve performance when all files are passed
-# See: https://github.com/antonbabenko/pre-commit-terraform/issues/309
+# See: https://github.com/tofuutils/pre-commit-opentofu/issues/309
 # Arguments:
 #   hook_id (string) hook ID, see `- id` for details in .pre-commit-hooks.yaml file
 #   files (array) filenames to check

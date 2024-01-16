@@ -134,7 +134,7 @@ function per_dir_hook_unique_part {
   # TODO: Remove in 2.0
   if [ ! "$mode" ]; then
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
-Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
+Check migration instructions at https://github.com/tofuutils/pre-commit-opentofu#terraform_providers_lock
 "
     common::terraform_init 'terraform providers lock' "$dir_path" || {
       exit_code=$?

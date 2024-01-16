@@ -5,7 +5,7 @@
 Want to contribute? Check [open issues](https://github.com/tofuutils/pre-commit-opentofu/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc) and [contributing notes](/.github/CONTRIBUTING.md).
 
 ## Sponsors
-If you are using `pre-commit-terraform` already or want to support its development and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
+If you are using `pre-commit-terraform` already or want to support its development and [many other open-source projects](https://github.com/tofuutils), please become a [GitHub Sponsor](https://github.com/sponsors/tofuutils)!
 
 
 ## Table of content
@@ -1026,7 +1026,7 @@ docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd)
 
 ## Authors
 
-This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
+This repository is managed by [Alexander Sharov](https://github.com/kvendingoldo), [Nikolay Mishin](https://github.com/Nmishin), and [Anastasiia Kozlova](https://github.com/anastasiiakozlova245) with help from these awesome contributors:
 
 <!-- markdownlint-disable no-inline-html -->
 <a href="https://github.com/tofuutils/pre-commit-opentofu/graphs/contributors">
@@ -1047,9 +1047,3 @@ This repository is managed by [Anton Babenko](https://github.com/antonbabenko) w
 ## License
 
 MIT licensed. See [LICENSE](LICENSE) for full details.
-
-### Additional information for users from Russia and Belarus
-
-* Russia has [illegally annexed Crimea in 2014](https://en.wikipedia.org/wiki/Annexation_of_Crimea_by_the_Russian_Federation) and [brought the war in Donbas](https://en.wikipedia.org/wiki/War_in_Donbas) followed by [full-scale invasion of Ukraine in 2022](https://en.wikipedia.org/wiki/2022_Russian_invasion_of_Ukraine).
-* Russia has brought sorrow and devastations to millions of Ukrainians, killed hundreds of innocent people, damaged thousands of buildings, and forced several million people to flee.
-* [Putin khuylo!](https://en.wikipedia.org/wiki/Putin_khuylo!)

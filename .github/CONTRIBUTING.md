@@ -100,12 +100,13 @@ sudo rm -rf tests/results
 
 ## Add new hook
 
-You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/252) as an example.
+You can use [this PR](https://github.com/tofuutils/pre-commit-opentofu/pull/1) as an example.
 
 ### Before write code
 
 1. Try to figure out future hook usage.
-2. Confirm the concept with [Anton Babenko](https://github.com/antonbabenko).
+2. Confirm the concept with one of the following people: [Alexander Sharov](https://github.com/kvendingoldo), [Nikolay Mishin](https://github.com/Nmishin), [Anastasiia Kozlova](https://github.com/anastasiiakozlova245).
+
 
 ### Prepare basic documentation
 
@@ -129,7 +130,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
         ```yaml
         repos:
-        - repo: https://github.com/antonbabenko/pre-commit-terraform # Your repo
+        - repo: https://github.com/tofuutils/pre-commit-opentofu # Your repo
         rev: 3d76da3885e6a33d59527eff3a57d246dfb66620 # Your commit SHA
         hooks:
           - id: terraform_docs # New hook name

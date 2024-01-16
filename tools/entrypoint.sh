@@ -15,7 +15,7 @@ function echo_error_and_exit {
 if [[ $(id -u) -ne 0 ]]; then
   echo_error_and_exit "Container must run as root. Use environment variable USERID to set user.\n" \
     "Example: \"TAG=latest && " \
-    "docker run -e USERID=$(id -u):$(id -g) -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a\""
+    "docker run -e USERID=$(id -u):$(id -g) -v $(pwd):/lint -w /lint ghcr.io/tofuutils/pre-commit-opentofu:$TAG run -a\""
 fi
 
 # make sure USERID makes sense as UID:GID
