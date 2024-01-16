@@ -1,27 +1,10 @@
-# Collection of git hooks for Terraform to be used with [pre-commit framework](http://pre-commit.com/)
+# Collection of git hooks for OpenTofu to be used with [pre-commit framework](http://pre-commit.com/)
 
-[![Github tag](https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg)](https://github.com/antonbabenko/pre-commit-terraform/releases) ![maintenance status](https://img.shields.io/maintenance/yes/2023.svg) [![Help Contribute to Open Source](https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg)](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
+[![Github tag](https://img.shields.io/github/tag/tofuutils/pre-commit-opentofu.svg)](https://github.com/tofuutils/pre-commit-opentofu/releases) ![maintenance status](https://img.shields.io/maintenance/yes/2023.svg) [![Help Contribute to Open Source](https://www.codetriage.com/tofuutils/pre-commit-opentofu/badges/users.svg)](https://www.codetriage.com/tofuutils/pre-commit-opentofu)
 
-[![SWUbanner](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
-
-Want to contribute? Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc) and [contributing notes](/.github/CONTRIBUTING.md).
+Want to contribute? Check [open issues](https://github.com/tofuutils/pre-commit-opentofu/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc) and [contributing notes](/.github/CONTRIBUTING.md).
 
 ## Sponsors
-
-<!-- markdownlint-disable no-inline-html -->
-
-<br />
-<a href="https://www.env0.com/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social"><img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/master/assets/env0.png" alt="env0" width="180" height="44" />
-
-Automated provisioning of Terraform workflows and Infrastructure as Code.</a>
-
-<br />
-<a href="https://www.infracost.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social"><img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/master/assets/infracost.png" alt="infracost" width="200" height="38" />
-
-<!-- markdownlint-enable no-inline-html -->
-
-Cloud cost estimates for Terraform.</a>
-
 If you are using `pre-commit-terraform` already or want to support its development and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
 
 
@@ -95,10 +78,10 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 ```bash
 TAG=latest
-docker pull ghcr.io/antonbabenko/pre-commit-terraform:$TAG
+docker pull ghcr.io/tofuutils/pre-commit-opentofu:$TAG
 ```
 
-All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
+All available tags [here](https://github.com/tofuutils/pre-commit-opentofu/pkgs/container/pre-commit-opentofu/versions).
 
 **Build from scratch**:
 
@@ -108,7 +91,7 @@ All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/p
 When hooks-related `--build-arg`s are not specified, only the latest version of `pre-commit` and `terraform` will be installed.
 
 ```bash
-git clone git@github.com:antonbabenko/pre-commit-terraform.git
+git clone git@github.com:tofuutils/pre-commit-opentofu.git
 cd pre-commit-terraform
 # Install the latest versions of all the tools
 docker build -t pre-commit-terraform --build-arg INSTALL_ALL=true .
@@ -231,8 +214,8 @@ Step into the repository you want to have the pre-commit hooks installed and run
 git init
 cat <<EOF > .pre-commit-config.yaml
 repos:
-- repo: https://github.com/antonbabenko/pre-commit-terraform
-  rev: <VERSION> # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
+- repo: https://github.com/tofuutils/pre-commit-opentofu
+  rev: <VERSION> # Get the latest from: https://github.com/tofuutils/pre-commit-opentofu/releases
   hooks:
     - id: terraform_fmt
     - id: terraform_docs
@@ -247,20 +230,20 @@ Execute this command to run `pre-commit` on all files in the repository (not onl
 pre-commit run -a
 ```
 
-Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions)):
+Or, using Docker ([available tags](https://github.com/tofuutils/pre-commit-opentofu/pkgs/container/pre-commit-opentofu/versions)):
 
 > **Note**: This command uses your user id and group id for the docker container to use to access the local files.  If the files are owned by another user, update the `USERID` environment variable.  See [File Permissions section](#file-permissions) for more information.
 
 ```bash
 TAG=latest
-docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/tofuutils/pre-commit-opentofu:$TAG run -a
 ```
 
 Execute this command to list the versions of the tools in Docker:
 
 ```bash
 TAG=latest
-docker run --rm --entrypoint cat ghcr.io/antonbabenko/pre-commit-terraform:$TAG /usr/bin/tools_versions_info
+docker run --rm --entrypoint cat ghcr.io/tofuutils/pre-commit-opentofu:$TAG /usr/bin/tools_versions_info
 ```
 
 ## Available Hooks
@@ -273,7 +256,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `checkov` and `terraform_checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov-deprecated-and-terraform_checkov)                                                         | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
 | `infracost_breakdown`                                  | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown)                                                                                                                 | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key) |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
-| `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md. **DEPRECATED**, see [#248](https://github.com/antonbabenko/pre-commit-terraform/issues/248). [Hook notes](#terraform_docs_replace-deprecated)                              | `python3`, `terraform-docs`                                                          |
+| `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md. **DEPRECATED**, see [#248](https://github.com/tofuutils/pre-commit-opentofu/issues/248). [Hook notes](#terraform_docs_replace-deprecated)                              | `python3`, `terraform-docs`                                                          |
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                            | `terraform-docs`                                                                     |
 | `terraform_fmt`                                        | Reformat all Terraform configuration files to a canonical format. [Hook notes](#terraform_fmt)                                                                                                                                               | -                                                                                    |
 | `terraform_providers_lock`                             | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                              | -                                                                                    |
@@ -288,7 +271,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `tfupdate`                                             | [tfupdate](https://github.com/minamijoyo/tfupdate) Update version constraints of Terraform core, providers, and modules. [Hook notes](#tfupdate)                                                                                             | `tfupdate`                                                                           |
 <!-- markdownlint-enable no-inline-html -->
 
-Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
+Check the [source file](https://github.com/tofuutils/pre-commit-opentofu/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
 ## Hooks usage notes and examples
 
@@ -856,7 +839,7 @@ To replicate functionality in `terraform_docs` hook:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    **Warning**: If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
+    **Warning**: If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/tofuutils/pre-commit-opentofu/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/tofuutils/pre-commit-opentofu/issues/224) option implementation.
 
 4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
@@ -994,7 +977,7 @@ The [recommended command](#4-run) to run the Docker container is:
 
 ```bash
 TAG=latest
-docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/tofuutils/pre-commit-opentofu:$TAG run -a
 ```
 
 which uses your current session's user ID and group ID to set the variable in the run command.  Without this setting, you may find files and directories owned by `root` in your local repository.
@@ -1038,7 +1021,7 @@ Finally, you can execute `docker run` with an additional volume mount so that th
 # run pre-commit-terraform with docker
 # adding volume for .netrc file
 # .netrc needs to be in /root/ dir
-docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:latest run -a
+docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd):/lint -w /lint ghcr.io/tofuutils/pre-commit-opentofu:latest run -a
 ```
 
 ## Authors
@@ -1046,16 +1029,16 @@ docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd)
 This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
 
 <!-- markdownlint-disable no-inline-html -->
-<a href="https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=antonbabenko/pre-commit-terraform" />
+<a href="https://github.com/tofuutils/pre-commit-opentofu/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=tofuutils/pre-commit-opentofu" />
 </a>
 
 
-<a href="https://star-history.com/#antonbabenko/pre-commit-terraform&Date">
+<a href="https://star-history.com/#tofuutils/pre-commit-opentofu&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=tofuutils/pre-commit-opentofu&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=tofuutils/pre-commit-opentofu&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=tofuutils/pre-commit-opentofu&type=Date" />
   </picture>
 </a>
 
