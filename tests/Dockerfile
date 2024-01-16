@@ -1,4 +1,4 @@
-FROM pre-commit-terraform:latest
+FROM pre-commit-opentofu:latest
 
 RUN apt update && \
     apt install -y \

@@ -37,7 +37,7 @@ function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
   ARGS=() HOOK_CONFIG=() FILES=()
-  # Used inside `common::terraform_init` function
+  # Used inside `common::tofu_init` function
   TF_INIT_ARGS=()
   # Used inside `common::export_provided_env_vars` function
   ENV_VARS=()
@@ -302,38 +302,38 @@ function common::colorify {
 }
 
 #######################################################################
-# Run terraform init command
+# Run tofu init command
 # Arguments:
 #   command_name (string) command that will tun after successful init
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
 # Globals (init and populate):
-#   TF_INIT_ARGS (array) arguments for `terraform init` command
+#   TF_INIT_ARGS (array) arguments for `tofu init` command
 # Outputs:
-#   If failed - print out terraform init output
+#   If failed - print out tofu init output
 #######################################################################
 # TODO: v2.0: Move it inside terraform_validate.sh
-function common::terraform_init {
+function common::tofu_init {
   local -r command_name=$1
   local -r dir_path=$2
 
   local exit_code=0
   local init_output
 
-  # Suppress terraform init color
+  # Suppress tofu init color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     TF_INIT_ARGS+=("-no-color")
   fi
 
   if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
-    init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+    init_output=$(tofu init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
     exit_code=$?
 
     if [ $exit_code -ne 0 ]; then
-      common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
+      common::colorify "red" "'tofu init' failed, '$command_name' skipped: $dir_path"
       echo -e "$init_output\n\n"
     else
-      common::colorify "green" "Command 'terraform init' successfully done: $dir_path"
+      common::colorify "green" "Command 'tofu init' successfully done: $dir_path"
     fi
   fi
 

@@ -17,7 +17,7 @@ function main {
   check_dependencies
 
   # shellcheck disable=SC2153 # False positive
-  terraform_module_wrapper_ "${ARGS[*]}"
+  tofu_module_wrapper_ "${ARGS[*]}"
 }
 
 readonly CONTENT_MAIN_TF='module "wrapper" {}'
@@ -38,12 +38,12 @@ readonly CONTENT_OUTPUTS_TF='output "wrapper" {
   WRAPPER_OUTPUT_SENSITIVE
 }'
 readonly CONTENT_VERSIONS_TF='terraform {
-  required_version = ">= 0.13.1"
+  required_version = ">= 1.6.0"
 }'
 # shellcheck disable=SC2016 # False positive
 readonly CONTENT_README='# WRAPPER_TITLE
 
-The configuration in this directory contains an implementation of a single module wrapper pattern, which allows managing several copies of a module in places where using the native Terraform 0.13+ `for_each` feature is not feasible (e.g., with Terragrunt).
+The configuration in this directory contains an implementation of a single module wrapper pattern, which allows managing several copies of a module in places where using the native OpenTofu 1.6.0+ `for_each` feature is not feasible (e.g., with Terragrunt).
 
 You may want to use a single Terragrunt configuration file to manage multiple resources without duplicating `terragrunt.hcl` files for each copy of the same module.
 
@@ -64,7 +64,7 @@ inputs = {
   defaults = { # Default values
     create = true
     tags = {
-      Terraform   = "true"
+      OpenTofu   = "true"
       Environment = "dev"
     }
   }
@@ -81,7 +81,7 @@ inputs = {
 }
 ```
 
-## Usage with Terraform
+## Usage with OpenTofu
 
 ```hcl
 module "wrapper" {
@@ -90,7 +90,7 @@ module "wrapper" {
   defaults = { # Default values
     create = true
     tags = {
-      Terraform   = "true"
+      OpenTofu   = "true"
       Environment = "dev"
     }
   }
@@ -142,7 +142,7 @@ inputs = {
 }
 ```'
 
-function terraform_module_wrapper_ {
+function tofu_module_wrapper_ {
   local args
   read -r -a args <<< "$1"
 
@@ -197,7 +197,7 @@ function terraform_module_wrapper_ {
         cat << EOF
 ERROR: Unrecognized argument: $key
 Hook ID: $HOOK_ID.
-Generate Terraform module wrapper. Available arguments:
+Generate OpenTofu module wrapper. Available arguments:
 --root-dir=...                - Root dir of the repository (Optional)
 --module-dir=...              - Single module directory. Options: "." (means just root module),
                                 "modules/iam-user" (a single module), or empty (means include all
@@ -212,7 +212,7 @@ Generate Terraform module wrapper. Available arguments:
 Example:
 --module-dir=modules/object   - Generate wrapper for one specific submodule.
 --module-dir=.                - Generate wrapper for the root module.
---module-repo-org=terraform-google-modules --module-repo-shortname=network --module-repo-provider=google  - Generate wrappers for repository available by name "terraform-google-modules/network/google" in the Terraform registry and it includes all modules (root and in "modules/*").
+--module-repo-org=terraform-google-modules --module-repo-shortname=network --module-repo-provider=google  - Generate wrappers for repository available by name "terraform-google-modules/network/google" in the OpenTofu registry and it includes all modules (root and in "modules/*").
 EOF
         exit 1
         ;;
@@ -310,7 +310,7 @@ EOF
       echo
     fi
 
-    # Read content of all terraform files
+    # Read content of all OpenTofu files
     # shellcheck disable=SC2207
     all_tf_content=$(find "${full_module_dir}" -name '*.tf' -maxdepth 1 -type f -exec cat {} +)
 
@@ -319,15 +319,15 @@ EOF
       continue
     fi
 
-    # Get names of module variables in all terraform files
+    # Get names of module variables in all OpenTofu files
     # shellcheck disable=SC2207
     module_vars=($(echo "$all_tf_content" | hcledit block list | { grep "^variable\." | cut -d'.' -f 2 | sort || true; }))
 
-    # Get names of module outputs in all terraform files
+    # Get names of module outputs in all OpenTofu files
     # shellcheck disable=SC2207
     module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep "^output\." | cut -d'.' -f 2 || true; }))
 
-    # Get names of module providers in all terraform files
+    # Get names of module providers in all OpenTofu files
     module_providers=$(echo "$all_tf_content" | hcledit block list | { grep "^provider\." || true; })
 
     if [[ $module_providers ]]; then
@@ -342,7 +342,7 @@ EOF
 
       # At least one output is sensitive - the wrapper's output should be sensitive, too
       if [[ "$module_output_sensitive" == "true" ]]; then
-        wrapper_output_sensitive="sensitive   = true # At least one sensitive module output (${module_output}) found (requires Terraform 0.14+)"
+        wrapper_output_sensitive="sensitive   = true # At least one sensitive module output (${module_output}) found (requires OpenTofu 1.6.0+)"
         break
       fi
     done

@@ -13,7 +13,7 @@ function main {
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
 
-  # Suppress terraform fmt color
+  # Suppress tofu fmt color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     ARGS+=("-no-color")
   fi
@@ -44,7 +44,7 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terraform fmt "${args[@]}"
+  tofu fmt "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

@@ -6,7 +6,7 @@ labels:
 ---
 
 <!--
-Thank you for helping to improve pre-commit-terraform!
+Thank you for helping to improve pre-commit-opentofu!
 
 Please be sure to search for open issues before raising a new one. We use issues
 for bug reports and feature requests. Please note, this template is for feature
@@ -22,8 +22,8 @@ implement it sensibly.
 --->
 
 
-### How could pre-commit-terraform help solve your problem?
+### How could pre-commit-opentofu help solve your problem?
 
 <!--
-Let us know how you think pre-commit-terraform could help with your use case.
+Let us know how you think pre-commit-opentofu could help with your use case.
 -->

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 TEST_NUM=$1                            # 1000
-TEST_COMMAND=$2                        # 'pre-commit try-repo -a /tmp/159/pre-commit-terraform terraform_tfsec'
+TEST_COMMAND=$2                        # 'pre-commit try-repo -a /tmp/159/pre-commit-opentofu tofu_tfsec'
 TEST_DIR=$3                            # '/tmp/infrastructure'
-TEST_DESCRIPTION="$TEST_NUM runs '$4'" # '`terraform_tfsec` PR #123:'
-RAW_TEST_RESULTS_FILE_NAME=$5          # terraform_tfsec_pr123
+TEST_DESCRIPTION="$TEST_NUM runs '$4'" # '`tofu_tfsec` PR #123:'
+RAW_TEST_RESULTS_FILE_NAME=$5          # tofu_tfsec_pr123
 
 function run_tests {
   local TEST_NUM=$1

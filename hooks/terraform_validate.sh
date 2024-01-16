@@ -7,7 +7,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
-# `terraform validate` requires this env variable to be set
+# `tofu validate` requires this env variable to be set
 export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
 
 function main {
@@ -16,7 +16,7 @@ function main {
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
 
-  # Suppress terraform validate color
+  # Suppress tofu validate color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     ARGS+=("-no-color")
   fi
@@ -25,9 +25,9 @@ function main {
 }
 
 #######################################################################
-# Run `terraform validate` and match errors. Requires `jq`
+# Run `tofu validate` and match errors. Requires `jq`
 # Arguments:
-#   validate_output (string with json) output of `terraform validate` command
+#   validate_output (string with json) output of `tofu validate` command
 # Outputs:
 #   Returns integer:
 #    - 0 (no errors)
@@ -66,8 +66,8 @@ function match_validate_errors {
 #######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
-# 1. Check if `.terraform` dir exists and if not - run `terraform init`
-# 2. Run `terraform validate`
+# 1. Check if `.terraform` dir exists and if not - run `tofu init`
+# 2. Run `tofu validate`
 # 3. If at least 1 check failed - change the exit code to non-zero
 # Arguments:
 #   dir_path (string) PATH to dir relative to git repo root.
@@ -111,28 +111,28 @@ function per_dir_hook_unique_part {
     esac
   done
 
-  # First try `terraform validate` with the hope that all deps are
+  # First try `terratofuform validate` with the hope that all deps are
   # pre-installed. That is needed for cases when `.terraform/modules`
   # or `.terraform/providers` missed AND that is expected.
-  terraform validate "${args[@]}" &> /dev/null && {
+  tofu validate "${args[@]}" &> /dev/null && {
     exit_code=$?
     return $exit_code
   }
 
-  # In case `terraform validate` failed to execute
-  # - check is simple `terraform init` will help
-  common::terraform_init 'terraform validate' "$dir_path" || {
+  # In case `tofu validate` failed to execute
+  # - check is simple `tofu init` will help
+  common::tofu_init 'tofu validate' "$dir_path" || {
     exit_code=$?
     return $exit_code
   }
 
   if [ "$retry_once_with_cleanup" != "true" ]; then
-    # terraform validate only
-    validate_output=$(terraform validate "${args[@]}" 2>&1)
+    # tofu validate only
+    validate_output=$(tofu validate "${args[@]}" 2>&1)
     exit_code=$?
   else
-    # terraform validate, plus capture possible errors
-    validate_output=$(terraform validate -json "${args[@]}" 2>&1)
+    # tofu validate, plus capture possible errors
+    validate_output=$(tofu validate -json "${args[@]}" 2>&1)
     exit_code=$?
 
     # Match specific validation errors
@@ -150,12 +150,12 @@ function per_dir_hook_unique_part {
 
       common::colorify "yellow" "Re-validating: $dir_path"
 
-      common::terraform_init 'terraform validate' "$dir_path" || {
+      common::tofu_init 'tofu validate' "$dir_path" || {
         exit_code=$?
         return $exit_code
       }
 
-      validate_output=$(terraform validate "${args[@]}" 2>&1)
+      validate_output=$(tofu validate "${args[@]}" 2>&1)
       exit_code=$?
     fi
   fi

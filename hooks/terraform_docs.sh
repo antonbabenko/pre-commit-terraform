@@ -9,8 +9,8 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
 # set up default insertion markers.  These will be changed to the markers used by
 # terraform-docs if the hook config contains `--use-standard-markers=true`
-insertion_marker_begin="<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
-insertion_marker_end="<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+insertion_marker_begin="<!-- BEGINNING OF PRE-COMMIT-OPENTOFU DOCS HOOK -->"
+insertion_marker_end="<!-- END OF PRE-COMMIT-OPENTOFU DOCS HOOK -->"
 
 # these are the standard insertion markers used by terraform-docs
 readonly standard_insertion_marker_begin="<!-- BEGIN_TF_DOCS -->"

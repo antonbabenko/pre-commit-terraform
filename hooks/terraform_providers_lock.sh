@@ -13,7 +13,7 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
-  # JFYI: suppress color for `terraform providers lock` is N/A`
+  # JFYI: suppress color for `tofu providers lock` is N/A`
 
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
@@ -136,7 +136,7 @@ function per_dir_hook_unique_part {
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
 Check migration instructions at https://github.com/tofuutils/pre-commit-opentofu#terraform_providers_lock
 "
-    common::terraform_init 'terraform providers lock' "$dir_path" || {
+    common::tofu_init 'OpenTofu providers lock' "$dir_path" || {
       exit_code=$?
       return $exit_code
     }
@@ -149,9 +149,9 @@ Check migration instructions at https://github.com/tofuutils/pre-commit-opentofu
   fi
 
   #? Don't require `tf init` for providers, but required `tf init` for modules
-  #? Mitigated by `function match_validate_errors` from terraform_validate hook
+  #? Mitigated by `function match_validate_errors` from tofu_validate hook
   # pass the arguments to hook
-  terraform providers lock "${args[@]}"
+  tofu providers lock "${args[@]}"
 
   # return exit code to common::per_dir_hook
   exit_code=$?

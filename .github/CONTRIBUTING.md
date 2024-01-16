@@ -21,14 +21,14 @@ Enjoy the clean, valid, and documented code!
 ## Run and debug hooks locally
 
 ```bash
-pre-commit try-repo {-a} /path/to/local/pre-commit-terraform/repo {hook_name}
+pre-commit try-repo {-a} /path/to/local/pre-commit-opentofu/repo {hook_name}
 ```
 
 I.e.
 
 ```bash
-pre-commit try-repo /mnt/c/Users/tf/pre-commit-terraform terraform_fmt # Run only `terraform_fmt` check
-pre-commit try-repo -a ~/pre-commit-terraform # run all existing checks from repo
+pre-commit try-repo /mnt/c/Users/tf/pre-commit-opentofu terraform_fmt # Run only `terraform_fmt` check
+pre-commit try-repo -a ~/pre-commit-opentofu # run all existing checks from repo
 ```
 
 Running `pre-commit` with `try-repo` ignores all arguments specified in `.pre-commit-config.yaml`.
@@ -38,7 +38,7 @@ If you need to test hook with arguments, follow [pre-commit doc](https://pre-com
 For example, to test that the [`terraform_fmt`](../README.md#terraform_fmt) hook works fine with arguments:
 
 ```bash
-/tmp/pre-commit-terraform/terraform_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
+/tmp/pre-commit-opentofu/terraform_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
 ```
 
 ## Run hook performance test
@@ -50,7 +50,7 @@ Script accept next options:
 | #   | Name                               | Example value                                                            | Description                                          |
 | --- | ---------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------- |
 | 1   | `TEST_NUM`                         | `200`                                                                   | How many times need repeat test                      |
-| 2   | `TEST_COMMAND`                     | `'pre-commit try-repo -a /tmp/159/pre-commit-terraform terraform_tfsec'` | Valid pre-commit command                             |
+| 2   | `TEST_COMMAND`                     | `'pre-commit try-repo -a /tmp/159/pre-commit-opentofu terraform_tfsec'` | Valid pre-commit command                             |
 | 3   | `TEST_DIR`                         | `'/tmp/infrastructure'`                                                  | Dir on what you run tests.                           |
 | 4   | `TEST_DESCRIPTION`                 | ```'`terraform_tfsec` PR #123:'```                                       | Text that you'd like to see in result                |
 | 5   | `RAW_TEST_`<br>`RESULTS_FILE_NAME` | `terraform_tfsec_pr123`                                                  | (Temporary) File where all test data will be stored. |
@@ -66,14 +66,14 @@ Script accept next options:
 # Install deps
 sudo apt install -y datamash
 # Run tests
-./hooks_performance_test.sh 200 'pre-commit try-repo -a /tmp/159/pre-commit-terraform terraform_tfsec' '/tmp/infrastructure' '`terraform_tfsec` v1.51.0:' 'terraform_tfsec_pr159'
+./hooks_performance_test.sh 200 'pre-commit try-repo -a /tmp/159/pre-commit-opentofu terraform_tfsec' '/tmp/infrastructure' '`terraform_tfsec` v1.51.0:' 'terraform_tfsec_pr159'
 ```
 
 ### Run via Docker
 
 ```bash
-# Build `pre-commit-terraform` image
-docker build -t pre-commit-terraform --build-arg INSTALL_ALL=true .
+# Build `pre-commit-opentofu` image
+docker build -t pre-commit-opentofu --build-arg INSTALL_ALL=true .
 # Build test image
 docker build -t pre-commit-tests tests/
 # Run
