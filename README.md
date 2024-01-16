@@ -648,23 +648,23 @@ To replicate functionality in `terraform_docs` hook:
     ```
 
 
-### terraform_tflint
+### tofu_tflint
 
-1. `terraform_tflint` supports custom arguments so you can enable module inspection, enable / disable rules, etc.
+1. `tofu_tflint` supports custom arguments so you can enable module inspection, enable / disable rules, etc.
 
     Example:
 
     ```yaml
-    - id: terraform_tflint
+    - id: tofu_tflint
       args:
         - --args=--module
         - --args=--enable-rule=terraform_documented_variables
     ```
 
-2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to the `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with the Git working directory (repo root) at run time. For example:
+2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to the `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `tofu_tflint` hooks with the Git working directory (repo root) at run time. For example:
 
     ```yaml
-    - id: terraform_tflint
+    - id: tofu_tflint
       args:
         - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
     ```
@@ -672,17 +672,17 @@ To replicate functionality in `terraform_docs` hook:
 3. By default, pre-commit-opentofu performs directory switching into the terraform modules for you. If you want to delgate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
 
     ```yaml
-    - id: terraform_tflint
+    - id: tofu_tflint
           args:
             - --hook-config=--delegate-chdir
     ```
 
 
-### terraform_tfsec (deprecated)
+### tofu_tfsec (deprecated)
 
-**DEPRECATED**. [tfsec was replaced by trivy](https://github.com/aquasecurity/tfsec/discussions/1994), so please use [`terraform_trivy`](#terraform_trivy).
+**DEPRECATED**. [tfsec was replaced by trivy](https://github.com/aquasecurity/tfsec/discussions/1994), so please use [`tofu_trivy`](#tofu_trivy).
 
-1. `terraform_tfsec` will consume modified files that pre-commit
+1. `tofu_tfsec` will consume modified files that pre-commit
     passes to it, so you can perform whitelisting of directories
     or files to run against via [files](https://pre-commit.com/#config-files)
     pre-commit flag
@@ -690,7 +690,7 @@ To replicate functionality in `terraform_docs` hook:
     Example:
 
     ```yaml
-    - id: terraform_tfsec
+    - id: tofu_tfsec
       files: ^prd-infra/
     ```
 
@@ -710,10 +710,10 @@ To replicate functionality in `terraform_docs` hook:
     }
     ```
 
-3. `terraform_tfsec` supports custom arguments, so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
+3. `tofu_tfsec` supports custom arguments, so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
 
     ```yaml
-     - id: terraform_tfsec
+     - id: tofu_tfsec
        args:
          - >
            --args=--format json
@@ -721,10 +721,10 @@ To replicate functionality in `terraform_docs` hook:
            -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
     ```
 
-4. When you have multiple directories and want to run `tfsec` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_tfsec` hooks with Git working directory (repo root) at run time. For example:
+4. When you have multiple directories and want to run `tfsec` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `tofu_tfsec` hooks with Git working directory (repo root) at run time. For example:
 
     ```yaml
-    - id: terraform_tfsec
+    - id: tofu_tfsec
       args:
         - --args=--config-file=__GIT_WORKING_DIR__/.tfsec.json
     ```
@@ -732,14 +732,14 @@ To replicate functionality in `terraform_docs` hook:
     Otherwise, will be used files that located in sub-folders:
 
     ```yaml
-    - id: terraform_tfsec
+    - id: tofu_tfsec
       args:
         - --args=--config-file=.tfsec.json
     ```
 
-### terraform_trivy
+### tofu_trivy
 
-1. `terraform_trivy` will consume modified files that pre-commit
+1. `tofu_trivy` will consume modified files that pre-commit
     passes to it, so you can perform whitelisting of directories
     or files to run against via [files](https://pre-commit.com/#config-files)
     pre-commit flag
@@ -747,7 +747,7 @@ To replicate functionality in `terraform_docs` hook:
     Example:
 
     ```yaml
-    - id: terraform_trivy
+    - id: tofu_trivy
       files: ^prd-infra/
     ```
 
@@ -769,51 +769,51 @@ To replicate functionality in `terraform_docs` hook:
     }
     ```
 
-3. `terraform_trivy` supports custom arguments, so you can pass supported `--format` (output), `--skip-dirs` (exclude directories) and other flags:
+3. `tofu_trivy` supports custom arguments, so you can pass supported `--format` (output), `--skip-dirs` (exclude directories) and other flags:
 
     ```yaml
-     - id: terraform_trivy
+     - id: tofu_trivy
        args:
          - >
            --args=--format json
            --skip-dirs="**/.terragrunt-cache"
     ```
 
-### terraform_validate
+### tofu_validate
 
-1. `terraform_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
+1. `tofu_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
 
     ```yaml
-     - id: terraform_validate
+     - id: tofu_validate
        args:
          - --args=-json
          - --args=-no-color
     ```
 
-2. `terraform_validate` also supports passing custom arguments to its `terraform init`:
+2. `tofu_validate` also supports passing custom arguments to its `tofu init`:
 
     ```yaml
-    - id: terraform_validate
+    - id: tofu_validate
       args:
         - --tf-init-args=-upgrade
         - --tf-init-args=-lockfile=readonly
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can delete broken `.terraform` directories in your repository:
+3. It may happen that OpenTofu working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of OpenTofu, etc.). To solve this problem, you can delete broken `.terraform` directories in your repository:
 
     **Option 1**
 
     ```yaml
-    - id: terraform_validate
+    - id: tofu_validate
       args:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
 
     > **Note**: The flag requires additional dependency to be installed: `jq`.
 
-    > **Note**: Reinit can be very slow and require downloading data from remote Terraform registries, and not all of that downloaded data or meta-data is currently being cached by Terraform.
+    > **Note**: Reinit can be very slow and require downloading data from remote OpenTofu registries, and not all of that downloaded data or meta-data is currently being cached by OpenTofu.
 
-    When `--retry-once-with-cleanup=true`, in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
+    When `--retry-once-with-cleanup=true`, in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if OpenTofu produces any of the following error messages:
 
     * "Missing or corrupted provider plugins"
     * "Module source has changed"
@@ -829,30 +829,30 @@ To replicate functionality in `terraform_docs` hook:
 
     ```bash
     echo "
-    function rm_terraform {
+    function rm_tofu {
         find . \( -iname ".terraform*" ! -iname ".terraform-docs*" \) -print0 | xargs -0 rm -r
     }
     " >>~/.bashrc
 
-    # Reload shell and use `rm_terraform` command in the repo root
+    # Reload shell and use `rm_tofu` command in the repo root
     ```
 
-   `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
+   `tofu_validate` hook will try to reinitialize them before running the `tofu validate` command.
 
     **Warning**: If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/tofuutils/pre-commit-opentofu/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/tofuutils/pre-commit-opentofu/issues/224) option implementation.
 
-4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
+4. `tofu_validate` in a repo with TerrOpenTofuaform module, written using OpenTofu 1.6.0+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
-   When running the hook against Terraform code where you have provider `configuration_aliases` defined in a `required_providers` configuration block, terraform will throw an error like:
+   When running the hook against OpenTofu code where you have provider `configuration_aliases` defined in a `required_providers` configuration block, OpenTofu will throw an error like:
 
    > Error: Provider configuration not present
    > To work with `<resource>` its original provider configuration at provider `["registry.terraform.io/hashicorp/aws"].<provider_alias>` is required, but it has been removed. This occurs when a provider configuration is removed while
    > objects created by that provider still exist in the state. Re-add the provider configuration to destroy `<resource>`, after which you can remove the provider configuration again.
 
-   This is a [known issue](https://github.com/hashicorp/terraform/issues/28490) with Terraform and how providers are initialized in Terraform 0.15 and later. To work around this you can add an `exclude` parameter to the configuration of `terraform_validate` hook like this:
+   This is a [known issue](https://github.com/hashicorp/terraform/issues/28490) with OpenTofu and how providers are initialized in OpenTofu 1.6.0 and later. To work around this you can add an `exclude` parameter to the configuration of `tofu_validate` hook like this:
 
    ```yaml
-   - id: terraform_validate
+   - id: tofu_validate
      exclude: '^[^/]+$'
    ```
 
@@ -930,7 +930,7 @@ If the generated name is incorrect, set them by providing the `module-repo-short
     ```yaml
     - id: terrascan
       args:
-        - --args=--non-recursive # avoids scan errors on subdirectories without Terraform config files
+        - --args=--non-recursive # avoids scan errors on subdirectories without OpenTofu config files
         - --args=--policy-type=azure
     ```
 
@@ -942,11 +942,11 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
 ### tfupdate
 
-1. Out of the box `tfupdate` will pin the terraform version:
+1. Out of the box `tfupdate` will pin the OpenTofu version:
 
     ```yaml
     - id: tfupdate
-      name: Autoupdate Terraform versions
+      name: Autoupdate OpenTofu versions
     ```
 
 2. If you'd like to pin providers, etc., use custom arguments, i.e `provider=PROVIDER_NAME`:
@@ -989,9 +989,9 @@ $ ls -aldn .
 drwxr-xr-x 9 1000 1000 4096 Sep  1 16:23 .
 ```
 
-### Download Terraform modules from private GitHub repositories
+### Download OpenTofu modules from private GitHub repositories
 
-If you use a private Git repository as your Terraform module source, you are required to authenticate to GitHub using a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+If you use a private Git repository as your OpenTofu module source, you are required to authenticate to GitHub using a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 
 When running pre-commit on Docker, both locally or on CI, you need to configure the [~/.netrc](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html) file, which contains login and initialization information used by the auto-login process.
 

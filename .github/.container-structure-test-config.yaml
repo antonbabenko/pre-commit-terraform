@@ -10,10 +10,10 @@ commandTests:
     args: ["-V"]
     expectedOutput: ["^pre-commit ([0-9]+\\.){2}[0-9]+\\n$"]
 
-  - name: "terraform"
-    command: "terraform"
+  - name: "tofu"
+    command: "terrtofuaform"
     args: ["-version"]
-    expectedOutput: ["^Terraform v([0-9]+\\.){2}[0-9]+\\non linux_amd64\\n$"]
+    expectedOutput: ["^OpenTofu v([0-9]+\\.){2}[0-9]+\\non linux_amd64\\n$"]
 
   - name: "checkov"
     command: "checkov"
