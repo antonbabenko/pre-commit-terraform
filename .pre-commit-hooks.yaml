@@ -15,8 +15,8 @@
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
 
-- id: terraform_docs
-  name: Terraform docs
+- id: tofu_docs
+  name: OpenTofu docs
   description: Inserts input and output documentation into README.md (using terraform-docs).
   require_serial: true
   entry: hooks/terraform_docs.sh
@@ -24,11 +24,11 @@
   files: (\.tf|\.terraform\.lock\.hcl)$
   exclude: \.terraform\/.*$
 
-- id: terraform_docs_without_aggregate_type_defaults
-  name: Terraform docs (without aggregate type defaults)
+- id: tofu_docs_without_aggregate_type_defaults
+  name: OpenTofu docs (without aggregate type defaults)
   description: Inserts input and output documentation into README.md (using terraform-docs). Identical to terraform_docs.
   require_serial: true
-  entry: hooks/terraform_docs.sh
+  entry: hooks/tofu_docs.sh
   language: script
   files: (\.tf)$
   exclude: \.terraform\/.*$
