@@ -78,7 +78,7 @@ Linux DESKTOP-C7315EF 5.4.72-microsoft-standard-WSL2 #1 SMP Wed Oct 28 23:40:43 
 bash << EOF
 bash --version | head -n 1                2>/dev/null || echo "bash SKIPPED"
 pre-commit --version                      2>/dev/null || echo "pre-commit SKIPPED"
-terraform --version | head -n 1           2>/dev/null || echo "terraform SKIPPED"
+tofu --version | head -n 1                2>/dev/null || echo "tofu SKIPPED"
 python --version                          2>/dev/null || echo "python SKIPPED"
 python3 --version                         2>/dev/null || echo "python3 SKIPPED"
 echo -n "checkov " && checkov --version   2>/dev/null || echo "checkov SKIPPED"

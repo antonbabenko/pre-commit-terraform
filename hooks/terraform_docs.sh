@@ -64,37 +64,38 @@ function terraform_docs_ {
   elif [[ "$hack_terraform_docs" == "1" ]]; then # Using awk script because terraform-docs is older than 0.8 and terraform 0.12 is used
 
     if [[ ! $(command -v awk) ]]; then
+      # TODO: pls check it
       echo "ERROR: awk is required for terraform-docs hack to work with Terraform 0.12."
       exit 1
     fi
 
     local tmp_file_awk
-    tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
-    terraform_docs_awk "$tmp_file_awk"
-    terraform_docs "$tmp_file_awk" "${configs[*]}" "$args" "${files[@]}"
+    tmp_file_awk=$(mktemp "${TMPDIR:-/tmp}/tofu-docs-XXXXXXXXXX")
+    tofu_docs_awk "$tmp_file_awk"
+    tofu_docs "$tmp_file_awk" "${configs[*]}" "$args" "${files[@]}"
     rm -f "$tmp_file_awk"
 
   else # Using terraform 0.11 and no awk script is needed for that
-
-    terraform_docs "0" "${configs[*]}" "$args" "${files[@]}"
+    # TODO: should be deleted for OpenTofu.
+    tofu_docs "0" "${configs[*]}" "$args" "${files[@]}"
 
   fi
 }
 
 #######################################################################
 # Wrapper around `terraform-docs` tool that check and change/create
-# (depends on provided hook_config) terraform documentation in
+# (depends on provided hook_config) OpenTofu documentation in
 # markdown format
 # Arguments:
 #   terraform_docs_awk_file (string) filename where awk hack for old
 #     `terraform-docs` was written. Needed for TF 0.12+.
-#     Hack skipped when `terraform_docs_awk_file == "0"`
+#     Hack skipped when `tofu_docs_awk_file == "0"`
 #   hook_config (string with array) arguments that configure hook behavior
 #   args (string with array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
-function terraform_docs {
-  local -r terraform_docs_awk_file="$1"
+function tofu_docs {
+  local -r tofu_docs_awk_file="$1"
   local -r hook_config="$2"
   local args="$3"
   shift 3
@@ -229,7 +230,7 @@ function terraform_docs {
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
-      tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
+      tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/tofu-docs-XXXXXXXXXX")
       mv "$tmp_file_docs" "$tmp_file_docs.tf"
       local tmp_file_docs_tf
       tmp_file_docs_tf="$tmp_file_docs.tf"
@@ -263,7 +264,7 @@ function terraform_docs {
 # Arguments:
 #   output_file (string) filename where hack will be written to
 #######################################################################
-function terraform_docs_awk {
+function tofu_docs_awk {
   local -r output_file=$1
 
   cat << "EOF" > "$output_file"

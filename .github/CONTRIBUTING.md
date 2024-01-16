@@ -27,7 +27,7 @@ pre-commit try-repo {-a} /path/to/local/pre-commit-opentofu/repo {hook_name}
 I.e.
 
 ```bash
-pre-commit try-repo /mnt/c/Users/tf/pre-commit-opentofu terraform_fmt # Run only `terraform_fmt` check
+pre-commit try-repo /mnt/c/Users/tf/pre-commit-opentofu tofu_fmt # Run only `tofu_fmt` check
 pre-commit try-repo -a ~/pre-commit-opentofu # run all existing checks from repo
 ```
 
@@ -35,10 +35,10 @@ Running `pre-commit` with `try-repo` ignores all arguments specified in `.pre-co
 
 If you need to test hook with arguments, follow [pre-commit doc](https://pre-commit.com/#arguments-pattern-in-hooks) to test hooks.
 
-For example, to test that the [`terraform_fmt`](../README.md#terraform_fmt) hook works fine with arguments:
+For example, to test that the [`tofu_fmt`](../README.md#tofu_fmt) hook works fine with arguments:
 
 ```bash
-/tmp/pre-commit-opentofu/terraform_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
+/tmp/pre-commit-opentofu/tofu_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
 ```
 
 ## Run hook performance test

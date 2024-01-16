@@ -25,7 +25,7 @@ function common::initialize {
 # Globals (init and populate):
 #   ARGS (array) arguments that configure wrapped tool behavior
 #   HOOK_CONFIG (array) arguments that configure hook behavior
-#   TF_INIT_ARGS (array) arguments for `terraform init` command
+#   TF_INIT_ARGS (array) arguments for `tofu init` command
 #   ENV_VARS (array) environment variables will be available
 #     for all 3rd-party tools executed by a hook.
 #   FILES (array) filenames to check
