@@ -216,8 +216,8 @@ repos:
 - repo: https://github.com/tofuutils/pre-commit-opentofu
   rev: <VERSION> # Get the latest from: https://github.com/tofuutils/pre-commit-opentofu/releases
   hooks:
-    - id: terraform_fmt
-    - id: terraform_docs
+    - id: tofu_fmt
+    - id: tofu_docs
 EOF
 ```
 
@@ -252,7 +252,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 <!-- markdownlint-disable no-inline-html -->
 | Hook name                                              | Description                                                                                                                                                                                                                                  | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup>      |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `checkov` and `terraform_checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov-deprecated-and-terraform_checkov)                                                         | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
+| `checkov` and `tofu_checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of OpenTofu templates to spot potential security issues. [Hook notes](#checkov-deprecated-and-tofu_checkov)                                                         | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
 | `infracost_breakdown`                                  | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown)                                                                                                                 | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key) |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                          | `terraform-docs`                                                                     |
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md. **DEPRECATED**, see [#248](https://github.com/tofuutils/pre-commit-opentofu/issues/248). [Hook notes](#terraform_docs_replace-deprecated)                              | `python3`, `terraform-docs`                                                          |
