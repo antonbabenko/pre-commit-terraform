@@ -14,17 +14,17 @@ RUN apk add --no-cache \
         setuptools
 
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
-ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
+ARG TOFU_VERSION=${TOFU_VERSION:-latest}
 
 # Install pre-commit
 RUN [ ${PRE_COMMIT_VERSION} = "latest" ] && pip3 install --no-cache-dir pre-commit \
     || pip3 install --no-cache-dir pre-commit==${PRE_COMMIT_VERSION}
 
-# Install terraform because pre-commit needs it
-RUN if [ "${TERRAFORM_VERSION}" = "latest" ]; then \
-        TERRAFORM_VERSION="$(curl -s https://api.github.com/repos/hashicorp/terraform/releases/latest | grep tag_name | grep -o -E -m 1 "[0-9.]+")" \
+# TODO Install OpenTofu because pre-commit needs it
+RUN if [ "${TOFU_VERSION}" = "latest" ]; then \
+        TOFU_VERSION="$(curl -s https://api.github.com/repos/hashicorp/terraform/releases/latest | grep tag_name | grep -o -E -m 1 "[0-9.]+")" \
     ; fi && \
-    curl -L "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip" > terraform.zip && \
+    curl -L "https://releases.hashicorp.com/terraform/${TOFU_VERSION}/terraform_${TOFU_VERSION}_${TARGETOS}_${TARGETARCH}.zip" > terraform.zip && \
     unzip terraform.zip terraform && rm terraform.zip
 
 #

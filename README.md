@@ -101,7 +101,7 @@ To install a specific version of individual tools, define it using `--build-arg`
 ```bash
 docker build -t pre-commit-opentofu \
     --build-arg PRE_COMMIT_VERSION=latest \
-    --build-arg TERRAFORM_VERSION=latest \
+    --build-arg TOFU_VERSION=latest \
     --build-arg CHECKOV_VERSION=2.0.405 \
     --build-arg INFRACOST_VERSION=latest \
     --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
@@ -265,7 +265,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `tofu_validate`                                   | Validates all Terraform configuration files. [Hook notes](#tofu_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
-| `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
+| `tofu_wrapper_module_for_each`                    | Generates OpenTofu wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan](https://github.com/tenable/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                        | `terrascan`                                                                          |
 | `tfupdate`                                             | [tfupdate](https://github.com/minamijoyo/tfupdate) Update version constraints of Terraform core, providers, and modules. [Hook notes](#tfupdate)                                                                                             | `tfupdate`                                                                           |
 <!-- markdownlint-enable no-inline-html -->
@@ -276,11 +276,11 @@ Check the [source file](https://github.com/tofuutils/pre-commit-opentofu/blob/ma
 
 ### Known limitations
 
-Terraform operates on a per-dir basis, while `pre-commit` framework only supports files and files that exist. This means if you only remove the TF-related file without any other changes in the same dir, checks will be skipped. Example and details [here](https://github.com/pre-commit/pre-commit/issues/3048).
+OpenTOfu operates on a per-dir basis, while `pre-commit` framework only supports files and files that exist. This means if you only remove the TF-related file without any other changes in the same dir, checks will be skipped. Example and details [here](https://github.com/pre-commit/pre-commit/issues/3048).
 
 ### All hooks: Usage of environment variables in `--args`
 
-> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+> All, except deprecated hooks: `checkov`, `tofu_docs_replace`
 
 You can use environment variables for the `--args` section.
 
@@ -299,7 +299,7 @@ If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` b
 
 ### All hooks: Set env vars inside hook at runtime
 
-> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+> All, except deprecated hooks: `checkov`, `tofu_docs_replace`
 
 You can specify environment variables that will be passed to the hook at runtime.
 
@@ -315,7 +315,7 @@ Config example:
 
 ### All hooks: Disable color output
 
-> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+> All, except deprecated hooks: `checkov`, `tofu_docs_replace`
 
 To disable color output for all hooks, set `PRE_COMMIT_COLOR=never` var. Eg:
 
@@ -323,16 +323,16 @@ To disable color output for all hooks, set `PRE_COMMIT_COLOR=never` var. Eg:
 PRE_COMMIT_COLOR=never pre-commit run
 ```
 
-### checkov (deprecated) and terraform_checkov
+### checkov (deprecated) and tofu_checkov
 
-> `checkov` hook is deprecated, please use `terraform_checkov`.
+> `checkov` hook is deprecated, please use `tofu_checkov`.
 
-Note that `terraform_checkov` runs recursively during `-d .` usage. That means, for example, if you change `.tf` file in repo root, all existing `.tf` files in the repo will be checked.
+Note that `tofu_checkov` runs recursively during `-d .` usage. That means, for example, if you change `.tf` file in repo root, all existing `.tf` files in the repo will be checked.
 
 1. You can specify custom arguments. E.g.:
 
     ```yaml
-    - id: terraform_checkov
+    - id: tofu_checkov
       args:
         - --args=--quiet
         - --args=--skip-check CKV2_AWS_8
