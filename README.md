@@ -504,13 +504,13 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - tfvars hcl --output-file terraform.tfvars.model .
     ```
 
-### terraform_docs_replace (deprecated)
+### tofu_docs_replace (deprecated)
 
-**DEPRECATED**. Will be merged in [`terraform_docs`](#terraform_docs).
+**DEPRECATED**. Will be merged in [`tofu_docs`](#tofu_docs).
 
-`terraform_docs_replace` replaces the entire `README.md` rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in.
+`tofu_docs_replace` replaces the entire `README.md` rather than doing string replacement between markers. Put your additional documentation at the top of your `main.tf` for it to be pulled in.
 
-To replicate functionality in `terraform_docs` hook:
+To replicate functionality in `tofu_docs` hook:
 
 1. Create `.terraform-docs.yml` in the repo root with the following content:
 
@@ -524,48 +524,48 @@ To replicate functionality in `terraform_docs` hook:
         {{/** End of file fixer */}}
     ```
 
-2. Replace `terraform_docs_replace` hook config in `.pre-commit-config.yaml` with:
+2. Replace `tofu_docs_replace` hook config in `.pre-commit-config.yaml` with:
 
     ```yaml
-    - id: terraform_docs
+    - id: tofu_docs
     args:
         - --args=--config=.terraform-docs.yml
     ```
 
-### terraform_fmt
+### terraftofu_fmtorm_fmt
 
-1. `terraform_fmt` supports custom arguments so you can pass [supported flags](https://www.terraform.io/docs/cli/commands/fmt.html#usage). Eg:
+1. `tofu_fmt` supports custom arguments so you can pass [supported flags](https://www.terraform.io/docs/cli/commands/fmt.html#usage). Eg:
 
     ```yaml
-     - id: terraform_fmt
+     - id: tofu_fmt
        args:
          - --args=-no-color
          - --args=-diff
          - --args=-write=false
     ```
 
-### terraform_providers_lock
+### tofu_providers_lock
 
-> **Note**: The hook requires Terraform 0.14 or later.
+> **Note**: The hook requires OpenTofu 1.6.0 or later.
 
-> **Note**: The hook can invoke `terraform providers lock` that can be really slow and requires fetching metadata from remote Terraform registries - not all of that metadata is currently being cached by Terraform.
+> **Note**: The hook can invoke `tofu providers lock` that can be really slow and requires fetching metadata from remote OpenTofu registries - not all of that metadata is currently being cached by OpenTofu.
 
 > <details><summary><b>Note</b>: Read this if you used this hook before v1.80.0 | Planned breaking changes in v2.0</summary>
 > We introduced '--mode' flag for this hook. If you'd like to continue using this hook as before, please:
 >
 > * Specify `--hook-config=--mode=always-regenerate-lockfile` in `args:`
-> * Before `terraform_providers_lock`, add `terraform_validate` hook with `--hook-config=--retry-once-with-cleanup=true`
-> * Move `--tf-init-args=` to `terraform_validate` hook
+> * Before `tofu_providers_lock`, add `tofu_validate` hook with `--hook-config=--retry-once-with-cleanup=true`
+> * Move `--tf-init-args=` to `tofu_validate` hook
 >
 > In the end, you should get config like this:
 >
 > ```yaml
-> - id: terraform_validate
+> - id: tofu_validate
 >   args:
 >     - --hook-config=--retry-once-with-cleanup=true
 >     # - --tf-init-args=-upgrade
 >
-> - id: terraform_providers_lock
+> - id: tofu_providers_lock
 >   args:
 >   - --hook-config=--mode=always-regenerate-lockfile
 > ```
@@ -576,73 +576,73 @@ To replicate functionality in `terraform_docs` hook:
 > </details>
 
 
-1. The hook can work in a few different modes: `only-check-is-current-lockfile-cross-platform` with and without [terraform_validate hook](#terraform_validate) and `always-regenerate-lockfile` - only with terraform_validate hook.
+1. The hook can work in a few different modes: `only-check-is-current-lockfile-cross-platform` with and without [tofu_validate hook](#tofu_validate) and `always-regenerate-lockfile` - only with tofu_validate hook.
 
-    * `only-check-is-current-lockfile-cross-platform` without terraform_validate - only checks that lockfile has all required SHAs for all providers already added to lockfile.
+    * `only-check-is-current-lockfile-cross-platform` without tofu_validate - only checks that lockfile has all required SHAs for all providers already added to lockfile.
 
         ```yaml
-        - id: terraform_providers_lock
+        - id: tofu_providers_lock
           args:
           - --hook-config=--mode=only-check-is-current-lockfile-cross-platform
         ```
 
-    * `only-check-is-current-lockfile-cross-platform` with [terraform_validate hook](#terraform_validate) - make up-to-date lockfile by adding/removing providers and only then check that lockfile has all required SHAs.
+    * `only-check-is-current-lockfile-cross-platform` with [tofu_validate hook](#tofu_validate) - make up-to-date lockfile by adding/removing providers and only then check that lockfile has all required SHAs.
 
-        > **Note**: Next `terraform_validate` flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
+        > **Note**: Next `tofu_validate` flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `tofu init`
 
         ```yaml
-        - id: terraform_validate
+        - id: tofu_validate
           args:
             - --hook-config=--retry-once-with-cleanup=true
 
-        - id: terraform_providers_lock
+        - id: tofu_providers_lock
           args:
           - --hook-config=--mode=only-check-is-current-lockfile-cross-platform
         ```
 
-    * `always-regenerate-lockfile` only with [terraform_validate hook](#terraform_validate) - regenerate lockfile from scratch. Can be useful for upgrading providers in lockfile to latest versions
+    * `always-regenerate-lockfile` only with [tofu_validate hook](#tofu_validate) - regenerate lockfile from scratch. Can be useful for upgrading providers in lockfile to latest versions
 
         ```yaml
-        - id: terraform_validate
+        - id: tofu_validate
           args:
             - --hook-config=--retry-once-with-cleanup=true
             - --tf-init-args=-upgrade
 
-        - id: terraform_providers_lock
+        - id: tofu_providers_lock
           args:
           - --hook-config=--mode=always-regenerate-lockfile
         ```
 
 
-3. `terraform_providers_lock` supports custom arguments:
+3. `tofu_providers_lock` supports custom arguments:
 
     ```yaml
-     - id: terraform_providers_lock
+     - id: tofu_providers_lock
        args:
           - --args=-platform=windows_amd64
           - --args=-platform=darwin_amd64
     ```
 
-4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
+4. It may happen that OpenTofu working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of OpenTofu, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
-    function rm_terraform {
+    function rm_tofu {
         find . \( -iname ".terraform*" ! -iname ".terraform-docs*" \) -print0 | xargs -0 rm -r
     }
     " >>~/.bashrc
 
-    # Reload shell and use `rm_terraform` command in the repo root
+    # Reload shell and use `rm_tofu` command in the repo root
     ```
 
-    `terraform_providers_lock` hook will try to reinitialize directories before running the `terraform providers lock` command.
+    `tofu_providers_lock` hook will try to reinitialize directories before running the `tofu providers lock` command.
 
-5. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
+5. `tofu_providers_lock` support passing custom arguments to its `tofu init`:
 
-    > **Warning** - DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
+    > **Warning** - DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`tofu_validate`](#tofu_validate) hook, which, to take effect, should be called before `tofu_providers_lock`
 
     ```yaml
-    - id: terraform_providers_lock
+    - id: tofu_providers_lock
       args:
         - --tf-init-args=-upgrade
     ```
@@ -839,7 +839,7 @@ To replicate functionality in `terraform_docs` hook:
 
    `tofu_validate` hook will try to reinitialize them before running the `tofu validate` command.
 
-    **Warning**: If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/tofuutils/pre-commit-opentofu/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/tofuutils/pre-commit-opentofu/issues/224) option implementation.
+    **Warning**: If you use OpenTofu workspaces, DO NOT use this option ([details](https://github.com/tofuutils/pre-commit-opentofu/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/tofuutils/pre-commit-opentofu/issues/224) option implementation.
 
 4. `tofu_validate` in a repo with TerrOpenTofuaform module, written using OpenTofu 1.6.0+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
@@ -878,8 +878,8 @@ To replicate functionality in `terraform_docs` hook:
    - repos:
      - repo: local
        hooks:
-         - id: generate-terraform-providers
-            name: generate-terraform-providers
+         - id: generate-tofu-providers
+            name: generate-tofu-providers
             require_serial: true
             entry: .generate-providers.sh
             language: script
@@ -892,9 +892,9 @@ To replicate functionality in `terraform_docs` hook:
 
    > Note: The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
 
-### terraform_wrapper_module_for_each
+### tofu_wrapper_module_for_each
 
-`terraform_wrapper_module_for_each` generates module wrappers for Terraform modules (useful for Terragrunt where `for_each` is not supported). When using this hook without arguments it will create wrappers for the root module and all modules available in "modules" directory.
+`tofu_wrapper_module_for_each` generates module wrappers for OpenTofu modules (useful for Terragrunt where `for_each` is not supported). When using this hook without arguments it will create wrappers for the root module and all modules available in "modules" directory.
 
 You may want to customize some of the options:
 
@@ -906,7 +906,7 @@ You may want to customize some of the options:
 Sample configuration:
 
 ```yaml
-- id: terraform_wrapper_module_for_each
+- id: tofu_wrapper_module_for_each
   args:
     - --args=--module-dir=.   # Process only root module
     - --args=--dry-run        # No files will be created/updated
@@ -914,11 +914,11 @@ Sample configuration:
 ```
 
 **If you use hook inside Docker:**  
-The `terraform_wrapper_module_for_each` hook attempts to determine the module's short name to be inserted into the generated `README.md` files for the `source` URLs. Since the container uses a bind mount at a static location, it can cause this short name to be incorrect.  
+The `tofu_wrapper_module_for_each` hook attempts to determine the module's short name to be inserted into the generated `README.md` files for the `source` URLs. Since the container uses a bind mount at a static location, it can cause this short name to be incorrect.  
 If the generated name is incorrect, set them by providing the `module-repo-shortname` option to the hook:
 
 ```yaml
-- id: terraform_wrapper_module_for_each
+- id: tofu_wrapper_module_for_each
   args:
     - '--args=--module-repo-shortname=ec2-instance'
 ```

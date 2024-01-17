@@ -312,7 +312,7 @@ function common::colorify {
 # Outputs:
 #   If failed - print out tofu init output
 #######################################################################
-# TODO: v2.0: Move it inside terraform_validate.sh
+# TODO: v2.0: Move it inside tofu_validate.sh
 function common::tofu_init {
   local -r command_name=$1
   local -r dir_path=$2
