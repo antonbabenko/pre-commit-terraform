@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='pre-commit-opentofu',
-    description='Pre-commit hooks for terraform_docs_replace',
+    description='Pre-commit hooks for tofu_docs_replace',
     url='https://github.com/tofuutils/pre-commit-opentofu',
     version_format='{tag}+{gitsha}',
 
@@ -27,7 +27,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'terraform_docs_replace = hooks.terraform_docs_replace:main',
+            'tofu_docs_replace = hooks.tofu_docs_replace:main',
         ],
     },
 )

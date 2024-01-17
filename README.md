@@ -23,25 +23,24 @@ If you are using `pre-commit-opentofu` already or want to support its developmen
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
-  * [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
+  * [checkov (deprecated) and tofu\_checkov](#checkov-deprecated-and-tofu_checkov)
   * [infracost\_breakdown](#infracost_breakdown)
-  * [terraform\_docs](#terraform_docs)
-  * [terraform\_docs\_replace (deprecated)](#terraform_docs_replace-deprecated)
-  * [terraform\_fmt](#terraform_fmt)
-  * [terraform\_providers\_lock](#terraform_providers_lock)
-  * [terraform\_tflint](#terraform_tflint)
-  * [terraform\_tfsec (deprecated)](#terraform_tfsec-deprecated)
-  * [terraform\_trivy](#terraform_trivy)
-  * [terraform\_validate](#terraform_validate)
-  * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
+  * [tofu\_docs](#tofu_docs)
+  * [tofu\_docs\_replace (deprecated)](#tofu_docs_replace-deprecated)
+  * [tofu\_fmt](#tofu_fmt)
+  * [tofu\_providers\_lock](#tofu_providers_lock)
+  * [tofu\_tflint](#tofu_tflint)
+  * [tofu\_tfsec (deprecated)](#tofu_tfsec-deprecated)
+  * [tofu\_trivy](#tofu_trivy)
+  * [tofu\_validate](#tofu_validate)
+  * [tofu\_wrapper\_module\_for\_each](#tofu_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
 * [Docker Usage](#docker-usage)
   * [File Permissions](#file-permissions)
-  * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
+  * [Download OpenTofu modules from private GitHub repositories](#download-tofu-modules-from-private-github-repositories)
 * [Authors](#authors)
 * [License](#license)
-  * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
 
 ## How to install
 
@@ -68,7 +67,7 @@ If you are using `pre-commit-opentofu` already or want to support its developmen
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
 * [`Trivy`](https://github.com/aquasecurity/trivy) required for `terraform_trivy` hook.
 * [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
-* [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
+* [`jq`](https://github.com/stedolan/jq) required for `tofu_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
 * [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
 * [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
 
@@ -263,7 +262,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_tflint`                                     | Validates all Terraform configuration files with [TFLint](https://github.com/terraform-linters/tflint). [Available TFLint rules](https://github.com/terraform-linters/tflint/tree/master/docs/rules#rules). [Hook notes](#terraform_tflint). | `tflint`                                                                             |
 | `terraform_tfsec`                                      | [TFSec](https://github.com/aquasecurity/tfsec) static analysis of terraform templates to spot potential security issues. **DEPRECATED**, use `tofu_trivy`. [Hook notes](#terraform_tfsec-deprecated)                                   | `tfsec`                                                                              |
 | `terraform_trivy`                                      | [Trivy](https://github.com/aquasecurity/trivy) static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_trivy)                                                                                      | `trivy`                                                                              |
-| `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
+| `tofu_validate`                                   | Validates all Terraform configuration files. [Hook notes](#tofu_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
@@ -290,7 +289,7 @@ You can use environment variables for the `--args` section.
 Config example:
 
 ```yaml
-- id: terraform_tflint
+- id: tofu_tflint
   args:
   - --args=--config=${CONFIG_NAME}.${CONFIG_EXT}
   - --args=--module
@@ -307,7 +306,7 @@ You can specify environment variables that will be passed to the hook at runtime
 Config example:
 
 ```yaml
-- id: terraform_validate
+- id: tofu_validate
   args:
     - --env-vars=AWS_DEFAULT_REGION="us-west-2"
     - --env-vars=AWS_ACCESS_KEY_ID="anaccesskey"
@@ -453,7 +452,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 
 ### terraform_docs
 
-1. `terraform_docs` and `terraform_docs_without_aggregate_type_defaults` will insert/update documentation generated by [terraform-docs](https://github.com/terraform-docs/terraform-docs) framed by markers:
+1. `tofu_docs` and `terraform_docs_without_aggregate_type_defaults` will insert/update documentation generated by [terraform-docs](https://github.com/terraform-docs/terraform-docs) framed by markers:
 
     ```txt
     <!-- BEGINNING OF PRE-COMMIT-OPENTOFU DOCS HOOK -->
@@ -463,7 +462,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 
     if they are present in `README.md`.
 
-2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`.
+2. It is possible to pass additional arguments to shell scripts when using `tofu_docs` and `tofu_docs_without_aggregate_type_defaults`.
 
 3. It is possible to automatically:
     * create a documentation file
@@ -478,7 +477,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
       ```
 
     ```yaml
-    - id: terraform_docs
+    - id: tofu_docs
       args:
         - --hook-config=--path-to-file=README.md        # Valid UNIX path. I.e. ../TFDOC.md or docs/README.md etc.
         - --hook-config=--add-to-existing-file=true     # Boolean. true or false
@@ -486,10 +485,10 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --hook-config=--use-standard-markers=true     # Boolean. Defaults in v1.x to false. Set to true for compatibility with terraform-docs
     ```
 
-4. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_doc` hook, for example:
+4. You can provide [any configuration available in `tofu-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `tofu_doc` hook, for example:
 
     ```yaml
-    - id: terraform_docs
+    - id: tofu_docs
       args:
         - --args=--config=.terraform-docs.yml
     ```
@@ -499,7 +498,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
 
     ```yaml
-    - id: terraform_docs
+    - id: tofu_docs
       args:
         - tfvars hcl --output-file terraform.tfvars.model .
     ```

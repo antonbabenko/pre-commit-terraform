@@ -50,10 +50,10 @@ Script accept next options:
 | #   | Name                               | Example value                                                            | Description                                          |
 | --- | ---------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------- |
 | 1   | `TEST_NUM`                         | `200`                                                                   | How many times need repeat test                      |
-| 2   | `TEST_COMMAND`                     | `'pre-commit try-repo -a /tmp/159/pre-commit-opentofu terraform_tfsec'` | Valid pre-commit command                             |
+| 2   | `TEST_COMMAND`                     | `'pre-commit try-repo -a /tmp/159/pre-commit-opentofu tofu_tfsec'` | Valid pre-commit command                             |
 | 3   | `TEST_DIR`                         | `'/tmp/infrastructure'`                                                  | Dir on what you run tests.                           |
-| 4   | `TEST_DESCRIPTION`                 | ```'`terraform_tfsec` PR #123:'```                                       | Text that you'd like to see in result                |
-| 5   | `RAW_TEST_`<br>`RESULTS_FILE_NAME` | `terraform_tfsec_pr123`                                                  | (Temporary) File where all test data will be stored. |
+| 4   | `TEST_DESCRIPTION`                 | ```'`tofu_tfsec` PR #123:'```                                       | Text that you'd like to see in result                |
+| 5   | `RAW_TEST_`<br>`RESULTS_FILE_NAME` | `tofu_tfsec_pr123`                                                  | (Temporary) File where all test data will be stored. |
 <!-- markdownlint-enable no-inline-html -->
 
 > **Note:** To make test results repeatable and comparable, be sure that on the test machine nothing generates an unstable workload. During tests good to stop any other apps and do not interact with the test machine.
@@ -66,7 +66,7 @@ Script accept next options:
 # Install deps
 sudo apt install -y datamash
 # Run tests
-./hooks_performance_test.sh 200 'pre-commit try-repo -a /tmp/159/pre-commit-opentofu terraform_tfsec' '/tmp/infrastructure' '`terraform_tfsec` v1.51.0:' 'terraform_tfsec_pr159'
+./hooks_performance_test.sh 200 'pre-commit try-repo -a /tmp/159/pre-commit-opentofu tofu_tfsec' '/tmp/infrastructure' '`tofu_tfsec` v1.51.0:' 'tofu_tfsec_pr159'
 ```
 
 ### Run via Docker
@@ -80,9 +80,9 @@ docker build -t pre-commit-tests tests/
 TEST_NUM=1
 TEST_DIR='/tmp/infrastructure'
 PRE_COMMIT_DIR="$(pwd)"
-TEST_COMMAND='pre-commit try-repo -a /pct terraform_tfsec'
-TEST_DESCRIPTION='`terraform_tfsec` v1.51.0:'
-RAW_TEST_RESULTS_FILE_NAME='terraform_tfsec_pr159'
+TEST_COMMAND='pre-commit try-repo -a /pct tofu_tfsec'
+TEST_DESCRIPTION='`tofu_tfsec` v1.51.0:'
+RAW_TEST_RESULTS_FILE_NAME='tofu_tfsec_pr159'
 
 docker run -v "$PRE_COMMIT_DIR:/pct:rw" -v "$TEST_DIR:/lint:ro" pre-commit-tests \
     $TEST_NUM "$TEST_COMMAND" '/lint' "$RAW_TEST_RESULTS_FILE_NAME" "$RAW_TEST_RESULTS_FILE_NAME"

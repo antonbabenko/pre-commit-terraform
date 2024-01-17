@@ -19,7 +19,7 @@
   name: OpenTofu docs
   description: Inserts input and output documentation into README.md (using terraform-docs).
   require_serial: true
-  entry: hooks/terraform_docs.sh
+  entry: hooks/tofu_docs.sh
   language: script
   files: (\.tf|\.terraform\.lock\.hcl)$
   exclude: \.terraform\/.*$
@@ -33,8 +33,8 @@
   files: (\.tf)$
   exclude: \.terraform\/.*$
 
-- id: terraform_docs_replace
-  name: Terraform docs (overwrite README.md)
+- id: tofu_docs_replace
+  name: OpenTofu docs (overwrite README.md)
   description: Overwrite content of README.md with terraform-docs.
   require_serial: true
   entry: terraform_docs_replace
@@ -51,7 +51,7 @@
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
 
-- id: terraform_providers_lock
+- id: tofu_providers_lock
   name: Lock OpenTofu provider versions
   description: Updates provider signatures in dependency lock files.
   require_serial: true
@@ -60,11 +60,11 @@
   files: (\.terraform\.lock\.hcl)$
   exclude: \.terraform\/.*$
 
-- id: terraform_tflint
+- id: tofu_tflint
   name: OpenTofu validate with tflint
   description: Validates all OpenTofu configuration files with TFLint.
   require_serial: true
-  entry: hooks/terraform_tflint.sh
+  entry: hooks/tofu_tflint.sh
   language: script
   files: (\.tf|\.tfvars)$
   exclude: \.terraform\/.*$
@@ -85,24 +85,24 @@
   files: (\.hcl)$
   exclude: \.terraform\/.*$
 
-- id: terraform_tfsec
-  name: OpenTofu validate with tfsec (deprecated, use "terraform_trivy")
+- id: tofu_tfsec
+  name: OpenTofu validate with tfsec (deprecated, use "tofu_trivy")
   description: Static analysis of OpenTofu templates to spot potential security issues.
   require_serial: true
-  entry: hooks/terraform_tfsec.sh
+  entry: hooks/tofu_tfsec.sh
   files: \.tf(vars)?$
   language: script
 
-- id: terraform_trivy
+- id: tofu_trivy
   name: OpenTofu validate with trivy
   description: Static analysis of OpenTofu templates to spot potential security issues.
   require_serial: true
-  entry: hooks/terraform_trivy.sh
+  entry: hooks/tofu_trivy.sh
   files: \.tf(vars)?$
   language: script
 
 - id: checkov
-  name: checkov (deprecated, use "terraform_checkov")
+  name: checkov (deprecated, use "tofu_checkov")
   description: Runs checkov on OpenTofu templates.
   entry: checkov -d .
   language: python
@@ -122,10 +122,10 @@
   exclude: \.terraform\/.*$
   require_serial: true
 
-- id: terraform_wrapper_module_for_each
-  name: Terraform wrapper with for_each in module
+- id: tofu_wrapper_module_for_each
+  name: OpenTofu wrapper with for_each in module
   description: Generate OpenTofu wrappers with for_each in module.
-  entry: hooks/terraform_wrapper_module_for_each.sh
+  entry: hooks/tofu_wrapper_module_for_each.sh
   language: script
   pass_filenames: false
   always_run: false

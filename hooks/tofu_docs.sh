@@ -30,14 +30,14 @@ function main {
 }
 
 #######################################################################
-# Function which prepares hacks for old versions of `terraform` and
+# TODO Function which prepares hacks for old versions of `terraform` and
 # `terraform-docs` that them call `terraform_docs`
 # Arguments:
 #   hook_config (string with array) arguments that configure hook behavior
 #   args (string with array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
-function terraform_docs_ {
+function tofu_docs_ {
   local -r hook_config="$1"
   local -r args="$2"
   shift 2
@@ -46,7 +46,7 @@ function terraform_docs_ {
   # Get hook settings
   IFS=";" read -r -a configs <<< "$hook_config"
 
-  local hack_terraform_docs
+  local hack_tofu_docs
   hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
 
   if [[ ! $(command -v terraform-docs) ]]; then
