@@ -240,25 +240,46 @@ function common::per_dir_hook {
   shopt -qo errexit && ERREXIT_IS_SET=true
   # allow hook to continue if exit_code is greater than 0
   set +e
+
   local final_exit_code=0
+  local pids=()
 
-  # run hook for each path
-  for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
-    dir_path="${dir_path//__REPLACED__SPACE__/ }"
+  # Limit the number of parallel processes to the number of CPU cores -1
+  # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
+  local cpu_num
+  cpu_num=$(nproc || sysctl -n hw.ncpu || echo 1)
+  local parallelism_limit=$((cpu_num - 1))
 
-    if [[ $change_dir_in_unique_part == false ]]; then
-      pushd "$dir_path" > /dev/null || continue
-    fi
+  mapfile -t dir_paths_unique < <(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u)
+  local length=${#dir_paths_unique[@]}
+  local last_index=$((${#dir_paths_unique[@]} - 1))
+  # run hook for each path in parallel
+  for ((i = 0; i < length; i++)); do
+    {
+      dir_path="${dir_paths_unique[$i]//__REPLACED__SPACE__/ }"
 
-    per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "${args[@]}"
+      if [[ $change_dir_in_unique_part == false ]]; then
+        pushd "$dir_path" > /dev/null
+      fi
 
-    local exit_code=$?
-    if [ $exit_code -ne 0 ]; then
-      final_exit_code=$exit_code
-    fi
+      per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "${args[@]}"
+    } &
+    pid=$!
+    pids+=("$pid")
 
-    if [[ $change_dir_in_unique_part == false ]]; then
-      popd > /dev/null
+    if [ $((i % parallelism_limit)) == 0 ] || [ "$i" == $last_index ]; then
+
+      for pid in "${pids[@]}"; do
+        # Get the exit code from the background process
+        local exit_code=0
+        wait "$pid" || exit_code=$?
+
+        if [ $exit_code -ne 0 ]; then
+          final_exit_code=$exit_code
+        fi
+      done
+      # Reset pids for next iteration
+      pids=()
     fi
 
   done
