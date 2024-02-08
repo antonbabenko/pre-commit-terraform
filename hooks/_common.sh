@@ -237,9 +237,7 @@ function common::per_dir_hook {
   done
 
   # preserve errexit status
-  shopt -qo errexit && ERREXIT_IS_SET=true
-  # allow hook to continue if exit_code is greater than 0
-  set +e
+  shopt -qo errexit
 
   local final_exit_code=0
   local pids=()
@@ -284,8 +282,6 @@ function common::per_dir_hook {
 
   done
 
-  # restore errexit if it was set before the "for" loop
-  [[ $ERREXIT_IS_SET ]] && set -e
   # return the hook final exit_code
   exit $final_exit_code
 }
