@@ -366,7 +366,7 @@ function common::terraform_init {
   fi
 
   if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
-    flock --unlock 1 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
+    flock --unlock 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
     echo "$(date "+%s %N") DBG $dir_path: 3. after tf init. flock --unlock"
   fi
 
