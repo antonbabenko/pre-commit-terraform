@@ -247,15 +247,16 @@ function common::per_dir_hook {
   local cpu_num
   cpu_num=$(nproc || sysctl -n hw.ncpu || echo 1)
   local parallelism_limit=$((cpu_num - 1))
+  echo "$(date "+%s %N") DBG parallelism_limit $parallelism_limit"
+  echo "$(date "+%s %N") DBG TF_PLUGIN_CACHE_DIR: $TF_PLUGIN_CACHE_DIR"
 
   mapfile -t dir_paths_unique < <(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u)
   local length=${#dir_paths_unique[@]}
   local last_index=$((${#dir_paths_unique[@]} - 1))
   # run hook for each path in parallel
   for ((i = 0; i < length; i++)); do
+    dir_path="${dir_paths_unique[$i]//__REPLACED__SPACE__/ }"
     {
-      dir_path="${dir_paths_unique[$i]//__REPLACED__SPACE__/ }"
-
       if [[ $change_dir_in_unique_part == false ]]; then
         pushd "$dir_path" > /dev/null
       fi
@@ -265,9 +266,11 @@ function common::per_dir_hook {
     pid=$!
     pids+=("$pid")
 
-    if [ $((i % parallelism_limit)) == 0 ] || [ "$i" == $last_index ]; then
+    echo "$(date "+%s %N") DBG $dir_path $pid: right after send to background"
+    if [ "$i" != 0 ] && [ $((i % parallelism_limit)) == 0 ] || [ "$i" == $last_index ]; then
 
       for pid in "${pids[@]}"; do
+        echo "$(date "+%s %N") DBG $pid: wait result"
         # Get the exit code from the background process
         local exit_code=0
         wait "$pid" || exit_code=$?
@@ -342,6 +345,14 @@ function common::terraform_init {
     TF_INIT_ARGS+=("-no-color")
   fi
 
+  # https://github.com/hashicorp/terraform/issues/31964
+  # if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
+  # echo "DBG 1. before lock $dir_path $(date)"
+  # flock --exclusive 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
+  # fi
+
+  echo "$(date "+%s %N") DBG $dir_path: 2. before tf init"
+
   if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
     init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
     exit_code=$?
@@ -353,6 +364,11 @@ function common::terraform_init {
       common::colorify "green" "Command 'terraform init' successfully done: $dir_path"
     fi
   fi
+
+  # if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
+  #   flock --unlock 1 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
+  echo "$(date "+%s %N") DBG $dir_path: 3. after tf init"
+  # fi
 
   return $exit_code
 }
