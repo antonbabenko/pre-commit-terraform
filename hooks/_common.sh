@@ -348,7 +348,7 @@ function common::terraform_init {
   # https://github.com/hashicorp/terraform/issues/31964
   if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
     echo "$(date "+%s %N") DBG $dir_path: 1. flock --exclusive"
-    flock --exclusive 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
+    flock --exclusive "$TF_PLUGIN_CACHE_DIR" terraform init #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
   fi
 
   echo "$(date "+%s %N") DBG $dir_path: 2. before tf init"
@@ -366,7 +366,7 @@ function common::terraform_init {
   fi
 
   if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
-    flock --unlock 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
+    flock --unlock "$TF_PLUGIN_CACHE_DIR" terraform init #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
     echo "$(date "+%s %N") DBG $dir_path: 3. after tf init. flock --unlock"
   fi
 
