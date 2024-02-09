@@ -82,11 +82,13 @@ terraform --version | head -n 1           2>/dev/null || echo "terraform SKIPPED
 python --version                          2>/dev/null || echo "python SKIPPED"
 python3 --version                         2>/dev/null || echo "python3 SKIPPED"
 echo -n "checkov " && checkov --version   2>/dev/null || echo "checkov SKIPPED"
+infracost --version                       2>/dev/null || echo "infracost SKIPPED"
 terraform-docs --version                  2>/dev/null || echo "terraform-docs SKIPPED"
 terragrunt --version                      2>/dev/null || echo "terragrunt SKIPPED"
 echo -n "terrascan " && terrascan version 2>/dev/null || echo "terrascan SKIPPED"
 tflint --version                          2>/dev/null || echo "tflint SKIPPED"
 echo -n "tfsec " && tfsec --version       2>/dev/null || echo "tfsec SKIPPED"
+echo -n "trivy " && trivy --version       2>/dev/null || echo "tfsec SKIPPED"
 echo -n "tfupdate " && tfupdate --version 2>/dev/null || echo "tfupdate SKIPPED"
 echo -n "hcledit " && hcledit version     2>/dev/null || echo "hcledit SKIPPED"
 EOF
