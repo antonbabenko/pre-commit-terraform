@@ -89,6 +89,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
 * [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
 * [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
+* [`flock`](https://man7.org/linux/man-pages/man1/flock.1.html) highly recommended for `terraform_validate` and `terraform_providers_lock`
 
 <details><summary><b>Docker</b></summary><br>
 
