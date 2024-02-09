@@ -232,7 +232,12 @@ function common::per_dir_hook {
   IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
   for c in "${configs[@]}"; do
     IFS="=" read -r -a config <<< "$c"
-    key=${config[0]}
+
+    # $hook_config receives string like '--foo=bar; --baz=4;' etc.
+    # It gets split by `;` into array, which we're parsing here ('--foo=bar' ' --baz=4')
+    # Next line removes leading spaces, to support >1 `--hook-config` args
+    # shellcheck disable=SC2001 # Rule exception
+    key=$(echo "${config[0]}" | sed 's/^[[:space:]]*//')
     value=${config[1]}
 
     echo "DBG configs: '$key' '$value'"
