@@ -268,7 +268,7 @@ function common::per_dir_hook {
   local final_exit_code=0
   local pids=()
 
-  mapfile -t dir_paths_unique < <(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u)
+  mapfile -t dir_paths_unique < <(echo "${dir_paths[@]}" | tr ' ' '\n' | sort -u)
   local length=${#dir_paths_unique[@]}
   local last_index=$((${#dir_paths_unique[@]} - 1))
   # run hook for each path in parallel
