@@ -240,8 +240,6 @@ function common::per_dir_hook {
     key=$(echo "${config[0]}" | sed 's/^[[:space:]]*//')
     value=${config[1]}
 
-    echo "DBG configs: '$key' '$value'"
-
     case $key in
       --delegate-chdir)
         # this flag will skip pushing and popping directories
@@ -264,19 +262,11 @@ function common::per_dir_hook {
     parallelism_disabled=true
   fi
 
-  echo "DBG HOOK_CONFIG: ${HOOK_CONFIG[*]}"
-  echo "DBG parallelism_limit: $parallelism_limit"
-  echo "DBG parallelism_disabled: $parallelism_disabled"
-  exit 1
-
   # preserve errexit status
   shopt -qo errexit
 
   local final_exit_code=0
   local pids=()
-
-  echo "$(date "+%s %N") DBG parallelism_limit $parallelism_limit"
-  echo "$(date "+%s %N") DBG TF_PLUGIN_CACHE_DIR: $TF_PLUGIN_CACHE_DIR"
 
   mapfile -t dir_paths_unique < <(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u)
   local length=${#dir_paths_unique[@]}
@@ -294,13 +284,11 @@ function common::per_dir_hook {
     pid=$!
     pids+=("$pid")
 
-    echo "$(date "+%s %N") DBG $dir_path $pid: right after send to background"
     if [ $parallelism_disabled ] ||
       [ "$i" != 0 ] && [ $((i % parallelism_limit)) == 0 ] || # don't stop on first iteration when parallelism_limit>1
       [ "$i" == $last_index ]; then
 
       for pid in "${pids[@]}"; do
-        echo "$(date "+%s %N") DBG $pid: wait result"
         # Get the exit code from the background process
         local exit_code=0
         wait "$pid" || exit_code=$?
@@ -380,21 +368,18 @@ function common::terraform_init {
   fi
 
   if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
-
-    echo "$(date "+%s %N") DBG $dir_path: 1. before tf init"
-
     # Plugin cache dir can't be write concurrently or read during writing
     # https://github.com/hashicorp/terraform/issues/31964
     if [ -z "$TF_PLUGIN_CACHE_DIR" ] || $parallelism_disabled; then
-      echo "$(date "+%s %N") DBG $dir_path: 2. No lock"
       init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
 
       if command -v flock &> /dev/null; then
-        echo "$(date "+%s %N") DBG $dir_path: 2. Cache-dir lock"
-
-        init_output=$(flock --exclusive "$TF_PLUGIN_CACHE_DIR" terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        init_output=$(
+          flock --exclusive "$TF_PLUGIN_CACHE_DIR" \
+            terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1
+        )
         exit_code=$?
       # Fall back "simple-lock" mechanizm if `flock` is not available
       else
@@ -413,7 +398,6 @@ function common::terraform_init {
         common::colorify "green" "Or disable parallelism by setting '--hook-config=--parallelism_limit=1'"
       fi
     fi
-    echo "$(date "+%s %N") DBG $dir_path: 3. after tf init"
 
     if [ $exit_code -ne 0 ]; then
       common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
