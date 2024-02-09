@@ -235,6 +235,8 @@ function common::per_dir_hook {
     key=${config[0]}
     value=${config[1]}
 
+    echo "DBG configs: '$key' '$value'"
+
     case $key in
       --delegate-chdir)
         # this flag will skip pushing and popping directories
@@ -243,12 +245,10 @@ function common::per_dir_hook {
           change_dir_in_unique_part="delegate_chdir"
         fi
         ;;
-      --parallelism_limit)
+      --parallelism-limit)
         # this flag will limit the number of parallel processes
-        # to the number of CPU cores -1
-        if [[ $value ]]; then
-          parallelism_limit=$((value))
-        fi
+        echo "inside parallelism_limit '$value' '$((value))'"
+        parallelism_limit=$((value))
         ;;
     esac
   done
@@ -259,6 +259,7 @@ function common::per_dir_hook {
     parallelism_disabled=true
   fi
 
+  echo "DBG HOOK_CONFIG: ${HOOK_CONFIG[*]}"
   echo "DBG parallelism_limit: $parallelism_limit"
   echo "DBG parallelism_disabled: $parallelism_disabled"
   exit 1
