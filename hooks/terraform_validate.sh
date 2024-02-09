@@ -75,6 +75,7 @@ function match_validate_errors {
 #   change_dir_in_unique_part (string/false) Modifier which creates
 #     possibilities to use non-common chdir strategies.
 #     Availability depends on hook.
+#   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
 # Outputs:
 #   If failed - print out hook checks status
@@ -83,7 +84,8 @@ function per_dir_hook_unique_part {
   local -r dir_path="$1"
   # shellcheck disable=SC2034 # Unused var.
   local -r change_dir_in_unique_part="$2"
-  shift 2
+  local -r parallelism_disabled="$3"
+  shift 3
   local -a -r args=("$@")
 
   local exit_code
@@ -121,7 +123,7 @@ function per_dir_hook_unique_part {
 
   # In case `terraform validate` failed to execute
   # - check is simple `terraform init` will help
-  common::terraform_init 'terraform validate' "$dir_path" || {
+  common::terraform_init 'terraform validate' "$dir_path" "$parallelism_disabled" || {
     exit_code=$?
     return $exit_code
   }
@@ -150,7 +152,7 @@ function per_dir_hook_unique_part {
 
       common::colorify "yellow" "Re-validating: $dir_path"
 
-      common::terraform_init 'terraform validate' "$dir_path" || {
+      common::terraform_init 'terraform validate' "$dir_path" "$parallelism_disabled" || {
         exit_code=$?
         return $exit_code
       }

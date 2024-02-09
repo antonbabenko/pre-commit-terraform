@@ -44,6 +44,7 @@ function main {
 #   change_dir_in_unique_part (string/false) Modifier which creates
 #     possibilities to use non-common chdir strategies.
 #     Availability depends on hook.
+#   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
 # Outputs:
 #   If failed - print out hook checks status
@@ -51,7 +52,9 @@ function main {
 function per_dir_hook_unique_part {
   local -r dir_path="$1"
   local -r change_dir_in_unique_part="$2"
-  shift 2
+  # shellcheck disable=SC2034 # Unused var.
+  local -r parallelism_disabled="$3"
+  shift 3
   local -a -r args=("$@")
 
   if [ "$change_dir_in_unique_part" == "delegate_chdir" ]; then

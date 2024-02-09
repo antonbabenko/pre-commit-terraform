@@ -219,6 +219,13 @@ function common::per_dir_hook {
 
   # Lookup hook-config for modifiers that impact common behavior
   local change_dir_in_unique_part=false
+  # Limit the number of parallel processes to the number of CPU cores -1
+  # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
+  local CPU_NUM
+  CPU_NUM=$(nproc || sysctl -n hw.ncpu || echo 1)
+  local parallelism_limit
+  local parallelism_disabled=false
+
   IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
   for c in "${configs[@]}"; do
     IFS="=" read -r -a config <<< "$c"
@@ -233,8 +240,21 @@ function common::per_dir_hook {
           change_dir_in_unique_part="delegate_chdir"
         fi
         ;;
+      --parallelism_limit)
+        # this flag will limit the number of parallel processes
+        # to the number of CPU cores -1
+        if [[ $value ]]; then
+          parallelism_limit=$((value))
+        fi
+        ;;
     esac
   done
+
+  if [[ ! $parallelism_limit ]]; then
+    parallelism_limit=$((CPU_NUM - 1))
+  elif [[ $parallelism_limit == 1 ]]; then
+    parallelism_disabled=true
+  fi
 
   # preserve errexit status
   shopt -qo errexit
@@ -242,11 +262,6 @@ function common::per_dir_hook {
   local final_exit_code=0
   local pids=()
 
-  # Limit the number of parallel processes to the number of CPU cores -1
-  # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
-  local cpu_num
-  cpu_num=$(nproc || sysctl -n hw.ncpu || echo 1)
-  local parallelism_limit=$((cpu_num - 1))
   echo "$(date "+%s %N") DBG parallelism_limit $parallelism_limit"
   echo "$(date "+%s %N") DBG TF_PLUGIN_CACHE_DIR: $TF_PLUGIN_CACHE_DIR"
 
@@ -261,13 +276,15 @@ function common::per_dir_hook {
         pushd "$dir_path" > /dev/null
       fi
 
-      per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "${args[@]}"
+      per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "$parallelism_disabled" "${args[@]}"
     } &
     pid=$!
     pids+=("$pid")
 
     echo "$(date "+%s %N") DBG $dir_path $pid: right after send to background"
-    if [ "$i" != 0 ] && [ $((i % parallelism_limit)) == 0 ] || [ "$i" == $last_index ]; then
+    if [ $parallelism_disabled ] ||
+      [ "$i" != 0 ] && [ $((i % parallelism_limit)) == 0 ] || # don't stop on first iteration when parallelism_limit>1
+      [ "$i" == $last_index ]; then
 
       for pid in "${pids[@]}"; do
         echo "$(date "+%s %N") DBG $pid: wait result"
@@ -327,8 +344,11 @@ function common::colorify {
 #   command_name (string) command that will tun after successful init
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   parallelism_disabled (bool) if true - skip lock mechanism
 # Globals (init and populate):
 #   TF_INIT_ARGS (array) arguments for `terraform init` command
+#   TF_PLUGIN_CACHE_DIR (string) user defined env var to directory
+#     which can't be R/W concurrently
 # Outputs:
 #   If failed - print out terraform init output
 #######################################################################
@@ -336,6 +356,7 @@ function common::colorify {
 function common::terraform_init {
   local -r command_name=$1
   local -r dir_path=$2
+  local -r parallelism_disabled=$3
 
   local exit_code=0
   local init_output
@@ -346,28 +367,40 @@ function common::terraform_init {
   fi
 
   if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
-    # # https://github.com/hashicorp/terraform/issues/31964
-    # if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
-    #   echo "$(date "+%s %N") DBG $dir_path: 1. flock --exclusive"
-    #   flock --exclusive 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
-    # fi
 
-    echo "$(date "+%s %N") DBG $dir_path: 2. before tf init"
+    echo "$(date "+%s %N") DBG $dir_path: 1. before tf init"
 
-    if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
-      echo "$(date "+%s %N") DBG $dir_path: 2.1. Cache-dir lock"
-      # https://github.com/hashicorp/terraform/issues/31964
-      init_output=$(flock --exclusive "$TF_PLUGIN_CACHE_DIR" terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
-      exit_code=$?
-    else
-      echo "$(date "+%s %N") DBG $dir_path: 2.1. No lock"
+    # Plugin cache dir can't be write concurrently or read during writing
+    # https://github.com/hashicorp/terraform/issues/31964
+    if [ -z "$TF_PLUGIN_CACHE_DIR" ] || $parallelism_disabled; then
+      echo "$(date "+%s %N") DBG $dir_path: 2. No lock"
       init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
+    else
+
+      if command -v flock &> /dev/null; then
+        echo "$(date "+%s %N") DBG $dir_path: 2. Cache-dir lock"
+
+        init_output=$(flock --exclusive "$TF_PLUGIN_CACHE_DIR" terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        exit_code=$?
+      # Fall back "simple-lock" mechanizm if `flock` is not available
+      else
+        lockdir="/tmp/TF_PLUGIN_CACHE_DIR_lock"
+        while true; do
+          if mkdir "$lockdir" 2> /dev/null; then
+            init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+            exit_code=$?
+            rmdir "$lockdir"
+            break
+          fi
+          sleep 1
+        done
+
+        common::colorify "green" "For better parallelism performance and stability install 'flock' - https://www.howtodojo.com/flock-command-not-found/"
+        common::colorify "green" "Or disable parallelism by setting '--hook-config=--parallelism_limit=1'"
+      fi
     fi
-    # if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
-    #   flock --unlock 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
-    #   echo "$(date "+%s %N") DBG $dir_path: 3. after tf init. flock --unlock"
-    # fi
+    echo "$(date "+%s %N") DBG $dir_path: 3. after tf init"
 
     if [ $exit_code -ne 0 ]; then
       common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
