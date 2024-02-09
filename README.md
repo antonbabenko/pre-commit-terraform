@@ -508,7 +508,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --args=--config=.terraform-docs.yml
     ```
 
-    > [!WARNING]
+    > **Warning**  
     > Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
 5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
@@ -567,8 +567,10 @@ To replicate functionality in `terraform_docs` hook:
 > [!NOTE]
 > The hook can invoke `terraform providers lock` that can be really slow and requires fetching metadata from remote Terraform registries - not all of that metadata is currently being cached by Terraform.
 
-> <details><summary><b>Note</b>: Read this if you used this hook before v1.80.0 | Planned breaking changes in v2.0</summary>
-> We introduced '--mode' flag for this hook. If you'd like to continue using this hook as before, please:
+> [!NOTE]
+> <details><summary>Read this if you used this hook before v1.80.0 | Planned breaking changes in v2.0</summary>
+> <br>
+> We introduced `--mode` flag for this hook. If you'd like to continue using this hook as before, please:
 >
 > * Specify `--hook-config=--mode=always-regenerate-lockfile` in `args:`
 > * Before `terraform_providers_lock`, add `terraform_validate` hook with `--hook-config=--retry-once-with-cleanup=true`
@@ -605,8 +607,8 @@ To replicate functionality in `terraform_docs` hook:
 
     * `only-check-is-current-lockfile-cross-platform` with [terraform_validate hook](#terraform_validate) - make up-to-date lockfile by adding/removing providers and only then check that lockfile has all required SHAs.
 
-        > [!IMPORTANT]
-        > Next `terraform_validate` flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
+    >  **Important**  
+    > Next `terraform_validate` flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
 
         ```yaml
         - id: terraform_validate
@@ -655,9 +657,9 @@ To replicate functionality in `terraform_docs` hook:
 
     `terraform_providers_lock` hook will try to reinitialize directories before running the `terraform providers lock` command.
 
-5. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
+3. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
 
-    > [!WARNING]
+    > **Warning**  
     > DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
 
     ```yaml
@@ -828,10 +830,10 @@ To replicate functionality in `terraform_docs` hook:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
 
-    > [!IMPORTANT]
+    > **Important**  
     > The flag requires additional dependency to be installed: `jq`.
 
-    > [!NOTE]
+    > **Note**  
     > Reinit can be very slow and require downloading data from remote Terraform registries, and not all of that downloaded data or meta-data is currently being cached by Terraform.
 
     When `--retry-once-with-cleanup=true`, in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
@@ -842,7 +844,7 @@ To replicate functionality in `terraform_docs` hook:
     * "Module not installed"
     * "Could not load plugin"
 
-    > [!WARNING]
+    > **Warning**  
     > When using `--retry-once-with-cleanup=true`, problematic `.terraform/modules/` and `.terraform/providers/` directories will be recursively deleted without prompting for consent. Other files and directories will not be affected, such as the `.terraform/environment` file.
 
     **Option 2**
@@ -861,10 +863,10 @@ To replicate functionality in `terraform_docs` hook:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    > [!CAUTION]
+    > **Caution**  
     > If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
-4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
+1. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
    When running the hook against Terraform code where you have provider `configuration_aliases` defined in a `required_providers` configuration block, terraform will throw an error like:
 
@@ -913,8 +915,8 @@ To replicate functionality in `terraform_docs` hook:
    [...]
    ```
 
-   > [!TIP]
-   > The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
+    > **Tip**  
+    > The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
 
 ### terraform_wrapper_module_for_each
 
