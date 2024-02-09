@@ -237,7 +237,7 @@ function common::per_dir_hook {
     # It gets split by `;` into array, which we're parsing here ('--foo=bar' ' --baz=4')
     # Next line removes leading spaces, to support >1 `--hook-config` args
     # shellcheck disable=SC2001 # Rule exception
-    key=$(echo "${config[0]}" | sed 's/^[[:space:]]*//')
+    key=$(sed 's/^[[:space:]]*//' <<< "${config[0]}")
     value=${config[1]}
 
     case $key in
