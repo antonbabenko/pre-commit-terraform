@@ -262,9 +262,6 @@ function common::per_dir_hook {
     parallelism_disabled=true
   fi
 
-  # preserve errexit status
-  shopt -qo errexit
-
   local final_exit_code=0
   local pids=()
 
@@ -281,8 +278,7 @@ function common::per_dir_hook {
 
       per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "$parallelism_disabled" "${args[@]}"
     } &
-    pid=$!
-    pids+=("$pid")
+    pids+=("$!")
 
     if [ $parallelism_disabled ] ||
       [ "$i" != 0 ] && [ $((i % parallelism_limit)) == 0 ] || # don't stop on first iteration when parallelism_limit>1
@@ -298,7 +294,7 @@ function common::per_dir_hook {
         fi
       done
       # Reset pids for next iteration
-      pids=()
+      unset pids
     fi
 
   done
@@ -388,7 +384,7 @@ function common::terraform_init {
           if mkdir "$PARALLELISM_FALLBACK_LOCK_DIR" 2> /dev/null; then
             init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
             exit_code=$?
-            rmdir "$PARALLELISM_FALLBACK_LOCK_DIR"
+            rm -rf "$PARALLELISM_FALLBACK_LOCK_DIR"
             break
           fi
           sleep 1

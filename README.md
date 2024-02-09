@@ -376,7 +376,7 @@ If you'd like to set parallelism value relative to number of CPU logical cores -
 > If during fine-tuning you'll find that your results are very different from provided below and you think that this data could help someone else - feel free to send PR.
 >
 >
-> | Hook                                     | Most used resource                 | Optimization runs comparison / Notes                            |
+> | Hook                                     | Most used resource                 | Comparison of optimization results / Notes                      |
 > | ---------------------------------------- | ---------------------------------- | --------------------------------------------------------------- |
 > | terraform_checkov                        | CPU heavy                          | -                                                               |
 > | terraform_fmt                            | CPU heavy                          | -                                                               |
