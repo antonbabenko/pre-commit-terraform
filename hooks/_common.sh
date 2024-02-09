@@ -345,17 +345,29 @@ function common::terraform_init {
     TF_INIT_ARGS+=("-no-color")
   fi
 
-  # https://github.com/hashicorp/terraform/issues/31964
-  if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
-    echo "$(date "+%s %N") DBG $dir_path: 1. flock --exclusive"
-    flock --exclusive 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
-  fi
-
-  echo "$(date "+%s %N") DBG $dir_path: 2. before tf init"
-
   if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
-    init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
-    exit_code=$?
+    # # https://github.com/hashicorp/terraform/issues/31964
+    # if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
+    #   echo "$(date "+%s %N") DBG $dir_path: 1. flock --exclusive"
+    #   flock --exclusive 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
+    # fi
+
+    echo "$(date "+%s %N") DBG $dir_path: 2. before tf init"
+
+    if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
+      echo "$(date "+%s %N") DBG $dir_path: 2.1. Cache-dir lock"
+      # https://github.com/hashicorp/terraform/issues/31964
+      init_output=$(flock --exclusive --no-fork "$TF_PLUGIN_CACHE_DIR" terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+      exit_code=$?
+    else
+      echo "$(date "+%s %N") DBG $dir_path: 2.1. No lock"
+      init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+      exit_code=$?
+    fi
+    # if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
+    #   flock --unlock 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
+    #   echo "$(date "+%s %N") DBG $dir_path: 3. after tf init. flock --unlock"
+    # fi
 
     if [ $exit_code -ne 0 ]; then
       common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"
@@ -363,11 +375,6 @@ function common::terraform_init {
     else
       common::colorify "green" "Command 'terraform init' successfully done: $dir_path"
     fi
-  fi
-
-  if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
-    flock --unlock 0 #! NOT EXIST IN MAC - https://stackoverflow.com/questions/10526651/mac-os-x-equivalent-of-linux-flock1-command
-    echo "$(date "+%s %N") DBG $dir_path: 3. after tf init. flock --unlock"
   fi
 
   return $exit_code
