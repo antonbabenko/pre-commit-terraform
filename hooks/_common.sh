@@ -259,6 +259,10 @@ function common::per_dir_hook {
     parallelism_disabled=true
   fi
 
+  echo "DBG parallelism_limit: $parallelism_limit"
+  echo "DBG parallelism_disabled: $parallelism_disabled"
+  exit 1
+
   # preserve errexit status
   shopt -qo errexit
 
@@ -381,7 +385,7 @@ function common::terraform_init {
       exit_code=$?
     else
 
-      if command -v FFFFFFFFFFFFFFflock &> /dev/null; then
+      if command -v flock &> /dev/null; then
         echo "$(date "+%s %N") DBG $dir_path: 2. Cache-dir lock"
 
         init_output=$(flock --exclusive "$TF_PLUGIN_CACHE_DIR" terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
