@@ -7,6 +7,9 @@ set -eo pipefail
 HOOK_ID=${0##*/}
 readonly HOOK_ID=${HOOK_ID%%.*}
 
+# Used only when parallelism needed and flock is not available
+readonly PARALLELISM_FALLBACK_LOCK_DIR="/tmp/TF_PLUGIN_CACHE_DIR_lock"
+
 #######################################################################
 # Init arguments parser
 # Arguments:
@@ -385,12 +388,12 @@ function common::terraform_init {
         exit_code=$?
       # Fall back "simple-lock" mechanizm if `flock` is not available
       else
-        lockdir="/tmp/TF_PLUGIN_CACHE_DIR_lock"
+
         while true; do
-          if mkdir "$lockdir" 2> /dev/null; then
+          if mkdir "$PARALLELISM_FALLBACK_LOCK_DIR" 2> /dev/null; then
             init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
             exit_code=$?
-            rmdir "$lockdir"
+            rmdir "$PARALLELISM_FALLBACK_LOCK_DIR"
             break
           fi
           sleep 1
