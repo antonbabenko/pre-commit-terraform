@@ -224,8 +224,8 @@ function common::per_dir_hook {
   local change_dir_in_unique_part=false
   # Limit the number of parallel processes to the number of CPU cores -1
   # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
-  local CPU_NUM
-  CPU_NUM=$(nproc || sysctl -n hw.ncpu || echo 1)
+  local CPU
+  CPU=$(nproc || sysctl -n hw.ncpu || echo 1)
   local parallelism_limit
   local parallelism_disabled=false
 
@@ -250,15 +250,15 @@ function common::per_dir_hook {
         ;;
       --parallelism-limit)
         # this flag will limit the number of parallel processes
-        echo "inside parallelism_limit '$value' '$((value))'"
         parallelism_limit=$((value))
         ;;
     esac
   done
 
   if [[ ! $parallelism_limit ]]; then
-    parallelism_limit=$((CPU_NUM - 1))
-  elif [[ $parallelism_limit == 1 ]]; then
+    parallelism_limit=$((CPU - 1))
+  elif [[ $parallelism_limit -le 1 ]]; then
+    parallelism_limit=1
     parallelism_disabled=true
   fi
 
