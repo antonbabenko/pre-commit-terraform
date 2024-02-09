@@ -357,7 +357,7 @@ function common::terraform_init {
     if [ -n "$TF_PLUGIN_CACHE_DIR" ]; then
       echo "$(date "+%s %N") DBG $dir_path: 2.1. Cache-dir lock"
       # https://github.com/hashicorp/terraform/issues/31964
-      init_output=$(flock --exclusive --no-fork "$TF_PLUGIN_CACHE_DIR" terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+      init_output=$(flock --exclusive "$TF_PLUGIN_CACHE_DIR" terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
       echo "$(date "+%s %N") DBG $dir_path: 2.1. No lock"
