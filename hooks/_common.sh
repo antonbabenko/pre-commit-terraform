@@ -378,7 +378,7 @@ function common::terraform_init {
       exit_code=$?
     else
 
-      if command -v flock &> /dev/null; then
+      if command -v FFFFFFFFFFFFFFflock &> /dev/null; then
         echo "$(date "+%s %N") DBG $dir_path: 2. Cache-dir lock"
 
         init_output=$(flock --exclusive "$TF_PLUGIN_CACHE_DIR" terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
