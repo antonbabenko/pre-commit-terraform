@@ -348,7 +348,7 @@ function common::colorify {
 #   parallelism_disabled (bool) if true - skip lock mechanism
 # Globals (init and populate):
 #   TF_INIT_ARGS (array) arguments for `terraform init` command
-#   TF_PLUGIN_CACHE_DIR (string) user defined env var to directory
+#   TF_PLUGIN_CACHE_DIR (string) user defined env var with name of the directory
 #     which can't be R/W concurrently
 # Outputs:
 #   If failed - print out terraform init output
@@ -368,7 +368,7 @@ function common::terraform_init {
   fi
 
   if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
-    # Plugin cache dir can't be write concurrently or read during writing
+    # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
     if [ -z "$TF_PLUGIN_CACHE_DIR" ] || $parallelism_disabled; then
       init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
@@ -381,7 +381,7 @@ function common::terraform_init {
             terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1
         )
         exit_code=$?
-      # Fall back "simple-lock" mechanizm if `flock` is not available
+      # Fallback to a "simple-lock" mechanism if `flock` is not available
       else
 
         while true; do

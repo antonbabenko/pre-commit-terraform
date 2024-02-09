@@ -346,9 +346,9 @@ PRE_COMMIT_COLOR=never pre-commit run
 ### Many hooks: Parallelism
 
 > All, except deprecated hooks: `checkov`, `terraform_docs_replace` and hooks which can't be paralleled this way: `infracost_breakdown`, `terraform_wrapper_module_for_each`.  
-> Also, there a chance that parallelism have no effect on `terragrunt_fmt` and `terragrunt_validate` hooks
+> Also, there's a chance that parallelism have no effect on `terragrunt_fmt` and `terragrunt_validate` hooks
 
-By default, parallelism set to `number of logical CPUs - 1`.  
+By default, parallelism is set to `number of logical CPUs - 1`.  
 If you'd like to disable parallelism, set it to `1`
 
 ```yaml
@@ -359,7 +359,7 @@ If you'd like to disable parallelism, set it to `1`
 
 In the same way you can set it to any positive integer.
 
-If you'd like to set parallelism value relatively to number of CPU logical cores - provide valid bash arithmetic expression and use `CPU` as reference to the number of CPU logical cores
+If you'd like to set parallelism value relative to number of CPU logical cores - provide valid Bash arithmetic expression and use `CPU` as a reference to the number of CPU logical cores
 
 
 ```yaml
@@ -372,11 +372,11 @@ If you'd like to set parallelism value relatively to number of CPU logical cores
 > <details><summary>Info useful for parallelism fine-tunning</summary>
 >
 > <br>
-> Tests below was run on repo with 45 terraform dirs on laptop with 16 CPU, SSD and 1Gbit/s network. Laptop was slightly used in the process.
+> Tests below were run on repo with 45 Terraform dirs on laptop with 16 CPUs, SSD and 1Gbit/s network. Laptop was slightly used in the process.
 >
 > Observed results may vary greatly depending on your repo structure, machine characteristics and their usage.
 >
-> If during fine-tuning you'll find that your results are very different from provided below and you thonk that this data could help someone else - feel free to send PR.
+> If during fine-tuning you'll find that your results are very different from provided below and you think that this data could help someone else - feel free to send PR.
 >
 >
 > | Hook                                     | Most used resource                 | Optimization runs comparison / Notes                            |

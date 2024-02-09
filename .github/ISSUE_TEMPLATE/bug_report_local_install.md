@@ -89,7 +89,7 @@ tflint --version                          2>/dev/null || echo "tflint SKIPPED"
 echo -n "tfsec " && tfsec --version       2>/dev/null || echo "tfsec SKIPPED"
 echo -n "tfupdate " && tfupdate --version 2>/dev/null || echo "tfupdate SKIPPED"
 echo -n "hcledit " && hcledit version     2>/dev/null || echo "hcledit SKIPPED"
-echo -n "flock " && flock --versiob       2>/dev/null || echo "flock SKIPPED"
+echo -n "flock " && flock --version       2>/dev/null || echo "flock SKIPPED"
 EOF
 
 -->
