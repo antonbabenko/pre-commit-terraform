@@ -384,7 +384,7 @@ function common::terraform_init {
           if mkdir "$PARALLELISM_FALLBACK_LOCK_DIR" 2> /dev/null; then
             init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
             exit_code=$?
-            rm -rf "$PARALLELISM_FALLBACK_LOCK_DIR"
+            rmdir "$PARALLELISM_FALLBACK_LOCK_DIR"
             break
           fi
           sleep 1
