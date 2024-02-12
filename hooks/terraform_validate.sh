@@ -20,7 +20,6 @@ function main {
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     ARGS+=("-no-color")
   fi
-
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
