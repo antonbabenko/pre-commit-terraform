@@ -277,8 +277,8 @@ function common::per_dir_hook {
     pids+=("$!")
 
     if [[ $parallelism_disabled == true ]] ||
-      [ "$i" -ne 0 ] && [ $((i % parallelism_limit)) -eq 0 ] || # don't stop on first iteration when parallelism_limit>1
-      [ "$i" -eq $last_index ]; then
+      [[ $i -ne 0 && $((i % parallelism_limit)) -eq 0 ]] || # don't stop on first iteration when parallelism_limit>1
+      [[ $i -eq $last_index ]]; then
 
       for pid in "${pids[@]}"; do
         # Get the exit code from the background process
@@ -377,16 +377,16 @@ function common::terraform_init {
       else
 
         # Get lockfile name unique to the current pre-commit process
-        local -r lockfile="/tmp/TF_PLUGIN_CACHE_DIR_lock_$(grep -a -P $PPID | cut -d' ' -f1)"
+        local -r lockfile="/tmp/TF_PLUGIN_CACHE_DIR_lock_$(pgrep -P $PPID)"
         local timeout=600 # 10min in seconds
 
         while true; do
 
           if [[ -f $lockfile ]]; then
             # If directory locked by 1 dir for long time, than something
-            # went wrong in parallel process which lock that directory.
+            # went wrong in parallel process which locked that directory.
 
-            # Take lockfile modification because Linux haven't file creation date
+            # Take lockfile modification time because Linux has no file creation date
             local -r modified=$(stat --format=%Y "$lockfile")
             local -r now=$(date +%s)
             local -r elapsed=$((now - modified))
