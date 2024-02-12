@@ -277,7 +277,7 @@ function common::per_dir_hook {
     } &
     pids+=("$!")
 
-    if $parallelism_disabled ||
+    if [[ $parallelism_disabled == true ]] ||
       [ "$i" -ne 0 ] && [ $((i % parallelism_limit)) -eq 0 ] || # don't stop on first iteration when parallelism_limit>1
       [ "$i" -eq $last_index ]; then
 
