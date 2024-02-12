@@ -378,6 +378,13 @@ function common::terraform_init {
 
         # Get lockfile name unique to the current pre-commit process
         local -r lockfile="/tmp/TF_PLUGIN_CACHE_DIR_lock_$(pgrep -P $PPID)"
+
+        # Why 10min? I checked that the cold-init of one of my biggest TF
+        # components (basically, a module of modules) took 58s and 240MB.
+        # In case there are any potato-internet-receivers exist which
+        # have only 10Mb/s, that would mean they need:
+        # 240MB×8Mb÷10Mb/s÷60s = 3.2min just for download.
+        # And I'm not confident enough about 5min
         local timeout=600 # 10min in seconds
 
         while true; do
@@ -387,7 +394,12 @@ function common::terraform_init {
             # went wrong in parallel process which locked that directory.
 
             # Take lockfile modification time because Linux has no file creation date
-            local -r modified=$(stat --format=%Y "$lockfile")
+            # stat implementation differs between OS.
+            if stat --version &> /dev/null; then
+              local -r modified=$(stat --format=%Y "$lockfile") # GNU
+            else
+              local -r modified=$(stat -f "%Y" "$lockfile") # BSD/OSX
+            fi
             local -r now=$(date +%s)
             local -r elapsed=$((now - modified))
 
