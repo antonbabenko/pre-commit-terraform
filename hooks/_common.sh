@@ -366,7 +366,7 @@ function common::terraform_init {
   if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
     # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
-    if [[ $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
+    if [[ -z $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
       init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
