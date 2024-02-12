@@ -15,8 +15,6 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: suppress color for `terraform providers lock` is N/A`
 
-  # Cleanup in case lockfile was not cleaned in previous run of common::terraform_init function
-  [ -d "$PARALLELISM_FALLBACK_LOCK_DIR" ] && rmdir "$PARALLELISM_FALLBACK_LOCK_DIR"
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }

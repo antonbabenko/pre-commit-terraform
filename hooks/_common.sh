@@ -7,9 +7,6 @@ set -eo pipefail
 HOOK_ID=${0##*/}
 readonly HOOK_ID=${HOOK_ID%%.*}
 
-# Used only when parallelism needed and flock is not available
-readonly PARALLELISM_FALLBACK_LOCK_DIR="/tmp/TF_PLUGIN_CACHE_DIR_lock"
-
 #######################################################################
 # Init arguments parser
 # Arguments:
@@ -380,11 +377,31 @@ function common::terraform_init {
       # Fallback to a "simple-lock" mechanism if `flock` is not available
       else
 
+        # Get lockfile name unique to the current pre-commit process
+        local -r lockfile="/tmp/TF_PLUGIN_CACHE_DIR_lock_$(grep -a -P $PPID | cut -d' ' -f1)"
+        local timeout=600 # 10min in seconds
+
         while true; do
-          if mkdir "$PARALLELISM_FALLBACK_LOCK_DIR" 2> /dev/null; then
+
+          if [[ -f $lockfile ]]; then
+            # If directory locked by 1 dir for long time, than something
+            # went wrong in parallel process which lock that directory.
+
+            # Take lockfile modification because Linux haven't file creation date
+            local -r modified=$(stat --format=%Y "$lockfile")
+            local -r now=$(date +%s)
+            local -r elapsed=$((now - modified))
+
+            if [ $elapsed -ge $timeout ]; then
+              common::colorify "red" "Failed to acquire lock for '$(cat "$lockfile")' after $timeout seconds"
+              rm -f "$lockfile"
+            fi
+
+          else
+            echo -n "$dir_path" > "$lockfile"
             init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
             exit_code=$?
-            rmdir "$PARALLELISM_FALLBACK_LOCK_DIR"
+            rm -f "$lockfile"
             break
           fi
           sleep 1

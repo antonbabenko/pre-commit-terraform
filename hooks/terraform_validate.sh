@@ -21,8 +21,6 @@ function main {
     ARGS+=("-no-color")
   fi
 
-  # Cleanup in case lockfile was not cleaned in previous run of common::terraform_init function
-  [ -d "$PARALLELISM_FALLBACK_LOCK_DIR" ] && rmdir "$PARALLELISM_FALLBACK_LOCK_DIR"
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
