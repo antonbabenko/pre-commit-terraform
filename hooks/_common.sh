@@ -222,7 +222,7 @@ function common::per_dir_hook {
   # Limit the number of parallel processes to the number of CPU cores -1
   # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
   local CPU
-  CPU=$(nproc || sysctl -n hw.ncpu || echo 1)
+  CPU=$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)
   local parallelism_limit
   local parallelism_disabled=false
 
