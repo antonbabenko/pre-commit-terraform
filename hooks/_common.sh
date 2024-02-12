@@ -233,7 +233,6 @@ function common::per_dir_hook {
     # $hook_config receives string like '--foo=bar; --baz=4;' etc.
     # It gets split by `;` into array, which we're parsing here ('--foo=bar' ' --baz=4')
     # Next line removes leading spaces, to support >1 `--hook-config` args
-    # shellcheck disable=SC2001 # Rule exception
     key="${config[0]## }"
     value=${config[1]}
 
