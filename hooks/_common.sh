@@ -398,7 +398,7 @@ function common::terraform_init {
             if stat --version &> /dev/null; then
               local -r modified=$(stat --format=%Y "$lockfile") # GNU
             else
-              local -r modified=$(stat -f "%Y" "$lockfile") # BSD/OSX
+              local -r modified=$(stat -f "%m" "$lockfile") # BSD/OSX
             fi
             local -r now=$(date +%s)
             local -r elapsed=$((now - modified))
