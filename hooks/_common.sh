@@ -364,25 +364,25 @@ function common::terraform_init {
   fi
 
   if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
-    local -r init_command="terraform init -backend=false ${TF_INIT_ARGS[*]} 2>&1"
-
     # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
     if [ -z "$TF_PLUGIN_CACHE_DIR" ] || $parallelism_disabled; then
-      init_output=$($init_command)
+      init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
 
       if command -v flock &> /dev/null; then
-        # shellcheck disable=SC2086 # `$init_command` should be expanded
-        init_output=$(flock --exclusive "$TF_PLUGIN_CACHE_DIR" $init_command)
+        init_output=$(
+          flock --exclusive "$TF_PLUGIN_CACHE_DIR" \
+            terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1
+        )
         exit_code=$?
       # Fallback to a "simple-lock" mechanism if `flock` is not available
       else
 
         while true; do
           if mkdir "$PARALLELISM_FALLBACK_LOCK_DIR" 2> /dev/null; then
-            init_output=$($init_command)
+            init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
             exit_code=$?
             rmdir "$PARALLELISM_FALLBACK_LOCK_DIR"
             break
