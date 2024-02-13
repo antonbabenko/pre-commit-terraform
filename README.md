@@ -375,20 +375,20 @@ If you'd like to set parallelism value relative to number of CPU logical cores -
 > If during fine-tuning you'll find that your results are very different from provided below and you think that this data could help someone else - feel free to send PR.
 >
 >
-> | Hook                                     | Most used resource                 | Comparison of optimization results / Notes                      |
-> | ---------------------------------------- | ---------------------------------- | --------------------------------------------------------------- |
-> | terraform_checkov                        | CPU heavy                          | -                                                               |
-> | terraform_fmt                            | CPU heavy                          | -                                                               |
-> | terraform_providers_lock                 | Network heavy                      | `defaults (CPU-1)` - 1m 36s; `CPU*2` - 1m 28s; `CPU*4` - 1m 13s |
-> | terraform_tflint                         | CPU heavy                          | -                                                               |
-> | terraform_tfsec                          | CPU heavy                          | -                                                               |
-> | terraform_trivy                          | CPU moderate                       | `defaults (CPU-1)` - 32s; `CPU*2` - 30s; `CPU*4` - 31s          |
-> | terraform_validate (t validate only)     | CPU heavy                          | -                                                               |
-> | terraform_validate (t init + t validate) | Network & Disk heavy, CPU moderate | `defaults (CPU-1)` - 3m 34s; `CPU*2` - 3m 31s; `CPU*4` - 3m 26s |
-> | terragrunt_fmt                           | CPU heavy                          | N/A? need more info from TG users                               |
-> | terragrunt_validate                      | CPU heavy                          | N/A? need more info from TG users                               |
-> | terrascan                                | CPU moderate-heavy                 | `defaults (CPU-1)` - 8s; `CPU*2` - 6s                           |
-> | tfupdate                                 | Disk/Network?                      | too quick in any settings. More info needed                     |
+> | Hook                                                                           | Most used resource                 | Comparison of optimization results / Notes                      |
+> | ------------------------------------------------------------------------------ | ---------------------------------- | --------------------------------------------------------------- |
+> | terraform_checkov                                                              | CPU heavy                          | -                                                               |
+> | terraform_fmt                                                                  | CPU heavy                          | -                                                               |
+> | terraform_providers_lock (3 platforms,<br>`--mode=always-regenerate-lockfile`) | Network & Disk heavy               | `defaults (CPU-1)` - 3m 39s; `CPU*2` - 3m 19s; `CPU*4` - 2m 56s |
+> | terraform_tflint                                                               | CPU heavy                          | -                                                               |
+> | terraform_tfsec                                                                | CPU heavy                          | -                                                               |
+> | terraform_trivy                                                                | CPU moderate                       | `defaults (CPU-1)` - 32s; `CPU*2` - 30s; `CPU*4` - 31s          |
+> | terraform_validate (t validate only)                                           | CPU heavy                          | -                                                               |
+> | terraform_validate (t init + t validate)                                       | Network & Disk heavy, CPU moderate | `defaults (CPU-1)` - 1m 30s; `CPU*2` - 1m 25s; `CPU*4` - 1m 41s |
+> | terragrunt_fmt                                                                 | CPU heavy                          | N/A? need more info from TG users                               |
+> | terragrunt_validate                                                            | CPU heavy                          | N/A? need more info from TG users                               |
+> | terrascan                                                                      | CPU moderate-heavy                 | `defaults (CPU-1)` - 8s; `CPU*2` - 6s                           |
+> | tfupdate                                                                       | Disk/Network?                      | too quick in any settings. More info needed                     |
 >
 >
 > </details>
