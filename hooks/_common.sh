@@ -359,19 +359,17 @@ function common::terraform_init {
     TF_INIT_ARGS+=("-no-color")
   fi
 
-  test ! -d .terraform/modules
-  recreate_modules=$?
-  test ! -d .terraform/providers
-  recreate_providers=$?
+  recreate_modules=$([[ ! -d .terraform/modules ]] && echo true || echo false)
+  recreate_providers=$([[ ! -d .terraform/providers ]] && echo true || echo false)
 
-  if [ $recreate_modules ] || [ $recreate_providers ]; then
+  if [[ $recreate_modules == true || $recreate_providers == true ]]; then
     # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
     if [[ -z $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
       init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
-      # Locks just not works, and that's works quicker. Details:
+      # Locking just doesn't work, and the below works quicker instead. Details:
       # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
       for i in {1..10}; do
         init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
@@ -382,9 +380,9 @@ function common::terraform_init {
         fi
         sleep 1
 
-        common::colorify "green" "Rase condition detected. Retrying 'terraform init' command [retry $i]: $dir_path."
-        [ $recreate_modules ] && rm -rf .terraform/modules
-        [ $recreate_providers ] && rm -rf .terraform/providers
+        common::colorify "green" "Race condition detected. Retrying 'terraform init' command [retry $i]: $dir_path."
+        [[ $recreate_modules == true ]] && rm -rf .terraform/modules
+        [[ $recreate_providers == true ]] && rm -rf .terraform/providers
       done
     fi
 
