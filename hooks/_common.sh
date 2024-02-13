@@ -359,68 +359,33 @@ function common::terraform_init {
     TF_INIT_ARGS+=("-no-color")
   fi
 
-  if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
+  test ! -d .terraform/modules
+  recreate_modules=$?
+  test ! -d .terraform/providers
+  recreate_providers=$?
+
+  if [ $recreate_modules ] || [ $recreate_providers ]; then
     # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
     if [[ -z $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
       init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
-
-      if command -v flock &> /dev/null; then
-        init_output=$(
-          flock --exclusive "$TF_PLUGIN_CACHE_DIR" \
-            terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1
-        )
+      # Locks just not works, and that's works quicker. Details:
+      # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
+      for i in {1..10}; do
+        init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
         exit_code=$?
-      # Fallback to a "simple-lock" mechanism if `flock` is not available
-      else
 
-        # Get lockfile name unique to the current pre-commit process
-        local -r lockfile="/tmp/TF_PLUGIN_CACHE_DIR_lock_$(pgrep -P $PPID)"
+        if [ $exit_code -eq 0 ]; then
+          break
+        fi
+        sleep 1
 
-        # Why 10min? I checked that the cold-init of one of my biggest TF
-        # components (basically, a module of modules) took 58s and 240MB.
-        # In case there are any potato-internet-receivers exist which
-        # have only 10Mb/s, that would mean they need:
-        # 240MB×8Mb÷10Mb/s÷60s = 3.2min just for download.
-        # And I'm not confident enough about 5min
-        local timeout=600 # 10min in seconds
-
-        while true; do
-
-          if [[ -f $lockfile ]]; then
-            # If directory locked by 1 dir for long time, than something
-            # went wrong in parallel process which locked that directory.
-
-            # Take lockfile modification time because Linux has no file creation date
-            # stat implementation differs between OS.
-            if stat --version &> /dev/null; then
-              local -r modified=$(stat --format=%Y "$lockfile") # GNU
-            else
-              local -r modified=$(stat -f "%m" "$lockfile") # BSD/OSX
-            fi
-            local -r now=$(date +%s)
-            local -r elapsed=$((now - modified))
-
-            if [ $elapsed -ge $timeout ]; then
-              common::colorify "red" "Failed to acquire lock for '$(cat "$lockfile")' after $timeout seconds"
-              rm -f "$lockfile"
-            fi
-
-          else
-            echo -n "$dir_path" > "$lockfile"
-            init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
-            exit_code=$?
-            rm -f "$lockfile"
-            break
-          fi
-          sleep 1
-        done
-
-        common::colorify "green" "For better parallelism performance and stability install 'flock' - https://www.howtodojo.com/flock-command-not-found/"
-        common::colorify "green" "Or disable parallelism by setting '--hook-config=--parallelism_limit=1'"
-      fi
+        common::colorify "green" "Rase condition detected. Retrying 'terraform init' command [retry $i]: $dir_path."
+        [ $recreate_modules ] && rm -rf .terraform/modules
+        [ $recreate_providers ] && rm -rf .terraform/providers
+      done
     fi
 
     if [ $exit_code -ne 0 ]; then
