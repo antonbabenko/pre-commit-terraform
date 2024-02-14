@@ -226,7 +226,7 @@ function common::per_dir_hook {
   apt update
   apt install -y tree
   tree /sys/fs/cgroup/
-  more /sys/fs/cgroup/* | cat
+  more /sys/fs/cgroup/cpu* | cat
 
   exit 1
 
