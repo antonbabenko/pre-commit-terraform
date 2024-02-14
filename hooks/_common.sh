@@ -228,6 +228,9 @@ function common::per_dir_hook {
   tree /sys/fs/cgroup/
   more /sys/fs/cgroup/cpu/* | cat
 
+  echo cpuset-------------------------------------------
+  more /sys/fs/cgroup/cpuset/* | cat
+
   exit 1
 
   if [[ ! -f /sys/fs/cgroup/cpu.max ]]; then
