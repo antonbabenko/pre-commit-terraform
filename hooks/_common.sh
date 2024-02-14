@@ -223,6 +223,8 @@ function common::per_dir_hook {
   # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
   local CPU
 
+  apt update
+  apt install -y tree
   tree /sys/fs/cgroup/
 
   exit 1
