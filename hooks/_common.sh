@@ -226,6 +226,7 @@ function common::per_dir_hook {
   apt update
   apt install -y tree
   tree /sys/fs/cgroup/
+  more /sys/fs/cgroup/* | cat
 
   exit 1
 
@@ -239,7 +240,7 @@ function common::per_dir_hook {
     local millicpu
     millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
     echo "DBG:"
-    cut -/sys/fs/cgroup/cpu.max
+    cat /sys/fs/cgroup/cpu.max
     if [[ "$millicpu" == "max" ]]; then
       echo "DBG: CPU: max"
       CPU=$(nproc 2> /dev/null || echo 1)
