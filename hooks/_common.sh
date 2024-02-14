@@ -174,13 +174,11 @@ function common::is_hook_run_on_whole_repo {
 # Get the number of CPU logical cores available to pre-commit use
 # Arguments:
 #  parallelism_limit (string) Used for checking if user redefined defaults
-#  parallelism_bypass_safety_check (bool) If true - skip K8s safety check
 # Outputs:
 #   Return number CPU logical cores, rounded to below integer
 #######################################################################
 function common::get_cpu_num {
   local -r parallelism_limit=$1
-  local -r parallelism_bypass_safety_check=$2
 
   local millicpu
 
@@ -190,17 +188,13 @@ function common::get_cpu_num {
 
     if [[ $millicpu -eq -1 ]]; then
       # K8s no limits or in DinD
-      if [[ $parallelism_bypass_safety_check == true ]]; then
-        return "$(nproc 2> /dev/null || echo 1)"
-      fi
-
       if [[ ! $parallelism_limit ]]; then
         common::colorify "yellow" "Unable to calculate available CPU cors.\n" \
           "You in K8s pod without limits or in DinD without limits propagation.\n" \
-          "To avoid possible harm, parallelism disabled.\n" \
-          "To reenable it, set limits or specify '--parallelism-limit' for hooks\n"
+          "To avoid possible harm, set '--parallelism-limit' for hooks"
       fi
-      return 1
+
+      return "$(nproc 2> /dev/null || echo 1)"
     fi
 
     return $((millicpu / 1000))
@@ -295,15 +289,11 @@ function common::per_dir_hook {
         # this flag will limit the number of parallel processes
         parallelism_limit="$value"
         ;;
-      --parallelism-bypass-safety-check)
-        # this flag will limit the number of parallel processes
-        parallelism_bypass_safety_check="$value"
-        ;;
     esac
   done
 
   set +e
-  common::get_cpu_num "$parallelism_limit" "$parallelism_bypass_safety_check"
+  common::get_cpu_num "$parallelism_limit"
   CPU=$?
   set -e
 
