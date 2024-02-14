@@ -222,7 +222,21 @@ function common::per_dir_hook {
   # Limit the number of parallel processes to the number of CPU cores -1
   # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
   local CPU
-  CPU=$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)
+
+  if [[ ! -f /sys/fs/cgroup/cpu.max ]]; then
+    # On host machine
+    CPU=$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)
+  else
+    # Inside Linux container
+    local millicpu
+    millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
+    if [[ "$millicpu" == "max" ]]; then
+      CPU=$(nproc 2> /dev/null || echo 1)
+    else
+      CPU=$((millicpu / 1000))
+    fi
+  fi
+
 common::colorify "yellow" "CPU: $CPU"
   local parallelism_limit
   local parallelism_disabled=false
