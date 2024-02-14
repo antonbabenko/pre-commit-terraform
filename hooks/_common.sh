@@ -223,6 +223,7 @@ function common::per_dir_hook {
   # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
   local CPU
   CPU=$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)
+common::colorify "yellow" "CPU: $CPU"
   local parallelism_limit
   local parallelism_disabled=false
 
