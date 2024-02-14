@@ -173,12 +173,13 @@ function common::is_hook_run_on_whole_repo {
 #######################################################################
 # Get the number of CPU logical cores available to pre-commit use
 # Arguments:
-#  parallelism_limit (string) Used for checking if user redefined defaults
+#  parallelism_ci_cpu_cores (string) Used in corner cases when CPU cores
+#    can't be calculated
 # Outputs:
 #   Return number CPU logical cores, rounded to below integer
 #######################################################################
 function common::get_cpu_num {
-  local -r parallelism_limit=$1
+  local -r parallelism_ci_cpu_cores=$1
 
   local millicpu
 
@@ -188,13 +189,19 @@ function common::get_cpu_num {
 
     if [[ $millicpu -eq -1 ]]; then
       # K8s no limits or in DinD
-      if [[ ! $parallelism_limit ]]; then
+      if [[ ! $parallelism_ci_cpu_cores ]]; then
         common::colorify "yellow" "Unable to calculate available CPU cors.\n" \
           "You in K8s pod without limits or in DinD without limits propagation.\n" \
-          "To avoid possible harm, set '--parallelism-limit' for hooks"
+          "To avoid possible harm, parallelism disabled.\n" \
+          "If you'd like reenable it - set next for current hook:\n" \
+          "  args:\n" \
+          "    - --hook-config=--parallelism-ci-cpu-cores=N\n" \
+          "where N is the number of CPU cores available in your environment."
+
+        return 1
       fi
 
-      return "$(nproc 2> /dev/null || echo 1)"
+      return "$parallelism_ci_cpu_cores"
     fi
 
     return $((millicpu / 1000))
@@ -289,11 +296,15 @@ function common::per_dir_hook {
         # this flag will limit the number of parallel processes
         parallelism_limit="$value"
         ;;
+      --parallelism-ci-cpu-cores)
+        # Used in corner cases when CPU cores can't be calculated
+        parallelism_ci_cpu_cores="$value"
+        ;;
     esac
   done
 
   set +e
-  common::get_cpu_num "$parallelism_limit"
+  common::get_cpu_num "$parallelism_ci_cpu_cores"
   CPU=$?
   set -e
 
