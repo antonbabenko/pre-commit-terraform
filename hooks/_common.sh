@@ -171,6 +171,52 @@ function common::is_hook_run_on_whole_repo {
 }
 
 #######################################################################
+# Get the number of CPU logical cores available to pre-commit use
+# Arguments:
+#  parallelism_limit (string) Used for checking if user redefined defaults
+# Outputs:
+#   Return number CPU logical cores, rounded to below integer
+#######################################################################
+function common::get_cpu_num {
+  local -r parallelism_limit=$1
+
+  local millicpu
+
+  if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]]; then
+    # Inside K8s pod or DInD in K8s
+    millicpu=$(cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+
+    if [[ $millicpu -eq -1 ]]; then
+      # K8s no limits or in DinD
+      if [[ ! $parallelism_limit ]]; then
+        common::colorify "yellow" "Unable to calculate available CPU cors.\n" \
+          "You in K8s pod without limits or in DinD without limits propagation.\n" \
+          "To avoid possible harm, parallelism disabled.\n" \
+          "To reenable it, set limits or specify '--parallelism-limit' for hooks"
+      fi
+      return 1
+    fi
+
+    return $((millicpu / 1000))
+  fi
+
+  if [[ -f /sys/fs/cgroup/cpu.max ]]; then
+    # Inside Linux (Docker?) container
+    millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
+
+    if [[ "$millicpu" == "max" ]]; then
+      # No limits
+      return "$(nproc 2> /dev/null || echo 1)"
+    fi
+    return $((millicpu / 1000))
+  fi
+
+  # On host machine
+  # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
+  return "$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)"
+}
+
+#######################################################################
 # Hook execution boilerplate logic which is common to hooks, that run
 # on per dir basis.
 # 1. Because hook runs on whole dir, reduce file paths to uniq dir paths
@@ -246,73 +292,18 @@ function common::per_dir_hook {
     esac
   done
 
-  # Limit the number of parallel processes to the number of CPU cores -1
-  # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
-  local CPU millicpu
-
-  # apt update
-  # apt install -y tree
-  # tree /sys/fs/cgroup/
-  # more /sys/fs/cgroup/cpu/* | cat
-
-  # echo cpuset-------------------------------------------
-  # more /sys/fs/cgroup/cpuset/* | cat
-
-  # sleep 1000000000000000000000
-  # exit 1
-
-  if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]]; then
-    # Inside K8s pod or DInD in K8s
-    millicpu=$(cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
-    if [[ $millicpu -eq -1 ]]; then
-      # K8s no limits or in DinD
-      CPU=1
-
-      if [[ ! $parallelism_limit ]]; then
-        common::colorify "yellow" "Unable to calculate available CPU cors.\n" \
-          "You in K8s pod without limits or in DinD without limits propagation.\n" \
-          "To avoid possible harm, parallelism disabled.\n" \
-          "To reenable it, set limits or specify '--parallelism-limit' for hooks"
-      fi
-    else
-      CPU=$((millicpu / 1000))
-      echo "DBG: Inside K8s, CPU: $CPU"
-    fi
-  elif [[ -f /sys/fs/cgroup/cpu.max ]]; then
-    # Inside Linux container
-    echo "DBG: Inside Linux container"
-    local millicpu
-    millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
-    echo "DBG:"
-    cat /sys/fs/cgroup/cpu.max
-    if [[ "$millicpu" == "max" ]]; then
-      echo "DBG: CPU: max"
-      CPU=$(nproc 2> /dev/null || echo 1)
-    else
-      echo "DBG: CPU: $((millicpu / 1000))"
-      CPU=$((millicpu / 1000))
-    fi
-  else
-    # On host machine
-    echo "DBG: On host machine"
-    CPU=$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)
-  fi
-
-  common::colorify "yellow" "CPU: $CPU"
-  echo "DBG: parallelism_limit before: $parallelism_limit"
-
+  CPU=$(common::get_cpu_num "$parallelism_limit")
+  # parallelism_limit can include reference to 'CPU' variable
   parallelism_limit=$((parallelism_limit))
   local parallelism_disabled=false
 
   if [[ ! $parallelism_limit ]]; then
     parallelism_limit=$((CPU - 1))
-  elif [[ $parallelism_limit -le 1 ]]; then
+  fi
+  if [[ $parallelism_limit -le 1 ]]; then
     parallelism_limit=1
     parallelism_disabled=true
   fi
-
-  echo "DBG: parallelism_limit after: $parallelism_limit"
-  exit 1
 
   local final_exit_code=0
   local pids=()
