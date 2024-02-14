@@ -225,19 +225,25 @@ function common::per_dir_hook {
 
   if [[ ! -f /sys/fs/cgroup/cpu.max ]]; then
     # On host machine
+    echo "DBG: On host machine"
     CPU=$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)
   else
     # Inside Linux container
+    echo "DBG: Inside Linux container"
     local millicpu
     millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
+    echo "DBG:"
+    cut -/sys/fs/cgroup/cpu.max
     if [[ "$millicpu" == "max" ]]; then
+      echo "DBG: CPU: max"
       CPU=$(nproc 2> /dev/null || echo 1)
     else
+      echo "DBG: CPU: $((millicpu / 1000))"
       CPU=$((millicpu / 1000))
     fi
   fi
 
-common::colorify "yellow" "CPU: $CPU"
+  common::colorify "yellow" "CPU: $CPU"
   local parallelism_limit
   local parallelism_disabled=false
 
