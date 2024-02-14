@@ -231,6 +231,7 @@ function common::per_dir_hook {
   echo cpuset-------------------------------------------
   more /sys/fs/cgroup/cpuset/* | cat
 
+  sleep 1000000000000000000000
   exit 1
 
   if [[ ! -f /sys/fs/cgroup/cpu.max ]]; then
