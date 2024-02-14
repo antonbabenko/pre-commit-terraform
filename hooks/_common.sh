@@ -292,8 +292,11 @@ function common::per_dir_hook {
     esac
   done
 
+  set +e
   common::get_cpu_num "$parallelism_limit"
   CPU=$?
+  set -e
+
   # parallelism_limit can include reference to 'CPU' variable
   parallelism_limit=$((parallelism_limit))
   local parallelism_disabled=false
