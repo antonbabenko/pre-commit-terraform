@@ -305,7 +305,7 @@ function common::per_dir_hook {
 
   set +e
   common::get_cpu_num "$parallelism_ci_cpu_cores"
-  CPU=$?
+  local -r CPU=$?
   set -e
 
   # parallelism_limit can include reference to 'CPU' variable
