@@ -180,6 +180,7 @@ function common::is_hook_run_on_whole_repo {
 #######################################################################
 function common::get_cpu_num {
   local -r parallelism_limit=$1
+  local -r parallelism_bypass_safety_check=$2
 
   local millicpu
 
