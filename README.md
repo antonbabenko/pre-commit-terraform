@@ -393,6 +393,16 @@ If you'd like to set parallelism value relative to number of CPU logical cores -
 >
 > </details>
 
+
+
+```yaml
+args:
+  - --hook-config=--parallelism-ci-cpu-cores=N
+```
+
+If you don't see code above in your `pre-commit-config.yaml` or logs - you don't need it.  
+`--parallelism-ci-cpu-cores` used only in corner cases. Check-out it usage in [hooks/_common.sh](hooks/_common.sh)
+
 ### checkov (deprecated) and terraform_checkov
 
 > `checkov` hook is deprecated, please use `terraform_checkov`.
