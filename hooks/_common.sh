@@ -223,6 +223,10 @@ function common::per_dir_hook {
   # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
   local CPU
 
+  tree /sys/fs/cgroup/
+
+  exit 1
+
   if [[ ! -f /sys/fs/cgroup/cpu.max ]]; then
     # On host machine
     echo "DBG: On host machine"
