@@ -173,30 +173,30 @@ function common::is_hook_run_on_whole_repo {
 #######################################################################
 # Get the number of CPU logical cores available for pre-commit to use
 # Arguments:
-#  parallelism_cpu_cores (string) Used in edge cases when number of
+#  parallelism_ci_cpu_cores (string) Used in edge cases when number of
 #    CPU cores can't be derived automatically
 # Outputs:
 #   Returns number of CPU logical cores, rounded down to nearest integer
 #######################################################################
 function common::get_cpu_num {
-  local -r parallelism_cpu_cores=$1
-
-  if [[ -n $parallelism_cpu_cores ]]; then
-    # 22 EINVAL Invalid argument. Some invalid argument was supplied.
-    [[ $parallelism_cpu_cores =~ ^[[:digit:]]+$ ]] || return 22
-
-    echo "$parallelism_cpu_cores"
-    return
-  fi
+  local -r parallelism_ci_cpu_cores=$1
 
   local millicpu
 
   if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]]; then
-    # Inside K8s pod or DInD in K8s
+    # Inside K8s pod or DinD in K8s
     millicpu=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
 
     if [[ $millicpu -eq -1 ]]; then
       # K8s no limits or in DinD
+      if [[ -n $parallelism_ci_cpu_cores ]]; then
+        # 22 EINVAL Invalid argument. Some invalid argument was supplied.
+        [[ $parallelism_ci_cpu_cores =~ ^[[:digit:]]+$ ]] || return 22
+
+        echo "$parallelism_ci_cpu_cores"
+        return
+      fi
+
       common::colorify "yellow" "Unable to derive number of available CPU cores.\n" \
         "Running inside K8s pod without limits or inside DinD without limits propagation.\n" \
         "To avoid possible harm, parallelism is disabled.\n" \
@@ -305,14 +305,14 @@ function common::per_dir_hook {
         # this flag will limit the number of parallel processes
         parallelism_limit="$value"
         ;;
-      --parallelism-cpu-cores)
+      --parallelism-ci-cpu-cores)
         # Used in edge cases when number of CPU cores can't be derived automatically
-        parallelism_cpu_cores="$value"
+        parallelism_ci_cpu_cores="$value"
         ;;
     esac
   done
 
-  CPU=$(common::get_cpu_num "$parallelism_cpu_cores")
+  CPU=$(common::get_cpu_num "$parallelism_ci_cpu_cores")
   # parallelism_limit can include reference to 'CPU' variable
   parallelism_limit=$((parallelism_limit))
   local parallelism_disabled=false
