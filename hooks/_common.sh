@@ -228,7 +228,7 @@ function common::get_cpu_num {
   fi
 
   # On host machine or any other case
-  # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
+  # `nproc` - Linux/FreeBSD, `sysctl -n hw.ncpu` - macOS/BSD, `echo 1` - fallback
   nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1
 }
 
