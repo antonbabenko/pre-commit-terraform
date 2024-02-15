@@ -173,13 +173,21 @@ function common::is_hook_run_on_whole_repo {
 #######################################################################
 # Get the number of CPU logical cores available for pre-commit to use
 # Arguments:
-#  parallelism_ci_cpu_cores (string) Used in edge cases when number of
+#  parallelism_cpu_cores (string) Used in edge cases when number of
 #    CPU cores can't be derived automatically
 # Outputs:
 #   Return number CPU logical cores, rounded to below integer
 #######################################################################
 function common::get_cpu_num {
-  local -r parallelism_ci_cpu_cores=$1
+  local -r parallelism_cpu_cores=$1
+
+  if [[ -n $parallelism_cpu_cores ]]; then
+    # 22 EINVAL Invalid argument. Some invalid argument was supplied.
+    [[ $parallelism_cpu_cores =~ ^[[:digit:]]+$ ]] || return 22
+
+    echo "$parallelism_cpu_cores"
+    return
+  fi
 
   local millicpu
 
@@ -189,22 +197,20 @@ function common::get_cpu_num {
 
     if [[ $millicpu -eq -1 ]]; then
       # K8s no limits or in DinD
-      if [[ ! $parallelism_ci_cpu_cores ]]; then
-        common::colorify "yellow" "Unable to derive number of available CPU cores.\n" \
-          "Running inside K8s pod without limits or inside DinD without limits propagation.\n" \
-          "To avoid possible harm, parallelism is disabled.\n" \
-          "To re-enable it, set corresponding limits, or set the following for the current hook:\n" \
-          "  args:\n" \
-          "    - --hook-config=--parallelism-ci-cpu-cores=N\n" \
-          "where N is the number of CPU cores to allocate to pre-commit."
+      common::colorify "yellow" "Unable to derive number of available CPU cores.\n" \
+        "Running inside K8s pod without limits or inside DinD without limits propagation.\n" \
+        "To avoid possible harm, parallelism is disabled.\n" \
+        "To re-enable it, set corresponding limits, or set the following for the current hook:\n" \
+        "  args:\n" \
+        "    - --hook-config=--parallelism-ci-cpu-cores=N\n" \
+        "where N is the number of CPU cores to allocate to pre-commit."
 
-        return 1
-      fi
-
-      return "$parallelism_ci_cpu_cores"
+      echo 1
+      return
     fi
 
-    return $((millicpu / 1000))
+    echo $((millicpu / 1000))
+    return
   fi
 
   if [[ -f /sys/fs/cgroup/cpu.max ]]; then
@@ -213,14 +219,17 @@ function common::get_cpu_num {
 
     if [[ $millicpu == max ]]; then
       # No limits
-      return "$(nproc 2> /dev/null || echo 1)"
+      nproc 2> /dev/null || echo 1
+      return
     fi
-    return $((millicpu / 1000))
+
+    echo $((millicpu / 1000))
+    return
   fi
 
-  # On host machine
+  # On host machine or any other case
   # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
-  return "$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)"
+  nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1
 }
 
 #######################################################################
@@ -296,17 +305,14 @@ function common::per_dir_hook {
         # this flag will limit the number of parallel processes
         parallelism_limit="$value"
         ;;
-      --parallelism-ci-cpu-cores)
+      --parallelism-cpu-cores)
         # Used in edge cases when number of CPU cores can't be derived automatically
-        parallelism_ci_cpu_cores="$value"
+        parallelism_cpu_cores="$value"
         ;;
     esac
   done
 
-  set +e
-  common::get_cpu_num "$parallelism_ci_cpu_cores"
-  local -r CPU=$?
-  set -e
+  CPU=$(common::get_cpu_num "$parallelism_cpu_cores")
 
   # parallelism_limit can include reference to 'CPU' variable
   parallelism_limit=$((parallelism_limit))
