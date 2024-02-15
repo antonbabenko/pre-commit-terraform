@@ -176,7 +176,7 @@ function common::is_hook_run_on_whole_repo {
 #  parallelism_cpu_cores (string) Used in edge cases when number of
 #    CPU cores can't be derived automatically
 # Outputs:
-#   Return number CPU logical cores, rounded to below integer
+#   Returns number of CPU logical cores, rounded down to nearest integer
 #######################################################################
 function common::get_cpu_num {
   local -r parallelism_cpu_cores=$1
