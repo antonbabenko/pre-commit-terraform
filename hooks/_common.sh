@@ -171,6 +171,68 @@ function common::is_hook_run_on_whole_repo {
 }
 
 #######################################################################
+# Get the number of CPU logical cores available for pre-commit to use
+# Arguments:
+#  parallelism_cpu_cores (string) Used in edge cases when number of
+#    CPU cores can't be derived automatically
+# Outputs:
+#   Returns number of CPU logical cores, rounded down to nearest integer
+#######################################################################
+function common::get_cpu_num {
+  local -r parallelism_cpu_cores=$1
+
+  if [[ -n $parallelism_cpu_cores ]]; then
+    # 22 EINVAL Invalid argument. Some invalid argument was supplied.
+    [[ $parallelism_cpu_cores =~ ^[[:digit:]]+$ ]] || return 22
+
+    echo "$parallelism_cpu_cores"
+    return
+  fi
+
+  local millicpu
+
+  if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]]; then
+    # Inside K8s pod or DInD in K8s
+    millicpu=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+
+    if [[ $millicpu -eq -1 ]]; then
+      # K8s no limits or in DinD
+      common::colorify "yellow" "Unable to derive number of available CPU cores.\n" \
+        "Running inside K8s pod without limits or inside DinD without limits propagation.\n" \
+        "To avoid possible harm, parallelism is disabled.\n" \
+        "To re-enable it, set corresponding limits, or set the following for the current hook:\n" \
+        "  args:\n" \
+        "    - --hook-config=--parallelism-ci-cpu-cores=N\n" \
+        "where N is the number of CPU cores to allocate to pre-commit."
+
+      echo 1
+      return
+    fi
+
+    echo $((millicpu / 1000))
+    return
+  fi
+
+  if [[ -f /sys/fs/cgroup/cpu.max ]]; then
+    # Inside Linux (Docker?) container
+    millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
+
+    if [[ $millicpu == max ]]; then
+      # No limits
+      nproc 2> /dev/null || echo 1
+      return
+    fi
+
+    echo $((millicpu / 1000))
+    return
+  fi
+
+  # On host machine or any other case
+  # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
+  nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1
+}
+
+#######################################################################
 # Hook execution boilerplate logic which is common to hooks, that run
 # on per dir basis.
 # 1. Because hook runs on whole dir, reduce file paths to uniq dir paths
@@ -219,13 +281,8 @@ function common::per_dir_hook {
 
   # Lookup hook-config for modifiers that impact common behavior
   local change_dir_in_unique_part=false
-  # Limit the number of parallel processes to the number of CPU cores -1
-  # `nproc` - linux, `sysctl -n hw.ncpu` - macOS, `echo 1` - fallback
-  local CPU
-  CPU=$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1)
-  local parallelism_limit
-  local parallelism_disabled=false
 
+  local parallelism_limit
   IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
   for c in "${configs[@]}"; do
     IFS="=" read -r -a config <<< "$c"
@@ -246,10 +303,20 @@ function common::per_dir_hook {
         ;;
       --parallelism-limit)
         # this flag will limit the number of parallel processes
-        parallelism_limit=$((value))
+        parallelism_limit="$value"
+        ;;
+      --parallelism-cpu-cores)
+        # Used in edge cases when number of CPU cores can't be derived automatically
+        parallelism_cpu_cores="$value"
         ;;
     esac
   done
+
+  CPU=$(common::get_cpu_num "$parallelism_cpu_cores")
+
+  # parallelism_limit can include reference to 'CPU' variable
+  parallelism_limit=$((parallelism_limit))
+  local parallelism_disabled=false
 
   if [[ ! $parallelism_limit ]]; then
     parallelism_limit=$((CPU - 1))
@@ -321,14 +388,15 @@ function common::colorify {
 
   # Params start #
   local COLOR="${!1}"
-  local -r TEXT=$2
+  shift
+  local -r TEXT="$*"
   # Params end #
 
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     COLOR=$RESET
   fi
 
-  echo -e "${COLOR}${TEXT}${RESET}"
+  echo -e "${COLOR}${TEXT}${RESET}" >&2
 }
 
 #######################################################################
