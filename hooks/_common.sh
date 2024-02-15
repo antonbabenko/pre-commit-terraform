@@ -193,7 +193,7 @@ function common::get_cpu_num {
         common::colorify "yellow" "Unable to derive number of available CPU cores.\n" \
           "Running inside K8s pod without limits or inside DinD without limits propagation.\n" \
           "To avoid possible harm, parallelism is disabled.\n" \
-          "If you'd like reenable it - set corresponding limits, or set next for current hook:\n" \
+          "To re-enable it, set corresponding limits, or set the following for the current hook:\n" \
           "  args:\n" \
           "    - --hook-config=--parallelism-ci-cpu-cores=N\n" \
           "where N is the number of CPU cores to allocate to pre-commit."
