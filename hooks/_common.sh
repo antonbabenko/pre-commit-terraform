@@ -313,7 +313,6 @@ function common::per_dir_hook {
   done
 
   CPU=$(common::get_cpu_num "$parallelism_cpu_cores")
-
   # parallelism_limit can include reference to 'CPU' variable
   parallelism_limit=$((parallelism_limit))
   local parallelism_disabled=false
@@ -324,13 +323,17 @@ function common::per_dir_hook {
     parallelism_limit=1
     parallelism_disabled=true
   fi
-
-  local final_exit_code=0
   local pids=()
 
   mapfile -t dir_paths_unique < <(echo "${dir_paths[@]}" | tr ' ' '\n' | sort -u)
   local length=${#dir_paths_unique[@]}
   local last_index=$((${#dir_paths_unique[@]} - 1))
+
+  local final_exit_code=0
+  # preserve errexit status
+  shopt -qo errexit && ERREXIT_IS_SET=true
+  # allow hook to continue if exit_code is greater than 0
+  set +e
   # run hook for each path in parallel
   for ((i = 0; i < length; i++)); do
     dir_path="${dir_paths_unique[$i]//__REPLACED__SPACE__/ }"
@@ -362,6 +365,8 @@ function common::per_dir_hook {
 
   done
 
+  # restore errexit if it was set before the "for" loop
+  [[ $ERREXIT_IS_SET ]] && set -e
   # return the hook final exit_code
   exit $final_exit_code
 }
