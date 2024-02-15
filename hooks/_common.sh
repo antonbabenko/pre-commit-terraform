@@ -314,8 +314,7 @@ function common::per_dir_hook {
 
   if [[ ! $parallelism_limit ]]; then
     parallelism_limit=$((CPU - 1))
-  fi
-  if [[ $parallelism_limit -le 1 ]]; then
+  elif [[ $parallelism_limit -le 1 ]]; then
     parallelism_limit=1
     parallelism_disabled=true
   fi
