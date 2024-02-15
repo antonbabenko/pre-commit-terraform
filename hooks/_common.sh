@@ -396,7 +396,7 @@ function common::colorify {
     COLOR=$RESET
   fi
 
-  echo -e "${COLOR}${TEXT}${RESET}"
+  echo -e "${COLOR}${TEXT}${RESET}" >&2
 }
 
 #######################################################################
