@@ -171,10 +171,10 @@ function common::is_hook_run_on_whole_repo {
 }
 
 #######################################################################
-# Get the number of CPU logical cores available to pre-commit use
+# Get the number of CPU logical cores available for pre-commit to use
 # Arguments:
-#  parallelism_ci_cpu_cores (string) Used in corner cases when CPU cores
-#    can't be calculated
+#  parallelism_ci_cpu_cores (string) Used in edge cases when number of
+#    CPU cores can't be derived automatically
 # Outputs:
 #   Return number CPU logical cores, rounded to below integer
 #######################################################################
@@ -185,18 +185,18 @@ function common::get_cpu_num {
 
   if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]]; then
     # Inside K8s pod or DInD in K8s
-    millicpu=$(cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+    millicpu=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
 
     if [[ $millicpu -eq -1 ]]; then
       # K8s no limits or in DinD
       if [[ ! $parallelism_ci_cpu_cores ]]; then
-        common::colorify "yellow" "Unable to calculate available CPU cors.\n" \
-          "You in K8s pod without limits or in DinD without limits propagation.\n" \
-          "To avoid possible harm, parallelism disabled.\n" \
+        common::colorify "yellow" "Unable to derive number of available CPU cores.\n" \
+          "Running inside K8s pod without limits or inside DinD without limits propagation.\n" \
+          "To avoid possible harm, parallelism is disabled.\n" \
           "If you'd like reenable it - set corresponding limits, or set next for current hook:\n" \
           "  args:\n" \
           "    - --hook-config=--parallelism-ci-cpu-cores=N\n" \
-          "where N is the number of CPU cores you providing to pre-commit."
+          "where N is the number of CPU cores to allocate to pre-commit."
 
         return 1
       fi
@@ -211,7 +211,7 @@ function common::get_cpu_num {
     # Inside Linux (Docker?) container
     millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
 
-    if [[ "$millicpu" == "max" ]]; then
+    if [[ $millicpu == max ]]; then
       # No limits
       return "$(nproc 2> /dev/null || echo 1)"
     fi
@@ -297,7 +297,7 @@ function common::per_dir_hook {
         parallelism_limit="$value"
         ;;
       --parallelism-ci-cpu-cores)
-        # Used in corner cases when CPU cores can't be calculated
+        # Used in edge cases when number of CPU cores can't be derived automatically
         parallelism_ci_cpu_cores="$value"
         ;;
     esac
