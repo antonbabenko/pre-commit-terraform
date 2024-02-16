@@ -190,8 +190,15 @@ function common::get_cpu_num {
     if [[ $millicpu -eq -1 ]]; then
       # K8s no limits or in DinD
       if [[ -n $parallelism_ci_cpu_cores ]]; then
-        # 22 EINVAL Invalid argument. Some invalid argument was supplied.
-        [[ $parallelism_ci_cpu_cores =~ ^[[:digit:]]+$ ]] || return 22
+        if [[ ! $parallelism_ci_cpu_cores =~ ^[[:digit:]]+$ ]]; then
+          common::colorify "yellow" "--parallelism-ci-cpu-cores set to" \
+            "'$parallelism_ci_cpu_cores' which is not a positive integer.\n" \
+            "To avoid possible harm, parallelism is disabled.\n" \
+            "To re-enable it, change corresponding value in config to positive integer"
+
+          echo 1
+          return
+        fi
 
         echo "$parallelism_ci_cpu_cores"
         return
@@ -314,15 +321,30 @@ function common::per_dir_hook {
 
   CPU=$(common::get_cpu_num "$parallelism_ci_cpu_cores")
   # parallelism_limit can include reference to 'CPU' variable
-  parallelism_limit=$((parallelism_limit))
   local parallelism_disabled=false
 
   if [[ ! $parallelism_limit ]]; then
+    # Could evaluate to 0
     parallelism_limit=$((CPU - 1))
-  elif [[ $parallelism_limit -le 1 ]]; then
+  elif [[ $parallelism_limit -eq 1 ]]; then
+    parallelism_disabled=true
+  else
+    # Could evaluate to <1
+    parallelism_limit=$((parallelism_limit))
+  fi
+
+  if [[ $parallelism_limit -lt 1 ]]; then
+    # Suppress warning for Edge case when `--parallelism-ci-cpu-cores=1` and `parallelism_limit` unset
+    if [[ $CPU -ne 1 ]]; then
+
+      common::colorify "yellow" "Observed Parallelism limit '$parallelism_limit'." \
+        "To avoid possible harm, parallelism set to '1'"
+    fi
+
     parallelism_limit=1
     parallelism_disabled=true
   fi
+
   local pids=()
 
   mapfile -t dir_paths_unique < <(echo "${dir_paths[@]}" | tr ' ' '\n' | sort -u)
