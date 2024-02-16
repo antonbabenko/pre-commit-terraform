@@ -334,7 +334,8 @@ function common::per_dir_hook {
   fi
 
   if [[ $parallelism_limit -lt 1 ]]; then
-    # Suppress warning for Edge case when `--parallelism-ci-cpu-cores=1` and `parallelism_limit` unset
+    # Suppress warning for edge cases when only 1 CPU available or
+    # when `--parallelism-ci-cpu-cores=1` and `--parallelism_limit` unset
     if [[ $CPU -ne 1 ]]; then
 
       common::colorify "yellow" "Observed Parallelism limit '$parallelism_limit'." \
