@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.86.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.86.0...v1.86.1) (2024-02-16)
+
+
+### Bug Fixes
+
+* `grep: warning: stray \ before /` which pop-up in `grep 3.8` ([#625](https://github.com/antonbabenko/pre-commit-terraform/issues/625)) ([e1a93b2](https://github.com/antonbabenko/pre-commit-terraform/commit/e1a93b26b29eda144fd0f53e3d84a99c07b15070))
+
 # [1.86.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.85.0...v1.86.0) (2023-12-21)
 
 
