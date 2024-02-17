@@ -171,6 +171,75 @@ function common::is_hook_run_on_whole_repo {
 }
 
 #######################################################################
+# Get the number of CPU logical cores available for pre-commit to use
+# Arguments:
+#  parallelism_ci_cpu_cores (string) Used in edge cases when number of
+#    CPU cores can't be derived automatically
+# Outputs:
+#   Returns number of CPU logical cores, rounded down to nearest integer
+#######################################################################
+function common::get_cpu_num {
+  local -r parallelism_ci_cpu_cores=$1
+
+  local millicpu
+
+  if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]]; then
+    # Inside K8s pod or DinD in K8s
+    millicpu=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+
+    if [[ $millicpu -eq -1 ]]; then
+      # K8s no limits or in DinD
+      if [[ -n $parallelism_ci_cpu_cores ]]; then
+        if [[ ! $parallelism_ci_cpu_cores =~ ^[[:digit:]]+$ ]]; then
+          common::colorify "yellow" "--parallelism-ci-cpu-cores set to" \
+            "'$parallelism_ci_cpu_cores' which is not a positive integer.\n" \
+            "To avoid possible harm, parallelism is disabled.\n" \
+            "To re-enable it, change corresponding value in config to positive integer"
+
+          echo 1
+          return
+        fi
+
+        echo "$parallelism_ci_cpu_cores"
+        return
+      fi
+
+      common::colorify "yellow" "Unable to derive number of available CPU cores.\n" \
+        "Running inside K8s pod without limits or inside DinD without limits propagation.\n" \
+        "To avoid possible harm, parallelism is disabled.\n" \
+        "To re-enable it, set corresponding limits, or set the following for the current hook:\n" \
+        "  args:\n" \
+        "    - --hook-config=--parallelism-ci-cpu-cores=N\n" \
+        "where N is the number of CPU cores to allocate to pre-commit."
+
+      echo 1
+      return
+    fi
+
+    echo $((millicpu / 1000))
+    return
+  fi
+
+  if [[ -f /sys/fs/cgroup/cpu.max ]]; then
+    # Inside Linux (Docker?) container
+    millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
+
+    if [[ $millicpu == max ]]; then
+      # No limits
+      nproc 2> /dev/null || echo 1
+      return
+    fi
+
+    echo $((millicpu / 1000))
+    return
+  fi
+
+  # On host machine or any other case
+  # `nproc` - Linux/FreeBSD, `sysctl -n hw.ncpu` - macOS/BSD, `echo 1` - fallback
+  nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1
+}
+
+#######################################################################
 # Hook execution boilerplate logic which is common to hooks, that run
 # on per dir basis.
 # 1. Because hook runs on whole dir, reduce file paths to uniq dir paths
@@ -219,10 +288,16 @@ function common::per_dir_hook {
 
   # Lookup hook-config for modifiers that impact common behavior
   local change_dir_in_unique_part=false
+
+  local parallelism_limit
   IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
   for c in "${configs[@]}"; do
     IFS="=" read -r -a config <<< "$c"
-    key=${config[0]}
+
+    # $hook_config receives string like '--foo=bar; --baz=4;' etc.
+    # It gets split by `;` into array, which we're parsing here ('--foo=bar' ' --baz=4')
+    # Next line removes leading spaces, to support >1 `--hook-config` args
+    key="${config[0]## }"
     value=${config[1]}
 
     case $key in
@@ -233,32 +308,82 @@ function common::per_dir_hook {
           change_dir_in_unique_part="delegate_chdir"
         fi
         ;;
+      --parallelism-limit)
+        # this flag will limit the number of parallel processes
+        parallelism_limit="$value"
+        ;;
+      --parallelism-ci-cpu-cores)
+        # Used in edge cases when number of CPU cores can't be derived automatically
+        parallelism_ci_cpu_cores="$value"
+        ;;
     esac
   done
 
+  CPU=$(common::get_cpu_num "$parallelism_ci_cpu_cores")
+  # parallelism_limit can include reference to 'CPU' variable
+  local parallelism_disabled=false
+
+  if [[ ! $parallelism_limit ]]; then
+    # Could evaluate to 0
+    parallelism_limit=$((CPU - 1))
+  elif [[ $parallelism_limit -eq 1 ]]; then
+    parallelism_disabled=true
+  else
+    # Could evaluate to <1
+    parallelism_limit=$((parallelism_limit))
+  fi
+
+  if [[ $parallelism_limit -lt 1 ]]; then
+    # Suppress warning for edge cases when only 1 CPU available or
+    # when `--parallelism-ci-cpu-cores=1` and `--parallelism_limit` unset
+    if [[ $CPU -ne 1 ]]; then
+
+      common::colorify "yellow" "Observed Parallelism limit '$parallelism_limit'." \
+        "To avoid possible harm, parallelism set to '1'"
+    fi
+
+    parallelism_limit=1
+    parallelism_disabled=true
+  fi
+
+  local pids=()
+
+  mapfile -t dir_paths_unique < <(echo "${dir_paths[@]}" | tr ' ' '\n' | sort -u)
+  local length=${#dir_paths_unique[@]}
+  local last_index=$((${#dir_paths_unique[@]} - 1))
+
+  local final_exit_code=0
   # preserve errexit status
   shopt -qo errexit && ERREXIT_IS_SET=true
   # allow hook to continue if exit_code is greater than 0
   set +e
-  local final_exit_code=0
+  # run hook for each path in parallel
+  for ((i = 0; i < length; i++)); do
+    dir_path="${dir_paths_unique[$i]//__REPLACED__SPACE__/ }"
+    {
+      if [[ $change_dir_in_unique_part == false ]]; then
+        pushd "$dir_path" > /dev/null
+      fi
 
-  # run hook for each path
-  for dir_path in $(echo "${dir_paths[*]}" | tr ' ' '\n' | sort -u); do
-    dir_path="${dir_path//__REPLACED__SPACE__/ }"
+      per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "$parallelism_disabled" "${args[@]}"
+    } &
+    pids+=("$!")
 
-    if [[ $change_dir_in_unique_part == false ]]; then
-      pushd "$dir_path" > /dev/null || continue
-    fi
+    if [[ $parallelism_disabled == true ]] ||
+      [[ $i -ne 0 && $((i % parallelism_limit)) -eq 0 ]] || # don't stop on first iteration when parallelism_limit>1
+      [[ $i -eq $last_index ]]; then
 
-    per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "${args[@]}"
+      for pid in "${pids[@]}"; do
+        # Get the exit code from the background process
+        local exit_code=0
+        wait "$pid" || exit_code=$?
 
-    local exit_code=$?
-    if [ $exit_code -ne 0 ]; then
-      final_exit_code=$exit_code
-    fi
-
-    if [[ $change_dir_in_unique_part == false ]]; then
-      popd > /dev/null
+        if [ $exit_code -ne 0 ]; then
+          final_exit_code=$exit_code
+        fi
+      done
+      # Reset pids for next iteration
+      unset pids
     fi
 
   done
@@ -291,14 +416,15 @@ function common::colorify {
 
   # Params start #
   local COLOR="${!1}"
-  local -r TEXT=$2
+  shift
+  local -r TEXT="$*"
   # Params end #
 
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     COLOR=$RESET
   fi
 
-  echo -e "${COLOR}${TEXT}${RESET}"
+  echo -e "${COLOR}${TEXT}${RESET}" >&2
 }
 
 #######################################################################
@@ -307,8 +433,11 @@ function common::colorify {
 #   command_name (string) command that will tun after successful init
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   parallelism_disabled (bool) if true - skip lock mechanism
 # Globals (init and populate):
 #   TF_INIT_ARGS (array) arguments for `terraform init` command
+#   TF_PLUGIN_CACHE_DIR (string) user defined env var with name of the directory
+#     which can't be R/W concurrently
 # Outputs:
 #   If failed - print out terraform init output
 #######################################################################
@@ -316,6 +445,7 @@ function common::colorify {
 function common::terraform_init {
   local -r command_name=$1
   local -r dir_path=$2
+  local -r parallelism_disabled=$3
 
   local exit_code=0
   local init_output
@@ -325,9 +455,32 @@ function common::terraform_init {
     TF_INIT_ARGS+=("-no-color")
   fi
 
-  if [ ! -d .terraform/modules ] || [ ! -d .terraform/providers ]; then
-    init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
-    exit_code=$?
+  recreate_modules=$([[ ! -d .terraform/modules ]] && echo true || echo false)
+  recreate_providers=$([[ ! -d .terraform/providers ]] && echo true || echo false)
+
+  if [[ $recreate_modules == true || $recreate_providers == true ]]; then
+    # Plugin cache dir can't be written concurrently or read during write
+    # https://github.com/hashicorp/terraform/issues/31964
+    if [[ -z $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
+      init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+      exit_code=$?
+    else
+      # Locking just doesn't work, and the below works quicker instead. Details:
+      # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
+      for i in {1..10}; do
+        init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        exit_code=$?
+
+        if [ $exit_code -eq 0 ]; then
+          break
+        fi
+        sleep 1
+
+        common::colorify "green" "Race condition detected. Retrying 'terraform init' command [retry $i]: $dir_path."
+        [[ $recreate_modules == true ]] && rm -rf .terraform/modules
+        [[ $recreate_providers == true ]] && rm -rf .terraform/providers
+      done
+    fi
 
     if [ $exit_code -ne 0 ]; then
       common::colorify "red" "'terraform init' failed, '$command_name' skipped: $dir_path"

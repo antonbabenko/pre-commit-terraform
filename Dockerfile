@@ -173,6 +173,7 @@ RUN . /.env && \
 RUN . /.env && \
     F=tools_versions_info && \
     pre-commit --version >> $F && \
+    echo "flock $(flock 2>&1 | head -n 1)" >> $F && \
     ./terraform --version | head -n 1 >> $F && \
     (if [ "$CHECKOV_VERSION"        != "false" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F        ; fi) && \
     (if [ "$INFRACOST_VERSION"      != "false" ]; then echo "$(./infracost --version)" >> $F;         else echo "infracost SKIPPED" >> $F      ; fi) && \

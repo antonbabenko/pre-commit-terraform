@@ -38,6 +38,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
+  * [Many hooks: Parallelism](#many-hooks-parallelism)
   * [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
   * [infracost\_breakdown](#infracost_breakdown)
   * [terraform\_docs](#terraform_docs)
@@ -337,6 +338,70 @@ To disable color output for all hooks, set `PRE_COMMIT_COLOR=never` var. Eg:
 ```bash
 PRE_COMMIT_COLOR=never pre-commit run
 ```
+
+### Many hooks: Parallelism
+
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace` and hooks which can't be paralleled this way: `infracost_breakdown`, `terraform_wrapper_module_for_each`.  
+> Also, there's a chance that parallelism have no effect on `terragrunt_fmt` and `terragrunt_validate` hooks
+
+By default, parallelism is set to `number of logical CPUs - 1`.  
+If you'd like to disable parallelism, set it to `1`
+
+```yaml
+- id: terragrunt_validate
+  args:
+    - --hook-config=--parallelism-limit=1
+```
+
+In the same way you can set it to any positive integer.
+
+If you'd like to set parallelism value relative to number of CPU logical cores - provide valid Bash arithmetic expression and use `CPU` as a reference to the number of CPU logical cores
+
+
+```yaml
+- id: terraform_providers_lock
+  args:
+    - --hook-config=--parallelism-limit=CPU*4
+```
+
+> [!TIP]
+> <details><summary>Info useful for parallelism fine-tunning</summary>
+>
+> <br>
+> Tests below were run on repo with 45 Terraform dirs on laptop with 16 CPUs, SSD and 1Gbit/s network. Laptop was slightly used in the process.
+>
+> Observed results may vary greatly depending on your repo structure, machine characteristics and their usage.
+>
+> If during fine-tuning you'll find that your results are very different from provided below and you think that this data could help someone else - feel free to send PR.
+>
+>
+> | Hook                                                                           | Most used resource                 | Comparison of optimization results / Notes                      |
+> | ------------------------------------------------------------------------------ | ---------------------------------- | --------------------------------------------------------------- |
+> | terraform_checkov                                                              | CPU heavy                          | -                                                               |
+> | terraform_fmt                                                                  | CPU heavy                          | -                                                               |
+> | terraform_providers_lock (3 platforms,<br>`--mode=always-regenerate-lockfile`) | Network & Disk heavy               | `defaults (CPU-1)` - 3m 39s; `CPU*2` - 3m 19s; `CPU*4` - 2m 56s |
+> | terraform_tflint                                                               | CPU heavy                          | -                                                               |
+> | terraform_tfsec                                                                | CPU heavy                          | -                                                               |
+> | terraform_trivy                                                                | CPU moderate                       | `defaults (CPU-1)` - 32s; `CPU*2` - 30s; `CPU*4` - 31s          |
+> | terraform_validate (t validate only)                                           | CPU heavy                          | -                                                               |
+> | terraform_validate (t init + t validate)                                       | Network & Disk heavy, CPU moderate | `defaults (CPU-1)` - 1m 30s; `CPU*2` - 1m 25s; `CPU*4` - 1m 41s |
+> | terragrunt_fmt                                                                 | CPU heavy                          | N/A? need more info from TG users                               |
+> | terragrunt_validate                                                            | CPU heavy                          | N/A? need more info from TG users                               |
+> | terrascan                                                                      | CPU moderate-heavy                 | `defaults (CPU-1)` - 8s; `CPU*2` - 6s                           |
+> | tfupdate                                                                       | Disk/Network?                      | too quick in any settings. More info needed                     |
+>
+>
+> </details>
+
+
+
+```yaml
+args:
+  - --hook-config=--parallelism-ci-cpu-cores=N
+```
+
+If you don't see code above in your `pre-commit-config.yaml` or logs - you don't need it.  
+`--parallelism-ci-cpu-cores` used only in edge cases and is ignored in other situations. Check out its usage in [hooks/_common.sh](hooks/_common.sh)
 
 ### checkov (deprecated) and terraform_checkov
 
