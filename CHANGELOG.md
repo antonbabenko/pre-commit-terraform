@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.87.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.86.1...v1.87.0) (2024-02-17)
+
+
+### Features
+
+* Add parallelism to major chunk of hooks. Check `Parallelism` section in README ([#620](https://github.com/antonbabenko/pre-commit-terraform/issues/620)) ([6c6eca4](https://github.com/antonbabenko/pre-commit-terraform/commit/6c6eca463a74fa2608cb3de3e03873765d46252f))
+
 ## [1.86.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.86.0...v1.86.1) (2024-02-16)
 
 
