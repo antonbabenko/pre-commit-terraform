@@ -347,6 +347,7 @@ function common::per_dir_hook {
   fi
 
   local pids=()
+  local dir_paths_unique=()
 
   while IFS= read -r _line; do
     dir_paths_unique+=("$_line")
