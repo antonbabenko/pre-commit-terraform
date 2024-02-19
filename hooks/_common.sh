@@ -348,8 +348,12 @@ function common::per_dir_hook {
 
   local pids=()
 
-  # shellcheck disable=SC2207 # More readable way
-  local -a dir_paths_unique=($(printf '%s\n' "${dir_paths[@]}" | sort -u))
+  # Note: This can break if any elements of dir_path contain glob characters.
+  # However, all elements of dir_path are generated from the output of dirname
+  # Which means all glob characters will already have been expanded.
+  # shellcheck disable=SC2207 # Can't use mapfile in bash 3
+  IFS=$'\n' local -a dir_paths_unique=($(sort -u <<<"${dir_paths[*]}"))
+  unset IFS
 
   local length=${#dir_paths_unique[@]}
   local last_index=$((${#dir_paths_unique[@]} - 1))
