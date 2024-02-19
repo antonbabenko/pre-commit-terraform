@@ -348,7 +348,7 @@ function common::per_dir_hook {
 
   local pids=()
 
-  # shellcheck disable=SC2207
+  # shellcheck disable=SC2207 # More readable way
   local -a dir_paths_unique=($(printf '%s\n' "${dir_paths[@]}" | sort -u))
 
   local length=${#dir_paths_unique[@]}
