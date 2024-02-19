@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.87.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.87.0...v1.87.1) (2024-02-19)
+
+
+### Bug Fixes
+
+* Replace `mapfile` to support Bash 3.2.57 pre-installed in macOS ([#628](https://github.com/antonbabenko/pre-commit-terraform/issues/628)) ([01ab3f0](https://github.com/antonbabenko/pre-commit-terraform/commit/01ab3f0c68abda9f5799647f783c91c3d1fa3a90))
+
 # [1.87.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.86.1...v1.87.0) (2024-02-17)
 
 
