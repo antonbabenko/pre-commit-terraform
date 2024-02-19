@@ -348,11 +348,12 @@ function common::per_dir_hook {
 
   local pids=()
 
+  local -a dir_paths_unique
   # Note: This can break if any elements of dir_path contain glob characters.
   # However, all elements of dir_path are generated from the output of dirname
   # Which means all glob characters will already have been expanded.
   # shellcheck disable=SC2207 # Can't use mapfile in bash 3
-  IFS=$'\n' local -a dir_paths_unique=($(sort -u <<<"${dir_paths[*]}"))
+  IFS=$'\n' dir_paths_unique=($(sort -u <<< "${dir_paths[*]}"))
   unset IFS
 
   local length=${#dir_paths_unique[@]}
