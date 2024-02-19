@@ -91,7 +91,6 @@ echo -n "tfsec " && tfsec --version       2>/dev/null || echo "SKIPPED"
 echo -n "trivy " && trivy --version       2>/dev/null || echo "SKIPPED"
 echo -n "tfupdate " && tfupdate --version 2>/dev/null || echo "SKIPPED"
 echo -n "hcledit " && hcledit version     2>/dev/null || echo "SKIPPED"
-echo -n "flock " && flock --version       2>/dev/null || echo "SKIPPED"
 EOF
 
 -->
