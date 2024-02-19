@@ -347,11 +347,10 @@ function common::per_dir_hook {
   fi
 
   local pids=()
-  local dir_paths_unique=()
 
-  while IFS= read -r _line; do
-    dir_paths_unique+=("$_line")
-  done < <(printf '%s\n' "${dir_paths[@]}" | sort -u)
+  # shellcheck disable=SC2207
+  local -a dir_paths_unique=("$(printf '%s\n' "${dir_paths[@]}" | sort -u)")
+
   local length=${#dir_paths_unique[@]}
   local last_index=$((${#dir_paths_unique[@]} - 1))
 
