@@ -348,7 +348,9 @@ function common::per_dir_hook {
 
   local pids=()
 
-  mapfile -t dir_paths_unique < <(echo "${dir_paths[@]}" | tr ' ' '\n' | sort -u)
+  while IFS= read -r _line; do
+    dir_paths_unique+=("$_line")
+  done < <(printf '%s\n' "${dir_paths[@]}" | sort -u)
   local length=${#dir_paths_unique[@]}
   local last_index=$((${#dir_paths_unique[@]} - 1))
 
