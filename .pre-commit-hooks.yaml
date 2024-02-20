@@ -85,6 +85,14 @@
   files: (\.hcl)$
   exclude: \.terraform/.*$
 
+- id: terragrunt_providers_lock
+  name: Lock terraform provider versions with Terragrunt
+  description: Updates provider signatures in dependency lock files with terragrunt.
+  entry: hooks/terragrunt_providers_lock.sh
+  language: script
+  files: (\.terraform\.lock\.hcl)$
+  exclude: \.terraform/.*$
+
 - id: terraform_tfsec
   name: Terraform validate with tfsec (deprecated, use "terraform_trivy")
   description: Static analysis of Terraform templates to spot potential security issues.
