@@ -862,7 +862,7 @@ To replicate functionality in `terraform_docs` hook:
        args:
          - >
            --args=--format json
-           --skip-dirs="**/.terragrunt-cache"
+           --args=--skip-dirs "**/.terraform"
     ```
 
 ### terraform_validate
