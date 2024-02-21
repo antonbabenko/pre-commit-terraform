@@ -1062,10 +1062,15 @@ No need to pass `--recursive .` as it is added automatically.
 
 ### terragrunt_providers_lock
 
-Runs lock files update in terragrunt workdirs.
+Hook produces same results as `terraform_providers_lock`, but for terragrunt root modules.
+
+It just invokes `terragrunt providers lock` under the hood and terragrunt [does its' own magic](https://terragrunt.gruntwork.io/docs/features/lock-file-handling/) for handling lock files.
+
+> [!TIP]
+> Use this hook only in infrastructure repos managed solely by `terragrunt` and do not mix with `terraform_providers_lock` to avoid conflicts.
 
 > [!WARNING]
-> It invokes `terragrunt providers lock` that may be very slow.
+> Hook _may_ be very slow, because it invokes init under the hood. 
 
 ```yaml
 - id: terragrunt_providers_lock
