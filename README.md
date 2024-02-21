@@ -52,6 +52,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
+  * [terragrunt_providers_lock](#terragrunt_providers_lock)
 * [Docker Usage](#docker-usage)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
@@ -1060,19 +1061,19 @@ No need to pass `--recursive .` as it is added automatically.
 
 ### terragrunt_providers_lock
 
-Run updating of lock files in terragrunt workdirs.
+Runs lock files update in terragrunt workdirs.
 
 > [!WARNING]
 > It invokes `terragrunt providers lock` that may be very slow.
 
-    ```yaml
-    - id: terragrunt_providers_lock
-      name: Terragrunt providers lock
-      args:
-        - --args=-platform=darwin_arm64
-        - --args=-platform=darwin_amd64
-        - --args=-platform=linux_amd64
-    ```
+```yaml
+- id: terragrunt_providers_lock
+    name: Terragrunt providers lock
+    args:
+    - --args=-platform=darwin_arm64
+    - --args=-platform=darwin_amd64
+    - --args=-platform=linux_amd64
+```
 
 ## Docker Usage
 
