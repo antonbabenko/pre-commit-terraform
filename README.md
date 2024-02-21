@@ -1058,6 +1058,22 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
 No need to pass `--recursive .` as it is added automatically.
 
+### terragrunt_providers_lock
+
+Run updating of lock files in terragrunt workdirs.
+
+> [!WARNING]
+> It invokes `terragrunt providers lock` that may be very slow.
+
+    ```yaml
+    - id: terragrunt_providers_lock
+      name: Terragrunt providers lock 
+      args:
+        - --args=-platform=darwin_arm64 
+        - --args=-platform=darwin_amd64 
+        - --args=-platform=linux_amd64
+    ```
+
 ## Docker Usage
 
 ### File Permissions

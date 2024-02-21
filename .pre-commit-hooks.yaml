@@ -86,11 +86,11 @@
   exclude: \.terraform/.*$
 
 - id: terragrunt_providers_lock
-  name: Lock terraform provider versions with Terragrunt
-  description: Updates provider signatures in dependency lock files with terragrunt.
+  name: Terragrunt providers lock
+  description: Updates provider signatures in dependency lock files using terragrunt.
   entry: hooks/terragrunt_providers_lock.sh
   language: script
-  files: (\.hcl|\.terraform\.lock\.hcl)$
+  files: (\.hcl)$
   exclude: \.terraform/.*$
 
 - id: terraform_tfsec
