@@ -90,8 +90,8 @@
   description: Updates provider signatures in dependency lock files using terragrunt.
   entry: hooks/terragrunt_providers_lock.sh
   language: script
-  files: (terragrunt\.hcl|\.terraform\.lock\.hcl)$
-  exclude: (\.terraform/.*|\.terragrunt-cache)$
+  files: (terragrunt|\.terraform\.lock)\.hcl$
+  exclude: \.(terraform/.*|terragrunt-cache)$
 
 - id: terraform_tfsec
   name: Terraform validate with tfsec (deprecated, use "terraform_trivy")
