@@ -52,6 +52,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
+  * [terragrunt\_providers\_lock](#terragrunt_providers_lock)
 * [Docker Usage](#docker-usage)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
@@ -281,6 +282,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
+| `terragrunt_providers_lock`                            | Generates `.terraform.lock.hcl` files using [Terragrunt](https://github.com/gruntwork-io/terragrunt).                                                                                                                   | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan](https://github.com/tenable/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                        | `terrascan`                                                                          |
 | `tfupdate`                                             | [tfupdate](https://github.com/minamijoyo/tfupdate) Update version constraints of Terraform core, providers, and modules. [Hook notes](#tfupdate)                                                                                             | `tfupdate`                                                                           |
@@ -1057,6 +1059,28 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
 Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
 No need to pass `--recursive .` as it is added automatically.
+
+### terragrunt_providers_lock
+
+> [!TIP]
+> Use this hook only in infrastructure repos managed solely by `terragrunt` and do not mix with [`terraform_providers_lock`](#terraform_providers_lock) to avoid conflicts.
+
+> [!WARNING]
+> Hook _may_ be very slow, because terragrunt invokes `t init` under the hood.
+
+Hook produces same results as [`terraform_providers_lock`](#terraform_providers_lock), but for terragrunt root modules.
+
+It invokes `terragrunt providers lock` under the hood and terragrunt [does its' own magic](https://terragrunt.gruntwork.io/docs/features/lock-file-handling/) for handling lock files.
+
+
+```yaml
+- id: terragrunt_providers_lock
+  name: Terragrunt providers lock
+  args:
+    - --args=-platform=darwin_arm64
+    - --args=-platform=darwin_amd64
+    - --args=-platform=linux_amd64
+```
 
 ## Docker Usage
 
