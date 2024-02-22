@@ -52,7 +52,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
-  * [terragrunt_providers_lock](#terragrunt_providers_lock)
+  * [terragrunt\_providers\_lock](#terragrunt_providers_lock)
 * [Docker Usage](#docker-usage)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
@@ -1062,15 +1062,16 @@ No need to pass `--recursive .` as it is added automatically.
 
 ### terragrunt_providers_lock
 
-Hook produces same results as `terraform_providers_lock`, but for terragrunt root modules.
-
-It just invokes `terragrunt providers lock` under the hood and terragrunt [does its' own magic](https://terragrunt.gruntwork.io/docs/features/lock-file-handling/) for handling lock files.
-
 > [!TIP]
-> Use this hook only in infrastructure repos managed solely by `terragrunt` and do not mix with `terraform_providers_lock` to avoid conflicts.
+> Use this hook only in infrastructure repos managed solely by `terragrunt` and do not mix with [`terraform_providers_lock`](#terraform_providers_lock) to avoid conflicts.
 
 > [!WARNING]
-> Hook _may_ be very slow, because it invokes init under the hood. 
+> Hook _may_ be very slow, because terragrunt invokes `t init` under the hood.
+
+Hook produces same results as [`terraform_providers_lock`](#terraform_providers_lock), but for terragrunt root modules.
+
+It invokes `terragrunt providers lock` under the hood and terragrunt [does its' own magic](https://terragrunt.gruntwork.io/docs/features/lock-file-handling/) for handling lock files.
+
 
 ```yaml
 - id: terragrunt_providers_lock
