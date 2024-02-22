@@ -1075,8 +1075,8 @@ It invokes `terragrunt providers lock` under the hood and terragrunt [does its' 
 
 ```yaml
 - id: terragrunt_providers_lock
-    name: Terragrunt providers lock
-    args:
+  name: Terragrunt providers lock
+  args:
     - --args=-platform=darwin_arm64
     - --args=-platform=darwin_amd64
     - --args=-platform=linux_amd64
