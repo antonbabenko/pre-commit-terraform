@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.88.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.87.1...v1.88.0) (2024-02-22)
+
+
+### Features
+
+* Add `terragrunt_providers_lock` hook ([#632](https://github.com/antonbabenko/pre-commit-terraform/issues/632)) ([77940fd](https://github.com/antonbabenko/pre-commit-terraform/commit/77940fd1fbbe9d3ea70306f396e1d8a13534d51d))
+
 ## [1.87.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.87.0...v1.87.1) (2024-02-19)
 
 
