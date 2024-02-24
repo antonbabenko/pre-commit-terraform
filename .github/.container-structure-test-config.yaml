@@ -18,7 +18,7 @@ commandTests:
   - name: "gcc"
     command: "gcc"
     args: ["--version"]
-    expectedOutput: ["^gcc \(Alpine 12\..*$"]
+    expectedOutput: ["^gcc \\(Alpine 12\\..*$"]
 
   - name: "checkov"
     command: "checkov"
