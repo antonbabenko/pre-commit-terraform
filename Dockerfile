@@ -66,12 +66,12 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
 RUN . /.env && \
     if [ "$CHECKOV_VERSION" != "false" ]; then \
     ( \
-        # gcc rust cargo musl-dev required for compilation of rustworkx@0.13.2, no longer required once checkov version depends on rustworkx >0.14.0
-        # gcc libffi-dev musl-dev libffi-dev required for compilation of cffi, until it contains musl aarch64 
+        # cargo, gcc, git, musl-dev, and rust required for compilation of rustworkx@0.13.2, no longer required once checkov version depends on rustworkx >0.14.0
+        # gcc libffi-dev musl-dev required for compilation of cffi, until it contains musl aarch64
         apk add --no-cache cargo=~1 gcc=~12 libffi-dev=~3 libgcc=~12 musl-dev=~1 rust=~1 ; \
         [ "$CHECKOV_VERSION" = "latest" ] && pip3 install --no-cache-dir checkov \
         || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION}; \
-        apk del gcc libffi-dev musl-dev rust cargo \
+        apk del cargo gcc libffi-dev musl-dev rust \
     ) \
     ; fi
 
