@@ -861,10 +861,9 @@ To replicate functionality in `terraform_docs` hook:
 
     ```yaml
      - id: terraform_trivy
-       args:
-         - >
-           --args=--format json
-           --skip-dirs="**/.terragrunt-cache"
+        args:
+          - --args=--format=json
+          - --args=--skip-dirs="**/.terraform"
     ```
 
 ### terraform_validate
