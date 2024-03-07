@@ -1,8 +1,24 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-[[ $PCT_LOG == trace ]] && set -x # Enable Trace logs
+if [[ $PCT_LOG == trace ]]; then
 
+  # FUNC_TRACE="${FUNCNAME[*]:1}" # Get functions in trace. Skip first two functions that used for logging
+  # func_trace=${FUNC_TRACE// / <- } # Replace ' ' to ' <- '.
+  echo "BASH path: '$BASH'"
+  echo "BASH_VERSION: $BASH_VERSION"
+  echo "BASHOPTS: $BASHOPTS"
+  echo "OSTYPE: $OSTYPE"
+
+  # ${FUNCNAME[*]} - reverse functions trace. Each new function call append to start
+  # ${BASH_SOURCE##*/} - get filename
+  # $LINENO - get line number
+  export PS4='\e[2m
+trace: ${FUNCNAME[*]}
+       ${BASH_SOURCE##*/}:$LINENO: \e[0m'
+
+  set -x
+fi
 # Hook ID, based on hook filename.
 # Hook filename MUST BE same with `- id` in .pre-commit-hooks.yaml file
 # shellcheck disable=SC2034 # Unused var.
