@@ -1,6 +1,6 @@
 name: "Build Dockerfile if changed and run smoke tests"
 
-on: [pull_request]
+on: push
 
 env:
   IMAGE_TAG: pr-test
