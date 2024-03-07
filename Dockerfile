@@ -72,8 +72,10 @@ RUN . /.env && \
         # gcc libffi-dev musl-dev required for compilation of cffi, until it contains musl aarch64
         export CARGO_NET_GIT_FETCH_WITH_CLI=true && \
         apk add --no-cache cargo=~1 gcc=~12 git=~2 libffi-dev=~3 libgcc=~12 musl-dev=~1 rust=~1 ; \
-        [ "$CHECKOV_VERSION" = "latest" ] && pip3 install --no-cache-dir checkov \
-        || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION}; \
+        if [ "$CHECKOV_VERSION" = "latest" ]; \
+            then pip3 install --no-cache-dir checkov || exit 1; \
+            else pip3 install --no-cache-dir checkov==${CHECKOV_VERSION} || exit 1; \
+        fi; \
         apk del cargo gcc git libffi-dev musl-dev rust \
     ) \
     ; fi
