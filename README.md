@@ -869,7 +869,7 @@ To replicate functionality in `terraform_docs` hook:
 ### terraform_validate
 
 > [!IMPORTANT]
-> If you have the [plugin cache](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache) enabled, we recommend disabling parallelism (`--hook-config=--parallelism-limit=1`) to avoid races when `terraform init` writes to it.
+> If you use the [plugin_cache_dir](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache) enabled, we recommend enabling `--hook-config=--retry-once-with-cleanup=true` or disabling parallelism (`--hook-config=--parallelism-limit=1`) to avoid race conditions when `terraform init` writes to it.
 
 1. `terraform_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
 
