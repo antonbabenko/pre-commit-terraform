@@ -3,8 +3,6 @@ set -eo pipefail
 
 if [[ $PCT_LOG == trace ]]; then
 
-  # FUNC_TRACE="${FUNCNAME[*]:1}" # Get functions in trace. Skip first two functions that used for logging
-  # func_trace=${FUNC_TRACE// / <- } # Replace ' ' to ' <- '.
   echo "BASH path: '$BASH'"
   echo "BASH_VERSION: $BASH_VERSION"
   echo "BASHOPTS: $BASHOPTS"
