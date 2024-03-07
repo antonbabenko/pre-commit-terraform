@@ -70,8 +70,8 @@ RUN . /.env && \
     ( \
         apk add --no-cache gcc=~12 libffi-dev=~3 musl-dev=~1; \
         if [ "$CHECKOV_VERSION" = "latest" ]; \
-            then pip3 install --no-cache-dir checkov; \
-            else pip3 install --no-cache-dir checkov==${CHECKOV_VERSION}; \
+            then pip3 install --no-cache-dir checkov || exit 1; \
+            else pip3 install --no-cache-dir checkov==${CHECKOV_VERSION} || exit 1; \
         fi; \
         apk del gcc libffi-dev musl-dev \
     ) \
