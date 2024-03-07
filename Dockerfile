@@ -70,12 +70,39 @@ RUN . /.env && \
     ( \
         apk add --no-cache gcc=~12 libffi-dev=~3 musl-dev=~1; \
         if [ "$CHECKOV_VERSION" = "latest" ]; \
-            then pip3 install --no-cache-dir checkov || exit 1; \
-            else pip3 install --no-cache-dir checkov==${CHECKOV_VERSION} || exit 1; \
+            then pip3 install --no-cache-dir checkov || SILENT_FAIL=true; \
+            else pip3 install --no-cache-dir checkov==${CHECKOV_VERSION} || SILENT_FAIL=true; \
         fi; \
-        apk del gcc libffi-dev musl-dev \
+        apk del gcc libffi-dev musl-dev; \
+
+        if [ "$SILENT_FAIL" = "true" ]; then \
+        if [ "$TARGETARCH" != "amd64" ]; then ARCH="$TARGETARCH"; else ARCH="X86_64"; fi; \
+        ( \
+            CHECKOV_RELEASES="https://api.github.com/repos/bridgecrewio/checkov/releases" && \
+            if [ "$CHECKOV_VERSION" = "latest" ]; \
+                then curl -L "$(curl -s ${CHECKOV_RELEASES}/latest | grep -o -E -m 1 "https://.+?checkov_${TARGETOS}_${ARCH}.+.zip")" > checkov.zip; \
+                else curl -L "$(curl -s ${CHECKOV_RELEASES} | grep -o -E "https://.+?/v${CHECKOV_VERSION}/checkov_${TARGETOS}_${ARCH}_${CHECKOV_VERSION}.zip")" > checkov.zip; \
+            fi; \
+        ) && unzip checkov.zip && mv dist/checkov checkov && rm -rf checkov.zip dist/ \
+        ; fi; \
     ) \
     ; fi
+
+
+# Checkov
+# RUN . /.env && \
+#     if [ "$CHECKOV_VERSION" != "false" ]; then \
+#     if [ "$TARGETARCH" != "amd64" ]; then ARCH="$TARGETARCH"; else ARCH="X86_64"; fi; \
+#     ( \
+#         CHECKOV_RELEASES="https://api.github.com/repos/bridgecrewio/checkov/releases" && \
+#         if [ "$CHECKOV_VERSION" = "latest" ]; \
+#             then curl -L "$(curl -s ${CHECKOV_RELEASES}/latest | grep -o -E -m 1 "https://.+?checkov_${TARGETOS}_${ARCH}.+.zip")" > checkov.zip; \
+#             else curl -L "$(curl -s ${CHECKOV_RELEASES} | grep -o -E "https://.+?/v${CHECKOV_VERSION}/checkov_${TARGETOS}_${ARCH}_${CHECKOV_VERSION}.zip")" > checkov.zip; \
+#         fi; \
+#     ) && unzip checkov.zip && mv dist/checkov checkov && rm -rf checkov.zip dist/ \
+#     ; fi
+
+
 
 # infracost
 RUN . /.env && \
