@@ -674,8 +674,8 @@ To replicate functionality in `terraform_docs` hook:
 
     * `only-check-is-current-lockfile-cross-platform` with [terraform_validate hook](#terraform_validate) - make up-to-date lockfile by adding/removing providers and only then check that lockfile has all required SHAs.
 
-    >  **Important**  
-    > Next `terraform_validate` flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
+        > **Important**
+        > Next `terraform_validate` flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
 
         ```yaml
         - id: terraform_validate
@@ -867,6 +867,9 @@ To replicate functionality in `terraform_docs` hook:
     ```
 
 ### terraform_validate
+
+> [!IMPORTANT]
+> If you have the [plugin cache](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache) enabled, we recommend disabling parallelism (`--hook-config=--parallelism-limit=1`) to avoid races when `terraform init` writes to it.
 
 1. `terraform_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
 
