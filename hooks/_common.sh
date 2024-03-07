@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+[[ $PCT_LOG == trace ]] && set -x # Enable Trace logs
+
 # Hook ID, based on hook filename.
 # Hook filename MUST BE same with `- id` in .pre-commit-hooks.yaml file
 # shellcheck disable=SC2034 # Unused var.
