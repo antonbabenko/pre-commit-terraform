@@ -49,6 +49,7 @@ repos:
         '--ignore', 'SC2015', # Useless check
         '--ignore', 'SC3037', # Not related to alpine
         '--ignore', 'DL3013', # Pin versions in pip
+        '--ignore', 'DL3059', # Docker `RUN`s shouldn't be consolidated here
       ]
 
 # JSON5 Linter
