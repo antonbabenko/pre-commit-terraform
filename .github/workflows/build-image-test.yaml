@@ -38,7 +38,7 @@ jobs:
           context: .
           build-args: |
             INSTALL_ALL=true
-          platforms: linux/amd64 # Only one allowed here, see https://github.com/docker/buildx/issues/59#issuecomment-1433097926
+          platforms: linux/${{ matrix.arch }} # Only one allowed here, see https://github.com/docker/buildx/issues/59#issuecomment-1433097926
           push: false
           load: true
           tags: |
