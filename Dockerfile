@@ -17,8 +17,10 @@ ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
 
 # Install pre-commit
-RUN [ ${PRE_COMMIT_VERSION} = "latest" ] && pip3 install --no-cache-dir pre-commit \
-    || pip3 install --no-cache-dir pre-commit==${PRE_COMMIT_VERSION}
+RUN if [ ${PRE_COMMIT_VERSION} = "latest" ]; \
+        then pip3 install --no-cache-dir pre-commit; \
+        else pip3 install --no-cache-dir pre-commit==${PRE_COMMIT_VERSION}; \
+    fi
 
 # Install terraform because pre-commit needs it
 RUN if [ "${TERRAFORM_VERSION}" = "latest" ]; then \
@@ -66,10 +68,16 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
 RUN . /.env && \
     if [ "$CHECKOV_VERSION" != "false" ]; then \
     ( \
-        apk add --no-cache gcc=~12 libffi-dev=~3 musl-dev=~1; \
-        [ "$CHECKOV_VERSION" = "latest" ] && pip3 install --no-cache-dir checkov \
-        || pip3 install --no-cache-dir checkov==${CHECKOV_VERSION}; \
-        apk del gcc libffi-dev musl-dev \
+        # cargo, gcc, git, musl-dev, rust and CARGO envvar required for compilation of rustworkx@0.13.2, no longer required once checkov version depends on rustworkx >0.14.0
+        # https://github.com/bridgecrewio/checkov/pull/6045
+        # gcc libffi-dev musl-dev required for compilation of cffi, until it contains musl aarch64
+        export CARGO_NET_GIT_FETCH_WITH_CLI=true && \
+        apk add --no-cache cargo=~1 gcc=~12 git=~2 libffi-dev=~3 libgcc=~12 musl-dev=~1 rust=~1 ; \
+        if [ "$CHECKOV_VERSION" = "latest" ]; \
+            then pip3 install --no-cache-dir checkov || exit 1; \
+            else pip3 install --no-cache-dir checkov==${CHECKOV_VERSION} || exit 1; \
+        fi; \
+        apk del cargo gcc git libffi-dev musl-dev rust \
     ) \
     ; fi
 
@@ -78,8 +86,10 @@ RUN . /.env && \
     if [ "$INFRACOST_VERSION" != "false" ]; then \
     ( \
         INFRACOST_RELEASES="https://api.github.com/repos/infracost/infracost/releases" && \
-        [ "$INFRACOST_VERSION" = "latest" ] && curl -L "$(curl -s ${INFRACOST_RELEASES}/latest | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > infracost.tgz \
-        || curl -L "$(curl -s ${INFRACOST_RELEASES} | grep -o -E "https://.+?v${INFRACOST_VERSION}/infracost-${TARGETOS}-${TARGETARCH}.tar.gz")" > infracost.tgz \
+        if [ "$INFRACOST_VERSION" = "latest" ]; \
+            then curl -L "$(curl -s ${INFRACOST_RELEASES}/latest | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > infracost.tgz; \
+            else curl -L "$(curl -s ${INFRACOST_RELEASES} | grep -o -E "https://.+?v${INFRACOST_VERSION}/infracost-${TARGETOS}-${TARGETARCH}.tar.gz")" > infracost.tgz; \
+        fi; \
     ) && tar -xzf infracost.tgz && rm infracost.tgz && mv infracost-${TARGETOS}-${TARGETARCH} infracost \
     ; fi
 
@@ -88,8 +98,10 @@ RUN . /.env && \
     if [ "$TERRAFORM_DOCS_VERSION" != "false" ]; then \
     ( \
         TERRAFORM_DOCS_RELEASES="https://api.github.com/repos/terraform-docs/terraform-docs/releases" && \
-        [ "$TERRAFORM_DOCS_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES}/latest | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > terraform-docs.tgz \
-        || curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES} | grep -o -E "https://.+?v${TERRAFORM_DOCS_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz")" > terraform-docs.tgz \
+        if [ "$TERRAFORM_DOCS_VERSION" = "latest" ]; \
+            then curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES}/latest | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > terraform-docs.tgz; \
+            else curl -L "$(curl -s ${TERRAFORM_DOCS_RELEASES} | grep -o -E "https://.+?v${TERRAFORM_DOCS_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz")" > terraform-docs.tgz; \
+        fi; \
     ) && tar -xzf terraform-docs.tgz terraform-docs && rm terraform-docs.tgz && chmod +x terraform-docs \
     ; fi
 
@@ -98,8 +110,10 @@ RUN . /.env \
     && if [ "$TERRAGRUNT_VERSION" != "false" ]; then \
     ( \
         TERRAGRUNT_RELEASES="https://api.github.com/repos/gruntwork-io/terragrunt/releases" && \
-        [ "$TERRAGRUNT_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRAGRUNT_RELEASES}/latest | grep -o -E -m 1 "https://.+?/terragrunt_${TARGETOS}_${TARGETARCH}")" > terragrunt \
-        || curl -L "$(curl -s ${TERRAGRUNT_RELEASES} | grep -o -E -m 1 "https://.+?v${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}")" > terragrunt \
+        if [ "$TERRAGRUNT_VERSION" = "latest" ]; \
+            then curl -L "$(curl -s ${TERRAGRUNT_RELEASES}/latest | grep -o -E -m 1 "https://.+?/terragrunt_${TARGETOS}_${TARGETARCH}")" > terragrunt; \
+            else curl -L "$(curl -s ${TERRAGRUNT_RELEASES} | grep -o -E -m 1 "https://.+?v${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}")" > terragrunt; \
+        fi; \
     ) && chmod +x terragrunt \
     ; fi
 
@@ -112,8 +126,10 @@ RUN . /.env && \
     OS="$(echo ${TARGETOS} | cut -c1 | tr '[:lower:]' '[:upper:]' | xargs echo -n; echo ${TARGETOS} | cut -c2-)"; \
     ( \
         TERRASCAN_RELEASES="https://api.github.com/repos/tenable/terrascan/releases" && \
-        [ "$TERRASCAN_VERSION" = "latest" ] && curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${OS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
-        || curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${OS}_${ARCH}.tar.gz")" > terrascan.tar.gz \
+        if [ "$TERRASCAN_VERSION" = "latest" ]; \
+            then curl -L "$(curl -s ${TERRASCAN_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${OS}_${ARCH}.tar.gz")" > terrascan.tar.gz; \
+            else curl -L "$(curl -s ${TERRASCAN_RELEASES} | grep -o -E "https://.+?${TERRASCAN_VERSION}_${OS}_${ARCH}.tar.gz")" > terrascan.tar.gz; \
+        fi; \
     ) && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz && \
     ./terrascan init \
     ; fi
@@ -123,8 +139,10 @@ RUN . /.env && \
     if [ "$TFLINT_VERSION" != "false" ]; then \
     ( \
         TFLINT_RELEASES="https://api.github.com/repos/terraform-linters/tflint/releases" && \
-        [ "$TFLINT_VERSION" = "latest" ] && curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.zip")" > tflint.zip \
-        || curl -L "$(curl -s ${TFLINT_RELEASES} | grep -o -E "https://.+?/v${TFLINT_VERSION}/tflint_${TARGETOS}_${TARGETARCH}.zip")" > tflint.zip \
+        if [ "$TFLINT_VERSION" = "latest" ]; \
+            then curl -L "$(curl -s ${TFLINT_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.zip")" > tflint.zip; \
+            else curl -L "$(curl -s ${TFLINT_RELEASES} | grep -o -E "https://.+?/v${TFLINT_VERSION}/tflint_${TARGETOS}_${TARGETARCH}.zip")" > tflint.zip; \
+        fi; \
     ) && unzip tflint.zip && rm tflint.zip \
     ; fi
 
@@ -133,8 +151,10 @@ RUN . /.env && \
     if [ "$TFSEC_VERSION" != "false" ]; then \
     ( \
         TFSEC_RELEASES="https://api.github.com/repos/aquasecurity/tfsec/releases" && \
-        [ "$TFSEC_VERSION" = "latest" ] && curl -L "$(curl -s ${TFSEC_RELEASES}/latest | grep -o -E -m 1 "https://.+?/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec \
-        || curl -L "$(curl -s ${TFSEC_RELEASES} | grep -o -E -m 1 "https://.+?v${TFSEC_VERSION}/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec \
+        if [ "$TFSEC_VERSION" = "latest" ]; then \
+            curl -L "$(curl -s ${TFSEC_RELEASES}/latest | grep -o -E -m 1 "https://.+?/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec; \
+            else curl -L "$(curl -s ${TFSEC_RELEASES} | grep -o -E -m 1 "https://.+?v${TFSEC_VERSION}/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec; \
+        fi; \
     ) && chmod +x tfsec \
     ; fi
 
@@ -144,8 +164,10 @@ RUN . /.env && \
     if [ "$TARGETARCH" != "amd64" ]; then ARCH="$TARGETARCH"; else ARCH="64bit"; fi; \
     ( \
         TRIVY_RELEASES="https://api.github.com/repos/aquasecurity/trivy/releases" && \
-        [ "$TRIVY_VERSION" = "latest" ] && curl -L "$(curl -s ${TRIVY_RELEASES}/latest | grep -o -E -i -m 1 "https://.+?/trivy_.+?_${TARGETOS}-${ARCH}.tar.gz")" > trivy.tar.gz \
-        || curl -L "$(curl -s ${TRIVY_RELEASES} | grep -o -E -i -m 1 "https://.+?/v${TRIVY_VERSION}/trivy_.+?_${TARGETOS}-${ARCH}.tar.gz")" > trivy.tar.gz \
+        if [ "$TRIVY_VERSION" = "latest" ]; \
+            then curl -L "$(curl -s ${TRIVY_RELEASES}/latest | grep -o -E -i -m 1 "https://.+?/trivy_.+?_${TARGETOS}-${ARCH}.tar.gz")" > trivy.tar.gz; \
+            else curl -L "$(curl -s ${TRIVY_RELEASES} | grep -o -E -i -m 1 "https://.+?/v${TRIVY_VERSION}/trivy_.+?_${TARGETOS}-${ARCH}.tar.gz")" > trivy.tar.gz; \
+        fi; \
     ) && tar -xzf trivy.tar.gz trivy && rm trivy.tar.gz \
     ; fi
 
@@ -154,8 +176,10 @@ RUN . /.env && \
     if [ "$TFUPDATE_VERSION" != "false" ]; then \
     ( \
         TFUPDATE_RELEASES="https://api.github.com/repos/minamijoyo/tfupdate/releases" && \
-        [ "$TFUPDATE_VERSION" = "latest" ] && curl -L "$(curl -s ${TFUPDATE_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > tfupdate.tgz \
-        || curl -L "$(curl -s ${TFUPDATE_RELEASES} | grep -o -E -m 1 "https://.+?${TFUPDATE_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > tfupdate.tgz \
+        if [ "$TFUPDATE_VERSION" = "latest" ]; \
+            then curl -L "$(curl -s ${TFUPDATE_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > tfupdate.tgz; \
+            else curl -L "$(curl -s ${TFUPDATE_RELEASES} | grep -o -E -m 1 "https://.+?${TFUPDATE_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > tfupdate.tgz; \
+        fi; \
     ) && tar -xzf tfupdate.tgz tfupdate && rm tfupdate.tgz \
     ; fi
 
@@ -164,8 +188,10 @@ RUN . /.env && \
     if [ "$HCLEDIT_VERSION" != "false" ]; then \
     ( \
         HCLEDIT_RELEASES="https://api.github.com/repos/minamijoyo/hcledit/releases" && \
-        [ "$HCLEDIT_VERSION" = "latest" ] && curl -L "$(curl -s ${HCLEDIT_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > hcledit.tgz \
-        || curl -L "$(curl -s ${HCLEDIT_RELEASES} | grep -o -E -m 1 "https://.+?${HCLEDIT_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > hcledit.tgz \
+        if [ "$HCLEDIT_VERSION" = "latest" ]; \
+            then curl -L "$(curl -s ${HCLEDIT_RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > hcledit.tgz; \
+            else curl -L "$(curl -s ${HCLEDIT_RELEASES} | grep -o -E -m 1 "https://.+?${HCLEDIT_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > hcledit.tgz; \
+        fi; \
     ) && tar -xzf hcledit.tgz hcledit && rm hcledit.tgz \
     ; fi
 
