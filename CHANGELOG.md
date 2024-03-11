@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.88.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.0...v1.88.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* **docker:** Checkov installation silently fails on `docker build` in arm64. Workaround till issue will be fixed in `checkov` itself ([#635](https://github.com/antonbabenko/pre-commit-terraform/issues/635)) ([f255b05](https://github.com/antonbabenko/pre-commit-terraform/commit/f255b05feaace02f38822e3b53cf38c38e069115))
+
 # [1.88.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.87.1...v1.88.0) (2024-02-22)
 
 
