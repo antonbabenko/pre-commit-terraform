@@ -352,7 +352,7 @@ For example:
 PCT_LOG=trace pre-commit run -a
 ```
 
-Less verbose log levels will be implement in #562
+Less verbose log levels will be implemented in [#562](https://github.com/antonbabenko/pre-commit-terraform/issues/562).
 
 ### Many hooks: Parallelism
 
