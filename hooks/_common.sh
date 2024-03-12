@@ -128,7 +128,7 @@ function common::parse_and_export_env_vars {
     while true; do
       # Check if at least 1 env var exists in `$arg`
       # shellcheck disable=SC2016 # '${' should not be expanded
-      if [[ "$arg" =~ '${'[A-Z_][A-Z0-9_]+'}' ]]; then
+      if [[ "$arg" =~ '${'[A-Z_][A-Z0-9_]*'}' ]]; then
         # Get `ENV_VAR` from `.*${ENV_VAR}.*`
         local env_var_name=${arg#*$\{}
         env_var_name=${env_var_name%%\}*}
