@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.88.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.1...v1.88.2) (2024-03-13)
+
+
+### Bug Fixes
+
+* **non-linux:** Bash environment variables in arguments not expanded + Add `trace` log level ([#645](https://github.com/antonbabenko/pre-commit-terraform/issues/645)) ([a2a2990](https://github.com/antonbabenko/pre-commit-terraform/commit/a2a2990ca42f93e2c1d61507d8c75e493d29dee6))
+
 ## [1.88.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.0...v1.88.1) (2024-03-11)
 
 
