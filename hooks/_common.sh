@@ -8,7 +8,7 @@ if [[ $PCT_LOG == trace ]]; then
   echo "BASHOPTS: $BASHOPTS"
   echo "OSTYPE: $OSTYPE"
 
-  # ${FUNCNAME[*]} - reverse functions trace. Each new function call append to start
+  # ${FUNCNAME[*]} - function calls in reversed order. Each new function call is appended to the beginning
   # ${BASH_SOURCE##*/} - get filename
   # $LINENO - get line number
   export PS4='\e[2m
