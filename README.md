@@ -68,7 +68,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`pre-commit`](https://pre-commit.com/#install),
   <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
   <sub><sup>[`git`](https://git-scm.com/downloads),
-  <sub><sup>POSIX compatible shell,
+  <sub><sup>BASH 3.2.57+ compatible shell,
   <sub><sup>Internet connection (on first run),
   <sub><sup>x86_64 or arm64 compatible operation system,
   <sub><sup>Some hardware where this OS will run,
