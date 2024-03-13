@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+if [[ $PCT_LOG == trace ]]; then
+
+  echo "BASH path: '$BASH'"
+  echo "BASH_VERSION: $BASH_VERSION"
+  echo "BASHOPTS: $BASHOPTS"
+  echo "OSTYPE: $OSTYPE"
+
+  # ${FUNCNAME[*]} - function calls in reversed order. Each new function call is appended to the beginning
+  # ${BASH_SOURCE##*/} - get filename
+  # $LINENO - get line number
+  export PS4='\e[2m
+trace: ${FUNCNAME[*]}
+       ${BASH_SOURCE##*/}:$LINENO: \e[0m'
+
+  set -x
+fi
 # Hook ID, based on hook filename.
 # Hook filename MUST BE same with `- id` in .pre-commit-hooks.yaml file
 # shellcheck disable=SC2034 # Unused var.
@@ -112,7 +128,7 @@ function common::parse_and_export_env_vars {
     while true; do
       # Check if at least 1 env var exists in `$arg`
       # shellcheck disable=SC2016 # '${' should not be expanded
-      if [[ "$arg" =~ .*'${'[A-Z_][A-Z0-9_]+?'}'.* ]]; then
+      if [[ "$arg" =~ '${'[A-Z_][A-Z0-9_]*'}' ]]; then
         # Get `ENV_VAR` from `.*${ENV_VAR}.*`
         local env_var_name=${arg#*$\{}
         env_var_name=${env_var_name%%\}*}

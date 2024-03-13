@@ -38,6 +38,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
+  * [All hooks: Log levels](#all-hooks-log-levels)
   * [Many hooks: Parallelism](#many-hooks-parallelism)
   * [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
   * [infracost\_breakdown](#infracost_breakdown)
@@ -340,6 +341,18 @@ To disable color output for all hooks, set `PRE_COMMIT_COLOR=never` var. Eg:
 ```bash
 PRE_COMMIT_COLOR=never pre-commit run
 ```
+
+### All hooks: Log levels
+
+In case you need to debug hooks, you can set `PCT_LOG=trace`.
+
+For example:
+
+```bash
+PCT_LOG=trace pre-commit run -a
+```
+
+Less verbose log levels will be implemented in [#562](https://github.com/antonbabenko/pre-commit-terraform/issues/562).
 
 ### Many hooks: Parallelism
 
