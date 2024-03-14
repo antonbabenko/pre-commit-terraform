@@ -16,10 +16,10 @@ fi
 # Convert the first letter to Uppercase
 OS="${TARGETOS^}"
 
-readonly GH_ORG="tenable"
-readonly GH_RELEASE_REGEX_LATEST="https://.+?_${OS}_${ARCH}.tar.gz"
-readonly GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?${VERSION}_${OS}_${ARCH}.tar.gz"
-readonly DISTRIBUTED_AS="tar.gz"
+GH_ORG="tenable"
+GH_RELEASE_REGEX_LATEST="https://.+?_${OS}_${ARCH}.tar.gz"
+GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?${VERSION}_${OS}_${ARCH}.tar.gz"
+DISTRIBUTED_AS="tar.gz"
 
 common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
   "$GH_RELEASE_REGEX_LATEST" "$GH_RELEASE_REGEX_SPECIFIC_VERSION"

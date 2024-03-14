@@ -14,10 +14,10 @@ else
   readonly ARCH="64bit"
 fi
 
-readonly GH_ORG="aquasecurity"
-readonly GH_RELEASE_REGEX_LATEST="https://.+?/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"
-readonly GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?/v${VERSION}/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"
-readonly DISTRIBUTED_AS="tar.gz"
+GH_ORG="aquasecurity"
+GH_RELEASE_REGEX_LATEST="https://.+?/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"
+GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?/v${VERSION}/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"
+DISTRIBUTED_AS="tar.gz"
 
 common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
   "$GH_RELEASE_REGEX_LATEST" "$GH_RELEASE_REGEX_SPECIFIC_VERSION"
