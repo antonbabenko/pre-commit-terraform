@@ -19,14 +19,12 @@ OS="$(
   echo "${TARGETOS}" | cut -c2-
 )"
 
-readonly RELEASES="https://api.github.com/repos/tenable/${TOOL}/releases"
+readonly GH_ORG="tenable"
+readonly GH_RELEASE_REGEX_LATEST="https://.+?_${OS}_${ARCH}.tar.gz"
+readonly GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?${VERSION}_${OS}_${ARCH}.tar.gz"
+readonly DISTRIBUTED_AS="tar.gz"
 
-if [[ $VERSION == latest ]]; then
-  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?_${OS}_${ARCH}.tar.gz")" > "${TOOL}.tgz"
-else
-  curl -L "$(curl -s "${RELEASES}" | grep -o -E "https://.+?${VERSION}_${OS}_${ARCH}.tar.gz")" > "${TOOL}.tgz"
-fi
+common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
+  "$GH_RELEASE_REGEX_LATEST" "$GH_RELEASE_REGEX_SPECIFIC_VERSION"
 
-tar -xzf "${TOOL}.tgz" "$TOOL"
-rm "${TOOL}.tgz"
 ./terrascan init

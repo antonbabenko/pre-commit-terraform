@@ -3,8 +3,6 @@ FROM python:${TAG} as builder
 ARG TARGETOS
 ARG TARGETARCH
 
-COPY tools/install/ /install/
-
 WORKDIR /bin_dir
 
 RUN apk add --no-cache \
@@ -15,6 +13,8 @@ RUN apk add --no-cache \
     python3 -m pip install --no-cache-dir --upgrade \
         pip \
         setuptools
+
+COPY tools/install/ /install/
 
 #
 # Install required tools

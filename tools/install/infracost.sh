@@ -7,15 +7,12 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 #
 # Unique part
 #
+readonly GH_ORG="infracost"
+readonly GH_RELEASE_REGEX_LATEST="https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz"
+readonly GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?v${VERSION}/${TOOL}-${TARGETOS}-${TARGETARCH}.tar.gz"
+readonly DISTRIBUTED_AS="tar.gz"
+readonly UNUSUAL_TOOL_NAME_IN_PKG="${TOOL}-${TARGETOS}-${TARGETARCH}"
 
-readonly RELEASES="https://api.github.com/repos/infracost/${TOOL}/releases"
-
-if [[ $VERSION == latest ]]; then
-  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > "${TOOL}.tgz"
-else
-  curl -L "$(curl -s "${RELEASES}" | grep -o -E "https://.+?v${VERSION}/${TOOL}-${TARGETOS}-${TARGETARCH}.tar.gz")" > "${TOOL}.tgz"
-fi
-
-tar -xzf "${TOOL}.tgz"
-rm "${TOOL}.tgz"
-mv "${TOOL}-${TARGETOS}-${TARGETARCH}" "$TOOL"
+common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
+  "$GH_RELEASE_REGEX_LATEST" "$GH_RELEASE_REGEX_SPECIFIC_VERSION" \
+  "$UNUSUAL_TOOL_NAME_IN_PKG"

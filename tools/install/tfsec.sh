@@ -8,12 +8,10 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # Unique part
 #
 
-readonly RELEASES="https://api.github.com/repos/aquasecurity/${TOOL}/releases"
+readonly GH_ORG="aquasecurity"
+readonly GH_RELEASE_REGEX_LATEST="https://.+?/${TOOL}-${TARGETOS}-${TARGETARCH}"
+readonly GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?v${VERSION}/${TOOL}-${TARGETOS}-${TARGETARCH}"
+readonly DISTRIBUTED_AS="binary"
 
-if [[ $VERSION == latest ]]; then
-  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?/${TOOL}-${TARGETOS}-${TARGETARCH}")" > "$TOOL"
-else
-  curl -L "$(curl -s "${RELEASES}" | grep -o -E -m 1 "https://.+?v${VERSION}/${TOOL}-${TARGETOS}-${TARGETARCH}")" > "$TOOL"
-fi
-
-chmod +x "$TOOL"
+common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
+  "$GH_RELEASE_REGEX_LATEST" "$GH_RELEASE_REGEX_SPECIFIC_VERSION"

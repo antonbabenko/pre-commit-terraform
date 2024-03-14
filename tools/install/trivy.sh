@@ -14,13 +14,10 @@ else
   readonly ARCH="64bit"
 fi
 
-readonly RELEASES="https://api.github.com/repos/aquasecurity/${TOOL}/releases"
+readonly GH_ORG="aquasecurity"
+readonly GH_RELEASE_REGEX_LATEST="https://.+?/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"
+readonly GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?/v${VERSION}/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"
+readonly DISTRIBUTED_AS="tar.gz"
 
-if [[ $VERSION == latest ]]; then
-  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -i -m 1 "https://.+?/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz")" > "${TOOL}.tgz"
-else
-  curl -L "$(curl -s "${RELEASES}" | grep -o -E -i -m 1 "https://.+?/v${VERSION}/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz")" > "${TOOL}.tgz"
-fi
-
-tar -xzf "${TOOL}.tgz" "$TOOL"
-rm "${TOOL}.tgz"
+common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
+  "$GH_RELEASE_REGEX_LATEST" "$GH_RELEASE_REGEX_SPECIFIC_VERSION"
