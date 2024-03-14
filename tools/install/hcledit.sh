@@ -3,7 +3,6 @@ set -eo pipefail
 # shellcheck disable=SC1091 # Created by Dockerfile above script call
 source /.env
 
-# hcledit
 if [[ $HCLEDIT_VERSION != false ]]; then
   HCLEDIT_RELEASES="https://api.github.com/repos/minamijoyo/hcledit/releases"
 

@@ -9,7 +9,8 @@ if [[ $CHECKOV_VERSION != false ]]; then
     libffi-dev=~3 \
     musl-dev=~1
 
-  # cargo, gcc, git, musl-dev, rust and CARGO envvar required for compilation of rustworkx@0.13.2, no longer required once checkov version depends on rustworkx >0.14.0
+  # cargo, gcc, git, musl-dev, rust and CARGO envvar required for compilation of rustworkx@0.13.2
+  # no longer required once checkov version depends on rustworkx >0.14.0
   # https://github.com/bridgecrewio/checkov/pull/6045
   # gcc libffi-dev musl-dev required for compilation of cffi, until it contains musl aarch64
   export CARGO_NET_GIT_FETCH_WITH_CLI=true
