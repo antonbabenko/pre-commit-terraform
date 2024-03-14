@@ -14,10 +14,7 @@ else
   readonly ARCH="x86_64"
 fi
 # Convert the first letter to Uppercase
-OS="$(
-  echo "${TARGETOS}" | cut -c1 | tr '[:lower:]' '[:upper:]' | xargs echo -n
-  echo "${TARGETOS}" | cut -c2-
-)"
+OS="${TARGETOS^}"
 
 readonly GH_ORG="tenable"
 readonly GH_RELEASE_REGEX_LATEST="https://.+?_${OS}_${ARCH}.tar.gz"
