@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
-# shellcheck disable=SC1091 # Created by Dockerfile above script call
+# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
 source /.env
 
 if [[ $CHECKOV_VERSION != false ]]; then
