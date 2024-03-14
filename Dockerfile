@@ -16,12 +16,17 @@ RUN apk add --no-cache \
         pip \
         setuptools
 
+#
+# Install required tools
+#
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
 
-RUN /install/pre-commit.sh
+RUN touch /.env && \
+    if [ "$PRE_COMMIT_VERSION" = "false" ]; then echo "PRE_COMMIT_VERSION=latest" >> /.env; fi; \
+    if [ "$TERRAFORM_VERSION" = "false" ]; then echo "TERRAFORM_VERSION=latest" >> /.env; fi
 
-# Install terraform because pre-commit needs it
+RUN /install/pre-commit.sh
 RUN /install/terraform.sh
 
 #
@@ -44,18 +49,16 @@ ARG TRIVY_VERSION=${TRIVY_VERSION:-false}
 # specified in step below
 ARG INSTALL_ALL=${INSTALL_ALL:-false}
 RUN if [ "$INSTALL_ALL" != "false" ]; then \
-        echo "export CHECKOV_VERSION=latest" >> /.env && \
-        echo "export INFRACOST_VERSION=latest" >> /.env && \
-        echo "export TERRAFORM_DOCS_VERSION=latest" >> /.env && \
-        echo "export TERRAGRUNT_VERSION=latest" >> /.env && \
-        echo "export TERRASCAN_VERSION=latest" >> /.env && \
-        echo "export TFLINT_VERSION=latest" >> /.env && \
-        echo "export TFSEC_VERSION=latest" >> /.env && \
-        echo "export TRIVY_VERSION=latest" >> /.env && \
-        echo "export TFUPDATE_VERSION=latest" >> /.env && \
-        echo "export HCLEDIT_VERSION=latest" >> /.env \
-    ; else \
-        touch /.env \
+        echo "CHECKOV_VERSION=latest"        >> /.env && \
+        echo "INFRACOST_VERSION=latest"      >> /.env && \
+        echo "TERRAFORM_DOCS_VERSION=latest" >> /.env && \
+        echo "TERRAGRUNT_VERSION=latest"     >> /.env && \
+        echo "TERRASCAN_VERSION=latest"      >> /.env && \
+        echo "TFLINT_VERSION=latest"         >> /.env && \
+        echo "TFSEC_VERSION=latest"          >> /.env && \
+        echo "TRIVY_VERSION=latest"          >> /.env && \
+        echo "TFUPDATE_VERSION=latest"       >> /.env && \
+        echo "HCLEDIT_VERSION=latest"        >> /.env \
     ; fi
 
 RUN /install/checkov.sh

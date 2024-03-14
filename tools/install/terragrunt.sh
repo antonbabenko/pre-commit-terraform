@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
-set -eo pipefail
-# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
-source /.env
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
 
-if [[ $TERRAGRUNT_VERSION != false ]]; then
-  readonly RELEASES="https://api.github.com/repos/gruntwork-io/terragrunt/releases"
+#
+# Unique part
+#
 
-  if [[ $TERRAGRUNT_VERSION == latest ]]; then
-    curl -L "$(curl -s ${RELEASES}/latest | grep -o -E -m 1 "https://.+?/terragrunt_${TARGETOS}_${TARGETARCH}")" > terragrunt
-  else
-    curl -L "$(curl -s ${RELEASES} | grep -o -E -m 1 "https://.+?v${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}")" > terragrunt
-  fi
+readonly RELEASES="https://api.github.com/repos/gruntwork-io/${TOOL}/releases"
 
-  chmod +x terragrunt
+if [[ $VERSION == latest ]]; then
+  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?/${TOOL}_${TARGETOS}_${TARGETARCH}")" > "$TOOL"
+else
+  curl -L "$(curl -s "${RELEASES}" | grep -o -E -m 1 "https://.+?v${VERSION}/${TOOL}_${TARGETOS}_${TARGETARCH}")" > "$TOOL"
 fi
+
+chmod +x "$TOOL"

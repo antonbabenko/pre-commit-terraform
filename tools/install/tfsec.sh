@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
-set -eo pipefail
-# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
-source /.env
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
 
-if [[ $TFSEC_VERSION != false ]]; then
-  readonly RELEASES="https://api.github.com/repos/aquasecurity/tfsec/releases"
+#
+# Unique part
+#
 
-  if [[ $TFSEC_VERSION == latest ]]; then
-    curl -L "$(curl -s ${RELEASES}/latest | grep -o -E -m 1 "https://.+?/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec
-  else
-    curl -L "$(curl -s ${RELEASES} | grep -o -E -m 1 "https://.+?v${TFSEC_VERSION}/tfsec-${TARGETOS}-${TARGETARCH}")" > tfsec
-  fi
+readonly RELEASES="https://api.github.com/repos/aquasecurity/${TOOL}/releases"
 
-  chmod +x tfsec
+if [[ $VERSION == latest ]]; then
+  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?/${TOOL}-${TARGETOS}-${TARGETARCH}")" > "$TOOL"
+else
+  curl -L "$(curl -s "${RELEASES}" | grep -o -E -m 1 "https://.+?v${VERSION}/${TOOL}-${TARGETOS}-${TARGETARCH}")" > "$TOOL"
 fi
+
+chmod +x "$TOOL"

@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-set -eo pipefail
-# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
-source /.env
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
 
-if [[ $TERRAFORM_DOCS_VERSION != false ]]; then
-  readonly RELEASES="https://api.github.com/repos/terraform-docs/terraform-docs/releases"
+#
+# Unique part
+#
 
-  if [[ $TERRAFORM_DOCS_VERSION == latest ]]; then
-    curl -L "$(curl -s ${RELEASES}/latest | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > terraform-docs.tgz
-  else
-    curl -L "$(curl -s ${RELEASES} | grep -o -E "https://.+?v${TERRAFORM_DOCS_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz")" > terraform-docs.tgz
-  fi
+readonly RELEASES="https://api.github.com/repos/terraform-docs/${TOOL}/releases"
 
-  tar -xzf terraform-docs.tgz terraform-docs
-  rm terraform-docs.tgz
-  chmod +x terraform-docs
+if [[ $VERSION == latest ]]; then
+  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > "${TOOL}.tgz"
+else
+  curl -L "$(curl -s "${RELEASES}" | grep -o -E "https://.+?v${VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz")" > "${TOOL}.tgz"
 fi
+
+tar -xzf "${TOOL}.tgz" "$TOOL"
+rm "${TOOL}.tgz"
+chmod +x "$TOOL"

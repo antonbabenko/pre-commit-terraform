@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
-set -eo pipefail
-# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
-source /.env
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
 
-if [[ $TFLINT_VERSION != false ]]; then
-  readonly RELEASES="https://api.github.com/repos/terraform-linters/tflint/releases"
+#
+# Unique part
+#
 
-  if [[ $TFLINT_VERSION == latest ]]; then
-    curl -L "$(curl -s ${RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.zip")" > tflint.zip
-  else
-    curl -L "$(curl -s ${RELEASES} | grep -o -E "https://.+?/v${TFLINT_VERSION}/tflint_${TARGETOS}_${TARGETARCH}.zip")" > tflint.zip
-  fi
+readonly RELEASES="https://api.github.com/repos/terraform-linters/${TOOL}/releases"
 
-  unzip tflint.zip
-  rm tflint.zip
+if [[ $VERSION == latest ]]; then
+  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.zip")" > "${TOOL}.zip"
+else
+  curl -L "$(curl -s "${RELEASES}" | grep -o -E "https://.+?/v${VERSION}/${TOOL}_${TARGETOS}_${TARGETARCH}.zip")" > "${TOOL}.zip"
 fi
+
+unzip "${TOOL}.zip"
+rm "${TOOL}.zip"

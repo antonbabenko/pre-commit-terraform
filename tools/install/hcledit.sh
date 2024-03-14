@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
-set -eo pipefail
-# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
-source /.env
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
 
-if [[ $HCLEDIT_VERSION != false ]]; then
-  readonly RELEASES="https://api.github.com/repos/minamijoyo/hcledit/releases"
+#
+# Unique part
+#
 
-  if [[ $HCLEDIT_VERSION == latest ]]; then
-    curl -L "$(curl -s ${RELEASES}/latest | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > hcledit.tgz
-  else
-    curl -L "$(curl -s ${RELEASES} | grep -o -E -m 1 "https://.+?${HCLEDIT_VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > hcledit.tgz
-  fi
+readonly RELEASES="https://api.github.com/repos/minamijoyo/${TOOL}/releases"
 
-  tar -xzf hcledit.tgz hcledit
-  rm hcledit.tgz
+if [[ $VERSION == latest ]]; then
+  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz")" > "${TOOL}.tgz"
+else
+  curl -L "$(curl -s "${RELEASES}" | grep -o -E -m 1 "https://.+?${VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz")" > "${TOOL}.tgz"
 fi
+
+tar -xzf "${TOOL}.tgz" "$TOOL"
+rm "${TOOL}.tgz"

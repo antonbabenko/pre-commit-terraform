@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-set -eo pipefail
-# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
-source /.env
+# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=_common.sh
+. "$SCRIPT_DIR/_common.sh"
 
-if [[ $INFRACOST_VERSION != false ]]; then
-  readonly RELEASES="https://api.github.com/repos/infracost/infracost/releases"
+#
+# Unique part
+#
 
-  if [[ $INFRACOST_VERSION == latest ]]; then
-    curl -L "$(curl -s ${RELEASES}/latest | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > infracost.tgz
-  else
-    curl -L "$(curl -s ${RELEASES} | grep -o -E "https://.+?v${INFRACOST_VERSION}/infracost-${TARGETOS}-${TARGETARCH}.tar.gz")" > infracost.tgz
-  fi
+readonly RELEASES="https://api.github.com/repos/infracost/${TOOL}/releases"
 
-  tar -xzf infracost.tgz
-  rm infracost.tgz
-  mv "infracost-${TARGETOS}-${TARGETARCH}" infracost
+if [[ $VERSION == latest ]]; then
+  curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -m 1 "https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz")" > "${TOOL}.tgz"
+else
+  curl -L "$(curl -s "${RELEASES}" | grep -o -E "https://.+?v${VERSION}/${TOOL}-${TARGETOS}-${TARGETARCH}.tar.gz")" > "${TOOL}.tgz"
 fi
+
+tar -xzf "${TOOL}.tgz"
+rm "${TOOL}.tgz"
+mv "${TOOL}-${TARGETOS}-${TARGETARCH}" "$TOOL"
