@@ -7,6 +7,7 @@ readonly SCRIPT_DIR
 #
 # Unique part
 #
+
 GH_ORG="gruntwork-io"
 GH_RELEASE_REGEX_LATEST="https://.+?/${TOOL}_${TARGETOS}_${TARGETARCH}"
 GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?v${VERSION}/${TOOL}_${TARGETOS}_${TARGETARCH}"

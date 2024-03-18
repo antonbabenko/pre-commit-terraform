@@ -8,11 +8,8 @@ readonly SCRIPT_DIR
 # Unique part
 #
 
-if [[ $TARGETARCH != amd64 ]]; then
-  readonly ARCH="$TARGETARCH"
-else
-  readonly ARCH="64bit"
-fi
+[[ $TARGETARCH == amd64 ]] && ARCH="64bit" || ARCH="$TARGETARCH"
+readonly ARCH
 
 GH_ORG="aquasecurity"
 GH_RELEASE_REGEX_LATEST="https://.+?/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"

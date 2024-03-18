@@ -7,6 +7,7 @@ readonly SCRIPT_DIR
 #
 # Unique part
 #
+
 GH_ORG="minamijoyo"
 GH_RELEASE_REGEX_LATEST="https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz"
 GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?${VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz"

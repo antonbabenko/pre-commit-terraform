@@ -7,6 +7,7 @@ readonly SCRIPT_DIR
 #
 # Unique part
 #
+
 GH_ORG="terraform-docs"
 GH_RELEASE_REGEX_LATEST="https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz"
 GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?v${VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
