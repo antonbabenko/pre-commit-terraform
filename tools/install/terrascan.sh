@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_DIR
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
@@ -23,4 +23,4 @@ common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
 
 # Download (caching) terrascan rego policies to save time during terrascan run
 # https://runterrascan.io/docs/usage/_print/#pg-2cba380a2ef14e4ae3c674e02c5f9f53
-./${TOOL} init
+./"$TOOL" init
