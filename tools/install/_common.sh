@@ -53,7 +53,7 @@ function common::install_from_gh_release {
       local -r PKG="$TOOL"
       ;;
     *)
-      echo "Unknown DISTRIBUTED_AS: '$DISTRIBUTED_AS'. Should be one of: 'tar.gz', 'zip' or 'binary'."
+      echo "Unknown DISTRIBUTED_AS: '$DISTRIBUTED_AS'. Should be one of: 'tar.gz', 'zip' or 'binary'." >&2
       exit 1
       ;;
   esac

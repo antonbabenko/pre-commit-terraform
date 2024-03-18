@@ -8,11 +8,8 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # Unique part
 #
 
-if [[ $TARGETARCH != amd64 ]]; then
-  readonly ARCH="$TARGETARCH"
-else
-  readonly ARCH="x86_64"
-fi
+[[ $TARGETARCH != amd64 ]] && ARCH="$TARGETARCH" || ARCH="x86_64"
+readonly ARCH
 # Convert the first letter to Uppercase
 OS="${TARGETOS^}"
 
@@ -24,4 +21,6 @@ DISTRIBUTED_AS="tar.gz"
 common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
   "$GH_RELEASE_REGEX_LATEST" "$GH_RELEASE_REGEX_SPECIFIC_VERSION"
 
-./terrascan init
+# Download (caching) terrascan rego policies to save time during terrascan run
+# https://runterrascan.io/docs/usage/_print/#pg-2cba380a2ef14e4ae3c674e02c5f9f53
+./${TOOL} init
