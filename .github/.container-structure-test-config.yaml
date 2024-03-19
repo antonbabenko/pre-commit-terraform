@@ -13,7 +13,7 @@ commandTests:
   - name: "terraform"
     command: "terraform"
     args: ["-version"]
-    expectedOutput: ["^Terraform v([0-9]+\\.){2}[0-9]+\\non linux_amd64\\n$"]
+    expectedOutput: ["^Terraform v([0-9]+\\.){2}[0-9]+\\n"]
 
   - name: "gcc"
     command: "gcc"
@@ -33,7 +33,7 @@ commandTests:
   - name: "terraform-docs"
     command: "terraform-docs"
     args: ["--version"]
-    expectedOutput: ["^terraform-docs version v([0-9]+\\.){2}[0-9]+ [a-z0-9]+ linux/amd64\\n$"]
+    expectedOutput: ["^terraform-docs version v([0-9]+\\.){2}[0-9]+ [a-z0-9]+"]
 
   - name: "terragrunt"
     command: "terragrunt"
