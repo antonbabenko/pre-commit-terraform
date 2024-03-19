@@ -8,7 +8,7 @@ readonly SCRIPT_DIR
 # Unique part
 #
 
-[[ $TARGETARCH != amd64 ]] && ARCH="x86_64" || ARCH="$TARGETARCH"
+[[ $TARGETARCH == amd64 ]] && ARCH="x86_64" || ARCH="$TARGETARCH"
 readonly ARCH
 # Convert the first letter to Uppercase
 OS="${TARGETOS^}"
