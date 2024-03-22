@@ -328,8 +328,7 @@ Config example:
 - id: terraform_validate
   args:
     - --env-vars=AWS_DEFAULT_REGION="us-west-2"
-    - --env-vars=AWS_ACCESS_KEY_ID="anaccesskey"
-    - --env-vars=AWS_SECRET_ACCESS_KEY="asecretkey"
+    - --env-vars=AWS_PROFILE="my-aws-cli-profile"
 ```
 
 ### All hooks: Disable color output
