@@ -15,6 +15,14 @@
   files: (\.tf|\.tfvars)$
   exclude: \.terraform/.*$
 
+- id: terraform_fmt_py
+  name: Terraform fmt
+  description: Rewrites all Terraform configuration files to a canonical format.
+  entry: terraform_fmt
+  language: python
+  files: \.tf(vars)?$
+  exclude: \.terraform/.*$
+
 - id: terraform_docs
   name: Terraform docs
   description: Inserts input and output documentation into README.md (using terraform-docs).

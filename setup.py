@@ -28,6 +28,7 @@ setup(
     entry_points={
         'console_scripts': [
             'terraform_docs_replace = hooks.terraform_docs_replace:main',
+            'terraform_fmt = hooks.terraform_fmt:main',
         ],
     },
 )
