@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.88.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.2...v1.88.3) (2024-03-22)
+
+
+### Bug Fixes
+
+* **`terraform_providers_lock`:** Require `terraform init` (and `terraform_validate` hook) run when only lockfile changed ([#649](https://github.com/antonbabenko/pre-commit-terraform/issues/649)) ([02c1935](https://github.com/antonbabenko/pre-commit-terraform/commit/02c1935a12c889a029bc0a571410f19eb39bbab1))
+
 ## [1.88.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.1...v1.88.2) (2024-03-13)
 
 
