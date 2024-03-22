@@ -48,7 +48,7 @@
   require_serial: true
   entry: hooks/terraform_validate.sh
   language: script
-  files: (\.tf|\.tfvars)$
+  files: \.(tf(vars)?|terraform\.lock\.hcl)$
   exclude: \.terraform/.*$
 
 - id: terraform_providers_lock
