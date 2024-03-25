@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.88.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.3...v1.88.4) (2024-03-25)
+
+
+### Bug Fixes
+
+* Improve README and drop quotes from hook env vars ([#651](https://github.com/antonbabenko/pre-commit-terraform/issues/651)) ([daec682](https://github.com/antonbabenko/pre-commit-terraform/commit/daec6823f980ef0e9ac8675ed93b6861fcbe58cc))
+
 ## [1.88.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.2...v1.88.3) (2024-03-22)
 
 
