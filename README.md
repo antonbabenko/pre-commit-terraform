@@ -322,6 +322,12 @@ If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` b
 
 You can specify environment variables that will be passed to the hook at runtime.
 
+> [!IMPORTANT]
+> Variable values are exported _verbatim_:
+> - No interpolation or expansion are applied
+> - The behavior is the same as if values would've been wrapped into single quotes
+> - The enclosing double quotes are removed if they are provided
+
 Config example:
 
 ```yaml
