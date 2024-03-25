@@ -322,14 +322,18 @@ If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` b
 
 You can specify environment variables that will be passed to the hook at runtime.
 
+> [!IMPORTANT]
+> Variable values are exported _verbatim_:
+> - No interpolation or expansion are applied
+> - The enclosing double quotes are removed if they are provided
+
 Config example:
 
 ```yaml
 - id: terraform_validate
   args:
     - --env-vars=AWS_DEFAULT_REGION="us-west-2"
-    - --env-vars=AWS_ACCESS_KEY_ID="anaccesskey"
-    - --env-vars=AWS_SECRET_ACCESS_KEY="asecretkey"
+    - --env-vars=AWS_PROFILE="my-aws-cli-profile"
 ```
 
 ### All hooks: Disable color output
