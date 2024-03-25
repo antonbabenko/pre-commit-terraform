@@ -42,13 +42,14 @@ repos:
   hooks:
     - id: hadolint
       args: [
-        '--ignore', 'DL3027', # Do not use apt
         '--ignore', 'DL3007', # Using latest
+        '--ignore', 'DL3013', # Pin versions in pip
+        '--ignore', 'DL3027', # Do not use apt
+        '--ignore', 'DL3059', # Docker `RUN`s shouldn't be consolidated here
         '--ignore', 'DL4006', # Not related to alpine
         '--ignore', 'SC1091', # Useless check
         '--ignore', 'SC2015', # Useless check
         '--ignore', 'SC3037', # Not related to alpine
-        '--ignore', 'DL3013', # Pin versions in pip
       ]
 
 # JSON5 Linter
