@@ -12,7 +12,6 @@
   description: Rewrites all Terraform configuration files to a canonical format.
   entry: hooks/terraform_fmt.sh
   language: script
-  files: (\.tf|\.tfvars)$
   exclude: \.terraform/.*$
 
 - id: terraform_docs
