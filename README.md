@@ -883,6 +883,14 @@ To replicate functionality in `terraform_docs` hook:
           - --args=--skip-dirs="**/.terraform"
     ```
 
+4. When you have multiple directories and want to run `trivy` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_trivy` hooks with Git working directory (repo root) at run time. For example:
+
+    ```yaml
+    - id: terraform_trivy
+      args:
+        - --args=--ignorefile=__GIT_WORKING_DIR__/.trivyignore
+    ```
+
 ### terraform_validate
 
 > [!IMPORTANT]
