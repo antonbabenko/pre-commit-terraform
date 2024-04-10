@@ -54,3 +54,54 @@ jobs:
         SKIP: check-added-large-files,check-merge-conflict,check-vcs-permalinks,forbid-new-submodules,no-commit-to-branch,end-of-file-fixer,trailing-whitespace,check-yaml,check-merge-conflict,check-executables-have-shebangs,check-case-conflict,mixed-line-ending,detect-aws-credentials,detect-private-key,shfmt,shellcheck
       with:
         extra_args: --color=always --show-diff-on-failure --files ${{ steps.file_changes.outputs.files }}
+
+  pre-commit-container:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/antonbabenko/pre-commit-terraform:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - run: |
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+
+      - name: Get changed files
+        id: file_changes
+        run: |
+          export DIFF=$(git diff --name-only origin/${{ github.base_ref }} ${{ github.sha }})
+          echo "Diff between ${{ github.base_ref }} and ${{ github.sha }}"
+          echo "files=$( echo "$DIFF" | xargs echo )" >> $GITHUB_OUTPUT
+
+      - name: fix tar dependency in alpine container image
+        run: |
+          apk --no-cache add tar
+          # check python modules installed versions
+          python -m pip freeze --local
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Cache pre-commit since we use pre-commit from container
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Execute pre-commit
+        env:
+          SKIP: no-commit-to-branch,hadolint
+        run: |
+          pre-commit run --color=always --show-diff-on-failure --files ${{ steps.file_changes.outputs.files }}
+
+      # Run only skipped checks
+      - name: Execute pre-commit check that have no auto-fixes
+        if: always()
+        env:
+          SKIP: check-added-large-files,check-merge-conflict,check-vcs-permalinks,forbid-new-submodules,no-commit-to-branch,end-of-file-fixer,trailing-whitespace,check-yaml,check-merge-conflict,check-executables-have-shebangs,check-case-conflict,mixed-line-ending,detect-aws-credentials,detect-private-key,shfmt,shellcheck
+        run: |
+          pre-commit run --color=always --show-diff-on-failure --files ${{ steps.file_changes.outputs.files }}
