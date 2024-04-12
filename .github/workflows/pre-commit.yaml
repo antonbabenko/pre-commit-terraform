@@ -58,7 +58,7 @@ jobs:
   pre-commit-container:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/antonbabenko/pre-commit-terraform:latest
+      image: ghcr.io/antonbabenko/pre-commit-terraform:latest # latest used here for simplicity, not recommended
     defaults:
       run:
         shell: bash
@@ -93,15 +93,5 @@ jobs:
           key: pre-commit-3|${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Execute pre-commit
-        env:
-          SKIP: no-commit-to-branch,hadolint
-        run: |
-          pre-commit run --color=always --show-diff-on-failure --files ${{ steps.file_changes.outputs.files }}
-
-      # Run only skipped checks
-      - name: Execute pre-commit check that have no auto-fixes
-        if: always()
-        env:
-          SKIP: check-added-large-files,check-merge-conflict,check-vcs-permalinks,forbid-new-submodules,no-commit-to-branch,end-of-file-fixer,trailing-whitespace,check-yaml,check-merge-conflict,check-executables-have-shebangs,check-case-conflict,mixed-line-ending,detect-aws-credentials,detect-private-key,shfmt,shellcheck
         run: |
           pre-commit run --color=always --show-diff-on-failure --files ${{ steps.file_changes.outputs.files }}
