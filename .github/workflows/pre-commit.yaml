@@ -65,6 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
           git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
 
       - name: Get changed files
@@ -79,7 +80,6 @@ jobs:
           apk --no-cache add tar
           # check python modules installed versions
           python -m pip freeze --local
-          git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
