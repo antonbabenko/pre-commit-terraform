@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.89.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.4...v1.89.0) (2024-04-15)
+
+
+### Features
+
+* Hook terraform_wrapper_module_for_each should use versions.tf from the module if it exists ([#657](https://github.com/antonbabenko/pre-commit-terraform/issues/657)) ([b127601](https://github.com/antonbabenko/pre-commit-terraform/commit/b127601a0b3d5af3dcc9f91a6d74e16f37d66a60))
+
 ## [1.88.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.3...v1.88.4) (2024-03-25)
 
 
