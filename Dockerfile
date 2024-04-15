@@ -13,7 +13,7 @@ RUN apk add --no-cache \
         pip \
         setuptools
 
-ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
+AGR PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
 
 # Install pre-commit
