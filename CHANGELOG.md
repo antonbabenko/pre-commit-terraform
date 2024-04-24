@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.89.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.4...v1.89.0) (2024-04-15)
+
+
+### Features
+
+* Hook terraform_wrapper_module_for_each should use versions.tf from the module if it exists ([#657](https://github.com/antonbabenko/pre-commit-terraform/issues/657)) ([b127601](https://github.com/antonbabenko/pre-commit-terraform/commit/b127601a0b3d5af3dcc9f91a6d74e16f37d66a60))
+
+## [1.88.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.3...v1.88.4) (2024-03-25)
+
+
+### Bug Fixes
+
+* Improve README and drop quotes from hook env vars ([#651](https://github.com/antonbabenko/pre-commit-terraform/issues/651)) ([daec682](https://github.com/antonbabenko/pre-commit-terraform/commit/daec6823f980ef0e9ac8675ed93b6861fcbe58cc))
+
+## [1.88.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.2...v1.88.3) (2024-03-22)
+
+
+### Bug Fixes
+
+* **`terraform_providers_lock`:** Require `terraform init` (and `terraform_validate` hook) run when only lockfile changed ([#649](https://github.com/antonbabenko/pre-commit-terraform/issues/649)) ([02c1935](https://github.com/antonbabenko/pre-commit-terraform/commit/02c1935a12c889a029bc0a571410f19eb39bbab1))
+
 ## [1.88.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.1...v1.88.2) (2024-03-13)
 
 

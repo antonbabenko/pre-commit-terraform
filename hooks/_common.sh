@@ -527,6 +527,11 @@ function common::export_provided_env_vars {
   for var in "${env_vars[@]}"; do
     var_name="${var%%=*}"
     var_value="${var#*=}"
+    # Drop enclosing double quotes
+    if [[ $var_value =~ ^\" && $var_value =~ \"$ ]]; then
+      var_value="${var_value#\"}"
+      var_value="${var_value%\"}"
+    fi
     # shellcheck disable=SC2086
     export $var_name="$var_value"
   done

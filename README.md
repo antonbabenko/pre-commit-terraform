@@ -68,7 +68,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [`pre-commit`](https://pre-commit.com/#install),
   <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
   <sub><sup>[`git`](https://git-scm.com/downloads),
-  <sub><sup>POSIX compatible shell,
+  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
   <sub><sup>Internet connection (on first run),
   <sub><sup>x86_64 or arm64 compatible operation system,
   <sub><sup>Some hardware where this OS will run,
@@ -322,14 +322,18 @@ If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` b
 
 You can specify environment variables that will be passed to the hook at runtime.
 
+> [!IMPORTANT]
+> Variable values are exported _verbatim_:
+> - No interpolation or expansion are applied
+> - The enclosing double quotes are removed if they are provided
+
 Config example:
 
 ```yaml
 - id: terraform_validate
   args:
     - --env-vars=AWS_DEFAULT_REGION="us-west-2"
-    - --env-vars=AWS_ACCESS_KEY_ID="anaccesskey"
-    - --env-vars=AWS_SECRET_ACCESS_KEY="asecretkey"
+    - --env-vars=AWS_PROFILE="my-aws-cli-profile"
 ```
 
 ### All hooks: Disable color output
@@ -877,6 +881,14 @@ To replicate functionality in `terraform_docs` hook:
         args:
           - --args=--format=json
           - --args=--skip-dirs="**/.terraform"
+    ```
+
+4. When you have multiple directories and want to run `trivy` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_trivy` hooks with Git working directory (repo root) at run time. For example:
+
+    ```yaml
+    - id: terraform_trivy
+      args:
+        - --args=--ignorefile=__GIT_WORKING_DIR__/.trivyignore
     ```
 
 ### terraform_validate
