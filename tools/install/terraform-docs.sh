@@ -9,8 +9,8 @@ readonly SCRIPT_DIR
 #
 
 GH_ORG="terraform-docs"
-GH_RELEASE_REGEX_LATEST="https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz"
 GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?v${VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
+GH_RELEASE_REGEX_LATEST="https://.+?-${TARGETOS}-${TARGETARCH}.tar.gz"
 DISTRIBUTED_AS="tar.gz"
 
 common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \

@@ -9,8 +9,8 @@ readonly SCRIPT_DIR
 #
 
 GH_ORG="terraform-linters"
-GH_RELEASE_REGEX_LATEST="https://.+?_${TARGETOS}_${TARGETARCH}.zip"
 GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?/v${VERSION}/${TOOL}_${TARGETOS}_${TARGETARCH}.zip"
+GH_RELEASE_REGEX_LATEST="https://.+?_${TARGETOS}_${TARGETARCH}.zip"
 DISTRIBUTED_AS="zip"
 
 common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \

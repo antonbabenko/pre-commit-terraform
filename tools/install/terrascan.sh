@@ -14,8 +14,8 @@ readonly ARCH
 OS="${TARGETOS^}"
 
 GH_ORG="tenable"
-GH_RELEASE_REGEX_LATEST="https://.+?_${OS}_${ARCH}.tar.gz"
 GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?${VERSION}_${OS}_${ARCH}.tar.gz"
+GH_RELEASE_REGEX_LATEST="https://.+?_${OS}_${ARCH}.tar.gz"
 DISTRIBUTED_AS="tar.gz"
 
 common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \

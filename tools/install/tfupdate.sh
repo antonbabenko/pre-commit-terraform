@@ -9,8 +9,8 @@ readonly SCRIPT_DIR
 #
 
 GH_ORG="minamijoyo"
-GH_RELEASE_REGEX_LATEST="https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz"
 GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?${VERSION}_${TARGETOS}_${TARGETARCH}.tar.gz"
+GH_RELEASE_REGEX_LATEST="https://.+?_${TARGETOS}_${TARGETARCH}.tar.gz"
 DISTRIBUTED_AS="tar.gz"
 
 common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
