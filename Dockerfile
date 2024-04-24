@@ -23,8 +23,10 @@ ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
 
 RUN touch /.env && \
-    if [ "$PRE_COMMIT_VERSION" = "false" ]; then echo "PRE_COMMIT_VERSION=latest" >> /.env; fi; \
-    if [ "$TERRAFORM_VERSION" = "false" ]; then echo "TERRAFORM_VERSION=latest" >> /.env; fi
+    if [ "$PRE_COMMIT_VERSION" = "false" ] || [ "$TERRAFORM_VERSION" = "false" ]; then \
+        echo "Vital software can't be skipped" && exit 1; \
+    fi
+
 
 RUN /install/pre-commit.sh
 RUN /install/terraform.sh
@@ -50,15 +52,15 @@ ARG TRIVY_VERSION=${TRIVY_VERSION:-false}
 ARG INSTALL_ALL=${INSTALL_ALL:-false}
 RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "CHECKOV_VERSION=latest"        >> /.env && \
+        echo "HCLEDIT_VERSION=latest"        >> /.env && \
         echo "INFRACOST_VERSION=latest"      >> /.env && \
         echo "TERRAFORM_DOCS_VERSION=latest" >> /.env && \
         echo "TERRAGRUNT_VERSION=latest"     >> /.env && \
         echo "TERRASCAN_VERSION=latest"      >> /.env && \
         echo "TFLINT_VERSION=latest"         >> /.env && \
         echo "TFSEC_VERSION=latest"          >> /.env && \
-        echo "TRIVY_VERSION=latest"          >> /.env && \
         echo "TFUPDATE_VERSION=latest"       >> /.env && \
-        echo "HCLEDIT_VERSION=latest"        >> /.env \
+        echo "TRIVY_VERSION=latest"          >> /.env \
     ; fi
 
 RUN /install/checkov.sh

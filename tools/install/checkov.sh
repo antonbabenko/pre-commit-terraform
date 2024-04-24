@@ -31,4 +31,6 @@ else
 fi
 
 apk del gcc libffi-dev musl-dev
+# no longer required once checkov version depends on rustworkx >0.14.0
+# https://github.com/bridgecrewio/checkov/pull/6045
 apk del cargo git rust
