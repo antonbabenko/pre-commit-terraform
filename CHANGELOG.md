@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.89.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.89.0...v1.89.1) (2024-04-25)
+
+
+### Bug Fixes
+
+* **docker:** Prevent all possible "silent errors" during `docker build` ([#644](https://github.com/antonbabenko/pre-commit-terraform/issues/644)) ([0340c8d](https://github.com/antonbabenko/pre-commit-terraform/commit/0340c8d00fe3ba39829b66fd7890d828697a7878))
+
 # [1.89.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.4...v1.89.0) (2024-04-15)
 
 
