@@ -113,6 +113,9 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 ### Add code
 
+> [!TIP]
+> Here is a screencast of [how to add new dependency in `tools/install/`](https://github.com/antonbabenko/pre-commit-terraform/assets/11096782/8fc461e9-f163-4592-9497-4a18fa89c0e8) - used in Dockerfile
+
 1. Based on prev. block, add hook dependencies installation to [Dockerfile](../Dockerfile).  
     Check that works:
     * `docker build -t pre-commit --build-arg INSTALL_ALL=true .`
