@@ -40,7 +40,7 @@ jobs:
 
       - name: Build if Dockerfile changed
         if: steps.changed-files-specific.outputs.any_changed == 'true'
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
           context: .
           build-args: |
@@ -74,7 +74,7 @@ jobs:
       # https://github.com/docker/buildx/issues/59#issuecomment-1433097926
       - name: Build Multi-arch docker-image
         if: steps.changed-files-specific.outputs.any_changed == 'true' && matrix.os == 'ubuntu-latest' && matrix.arch == 'amd64'
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
           context: .
           build-args: |
