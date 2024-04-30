@@ -57,6 +57,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [Docker Usage](#docker-usage)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
+* [Github Actions](#github-actions)
 * [Authors](#authors)
 * [License](#license)
   * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
@@ -1165,6 +1166,62 @@ Finally, you can execute `docker run` with an additional volume mount so that th
 # adding volume for .netrc file
 # .netrc needs to be in /root/ dir
 docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:latest run -a
+```
+
+## Github Actions
+
+You can use this hook in your GitHub Actions workflow togehther with [pre-commit](https://pre-commit.com). To easy up dependency management, you can use the managed [docker image](#docker-usage) within your workflow. Make sure to set the image tag to the version you want to use.
+
+In this repository's pre-commit [workflow file](.github/workflows/pre-commit.yml) we run pre-commit without the container image.
+
+Here is an example that use the container image, includes caching of pre-commit dependencies and uses the `pre-commit` command to run the checks (but fixes will be not automatically push back to your branch, when it possible):
+
+```yaml
+name: pre-commit-terraform
+
+on:
+  pull_request:
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/antonbabenko/pre-commit-terraform:latest # latest used here for simplicity, not recommended
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+
+      - name: Get changed files
+        id: file_changes
+        run: |
+          export DIFF=$(git diff --name-only origin/${{ github.base_ref }} ${{ github.sha }})
+          echo "Diff between ${{ github.base_ref }} and ${{ github.sha }}"
+          echo "files=$( echo "$DIFF" | xargs echo )" >> $GITHUB_OUTPUT
+
+      - name: fix tar dependency in alpine container image
+        run: |
+          apk --no-cache add tar
+          # check python modules installed versions
+          python -m pip freeze --local
+
+      - name: Cache pre-commit since we use pre-commit from container
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Execute pre-commit
+        run: |
+          pre-commit run --color=always --show-diff-on-failure --files ${{ steps.file_changes.outputs.files }}
 ```
 
 ## Authors
