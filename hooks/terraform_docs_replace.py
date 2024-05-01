@@ -11,7 +11,7 @@ print(
 )
 
 
-def main(argv=None):
+def main(argv=None) -> int:
     """
     TODO: Add docstring.
 

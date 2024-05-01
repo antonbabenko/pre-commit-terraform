@@ -13,7 +13,7 @@ from collections.abc import Sequence
 logger = logging.getLogger(__name__)
 
 
-def setup_logging():
+def setup_logging() -> None:
     """
     Set up the logging configuration based on the value of the 'PCT_LOG' environment variable.
 
