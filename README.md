@@ -30,6 +30,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
   - [Table of content](#table-of-content)
   - [How to install](#how-to-install)
     - [1. Install dependencies](#1-install-dependencies)
+      - [1.1 Custom terraform binaries and OpenTofu support](#11-custom-terraform-binaries-and-opentofu-support)
     - [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
     - [3. Add configs and hooks](#3-add-configs-and-hooks)
     - [4. Run](#4-run)
@@ -84,6 +85,21 @@ If you are using `pre-commit-terraform` already or want to support its developme
 - [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook
 - [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook
 - [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook
+
+#### 1.1 Custom terraform binaries and OpenTofu support
+
+It is possible to set custom path to `terraform` binary.
+
+This makes possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of terraform.
+
+How to:
+
+- For per hook configuration set `--hook-config=tf_binary=<path_to_binary_or_binary_name>`
+- export `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable
+- or maybe your already have `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable set
+- if none of above is set/available, hook defaults to `terraform` binary found in the user's $PATH
+- if none of above are set/available, hook try to find and use `tofu` binary in the user's $PATH
+- `--hook-config=tf_binary=xxx` takes precedence, then `PCT_TFPATH` env var, and so on
 
 <details><summary><b>Docker</b></summary><br>
 
