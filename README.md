@@ -25,69 +25,65 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 ## Table of content
 
-* [Sponsors](#sponsors)
-* [Table of content](#table-of-content)
-* [How to install](#how-to-install)
-  * [1. Install dependencies](#1-install-dependencies)
-  * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
-  * [3. Add configs and hooks](#3-add-configs-and-hooks)
-  * [4. Run](#4-run)
-* [Available Hooks](#available-hooks)
-* [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
-  * [Known limitations](#known-limitations)
-  * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
-  * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
-  * [All hooks: Disable color output](#all-hooks-disable-color-output)
-  * [All hooks: Log levels](#all-hooks-log-levels)
-  * [Many hooks: Parallelism](#many-hooks-parallelism)
-  * [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
-  * [infracost\_breakdown](#infracost_breakdown)
-  * [terraform\_docs](#terraform_docs)
-  * [terraform\_docs\_replace (deprecated)](#terraform_docs_replace-deprecated)
-  * [terraform\_fmt](#terraform_fmt)
-  * [terraform\_providers\_lock](#terraform_providers_lock)
-  * [terraform\_tflint](#terraform_tflint)
-  * [terraform\_tfsec (deprecated)](#terraform_tfsec-deprecated)
-  * [terraform\_trivy](#terraform_trivy)
-  * [terraform\_validate](#terraform_validate)
-  * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
-  * [terrascan](#terrascan)
-  * [tfupdate](#tfupdate)
-  * [terragrunt\_providers\_lock](#terragrunt_providers_lock)
-* [Docker Usage](#docker-usage)
-  * [File Permissions](#file-permissions)
-  * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
-* [Github Actions](#github-actions)
-* [Authors](#authors)
-* [License](#license)
-  * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
+- [Collection of git hooks for Terraform to be used with pre-commit framework](#collection-of-git-hooks-for-terraform-to-be-used-with-pre-commit-framework)
+  - [Sponsors](#sponsors)
+  - [Table of content](#table-of-content)
+  - [How to install](#how-to-install)
+    - [1. Install dependencies](#1-install-dependencies)
+    - [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
+    - [3. Add configs and hooks](#3-add-configs-and-hooks)
+    - [4. Run](#4-run)
+  - [Available Hooks](#available-hooks)
+  - [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
+    - [Known limitations](#known-limitations)
+    - [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
+    - [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
+    - [All hooks: Disable color output](#all-hooks-disable-color-output)
+    - [All hooks: Log levels](#all-hooks-log-levels)
+    - [Many hooks: Parallelism](#many-hooks-parallelism)
+    - [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
+    - [infracost\_breakdown](#infracost_breakdown)
+    - [terraform\_docs](#terraform_docs)
+    - [terraform\_docs\_replace (deprecated)](#terraform_docs_replace-deprecated)
+    - [terraform\_fmt](#terraform_fmt)
+    - [terraform\_providers\_lock](#terraform_providers_lock)
+    - [terraform\_tflint](#terraform_tflint)
+    - [terraform\_tfsec (deprecated)](#terraform_tfsec-deprecated)
+    - [terraform\_trivy](#terraform_trivy)
+    - [terraform\_validate](#terraform_validate)
+    - [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
+    - [terrascan](#terrascan)
+    - [tfupdate](#tfupdate)
+    - [terragrunt\_providers\_lock](#terragrunt_providers_lock)
+  - [Docker Usage](#docker-usage)
+    - [File Permissions](#file-permissions)
+    - [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
+  - [Github Actions](#github-actions)
+  - [Authors](#authors)
+  - [License](#license)
+    - [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
 
 ## How to install
 
 ### 1. Install dependencies
 
-* [`pre-commit`](https://pre-commit.com/#install),
-  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
-  <sub><sup>[`git`](https://git-scm.com/downloads),
-  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
-  <sub><sup>Internet connection (on first run),
-  <sub><sup>x86_64 or arm64 compatible operation system,
-  <sub><sup>Some hardware where this OS will run,
-  <sub><sup>Electricity for hardware and internet connection,
-  <sub><sup>Some basic physical laws,
-  <sub><sup>Hope that it all will work.
-  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
-* [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook.
-* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook.
-* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook.
-* [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook.
-* [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
-* [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
-* [`Trivy`](https://github.com/aquasecurity/trivy) required for `terraform_trivy` hook.
-* [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
-* [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
-* [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
-* [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
+- [`pre-commit`](https://pre-commit.com/#install)
+- [`terraform`](https://www.terraform.io/downloads.html)
+- [`git`](https://git-scm.com/downloads)
+- [BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download)
+- Internet connection (on first run)
+- x86_64 or arm64 compatible operation system
+- [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook
+- [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook
+- [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook
+- [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook
+- [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook
+- [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook
+- [`Trivy`](https://github.com/aquasecurity/trivy) required for `terraform_trivy` hook
+- [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook
+- [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook
+- [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook
+- [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -103,7 +99,7 @@ All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/p
 **Build from scratch**:
 
 > [!IMPORTANT]
-> To build image you need to have [`docker buildx`](https://docs.docker.com/build/install-buildx/) enabled as default builder.  
+> To build image you need to have [`docker buildx`](https://docs.docker.com/build/install-buildx/) enabled as default builder.
 > Otherwise - provide `TARGETOS` and `TARGETARCH` as additional `--build-arg`'s to `docker build`.
 
 When hooks-related `--build-arg`s are not specified, only the latest version of `pre-commit` and `terraform` will be installed.
@@ -208,7 +204,7 @@ Otherwise, you can follow [this gist](https://gist.github.com/etiennejeanneaurev
 
 Ensure your PATH environment variable looks for `bash.exe` in `C:\Program Files\Git\bin` (the one present in `C:\Windows\System32\bash.exe` does not work with `pre-commit.exe`)
 
-For `checkov`, you may need to also set your `PYTHONPATH` environment variable with the path to your Python modules.  
+For `checkov`, you may need to also set your `PYTHONPATH` environment variable with the path to your Python modules.
 E.g. `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages`
 
 </details>
@@ -361,10 +357,10 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
 ### Many hooks: Parallelism
 
-> All, except deprecated hooks: `checkov`, `terraform_docs_replace` and hooks which can't be paralleled this way: `infracost_breakdown`, `terraform_wrapper_module_for_each`.  
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace` and hooks which can't be paralleled this way: `infracost_breakdown`, `terraform_wrapper_module_for_each`.
 > Also, there's a chance that parallelism have no effect on `terragrunt_fmt` and `terragrunt_validate` hooks
 
-By default, parallelism is set to `number of logical CPUs - 1`.  
+By default, parallelism is set to `number of logical CPUs - 1`.
 If you'd like to disable parallelism, set it to `1`
 
 ```yaml
@@ -420,7 +416,7 @@ args:
   - --hook-config=--parallelism-ci-cpu-cores=N
 ```
 
-If you don't see code above in your `pre-commit-config.yaml` or logs - you don't need it.  
+If you don't see code above in your `pre-commit-config.yaml` or logs - you don't need it.
 `--parallelism-ci-cpu-cores` used only in edge cases and is ignored in other situations. Check out its usage in [hooks/_common.sh](hooks/_common.sh)
 
 ### checkov (deprecated) and terraform_checkov
@@ -568,7 +564,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     * create a documentation file
     * extend existing documentation file by appending markers to the end of the file (see item 1 above)
     * use different filename for the documentation (default is `README.md`)
-    * use the same insertion markers as `terraform-docs` by default. It will be default in `v2.0`.  
+    * use the same insertion markers as `terraform-docs` by default. It will be default in `v2.0`.
       To migrate to `terraform-docs` insertion markers, run in repo root:
 
       ```bash
@@ -593,7 +589,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --args=--config=.terraform-docs.yml
     ```
 
-    > **Warning**  
+    > **Warning**
     > Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
 5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
@@ -744,7 +740,7 @@ To replicate functionality in `terraform_docs` hook:
 
 3. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
 
-    > **Warning**  
+    > **Warning**
     > DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
 
     ```yaml
@@ -925,10 +921,10 @@ To replicate functionality in `terraform_docs` hook:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
 
-    > **Important**  
+    > **Important**
     > The flag requires additional dependency to be installed: `jq`.
 
-    > **Note**  
+    > **Note**
     > Reinit can be very slow and require downloading data from remote Terraform registries, and not all of that downloaded data or meta-data is currently being cached by Terraform.
 
     When `--retry-once-with-cleanup=true`, in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
@@ -939,7 +935,7 @@ To replicate functionality in `terraform_docs` hook:
     * "Module not installed"
     * "Could not load plugin"
 
-    > **Warning**  
+    > **Warning**
     > When using `--retry-once-with-cleanup=true`, problematic `.terraform/modules/` and `.terraform/providers/` directories will be recursively deleted without prompting for consent. Other files and directories will not be affected, such as the `.terraform/environment` file.
 
     **Option 2**
@@ -958,7 +954,7 @@ To replicate functionality in `terraform_docs` hook:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    > **Caution**  
+    > **Caution**
     > If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 1. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
@@ -1010,7 +1006,7 @@ To replicate functionality in `terraform_docs` hook:
    [...]
    ```
 
-    > **Tip**  
+    > **Tip**
     > The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
 
 ### terraform_wrapper_module_for_each
@@ -1034,8 +1030,8 @@ Sample configuration:
     - --args=--verbose        # Verbose output
 ```
 
-**If you use hook inside Docker:**  
-The `terraform_wrapper_module_for_each` hook attempts to determine the module's short name to be inserted into the generated `README.md` files for the `source` URLs. Since the container uses a bind mount at a static location, it can cause this short name to be incorrect.  
+**If you use hook inside Docker:**
+The `terraform_wrapper_module_for_each` hook attempts to determine the module's short name to be inserted into the generated `README.md` files for the `source` URLs. Since the container uses a bind mount at a static location, it can cause this short name to be incorrect.
 If the generated name is incorrect, set them by providing the `module-repo-shortname` option to the hook:
 
 ```yaml
@@ -1085,7 +1081,7 @@ If the generated name is incorrect, set them by providing the `module-repo-short
         - --args=--version 2.5.0 # Will be pined to specified version
     ```
 
-Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
+Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.
 No need to pass `--recursive .` as it is added automatically.
 
 ### terragrunt_providers_lock

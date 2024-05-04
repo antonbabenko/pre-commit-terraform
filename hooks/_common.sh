@@ -446,6 +446,46 @@ function common::colorify {
 }
 
 #######################################################################
+# Set terraform binary path
+# Allows user to set the path to custom Terraform or OpenTofu binaries
+# Outputs:
+#   If failed - exit 1 with error message about missing Terraform/Opentofu binary
+function common::get_tf_binary {
+  local hook_config_tf_binary
+
+  for config in "${HOOK_CONFIG[@]}"; do
+    if [[ $config == tf_binary=* ]]; then
+      hook_config_tf_binary="${config#*=}"
+      break
+    fi
+  done
+
+  # direct hook config, has the highest priority
+  if [[ -n "${hook_config_tf_binary}" ]]; then
+    echo "${hook_config_tf_binary}"
+
+  # environment variable
+  elif [[ -n "${PCT_TFPATH}" ]]; then
+    echo "${PCT_TFPATH}"
+
+  # Maybe there is a similar setting for Terragrunt already
+  elif [[ -n "${TERRAGRUNT_TFPATH}" ]]; then
+    echo "${TERRAGRUNT_TFPATH}"
+
+  # check if Terraform binary is available
+  elif command -v terraform >/dev/null 2>&1; then
+    command -v terraform
+
+  # finally, check if Tofu binary is available
+  elif command -v tofu >/dev/null 2>&1; then
+    command -v tofu
+  else
+    echo "Neither Terraform nor Tofu binary could be found. Please set the TERRAGRUNT_TFPATH environment variable, set the tf_binary hook configuration, set the PRECOMMIT_TF_BINARY environment variable, or install terraform or tofu globally." >&2
+    exit 1
+  fi
+}
+
+#######################################################################
 # Run terraform init command
 # Arguments:
 #   command_name (string) command that will tun after successful init
@@ -468,6 +508,8 @@ function common::terraform_init {
   local exit_code=0
   local init_output
 
+  TF_BINARY=$(common::get_tf_binary)
+
   # Suppress terraform init color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     TF_INIT_ARGS+=("-no-color")
@@ -480,13 +522,13 @@ function common::terraform_init {
     # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
     if [[ -z $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
-      init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+      init_output=$($TF_BINARY init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
       # Locking just doesn't work, and the below works quicker instead. Details:
       # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
       for i in {1..10}; do
-        init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        init_output=$($TF_BINARY -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
         exit_code=$?
 
         if [ $exit_code -eq 0 ]; then
