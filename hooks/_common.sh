@@ -473,7 +473,7 @@ function common::get_tf_binary {
     echo "${TERRAGRUNT_TFPATH}"
 
   # check if Terraform binary is available
-  elif command -v terraform >/dev/null 2>&1; then
+  elif command -v terraform &>/dev/null; then
     command -v terraform
 
   # finally, check if Tofu binary is available
