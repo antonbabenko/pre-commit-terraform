@@ -461,7 +461,7 @@ function common::get_tf_path {
   local hook_config_tf_path
 
   for config in "${HOOK_CONFIG[@]}"; do
-    if [[ $config == --tf_path=* ]]; then
+    if [[ $config == --tf-path=* ]]; then
       hook_config_tf_path=${config#*=}
       hook_config_tf_path=${hook_config_tf_path%;}
       break
