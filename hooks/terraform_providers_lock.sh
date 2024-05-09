@@ -150,10 +150,13 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
     exit 0
   fi
 
+  # shellcheck disable=SC2034 # Unused var.
+  TF_PATH=$(common::get_tf_path)
+
   #? Don't require `tf init` for providers, but required `tf init` for modules
   #? Mitigated by `function match_validate_errors` from terraform_validate hook
   # pass the arguments to hook
-  terraform providers lock "${args[@]}"
+  $TF_PATH providers lock "${args[@]}"
 
   # return exit code to common::per_dir_hook
   exit_code=$?
