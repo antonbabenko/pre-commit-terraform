@@ -90,7 +90,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 
 It is possible to set custom path to `terraform` binary.
 
-This makes possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of terraform.
+This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
 
 How to:
 
