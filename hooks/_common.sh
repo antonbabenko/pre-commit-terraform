@@ -460,7 +460,7 @@ function common::get_tf_binary {
     fi
   done
 
-  # direct hook config, has the highest priority
+  # direct hook config, has the highest precedence
   if [[ -n "${hook_config_tf_binary}" ]]; then
     echo "${hook_config_tf_binary}"
 
