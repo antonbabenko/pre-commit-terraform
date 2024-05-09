@@ -484,12 +484,12 @@ function common::get_tf_path {
     return
 
   # check if Terraform binary is available
-  elif command -v terraform &>/dev/null; then
+  elif command -v terraform &> /dev/null; then
     command -v terraform
     return
 
   # finally, check if Tofu binary is available
-  elif command -v tofu >/dev/null 2>&1; then
+  elif command -v tofu &> /dev/null; then
     command -v tofu
     return
 
