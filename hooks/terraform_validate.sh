@@ -95,7 +95,7 @@ function per_dir_hook_unique_part {
   local retry_once_with_cleanup
 
   # shellcheck disable=SC2034 # Unused var.
-  TF_BINARY=$(common::get_tf_binary)
+  TF_PATH=$(common::get_tf_path)
 
   IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
 
@@ -119,25 +119,25 @@ function per_dir_hook_unique_part {
   # First try `terraform validate` with the hope that all deps are
   # pre-installed. That is needed for cases when `.terraform/modules`
   # or `.terraform/providers` missed AND that is expected.
-  $TF_BINARY validate "${args[@]}" &> /dev/null && {
+  $TF_PATH validate "${args[@]}" &> /dev/null && {
     exit_code=$?
     return $exit_code
   }
 
   # In case `terraform validate` failed to execute
   # - check is simple `terraform init` will help
-  common::terraform_init "$TF_BINARY validate" "$dir_path" "$parallelism_disabled" || {
+  common::terraform_init "$TF_PATH validate" "$dir_path" "$parallelism_disabled" || {
     exit_code=$?
     return $exit_code
   }
 
   if [ "$retry_once_with_cleanup" != "true" ]; then
     # terraform validate only
-    validate_output=$($TF_BINARY validate "${args[@]}" 2>&1)
+    validate_output=$($TF_PATH validate "${args[@]}" 2>&1)
     exit_code=$?
   else
     # terraform validate, plus capture possible errors
-    validate_output=$($TF_BINARY validate -json "${args[@]}" 2>&1)
+    validate_output=$($TF_PATH validate -json "${args[@]}" 2>&1)
     exit_code=$?
 
     # Match specific validation errors
@@ -155,12 +155,12 @@ function per_dir_hook_unique_part {
 
       common::colorify "yellow" "Re-validating: $dir_path"
 
-      common::terraform_init "$TF_BINARY validate" "$dir_path" "$parallelism_disabled" || {
+      common::terraform_init "$TF_PATH validate" "$dir_path" "$parallelism_disabled" || {
         exit_code=$?
         return $exit_code
       }
 
-      validate_output=$($TF_BINARY validate "${args[@]}" 2>&1)
+      validate_output=$($TF_PATH validate "${args[@]}" 2>&1)
       exit_code=$?
     fi
   fi

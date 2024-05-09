@@ -446,39 +446,45 @@ function common::colorify {
 }
 
 #######################################################################
-# Set Terraform binary path
+# Set Terraform/OpenTofu binary path
 # Allows user to set the path to custom Terraform or OpenTofu binary
 # Outputs:
 #   If failed - exit 1 with error message about missing Terraform/OpenTofu binary
-function common::get_tf_binary {
-  local hook_config_tf_binary
+function common::get_tf_path {
+  local hook_config_tf_path
 
   for config in "${HOOK_CONFIG[@]}"; do
-    if [[ $config == tf_binary=* ]]; then
-      hook_config_tf_binary="${config#*=}"
+    if [[ $config == --tf_path=* ]]; then
+      hook_config_tf_path="${config#*=}"
       break
     fi
   done
 
   # direct hook config, has the highest precedence
-  if [[ -n "${hook_config_tf_binary}" ]]; then
-    echo "${hook_config_tf_binary}"
+  if [[ $hook_config_tf_path ]]; then
+    echo "${hook_config_tf_path}"
+    return
 
   # environment variable
-  elif [[ -n "${PCT_TFPATH}" ]]; then
+  elif [[ $PCT_TFPATH ]]; then
     echo "${PCT_TFPATH}"
+    return
 
   # Maybe there is a similar setting for Terragrunt already
-  elif [[ -n "${TERRAGRUNT_TFPATH}" ]]; then
+  elif [[ $TERRAGRUNT_TFPATH ]]; then
     echo "${TERRAGRUNT_TFPATH}"
+    return
 
   # check if Terraform binary is available
   elif command -v terraform &>/dev/null; then
     command -v terraform
+    return
 
   # finally, check if Tofu binary is available
   elif command -v tofu >/dev/null 2>&1; then
     command -v tofu
+    return
+
   else
     common::colorify "red" "Neither Terraform nor OpenTofu binary could be found. Please either set the \"--tf-path\" hook configuration argument, or set the \"PCT_TFPATH\" environment variable, or set the \"TERRAGRUNT_TFPATH\" environment variable, or install Terraform or OpenTofu globally."
     exit 1
@@ -508,7 +514,7 @@ function common::terraform_init {
   local exit_code=0
   local init_output
 
-  TF_BINARY=$(common::get_tf_binary)
+  TF_PATH=$(common::get_tf_path)
 
   # Suppress terraform init color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
@@ -522,13 +528,13 @@ function common::terraform_init {
     # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
     if [[ -z $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
-      init_output=$($TF_BINARY init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+      init_output=$($TF_PATH init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
       # Locking just doesn't work, and the below works quicker instead. Details:
       # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
       for i in {1..10}; do
-        init_output=$($TF_BINARY -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        init_output=$($TF_PATH -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
         exit_code=$?
 
         if [ $exit_code -eq 0 ]; then

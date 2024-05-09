@@ -47,10 +47,10 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # shellcheck disable=SC2034 # Unused var.
-  TF_BINARY=$(common::get_tf_binary)
+  TF_PATH=$(common::get_tf_path)
 
   # pass the arguments to hook
-  $TF_BINARY fmt "${args[@]}"
+  $TF_PATH fmt "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
