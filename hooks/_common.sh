@@ -446,7 +446,7 @@ function common::colorify {
 }
 
 #######################################################################
-# Set terraform binary path
+# Set Terraform binary path
 # Allows user to set the path to custom Terraform or OpenTofu binaries
 # Outputs:
 #   If failed - exit 1 with error message about missing Terraform/Opentofu binary
