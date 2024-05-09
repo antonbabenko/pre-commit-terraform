@@ -94,9 +94,6 @@ function per_dir_hook_unique_part {
   #
   local retry_once_with_cleanup
 
-  # shellcheck disable=SC2034 # Unused var.
-  TF_PATH=$(common::get_tf_path)
-
   IFS=";" read -r -a configs <<< "${HOOK_CONFIG[*]}"
 
   for c in "${configs[@]}"; do

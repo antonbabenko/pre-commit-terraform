@@ -283,6 +283,9 @@ function common::per_dir_hook {
   # despite there's only one positional ARG left
   local -a -r files=("$@")
 
+  # shellcheck disable=SC2155
+  export TF_PATH=$(common::get_tf_path)
+
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
     # check is hook run via `pre-commit run --all`
@@ -459,7 +462,8 @@ function common::get_tf_path {
 
   for config in "${HOOK_CONFIG[@]}"; do
     if [[ $config == --tf_path=* ]]; then
-      hook_config_tf_path="${config#*=}"
+      hook_config_tf_path=${config#*=}
+      hook_config_tf_path=${hook_config_tf_path%;}
       break
     fi
   done

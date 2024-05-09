@@ -46,9 +46,6 @@ function per_dir_hook_unique_part {
   shift 3
   local -a -r args=("$@")
 
-  # shellcheck disable=SC2034 # Unused var.
-  TF_PATH=$(common::get_tf_path)
-
   # pass the arguments to hook
   $TF_PATH fmt "${args[@]}"
 
