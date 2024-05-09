@@ -99,7 +99,6 @@ How to:
 - or maybe your already have `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable set
 - if none of above is set/available, hook defaults to `terraform` binary found in the user's $PATH
 - if none of above are set/available, hook try to find and use `tofu` binary in the user's $PATH
-- `--hook-config=--tf-path=xxx` takes precedence, then `PCT_TFPATH` env var, and so on
 
 <details><summary><b>Docker</b></summary><br>
 
