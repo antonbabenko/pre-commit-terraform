@@ -449,7 +449,7 @@ function common::colorify {
 # Set Terraform binary path
 # Allows user to set the path to custom Terraform or OpenTofu binary
 # Outputs:
-#   If failed - exit 1 with error message about missing Terraform/Opentofu binary
+#   If failed - exit 1 with error message about missing Terraform/OpenTofu binary
 function common::get_tf_binary {
   local hook_config_tf_binary
 
