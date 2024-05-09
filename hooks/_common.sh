@@ -480,7 +480,7 @@ function common::get_tf_binary {
   elif command -v tofu >/dev/null 2>&1; then
     command -v tofu
   else
-    echo "Neither Terraform nor Tofu binary could be found. Please set the TERRAGRUNT_TFPATH environment variable, set the tf_binary hook configuration, set the PRECOMMIT_TF_BINARY environment variable, or install terraform or tofu globally." >&2
+    common::colorify "red" "Neither Terraform nor OpenTofu binary could be found. Please either set the \"--tf-path\" hook configuration argument, or set the \"PCT_TFPATH\" environment variable, or set the \"TERRAGRUNT_TFPATH\" environment variable, or install Terraform or OpenTofu globally."
     exit 1
   fi
 }
