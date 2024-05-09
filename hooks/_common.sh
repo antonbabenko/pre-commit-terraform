@@ -448,6 +448,10 @@ function common::colorify {
 #######################################################################
 # Set Terraform/OpenTofu binary path
 # Allows user to set the path to custom Terraform or OpenTofu binary
+# Globals (init and populate):
+#   HOOK_CONFIG (array) arguments that configure hook behavior
+#   PCT_TFPATH (string) user defined env var with path to Terraform/OpenTofu binary
+#   TERRAGRUNT_TFPATH (string) user defined env var with path to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - exit 1 with error message about missing Terraform/OpenTofu binary
 function common::get_tf_path {
