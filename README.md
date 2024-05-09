@@ -86,7 +86,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 - [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook
 - [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook
 
-#### 1.1 Custom terraform binaries and OpenTofu support
+#### 1.1 Custom Terraform binaries and OpenTofu support
 
 It is possible to set custom path to `terraform` binary.
 
