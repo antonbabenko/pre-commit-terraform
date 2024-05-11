@@ -89,9 +89,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 #### 1.1 Custom Terraform binaries and OpenTofu support
 
 It is possible to set custom path to `terraform` binary.
-
 This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
-
 How to:
 
 * For per hook configuration set `--hook-config=--tf-path=<path_to_binary_or_binary_name>`
