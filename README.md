@@ -68,7 +68,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 ### 1. Install dependencies
 
 * [`pre-commit`](https://pre-commit.com/#install),
-  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
+  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
   <sub><sup>[`git`](https://git-scm.com/downloads),
   <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
   <sub><sup>Internet connection (on first run),
@@ -99,7 +99,7 @@ This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` ins
 How binary discovery works and how you can redefine it:
 
 1. Check if set per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>`
-2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>`  environment variable exist 
+2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>`  environment variable exist
 3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable set
 4. Check if `terraform` binary can be found in the user's $PATH
 5. Check if `tofu` binary can be found in the user's $PATH
@@ -1265,4 +1265,3 @@ MIT licensed. See [LICENSE](LICENSE) for full details.
 * Russia has [illegally annexed Crimea in 2014](https://en.wikipedia.org/wiki/Annexation_of_Crimea_by_the_Russian_Federation) and [brought the war in Donbas](https://en.wikipedia.org/wiki/War_in_Donbas) followed by [full-scale invasion of Ukraine in 2022](https://en.wikipedia.org/wiki/2022_Russian_invasion_of_Ukraine).
 * Russia has brought sorrow and devastations to millions of Ukrainians, killed hundreds of innocent people, damaged thousands of buildings, and forced several million people to flee.
 * [Putin khuylo!](https://en.wikipedia.org/wiki/Putin_khuylo!)
-

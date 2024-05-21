@@ -46,15 +46,20 @@ function main {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
+#   tf_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
+  # shellcheck disable=SC2034 # Unused var.
   local -r dir_path="$1"
+  # shellcheck disable=SC2034 # Unused var.
   local -r change_dir_in_unique_part="$2"
   # shellcheck disable=SC2034 # Unused var.
   local -r parallelism_disabled="$3"
-  shift 3
+  # shellcheck disable=SC2034 # Unused var.
+  local -r tf_path="$4"
+  shift 4
   local -a -r args=("$@")
 
   if [ "$change_dir_in_unique_part" == "delegate_chdir" ]; then
