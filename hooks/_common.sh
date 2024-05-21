@@ -457,6 +457,7 @@ function common::colorify {
 #   TERRAGRUNT_TFPATH (string) user defined env var with path to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - exit 1 with error message about missing Terraform/OpenTofu binary
+#######################################################################
 function common::get_tf_path {
   local hook_config_tf_path
 
@@ -522,8 +523,6 @@ function common::terraform_init {
   local exit_code=0
   local init_output
 
-  TF_PATH=$(common::get_tf_path)
-
   # Suppress terraform init color
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     TF_INIT_ARGS+=("-no-color")
@@ -542,7 +541,7 @@ function common::terraform_init {
       # Locking just doesn't work, and the below works quicker instead. Details:
       # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
       for i in {1..10}; do
-        init_output=$($TF_PATH -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        init_output=$($TF_PATH init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
         exit_code=$?
 
         if [ $exit_code -eq 0 ]; then
