@@ -20,20 +20,18 @@ COPY tools/install/ /install/
 # Install required tools
 #
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
-ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-latest}
-
 RUN touch /.env && \
-    if [ "$PRE_COMMIT_VERSION" = "false" ] || [ "$TERRAFORM_VERSION" = "false" ]; then \
+    if [ "$PRE_COMMIT_VERSION" = "false" ]; then \
         echo "Vital software can't be skipped" && exit 1; \
     fi
-
-
 RUN /install/pre-commit.sh
-RUN /install/terraform.sh
 
 #
 # Install tools
 #
+ARG OPENTOFU_VERSION=${OPENTOFU_VERSION:-false}
+ARG TERRAFORM_VERSION=${TERRAFORM_VERSION:-false}
+
 ARG CHECKOV_VERSION=${CHECKOV_VERSION:-false}
 ARG HCLEDIT_VERSION=${HCLEDIT_VERSION:-false}
 ARG INFRACOST_VERSION=${INFRACOST_VERSION:-false}
@@ -51,6 +49,9 @@ ARG TRIVY_VERSION=${TRIVY_VERSION:-false}
 # specified in step below
 ARG INSTALL_ALL=${INSTALL_ALL:-false}
 RUN if [ "$INSTALL_ALL" != "false" ]; then \
+        echo "OPENTOFU_VERSION=latest"       >> /.env && \
+        echo "TERRAFORM_VERSION=latest"      >> /.env && \
+        \
         echo "CHECKOV_VERSION=latest"        >> /.env && \
         echo "HCLEDIT_VERSION=latest"        >> /.env && \
         echo "INFRACOST_VERSION=latest"      >> /.env && \
@@ -62,6 +63,9 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "TFUPDATE_VERSION=latest"       >> /.env && \
         echo "TRIVY_VERSION=latest"          >> /.env \
     ; fi
+
+RUN /install/opentofu.sh
+RUN /install/terraform.sh
 
 RUN /install/checkov.sh
 RUN /install/hcledit.sh
@@ -79,7 +83,9 @@ RUN /install/trivy.sh
 RUN . /.env && \
     F=tools_versions_info && \
     pre-commit --version >> $F && \
-    ./terraform --version | head -n 1 >> $F && \
+    (if [ "$OPENTOFU_VERSION"       != "false" ]; then echo "./tofu --version | head -n 1" >> $F;      else echo "opentofu SKIPPED" >> $F      ; fi) && \
+    (if [ "$TERRAFORM_VERSION"      != "false" ]; then echo "./terraform --version | head -n 1" >> $F; else echo "terraform SKIPPED" >> $F     ; fi) && \
+    \
     (if [ "$CHECKOV_VERSION"        != "false" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F        ; fi) && \
     (if [ "$HCLEDIT_VERSION"        != "false" ]; then echo "hcledit $(./hcledit version)" >> $F;     else echo "hcledit SKIPPED" >> $F        ; fi) && \
     (if [ "$INFRACOST_VERSION"      != "false" ]; then echo "$(./infracost --version)" >> $F;         else echo "infracost SKIPPED" >> $F      ; fi) && \

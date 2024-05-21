@@ -135,17 +135,19 @@ To install a specific version of individual tools, define it using `--build-arg`
 ```bash
 docker build -t pre-commit-terraform \
     --build-arg PRE_COMMIT_VERSION=latest \
+    --build-arg OPENTOFU_VERSION=latest \
+    --build-arg TERRAFORM_VERSION=1.5.7 \
     --build-arg TERRAFORM_VERSION=latest \
     --build-arg CHECKOV_VERSION=2.0.405 \
+    --build-arg HCLEDIT_VERSION=latest \
     --build-arg INFRACOST_VERSION=latest \
     --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
     --build-arg TERRAGRUNT_VERSION=latest \
     --build-arg TERRASCAN_VERSION=1.10.0 \
     --build-arg TFLINT_VERSION=0.31.0 \
     --build-arg TFSEC_VERSION=latest \
-    --build-arg TRIVY_VERSION=latest \
     --build-arg TFUPDATE_VERSION=latest \
-    --build-arg HCLEDIT_VERSION=latest \
+    --build-arg TRIVY_VERSION=latest \
     .
 ```
 

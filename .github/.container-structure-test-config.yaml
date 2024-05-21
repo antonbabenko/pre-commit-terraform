@@ -10,11 +10,6 @@ commandTests:
     args: ["-V"]
     expectedOutput: ["^pre-commit ([0-9]+\\.){2}[0-9]+\\n$"]
 
-  - name: "terraform"
-    command: "terraform"
-    args: ["-version"]
-    expectedOutput: ["^Terraform v([0-9]+\\.){2}[0-9]+\\n"]
-
   - name: "gcc"
     command: "gcc"
     args: ["--version"]
@@ -29,6 +24,16 @@ commandTests:
     command: "infracost"
     args: ["--version"]
     expectedOutput: ["^Infracost v([0-9]+\\.){2}[0-9]+"]
+
+  - name: "opentofu"
+    command: "tofu"
+    args: ["-version"]
+    expectedOutput: ["^OpenTofu v([0-9]+\\.){2}[0-9]+\\n"]
+
+  - name: "terraform"
+    command: "terraform"
+    args: ["-version"]
+    expectedOutput: ["^Terraform v([0-9]+\\.){2}[0-9]+\\n"]
 
   - name: "terraform-docs"
     command: "terraform-docs"
