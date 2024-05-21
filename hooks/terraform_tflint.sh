@@ -51,9 +51,7 @@ function main {
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
-  # shellcheck disable=SC2034 # Unused var.
   local -r dir_path="$1"
-  # shellcheck disable=SC2034 # Unused var.
   local -r change_dir_in_unique_part="$2"
   # shellcheck disable=SC2034 # Unused var.
   local -r parallelism_disabled="$3"
