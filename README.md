@@ -94,14 +94,15 @@ If you are using `pre-commit-terraform` already or want to support its developme
 #### 1.1 Custom Terraform binaries and OpenTofu support
 
 It is possible to set custom path to `terraform` binary.  
-This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.  
-How to:
+This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
 
-* For per hook configuration set `--hook-config=--tf-path=<path_to_binary_or_binary_name>`
-* export `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable
-* or maybe your already have `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable set
-* if none of above is set/available, hook defaults to `terraform` binary found in the user's $PATH
-* if none of above are set/available, hook try to find and use `tofu` binary in the user's $PATH
+How binary discovery works and how you can redefine it:
+
+1. Check if set per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>`
+2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>`  environment variable exist 
+3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable set
+4. Check if `terraform` binary can be found in the user's $PATH
+5. Check if `tofu` binary can be found in the user's $PATH
 
 <details><summary><b>Docker</b></summary><br>
 
