@@ -68,11 +68,16 @@ If you are using `pre-commit-terraform` already or want to support its developme
 ### 1. Install dependencies
 
 * [`pre-commit`](https://pre-commit.com/#install),
-* [`terraform`](https://www.terraform.io/downloads.html),
-* [`git`](https://git-scm.com/downloads),
-* [BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
-* Internet connection (on first run),
-* x86_64 or arm64 compatible operation system,
+  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
+  <sub><sup>[`git`](https://git-scm.com/downloads),
+  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
+  <sub><sup>Internet connection (on first run),
+  <sub><sup>x86_64 or arm64 compatible operation system,
+  <sub><sup>Some hardware where this OS will run,
+  <sub><sup>Electricity for hardware and internet connection,
+  <sub><sup>Some basic physical laws,
+  <sub><sup>Hope that it all will work.
+  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook
 * [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook
 * [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook
