@@ -29,7 +29,6 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [Table of content](#table-of-content)
 * [How to install](#how-to-install)
   * [1. Install dependencies](#1-install-dependencies)
-    * [1.1 Custom Terraform binaries and OpenTofu support](#11-custom-terraform-binaries-and-opentofu-support)
   * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
   * [3. Add configs and hooks](#3-add-configs-and-hooks)
   * [4. Run](#4-run)
@@ -68,36 +67,27 @@ If you are using `pre-commit-terraform` already or want to support its developme
 ### 1. Install dependencies
 
 * [`pre-commit`](https://pre-commit.com/#install),
-* [`terraform`](https://www.terraform.io/downloads.html),
-* [`git`](https://git-scm.com/downloads),
-* [BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
-* Internet connection (on first run),
-* x86_64 or arm64 compatible operation system,
-* [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook
-* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook
-* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook
-* [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook
-* [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook
-* [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook
-* [`Trivy`](https://github.com/aquasecurity/trivy) required for `terraform_trivy` hook
-* [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook
-* [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook
-* [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook
-* [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook
-
-
-#### 1.1 Custom Terraform binaries and OpenTofu support
-
-It is possible to set custom path to `terraform` binary.  
-This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
-
-How binary discovery works and how you can redefine it:
-
-1. Check if set per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>`
-2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>`  environment variable exist 
-3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable set
-4. Check if `terraform` binary can be found in the user's $PATH
-5. Check if `tofu` binary can be found in the user's $PATH
+  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
+  <sub><sup>[`git`](https://git-scm.com/downloads),
+  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
+  <sub><sup>Internet connection (on first run),
+  <sub><sup>x86_64 or arm64 compatible operation system,
+  <sub><sup>Some hardware where this OS will run,
+  <sub><sup>Electricity for hardware and internet connection,
+  <sub><sup>Some basic physical laws,
+  <sub><sup>Hope that it all will work.
+  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
+* [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook.
+* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook.
+* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook.
+* [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook.
+* [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
+* [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
+* [`Trivy`](https://github.com/aquasecurity/trivy) required for `terraform_trivy` hook.
+* [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
+* [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
+* [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
+* [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -1260,4 +1250,3 @@ MIT licensed. See [LICENSE](LICENSE) for full details.
 * Russia has [illegally annexed Crimea in 2014](https://en.wikipedia.org/wiki/Annexation_of_Crimea_by_the_Russian_Federation) and [brought the war in Donbas](https://en.wikipedia.org/wiki/War_in_Donbas) followed by [full-scale invasion of Ukraine in 2022](https://en.wikipedia.org/wiki/2022_Russian_invasion_of_Ukraine).
 * Russia has brought sorrow and devastations to millions of Ukrainians, killed hundreds of innocent people, damaged thousands of buildings, and forced several million people to flee.
 * [Putin khuylo!](https://en.wikipedia.org/wiki/Putin_khuylo!)
-
