@@ -470,17 +470,17 @@ function common::get_tf_binary_path {
 
   # direct hook config, has the highest precedence
   if [[ $hook_config_tf_path ]]; then
-    echo "${hook_config_tf_path}"
+    echo "$hook_config_tf_path"
     return
 
   # environment variable
   elif [[ $PCT_TFPATH ]]; then
-    echo "${PCT_TFPATH}"
+    echo "$PCT_TFPATH"
     return
 
   # Maybe there is a similar setting for Terragrunt already
   elif [[ $TERRAGRUNT_TFPATH ]]; then
-    echo "${TERRAGRUNT_TFPATH}"
+    echo "$TERRAGRUNT_TFPATH"
     return
 
   # check if Terraform binary is available

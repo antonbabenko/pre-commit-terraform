@@ -96,11 +96,11 @@ If you are using `pre-commit-terraform` already or want to support its developme
 It is possible to set custom path to `terraform` binary.  
 This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
 
-How binary discovery works and how you can redefine it:
+How binary discovery works and how you can redefine it (first matched takes precedence):
 
-1. Check if set per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>`
-2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>`  environment variable exist
-3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable set
+1. Check if per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>` is set
+2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
 4. Check if `terraform` binary can be found in the user's $PATH
 5. Check if `tofu` binary can be found in the user's $PATH
 
@@ -137,7 +137,6 @@ docker build -t pre-commit-terraform \
     --build-arg PRE_COMMIT_VERSION=latest \
     --build-arg OPENTOFU_VERSION=latest \
     --build-arg TERRAFORM_VERSION=1.5.7 \
-    --build-arg TERRAFORM_VERSION=latest \
     --build-arg CHECKOV_VERSION=2.0.405 \
     --build-arg HCLEDIT_VERSION=latest \
     --build-arg INFRACOST_VERSION=latest \
