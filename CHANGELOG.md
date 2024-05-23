@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.90.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.89.1...v1.90.0) (2024-05-23)
+
+
+### Features
+
+* Support set custom TF/OpenTofu binary. | If you use a custom Docker image build, please note that `TERRAFORM_VERSION` now must be provided ([#670](https://github.com/antonbabenko/pre-commit-terraform/issues/670)) ([c7011c0](https://github.com/antonbabenko/pre-commit-terraform/commit/c7011c06b84fc96c9a5f2f4508d5ced83ddd2af0))
+
 ## [1.89.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.89.0...v1.89.1) (2024-04-25)
 
 
