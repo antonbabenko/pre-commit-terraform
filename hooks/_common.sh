@@ -283,6 +283,8 @@ function common::per_dir_hook {
   # despite there's only one positional ARG left
   local -a -r files=("$@")
 
+  local -r tf_path=$(common::get_tf_binary_path)
+
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
     # check is hook run via `pre-commit run --all`
@@ -383,7 +385,7 @@ function common::per_dir_hook {
         pushd "$dir_path" > /dev/null
       fi
 
-      per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "$parallelism_disabled" "${args[@]}"
+      per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "$parallelism_disabled" "$tf_path" "${args[@]}"
     } &
     pids+=("$!")
 
@@ -446,12 +448,65 @@ function common::colorify {
 }
 
 #######################################################################
+# Get Terraform/OpenTofu binary path
+# Allows user to set the path to custom Terraform or OpenTofu binary
+# Globals (init and populate):
+#   HOOK_CONFIG (array) arguments that configure hook behavior
+#   PCT_TFPATH (string) user defined env var with path to Terraform/OpenTofu binary
+#   TERRAGRUNT_TFPATH (string) user defined env var with path to Terraform/OpenTofu binary
+# Outputs:
+#   If failed - exit 1 with error message about missing Terraform/OpenTofu binary
+#######################################################################
+function common::get_tf_binary_path {
+  local hook_config_tf_path
+
+  for config in "${HOOK_CONFIG[@]}"; do
+    if [[ $config == --tf-path=* ]]; then
+      hook_config_tf_path=${config#*=}
+      hook_config_tf_path=${hook_config_tf_path%;}
+      break
+    fi
+  done
+
+  # direct hook config, has the highest precedence
+  if [[ $hook_config_tf_path ]]; then
+    echo "$hook_config_tf_path"
+    return
+
+  # environment variable
+  elif [[ $PCT_TFPATH ]]; then
+    echo "$PCT_TFPATH"
+    return
+
+  # Maybe there is a similar setting for Terragrunt already
+  elif [[ $TERRAGRUNT_TFPATH ]]; then
+    echo "$TERRAGRUNT_TFPATH"
+    return
+
+  # check if Terraform binary is available
+  elif command -v terraform &> /dev/null; then
+    command -v terraform
+    return
+
+  # finally, check if Tofu binary is available
+  elif command -v tofu &> /dev/null; then
+    command -v tofu
+    return
+
+  else
+    common::colorify "red" "Neither Terraform nor OpenTofu binary could be found. Please either set the \"--tf-path\" hook configuration argument, or set the \"PCT_TFPATH\" environment variable, or set the \"TERRAGRUNT_TFPATH\" environment variable, or install Terraform or OpenTofu globally."
+    exit 1
+  fi
+}
+
+#######################################################################
 # Run terraform init command
 # Arguments:
 #   command_name (string) command that will tun after successful init
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
 #   parallelism_disabled (bool) if true - skip lock mechanism
+#  tf_path (string) PATH to Terraform/OpenTofu binary
 # Globals (init and populate):
 #   TF_INIT_ARGS (array) arguments for `terraform init` command
 #   TF_PLUGIN_CACHE_DIR (string) user defined env var with name of the directory
@@ -464,6 +519,7 @@ function common::terraform_init {
   local -r command_name=$1
   local -r dir_path=$2
   local -r parallelism_disabled=$3
+  local -r tf_path=$4
 
   local exit_code=0
   local init_output
@@ -480,13 +536,13 @@ function common::terraform_init {
     # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
     if [[ -z $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
-      init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+      init_output=$($tf_path init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
       # Locking just doesn't work, and the below works quicker instead. Details:
       # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
       for i in {1..10}; do
-        init_output=$(terraform init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        init_output=$($tf_path init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
         exit_code=$?
 
         if [ $exit_code -eq 0 ]; then

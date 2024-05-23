@@ -29,6 +29,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 * [Table of content](#table-of-content)
 * [How to install](#how-to-install)
   * [1. Install dependencies](#1-install-dependencies)
+    * [1.1 Custom Terraform binaries and OpenTofu support](#11-custom-terraform-binaries-and-opentofu-support)
   * [2. Install the pre-commit hook globally](#2-install-the-pre-commit-hook-globally)
   * [3. Add configs and hooks](#3-add-configs-and-hooks)
   * [4. Run](#4-run)
@@ -67,7 +68,7 @@ If you are using `pre-commit-terraform` already or want to support its developme
 ### 1. Install dependencies
 
 * [`pre-commit`](https://pre-commit.com/#install),
-  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html),
+  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
   <sub><sup>[`git`](https://git-scm.com/downloads),
   <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
   <sub><sup>Internet connection (on first run),
@@ -77,17 +78,31 @@ If you are using `pre-commit-terraform` already or want to support its developme
   <sub><sup>Some basic physical laws,
   <sub><sup>Hope that it all will work.
   </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
-* [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook.
-* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook.
-* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook.
-* [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook.
-* [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook.
-* [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook.
-* [`Trivy`](https://github.com/aquasecurity/trivy) required for `terraform_trivy` hook.
-* [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook.
-* [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook.
-* [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook.
-* [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook.
+* [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook
+* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook
+* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook
+* [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook
+* [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook
+* [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook
+* [`Trivy`](https://github.com/aquasecurity/trivy) required for `terraform_trivy` hook
+* [`infracost`](https://github.com/infracost/infracost) required for `infracost_breakdown` hook
+* [`jq`](https://github.com/stedolan/jq) required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook
+* [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook
+* [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook
+
+
+#### 1.1 Custom Terraform binaries and OpenTofu support
+
+It is possible to set custom path to `terraform` binary.  
+This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
+
+How binary discovery works and how you can redefine it (first matched takes precedence):
+
+1. Check if per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>` is set
+2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+4. Check if `terraform` binary can be found in the user's $PATH
+5. Check if `tofu` binary can be found in the user's $PATH
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -120,17 +135,18 @@ To install a specific version of individual tools, define it using `--build-arg`
 ```bash
 docker build -t pre-commit-terraform \
     --build-arg PRE_COMMIT_VERSION=latest \
-    --build-arg TERRAFORM_VERSION=latest \
+    --build-arg OPENTOFU_VERSION=latest \
+    --build-arg TERRAFORM_VERSION=1.5.7 \
     --build-arg CHECKOV_VERSION=2.0.405 \
+    --build-arg HCLEDIT_VERSION=latest \
     --build-arg INFRACOST_VERSION=latest \
     --build-arg TERRAFORM_DOCS_VERSION=0.15.0 \
     --build-arg TERRAGRUNT_VERSION=latest \
     --build-arg TERRASCAN_VERSION=1.10.0 \
     --build-arg TFLINT_VERSION=0.31.0 \
     --build-arg TFSEC_VERSION=latest \
-    --build-arg TRIVY_VERSION=latest \
     --build-arg TFUPDATE_VERSION=latest \
-    --build-arg HCLEDIT_VERSION=latest \
+    --build-arg TRIVY_VERSION=latest \
     .
 ```
 
