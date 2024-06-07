@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.91.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.90.0...v1.91.0) (2024-06-07)
+
+
+### Features
+
+* Added Terramate as sponsor ([#676](https://github.com/antonbabenko/pre-commit-terraform/issues/676)) ([dae1a48](https://github.com/antonbabenko/pre-commit-terraform/commit/dae1a483b429506863c3c7203932fef4fa74f86a))
+
 # [1.90.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.89.1...v1.90.0) (2024-05-23)
 
 
