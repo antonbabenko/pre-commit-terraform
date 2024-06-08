@@ -17,7 +17,6 @@ Terramate is an IaC collaboration, visibility and observability platform that em
 
 If you want to support the development of `pre-commit-terraform` and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
 
-
 ## Table of content
 
 * [Sponsors](#sponsors)
@@ -50,6 +49,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
   * [terragrunt\_providers\_lock](#terragrunt_providers_lock)
+  * [terragrunt\_validate\_inputs](#terragrunt_validate_inputs)
 * [Docker Usage](#docker-usage)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
@@ -75,7 +75,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook
 * [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook
-* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook
+* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
 * [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook
@@ -85,10 +85,9 @@ If you want to support the development of `pre-commit-terraform` and [many other
 * [`tfupdate`](https://github.com/minamijoyo/tfupdate) required for `tfupdate` hook
 * [`hcledit`](https://github.com/minamijoyo/hcledit) required for `terraform_wrapper_module_for_each` hook
 
-
 #### 1.1 Custom Terraform binaries and OpenTofu support
 
-It is possible to set custom path to `terraform` binary.  
+It is possible to set custom path to `terraform` binary.
 This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
 
 How binary discovery works and how you can redefine it (first matched takes precedence):
@@ -113,7 +112,7 @@ All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/p
 **Build from scratch**:
 
 > [!IMPORTANT]
-> To build image you need to have [`docker buildx`](https://docs.docker.com/build/install-buildx/) enabled as default builder.  
+> To build image you need to have [`docker buildx`](https://docs.docker.com/build/install-buildx/) enabled as default builder.
 > Otherwise - provide `TARGETOS` and `TARGETARCH` as additional `--build-arg`'s to `docker build`.
 
 When hooks-related `--build-arg`s are not specified, only the latest version of `pre-commit` and `terraform` will be installed.
@@ -149,7 +148,6 @@ Set `-e PRE_COMMIT_COLOR=never` to disable the color output in `pre-commit`.
 
 </details>
 
-
 <details><summary><b>MacOS</b></summary><br>
 
 ```bash
@@ -180,7 +178,6 @@ curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/late
 ```
 
 </details>
-
 
 <details><summary><b>Ubuntu 20.04+</b></summary><br>
 
@@ -219,7 +216,7 @@ Otherwise, you can follow [this gist](https://gist.github.com/etiennejeanneaurev
 
 Ensure your PATH environment variable looks for `bash.exe` in `C:\Program Files\Git\bin` (the one present in `C:\Windows\System32\bash.exe` does not work with `pre-commit.exe`)
 
-For `checkov`, you may need to also set your `PYTHONPATH` environment variable with the path to your Python modules.  
+For `checkov`, you may need to also set your `PYTHONPATH` environment variable with the path to your Python modules.
 E.g. `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages`
 
 </details>
@@ -295,6 +292,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                               | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                   | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
+| `terragrunt_validate_inputs`                                  | Validates [Terragrunt](https://github.com/gruntwork-io/terragrunt) unused and undefined inputs (`*.hcl`)                                                                                                                                         | `terragrunt`                                                                         |
 | `terragrunt_providers_lock`                            | Generates `.terraform.lock.hcl` files using [Terragrunt](https://github.com/gruntwork-io/terragrunt).                                                                                                                   | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                     | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan](https://github.com/tenable/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                        | `terrascan`                                                                          |
@@ -336,8 +334,9 @@ You can specify environment variables that will be passed to the hook at runtime
 
 > [!IMPORTANT]
 > Variable values are exported _verbatim_:
-> - No interpolation or expansion are applied
-> - The enclosing double quotes are removed if they are provided
+>
+> * No interpolation or expansion are applied
+> * The enclosing double quotes are removed if they are provided
 
 Config example:
 
@@ -372,10 +371,10 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
 ### Many hooks: Parallelism
 
-> All, except deprecated hooks: `checkov`, `terraform_docs_replace` and hooks which can't be paralleled this way: `infracost_breakdown`, `terraform_wrapper_module_for_each`.  
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace` and hooks which can't be paralleled this way: `infracost_breakdown`, `terraform_wrapper_module_for_each`.
 > Also, there's a chance that parallelism have no effect on `terragrunt_fmt` and `terragrunt_validate` hooks
 
-By default, parallelism is set to `number of logical CPUs - 1`.  
+By default, parallelism is set to `number of logical CPUs - 1`.
 If you'd like to disable parallelism, set it to `1`
 
 ```yaml
@@ -387,7 +386,6 @@ If you'd like to disable parallelism, set it to `1`
 In the same way you can set it to any positive integer.
 
 If you'd like to set parallelism value relative to number of CPU logical cores - provide valid Bash arithmetic expression and use `CPU` as a reference to the number of CPU logical cores
-
 
 ```yaml
 - id: terraform_providers_lock
@@ -424,14 +422,12 @@ If you'd like to set parallelism value relative to number of CPU logical cores -
 >
 > </details>
 
-
-
 ```yaml
 args:
   - --hook-config=--parallelism-ci-cpu-cores=N
 ```
 
-If you don't see code above in your `pre-commit-config.yaml` or logs - you don't need it.  
+If you don't see code above in your `pre-commit-config.yaml` or logs - you don't need it.
 `--parallelism-ci-cpu-cores` used only in edge cases and is ignored in other situations. Check out its usage in [hooks/_common.sh](hooks/_common.sh)
 
 ### checkov (deprecated) and terraform_checkov
@@ -579,7 +575,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     * create a documentation file
     * extend existing documentation file by appending markers to the end of the file (see item 1 above)
     * use different filename for the documentation (default is `README.md`)
-    * use the same insertion markers as `terraform-docs` by default. It will be default in `v2.0`.  
+    * use the same insertion markers as `terraform-docs` by default. It will be default in `v2.0`.
       To migrate to `terraform-docs` insertion markers, run in repo root:
 
       ```bash
@@ -604,7 +600,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --args=--config=.terraform-docs.yml
     ```
 
-    > **Warning**  
+    > **Warning**
     > Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
 5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
@@ -690,7 +686,6 @@ To replicate functionality in `terraform_docs` hook:
 > You can check available modes for hook below.
 > </details>
 
-
 1. The hook can work in a few different modes: `only-check-is-current-lockfile-cross-platform` with and without [terraform_validate hook](#terraform_validate) and `always-regenerate-lockfile` - only with terraform_validate hook.
 
     * `only-check-is-current-lockfile-cross-platform` without terraform_validate - only checks that lockfile has all required SHAs for all providers already added to lockfile.
@@ -729,7 +724,6 @@ To replicate functionality in `terraform_docs` hook:
           - --hook-config=--mode=always-regenerate-lockfile
         ```
 
-
 3. `terraform_providers_lock` supports custom arguments:
 
     ```yaml
@@ -755,7 +749,7 @@ To replicate functionality in `terraform_docs` hook:
 
 3. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
 
-    > **Warning**  
+    > **Warning**
     > DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
 
     ```yaml
@@ -763,7 +757,6 @@ To replicate functionality in `terraform_docs` hook:
       args:
         - --tf-init-args=-upgrade
     ```
-
 
 ### terraform_tflint
 
@@ -786,14 +779,13 @@ To replicate functionality in `terraform_docs` hook:
         - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
     ```
 
-3. By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delgate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
+3. By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delgate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. _Note: this requires `tflint>=0.44.0`._ For example:
 
     ```yaml
     - id: terraform_tflint
           args:
             - --hook-config=--delegate-chdir
     ```
-
 
 ### terraform_tfsec (deprecated)
 
@@ -936,10 +928,10 @@ To replicate functionality in `terraform_docs` hook:
         - --hook-config=--retry-once-with-cleanup=true     # Boolean. true or false
     ```
 
-    > **Important**  
+    > **Important**
     > The flag requires additional dependency to be installed: `jq`.
 
-    > **Note**  
+    > **Note**
     > Reinit can be very slow and require downloading data from remote Terraform registries, and not all of that downloaded data or meta-data is currently being cached by Terraform.
 
     When `--retry-once-with-cleanup=true`, in each failed directory the cached modules and providers from the `.terraform` directory will be deleted, before retrying once more. To avoid unnecessary deletion of this directory, the cleanup and retry will only happen if Terraform produces any of the following error messages:
@@ -950,7 +942,7 @@ To replicate functionality in `terraform_docs` hook:
     * "Module not installed"
     * "Could not load plugin"
 
-    > **Warning**  
+    > **Warning**
     > When using `--retry-once-with-cleanup=true`, problematic `.terraform/modules/` and `.terraform/providers/` directories will be recursively deleted without prompting for consent. Other files and directories will not be affected, such as the `.terraform/environment` file.
 
     **Option 2**
@@ -969,7 +961,7 @@ To replicate functionality in `terraform_docs` hook:
 
    `terraform_validate` hook will try to reinitialize them before running the `terraform validate` command.
 
-    > **Caution**  
+    > **Caution**
     > If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
 1. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
@@ -1021,7 +1013,7 @@ To replicate functionality in `terraform_docs` hook:
    [...]
    ```
 
-    > **Tip**  
+    > **Tip**
     > The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
 
 ### terraform_wrapper_module_for_each
@@ -1045,8 +1037,8 @@ Sample configuration:
     - --args=--verbose        # Verbose output
 ```
 
-**If you use hook inside Docker:**  
-The `terraform_wrapper_module_for_each` hook attempts to determine the module's short name to be inserted into the generated `README.md` files for the `source` URLs. Since the container uses a bind mount at a static location, it can cause this short name to be incorrect.  
+**If you use hook inside Docker:**
+The `terraform_wrapper_module_for_each` hook attempts to determine the module's short name to be inserted into the generated `README.md` files for the `source` URLs. Since the container uses a bind mount at a static location, it can cause this short name to be incorrect.
 If the generated name is incorrect, set them by providing the `module-repo-shortname` option to the hook:
 
 ```yaml
@@ -1096,7 +1088,7 @@ If the generated name is incorrect, set them by providing the `module-repo-short
         - --args=--version 2.5.0 # Will be pined to specified version
     ```
 
-Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.  
+Check [`tfupdate` usage instructions](https://github.com/minamijoyo/tfupdate#usage) for other available options and usage examples.
 No need to pass `--recursive .` as it is added automatically.
 
 ### terragrunt_providers_lock
@@ -1111,7 +1103,6 @@ Hook produces same results as [`terraform_providers_lock`](#terraform_providers_
 
 It invokes `terragrunt providers lock` under the hood and terragrunt [does its' own magic](https://terragrunt.gruntwork.io/docs/features/lock-file-handling/) for handling lock files.
 
-
 ```yaml
 - id: terragrunt_providers_lock
   name: Terragrunt providers lock
@@ -1119,6 +1110,20 @@ It invokes `terragrunt providers lock` under the hood and terragrunt [does its' 
     - --args=-platform=darwin_arm64
     - --args=-platform=darwin_amd64
     - --args=-platform=linux_amd64
+```
+
+### terragrunt_validate_inputs
+
+Validates Terragrunt unused and undefined inputs. See the [Teragrunt docs](https://terragrunt.gruntwork.io/docs/reference/cli-options/#validate-inputs) for more details.
+
+Example:
+
+```yaml
+- id: terragrunt_validate_inputs
+  name: Terragrunt validate inputs
+  args:
+    # Optionally check for unused inputs
+    - --args=--terragrunt-strict-validate
 ```
 
 ## Docker Usage
@@ -1242,7 +1247,6 @@ This repository is managed by [Anton Babenko](https://github.com/antonbabenko) w
 <a href="https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=antonbabenko/pre-commit-terraform" />
 </a>
-
 
 <a href="https://star-history.com/#antonbabenko/pre-commit-terraform&Date">
   <picture>
