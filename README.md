@@ -1114,7 +1114,10 @@ It invokes `terragrunt providers lock` under the hood and terragrunt [does its' 
 
 ### terragrunt_validate_inputs
 
-Validates Terragrunt unused and undefined inputs. See the [Teragrunt docs](https://terragrunt.gruntwork.io/docs/reference/cli-options/#validate-inputs) for more details.
+Validates Terragrunt unused and undefined inputs. This is useful for keeping
+configs clean when module versions change or if configs are copied.
+
+See the [Teragrunt docs](https://terragrunt.gruntwork.io/docs/reference/cli-options/#validate-inputs) for more details.
 
 Example:
 
