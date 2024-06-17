@@ -1141,7 +1141,9 @@ Example:
 ```
 
 > [!NOTE]
-> This hooks requires authentication to a given account if defined by config in order to work properly.
+> This hook requires authentication to a given account if defined by config to work properly. For example, if you use a third-party tool to store AWS credentials like `aws-vault` you must be authenticated first.
+>
+> See docs for the [iam_role](https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#iam_role) attribute and [--terragrunt-iam-role](https://terragrunt.gruntwork.io/docs/reference/cli-options/#terragrunt-iam-role) flag for more.
 
 ## Docker Usage
 
