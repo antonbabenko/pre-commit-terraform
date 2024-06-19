@@ -5,7 +5,7 @@ rules:
 
   # If the amount of wasted space is at least X or larger than X, mark as failed.
   # Expressed in B, KB, MB, and GB.
-  highestWastedBytes: 32MB
+  highestWastedBytes: 2MB
 
   # If the amount of wasted space makes up for X% or more of the image, mark as failed.
   # Note: the base image layer is NOT included in the total image size.
