@@ -50,6 +50,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
   * [terragrunt\_providers\_lock](#terragrunt_providers_lock)
+  * [terragrunt\_validate\_inputs](#terragrunt_validate_inputs)
 * [Docker Usage](#docker-usage)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
@@ -75,7 +76,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook
 * [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook
-* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` hook
+* [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
 * [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook
 * [`TFSec`](https://github.com/liamg/tfsec) required for `terraform_tfsec` hook
@@ -295,6 +296,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                                                   | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                                       | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                                             | `terragrunt`                                                                         |
+| `terragrunt_validate_inputs`                           | Validates [Terragrunt](https://github.com/gruntwork-io/terragrunt) unused and undefined inputs (`*.hcl`)
 | `terragrunt_providers_lock`                            | Generates `.terraform.lock.hcl` files using [Terragrunt](https://github.com/gruntwork-io/terragrunt).                                                                                                                                                            | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                                         | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan](https://github.com/tenable/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                                            | `terrascan`                                                                          |
@@ -1120,6 +1122,28 @@ It invokes `terragrunt providers lock` under the hood and terragrunt [does its' 
     - --args=-platform=darwin_amd64
     - --args=-platform=linux_amd64
 ```
+
+### terragrunt_validate_inputs
+
+Validates Terragrunt unused and undefined inputs. This is useful for keeping
+configs clean when module versions change or if configs are copied.
+
+See the [Terragrunt docs](https://terragrunt.gruntwork.io/docs/reference/cli-options/#validate-inputs) for more details.
+
+Example:
+
+```yaml
+- id: terragrunt_validate_inputs
+  name: Terragrunt validate inputs
+  args:
+    # Optionally check for unused inputs
+    - --args=--terragrunt-strict-validate
+```
+
+> [!NOTE]
+> This hook requires authentication to a given account if defined by config to work properly. For example, if you use a third-party tool to store AWS credentials like `aws-vault` you must be authenticated first.
+>
+> See docs for the [iam_role](https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#iam_role) attribute and [--terragrunt-iam-role](https://terragrunt.gruntwork.io/docs/reference/cli-options/#terragrunt-iam-role) flag for more.
 
 ## Docker Usage
 

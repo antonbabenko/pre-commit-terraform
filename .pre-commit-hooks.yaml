@@ -85,6 +85,14 @@
   files: (\.hcl)$
   exclude: \.terraform/.*$
 
+- id: terragrunt_validate_inputs
+  name: Terragrunt validate inputs
+  description: Validates Terragrunt unused and undefined inputs.
+  entry: hooks/terragrunt_validate_inputs.sh
+  language: script
+  files: (\.hcl)$
+  exclude: \.terraform/.*$
+
 - id: terragrunt_providers_lock
   name: Terragrunt providers lock
   description: Updates provider signatures in dependency lock files using terragrunt.
