@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.92.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.91.0...v1.92.0) (2024-06-19)
+
+
+### Features
+
+* Add `terragrunt_validate_inputs` hook to check unused and undefined inputs ([#677](https://github.com/antonbabenko/pre-commit-terraform/issues/677)) ([a139b71](https://github.com/antonbabenko/pre-commit-terraform/commit/a139b71bc722ac1d2d5ed89caeb74d66a882bb94))
+
 # [1.91.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.90.0...v1.91.0) (2024-06-07)
 
 
