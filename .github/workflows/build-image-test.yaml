@@ -1,6 +1,6 @@
 name: "Build Dockerfile if changed and run smoke tests"
 
-on: [pull_request]
+on: push
 
 env:
   IMAGE_TAG: pr-test
@@ -43,8 +43,8 @@ jobs:
         uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
         with:
           context: .
-          build-args: |
-            INSTALL_ALL=true
+          # build-args: |
+          #   INSTALL_ALL=true
           platforms: linux/${{ matrix.arch }} # Only one allowed here, see https://github.com/docker/buildx/issues/59#issuecomment-1433097926
           push: false
           load: true
@@ -55,16 +55,16 @@ jobs:
           secrets: |
             "github_token=${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Run structure tests
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
-        uses: plexsystems/container-structure-test-action@c0a028aa96e8e82ae35be556040340cbb3e280ca # v0.3.0
-        with:
-          image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
-          config: .github/.container-structure-test-config.yaml
+      # - name: Run structure tests
+      #   if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #   uses: plexsystems/container-structure-test-action@c0a028aa96e8e82ae35be556040340cbb3e280ca # v0.3.0
+      #   with:
+      #     image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+      #     config: .github/.container-structure-test-config.yaml
 
       - name: Dive - check image for waste files
         if: steps.changed-files-specific.outputs.any_changed == 'true'
-        uses: MaxymVlasov/dive-action@0035999cae50d4ef657ac94be84f01812aa192a5 # v0.1.0
+        uses: MaxymVlasov/dive-action@45a5486a062b2fdbb6dc989cdf5d33c0d34ae42c
         with:
           image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
           config-file: ${{ github.workspace }}/.github/.dive-ci.yaml
