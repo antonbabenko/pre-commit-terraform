@@ -38,7 +38,7 @@ repos:
 
 # Dockerfile linter
 - repo: https://github.com/hadolint/hadolint
-  rev: v2.12.1-beta
+  rev: v2.13.0-beta
   hooks:
     - id: hadolint
       args: [
@@ -59,3 +59,67 @@ repos:
   - id: prettier
     # https://prettier.io/docs/en/options.html#parser
     files: '.json5$'
+
+
+##########
+# PYTHON #
+##########
+
+- repo: https://github.com/asottile/reorder_python_imports
+  rev: v3.12.0
+  hooks:
+    - id: reorder-python-imports
+
+- repo: https://github.com/asottile/add-trailing-comma
+  rev: v3.1.0
+  hooks:
+    - id: add-trailing-comma
+
+- repo: https://github.com/pre-commit/mirrors-autopep8
+  rev: v2.0.4
+  hooks:
+    - id: autopep8
+      args:
+      - -i
+      - --max-line-length=100
+
+# Usage: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
+- repo: https://github.com/PyCQA/pylint
+  rev: v3.1.0
+  hooks:
+    - id: pylint
+      args:
+      - --disable=import-error # E0401. Locally you could not have all imports.
+      - --disable=fixme # W0511. 'TODO' notations.
+      - --disable=logging-fstring-interpolation # Conflict with "use a single formatting" WPS323
+      - --disable=ungrouped-imports # ignore `if TYPE_CHECKING` case. Other do reorder-python-imports
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.10.0
+  hooks:
+    - id: mypy
+      args: [
+        --ignore-missing-imports,
+        --disallow-untyped-calls,
+        --warn-redundant-casts,
+      ]
+
+- repo: https://github.com/pycqa/flake8.git
+  rev: 7.0.0
+  hooks:
+  - id: flake8
+    additional_dependencies:
+    - flake8-2020
+    - flake8-docstrings
+    - flake8-pytest-style
+    - wemake-python-styleguide
+    args:
+    - --max-returns=2 # Default settings
+    - --max-arguments=4 # Default settings
+    # https://www.flake8rules.com/
+    # https://wemake-python-stylegui.de/en/latest/pages/usage/violations/index.html
+    - --extend-ignore=
+              WPS305, <!-- Found `f` string -->
+              E501,   <!-- line too long (> 79 characters). Use 100 -->
+              I,      <!-- opt out of using isort in favor of reorder-python-imports -->
+    #           RST,    <!-- Conflict with DAR -->
