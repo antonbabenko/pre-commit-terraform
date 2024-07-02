@@ -33,7 +33,7 @@ jobs:
 
       - name: Build and Push release
         if: github.event_name != 'schedule'
-        uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2 # v6.0.1
+        uses: docker/build-push-action@15560696de535e4014efeff63c48f16952e52dd1 # v6.2.0
         with:
           context: .
           build-args: |
@@ -50,7 +50,7 @@ jobs:
 
       - name: Build and Push nightly
         if: github.event_name == 'schedule'
-        uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2 # v6.0.1
+        uses: docker/build-push-action@15560696de535e4014efeff63c48f16952e52dd1 # v6.2.0
         with:
           context: .
           build-args: |
