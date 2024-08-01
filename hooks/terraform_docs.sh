@@ -47,7 +47,10 @@ function terraform_docs_ {
   IFS=";" read -r -a configs <<< "$hook_config"
 
   local hack_terraform_docs
-  hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
+  local hack_terraform_docs=0
+  if [[ $(\command -V terraform 2> /dev/null) ]]; then
+    hack_terraform_docs=$(terraform version | sed -n 1p | grep -c 0.12) || true
+  fi
 
   if [[ ! $(command -v terraform-docs) ]]; then
     echo "ERROR: terraform-docs is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
