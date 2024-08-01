@@ -788,7 +788,7 @@ To replicate functionality in `terraform_docs` hook:
         - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
     ```
 
-3. By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delgate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
+3. By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delegate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
 
     ```yaml
     - id: terraform_tflint
