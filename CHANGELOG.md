@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.92.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.0...v1.92.1) (2024-08-01)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Suppress "terraform command not found" error message in case binary does not exist ([#693](https://github.com/antonbabenko/pre-commit-terraform/issues/693)) ([6ff3572](https://github.com/antonbabenko/pre-commit-terraform/commit/6ff3572afb0a70c6fe4c6a0524d1f332a4f8fb6c))
+
 # [1.92.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.91.0...v1.92.0) (2024-06-19)
 
 
