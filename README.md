@@ -1207,7 +1207,7 @@ docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd)
 
 You can use this hook in your GitHub Actions workflow togehther with [pre-commit](https://pre-commit.com). To easy up dependency management, you can use the managed [docker image](#docker-usage) within your workflow. Make sure to set the image tag to the version you want to use.
 
-In this repository's pre-commit [workflow file](.github/workflows/pre-commit.yml) we run pre-commit without the container image.
+In this repository's pre-commit [workflow file](.github/workflows/pre-commit.yaml) we run pre-commit without the container image.
 
 Here is an example that use the container image, includes caching of pre-commit dependencies and uses the `pre-commit` command to run the checks (but fixes will be not automatically push back to your branch, when it possible):
 
