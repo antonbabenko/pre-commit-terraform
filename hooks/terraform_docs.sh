@@ -121,6 +121,7 @@ function terraform_docs {
   # Get hook settings
   #
   local text_file="README.md"
+  local use_path_to_file=false
   local add_to_existing=false
   local create_if_not_exist=false
   local use_standard_markers=false
@@ -136,6 +137,7 @@ function terraform_docs {
     case $key in
       --path-to-file)
         text_file=$value
+        use_path_to_file=true
         ;;
       --add-to-existing-file)
         add_to_existing=$value
@@ -159,13 +161,29 @@ function terraform_docs {
   if [[ "$args" != *"--config"* ]]; then
     local tf_docs_formatter="md"
 
-  # Suppress terraform_docs color
   else
 
     local config_file=${args#*--config}
     config_file=${config_file#*=}
     config_file=${config_file% *}
 
+    # Prioritize `.terraform-docs.yml` `output.file` over
+    # `--hook-config=--path-to-file=` if it set
+    local output_file
+    # Get latest non-commented `output.file` from `.terraform-docs.yml`
+    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+file:' | tail -n 1) || true
+
+    if [[ $output_file ]]; then
+      # Extract filename from `output.file` line
+      text_file=$(echo "$output_file" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
+
+      if [[ $use_path_to_file ]]; then
+        common::colorify "yellow" "NOTE: You set both '--hook-config=--path-to-file=' and 'output.file' in '$config_file'"
+        common::colorify "yellow" "      'output.file' from '$config_file' will be used."
+      fi
+    fi
+
+    # Suppress terraform_docs color
     local config_file_no_color
     config_file_no_color="$config_file$(date +%s).yml"
 
@@ -228,7 +246,7 @@ function terraform_docs {
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs $tf_docs_formatter $args ./ > "$tmp_file"
+      terraform-docs --output-file="" $tf_docs_formatter $args ./ > "$tmp_file"
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
@@ -239,7 +257,7 @@ function terraform_docs {
 
       awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
       # shellcheck disable=SC2086
-      terraform-docs $tf_docs_formatter $args "$tmp_file_docs_tf" > "$tmp_file"
+      terraform-docs --output-file="" $tf_docs_formatter $args "$tmp_file_docs_tf" > "$tmp_file"
       rm -f "$tmp_file_docs_tf"
     fi
 
