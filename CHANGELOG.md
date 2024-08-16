@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.92.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.1...v1.92.2) (2024-08-16)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix issue and prioritize `output.file` setting from `.terraform-docs.yml` config over `--hook-config=--path-to-file=` ([#698](https://github.com/antonbabenko/pre-commit-terraform/issues/698)) ([9d6a22b](https://github.com/antonbabenko/pre-commit-terraform/commit/9d6a22badbd9693a72c2519eb7dde01d10db57b2))
+
 ## [1.92.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.0...v1.92.1) (2024-08-01)
 
 
