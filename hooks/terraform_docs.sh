@@ -121,6 +121,7 @@ function terraform_docs {
   # Get hook settings
   #
   local text_file="README.md"
+  local use_path_to_file=false
   local add_to_existing=false
   local create_if_not_exist=false
   local use_standard_markers=false
@@ -136,6 +137,7 @@ function terraform_docs {
     case $key in
       --path-to-file)
         text_file=$value
+        use_path_to_file=true
         ;;
       --add-to-existing-file)
         add_to_existing=$value
@@ -169,11 +171,16 @@ function terraform_docs {
     # `--hook-config=--path-to-file=` if it set
     local output_file
     # Get latest non-commented `output.file` from `.terraform-docs.yml`
-    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep ' file:' | grep -v '#' | tail -n 1 || true)
+    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+file:' | tail -n 1) || true
 
-    if [ "$output_file" ]; then
+    if [[ $output_file ]]; then
       # Extract filename from `output.file` line
       text_file=$(echo "$output_file" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
+
+      if [[ $use_path_to_file ]]; then
+        common::colorify "yellow" "NOTE: You set both '--hook-config=--path-to-file=' and 'output.file' in '$config_file'"
+        common::colorify "yellow" "      'output.file' from '$config_file' will be used."
+      fi
     fi
 
     # Suppress terraform_docs color
