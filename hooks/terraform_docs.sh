@@ -168,10 +168,12 @@ function terraform_docs {
     # Prioritize `.terraform-docs.yml` `output.file` over
     # `--hook-config=--path-to-file=` if it set
     local output_file
-    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep ' file:' |
-      awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
+    # Get latest non-commented `output.file` from `.terraform-docs.yml`
+    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep ' file:' | grep -v '#' || true)
+
     if [ "$output_file" ]; then
-      text_file=$output_file
+      # Extract filename from `output.file` line
+      text_file=$(echo "$output_file" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
     fi
 
     # Suppress terraform_docs color
