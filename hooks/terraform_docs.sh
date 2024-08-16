@@ -159,13 +159,22 @@ function terraform_docs {
   if [[ "$args" != *"--config"* ]]; then
     local tf_docs_formatter="md"
 
-  # Suppress terraform_docs color
   else
 
     local config_file=${args#*--config}
     config_file=${config_file#*=}
     config_file=${config_file% *}
 
+    # Prioritize `.terraform-docs.yml` `output.file` over
+    # `--hook-config=--path-to-file=` if it set
+    local output_file
+    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep ' file:' |
+      awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
+    if [ "$output_file" ]; then
+      text_file=$output_file
+    fi
+
+    # Suppress terraform_docs color
     local config_file_no_color
     config_file_no_color="$config_file$(date +%s).yml"
 
