@@ -169,7 +169,7 @@ function terraform_docs {
     # `--hook-config=--path-to-file=` if it set
     local output_file
     # Get latest non-commented `output.file` from `.terraform-docs.yml`
-    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep ' file:' | grep -v '#' || true)
+    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep ' file:' | grep -v '#' | tail -n 1 || true)
 
     if [ "$output_file" ]; then
       # Extract filename from `output.file` line
