@@ -175,12 +175,14 @@ function terraform_docs {
 
     if [[ $output_file ]]; then
       # Extract filename from `output.file` line
-      text_file=$(echo "$output_file" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
+      output_file=$(echo "$output_file" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
 
-      if [[ $use_path_to_file ]]; then
-        common::colorify "yellow" "NOTE: You set both '--hook-config=--path-to-file=' and 'output.file' in '$config_file'"
+      if [[ $use_path_to_file == true && "$output_file" != "$text_file" ]]; then
+        common::colorify "yellow" "NOTE: You set both '--hook-config=--path-to-file=$text_file' and 'output.file: $output_file' in '$config_file'"
         common::colorify "yellow" "      'output.file' from '$config_file' will be used."
       fi
+
+      text_file=$output_file
     fi
 
     # Suppress terraform_docs color
