@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.92.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.2...v1.92.3) (2024-08-27)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Suppress redundant warnings pop-ups introduced in v1.92.2 ([#700](https://github.com/antonbabenko/pre-commit-terraform/issues/700)) ([59b2454](https://github.com/antonbabenko/pre-commit-terraform/commit/59b2454e076a9d26ad93d0ca4037746fd7f5962d))
+
 ## [1.92.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.1...v1.92.2) (2024-08-16)
 
 
