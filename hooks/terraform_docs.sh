@@ -7,14 +7,12 @@ readonly SCRIPT_DIR
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
-# set up default insertion markers.  These will be changed to the markers used by
-# terraform-docs if the hook config contains `--use-standard-markers=true`
-insertion_marker_begin="<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
-insertion_marker_end="<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+insertion_marker_begin="<!-- BEGIN_TF_DOCS -->"
+insertion_marker_end="<!-- END_TF_DOCS -->"
 
-# these are the standard insertion markers used by terraform-docs
-readonly standard_insertion_marker_begin="<!-- BEGIN_TF_DOCS -->"
-readonly standard_insertion_marker_end="<!-- END_TF_DOCS -->"
+# Old markers used by the hook before the introduction of the terraform-docs markers
+readonly old_insertion_marker_begin="<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
+readonly old_insertion_marker_end="<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
 
 function main {
   common::initialize "$SCRIPT_DIR"
@@ -27,6 +25,23 @@ function main {
   done
   # shellcheck disable=SC2153 # False positive
   terraform_docs_ "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
+}
+
+#######################################################################
+# Function to replace old markers with new markers affected files
+# Globals:
+#   insertion_marker_begin - Standard insertion marker at beginning
+#   insertion_marker_end - Standard insertion marker at the end
+#   old_insertion_marker_begin - Old insertion marker at beginning
+#   old_insertion_marker_end - Old insertion marker at the end
+# Arguments:
+#   file (string) filename to check
+#######################################################################
+function replace_old_markers {
+  local -r file=$1
+
+  sed -i "s/${old_insertion_marker_begin}/${insertion_marker_begin}/g" "$file"
+  sed -i "s/${old_insertion_marker_end}/${insertion_marker_end}/g" "$file"
 }
 
 #######################################################################
@@ -124,7 +139,7 @@ function terraform_docs {
   local use_path_to_file=false
   local add_to_existing=false
   local create_if_not_exist=false
-  local use_standard_markers=false
+  local use_standard_markers=true
 
   read -r -a configs <<< "$hook_config"
 
@@ -151,10 +166,10 @@ function terraform_docs {
     esac
   done
 
-  if [ "$use_standard_markers" = true ]; then
+  if [ "$use_standard_markers" = false ]; then
     # update the insertion markers to those used by terraform-docs
-    insertion_marker_begin="$standard_insertion_marker_begin"
-    insertion_marker_end="$standard_insertion_marker_end"
+    insertion_marker_begin="$old_insertion_marker_begin"
+    insertion_marker_end="$old_insertion_marker_end"
   fi
 
   # Override formatter if no config file set
@@ -231,6 +246,8 @@ function terraform_docs {
 
     # If file still not exist - skip dir
     [[ ! -f "$text_file" ]] && popd > /dev/null && continue
+
+    replace_old_markers "$text_file"
 
     #
     # If `--add-to-existing-file=true` set, check is in file exist "hook markers",
