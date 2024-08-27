@@ -162,6 +162,8 @@ function terraform_docs {
         ;;
       --use-standard-markers)
         use_standard_markers=$value
+        common::colorify "yellow" "WARNING: --use-standard-markers is deprecated and will be removed in the future."
+        common::colorify "yellow" "         All needed changes already done by the hook, feel free to remove this line."
         ;;
     esac
   done

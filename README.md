@@ -581,7 +581,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     * create a documentation file
     * extend existing documentation file by appending markers to the end of the file (see item 1 above)
     * use different filename for the documentation (default is `README.md`)
-    * use the same insertion markers as `terraform-docs` by default. It's default starting from `v1.93`.  
+    * use the same insertion markers as `terraform-docs`. It's default starting from `v1.93`.  
       To migrate everything to `terraform-docs` insertion markers, run in repo root:
 
       ```bash
