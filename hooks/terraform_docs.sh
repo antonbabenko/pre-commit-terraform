@@ -169,7 +169,7 @@ function terraform_docs {
   done
 
   if [ "$use_standard_markers" = false ]; then
-    # update the insertion markers to those used by terraform-docs
+    # update the insertion markers to those used by pre-commit-terraform before v1.93
     insertion_marker_begin="$old_insertion_marker_begin"
     insertion_marker_end="$old_insertion_marker_end"
   fi
