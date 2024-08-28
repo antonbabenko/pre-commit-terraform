@@ -40,8 +40,8 @@ function main {
 function replace_old_markers {
   local -r file=$1
 
-  sed -i "s/${old_insertion_marker_begin}/${insertion_marker_begin}/g" "$file"
-  sed -i "s/${old_insertion_marker_end}/${insertion_marker_end}/g" "$file"
+  sed -i "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
+  sed -i "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
 }
 
 #######################################################################
@@ -163,12 +163,12 @@ function terraform_docs {
       --use-standard-markers)
         use_standard_markers=$value
         common::colorify "yellow" "WARNING: --use-standard-markers is deprecated and will be removed in the future."
-        common::colorify "yellow" "         All needed changes already done by the hook, feel free to remove this line."
+        common::colorify "yellow" "         All needed changes already done by the hook, feel free to remove --use-standard-markers setting from your pre-commit config"
         ;;
     esac
   done
 
-  if [ "$use_standard_markers" = false ]; then
+  if [[ $use_standard_markers == false ]]; then
     # update the insertion markers to those used by pre-commit-terraform before v1.93
     insertion_marker_begin="$old_insertion_marker_begin"
     insertion_marker_end="$old_insertion_marker_end"
