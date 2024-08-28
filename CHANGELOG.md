@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.93.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.3...v1.93.0) (2024-08-28)
+
+
+### Features
+
+* **`terraform_docs`:** Start seamless migration to `terraform-docs` markers ([#701](https://github.com/antonbabenko/pre-commit-terraform/issues/701)) ([d03f44f](https://github.com/antonbabenko/pre-commit-terraform/commit/d03f44facabf31ab7d464468907fb0a5d549e5e7))
+
 ## [1.92.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.2...v1.92.3) (2024-08-27)
 
 
