@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.93.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.93.0...v1.93.1) (2024-08-29)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix non-GNU `sed` issues, introduced in v1.93.0 ([#704](https://github.com/antonbabenko/pre-commit-terraform/issues/704)) ([3c8734d](https://github.com/antonbabenko/pre-commit-terraform/commit/3c8734dc55e69bcfc70eceff485768a0ee89e811))
+
 # [1.93.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.3...v1.93.0) (2024-08-28)
 
 
