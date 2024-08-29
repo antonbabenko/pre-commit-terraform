@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.94.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.93.1...v1.94.0) (2024-08-29)
+
+
+### Features
+
+* **`terraform-docs`:** Add support for `replace` mode  for TF 0.12+; Use native saving to file for TF 0.12+. Both requires `terraform-docs` v0.12.0+ which released in 2021. ([#705](https://github.com/antonbabenko/pre-commit-terraform/issues/705)) ([1a1b4a3](https://github.com/antonbabenko/pre-commit-terraform/commit/1a1b4a3181065f221568a9bff86319435a4a87e1))
+
 ## [1.93.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.93.0...v1.93.1) (2024-08-29)
 
 
