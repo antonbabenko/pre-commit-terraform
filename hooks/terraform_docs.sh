@@ -200,6 +200,16 @@ function terraform_docs {
       text_file=$output_file
     fi
 
+    # Use `.terraform-docs.yml` `output.mode` if it set
+    local output_mode
+    output_mode=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+mode:' | tail -n 1) || true
+    if [[ $output_mode ]]; then
+      # Extract mode from `output.mode` line
+      output_mode=$(echo "$output_mode" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
+    else
+      output_mode="inject"
+    fi
+
     # Suppress terraform_docs color
     local config_file_no_color
     config_file_no_color="$config_file$(date +%s).yml"
@@ -265,7 +275,7 @@ function terraform_docs {
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs --output-mode inject $tf_docs_formatter $args --output-file="$text_file" ./ > /dev/null
+      terraform-docs --output-mode="$output_mode" --output-file="$text_file" $tf_docs_formatter $args ./ > /dev/null
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
