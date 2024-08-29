@@ -203,12 +203,16 @@ function terraform_docs {
     # Use `.terraform-docs.yml` `output.mode` if it set
     local output_mode
     output_mode=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+mode:' | tail -n 1) || true
+    echo "output_mode grep file: '$output_mode'"
     if [[ $output_mode ]]; then
       # Extract mode from `output.mode` line
       output_mode=$(echo "$output_mode" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
+      echo "if output_mode file exist"
     else
       output_mode="inject"
+      echo "if output_mode defaults"
     fi
+    echo "output_mode after if: '$output_mode'"
 
     # Suppress terraform_docs color
     local config_file_no_color
