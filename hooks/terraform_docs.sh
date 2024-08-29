@@ -40,8 +40,8 @@ function main {
 function replace_old_markers {
   local -r file=$1
 
-  sed -i'' "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
-  sed -i''  "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
+  sed -i'' -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
+  sed -i'' -e "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
 }
 
 #######################################################################
