@@ -265,7 +265,7 @@ function terraform_docs {
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs --output-mode inject $tf_docs_formatter $args --output-file="$text_file" ./
+      terraform-docs --output-mode inject $tf_docs_formatter $args --output-file="$text_file" ./ > /dev/null
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
