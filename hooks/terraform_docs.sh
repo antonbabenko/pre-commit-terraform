@@ -135,7 +135,7 @@ function terraform_docs {
   #
   # Get hook settings
   #
-  local text_file="README.md"
+  local output_file="README.md"
   local use_path_to_file=false
   local add_to_existing=false
   local create_if_not_exist=false
@@ -151,7 +151,7 @@ function terraform_docs {
 
     case $key in
       --path-to-file)
-        text_file=$value
+        output_file=$value
         use_path_to_file=true
         ;;
       --add-to-existing-file)
@@ -186,20 +186,20 @@ function terraform_docs {
 
     # Prioritize `.terraform-docs.yml` `output.file` over
     # `--hook-config=--path-to-file=` if it set
-    local output_file
+    local config_output_file
     # Get latest non-commented `output.file` from `.terraform-docs.yml`
-    output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+file:' | tail -n 1) || true
+    config_output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+file:' | tail -n 1) || true
 
-    if [[ $output_file ]]; then
+    if [[ $config_output_file ]]; then
       # Extract filename from `output.file` line
-      output_file=$(echo "$output_file" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
+      config_output_file=$(echo "$config_output_file" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
 
-      if [[ $use_path_to_file == true && "$output_file" != "$text_file" ]]; then
-        common::colorify "yellow" "NOTE: You set both '--hook-config=--path-to-file=$text_file' and 'output.file: $output_file' in '$config_file'"
+      if [[ $use_path_to_file == true && "$config_output_file" != "$output_file" ]]; then
+        common::colorify "yellow" "NOTE: You set both '--hook-config=--path-to-file=$output_file' and 'output.file: $config_output_file' in '$config_file'"
         common::colorify "yellow" "      'output.file' from '$config_file' will be used."
       fi
 
-      text_file=$output_file
+      output_file=$config_output_file
     fi
 
     # Suppress terraform_docs color
@@ -225,7 +225,7 @@ function terraform_docs {
     #
     # Create file if it not exist and `--create-if-not-exist=true` provided
     #
-    if $create_if_not_exist && [[ ! -f "$text_file" ]]; then
+    if $create_if_not_exist && [[ ! -f "$output_file" ]]; then
       dir_have_tf_files="$(
         find . -maxdepth 1 -type f | sed 's|.*\.||' | sort -u | grep -oE '^tf$|^tfvars$' ||
           exit 0
@@ -234,7 +234,7 @@ function terraform_docs {
       # if no TF files - skip dir
       [ ! "$dir_have_tf_files" ] && popd > /dev/null && continue
 
-      dir="$(dirname "$text_file")"
+      dir="$(dirname "$output_file")"
 
       mkdir -p "$dir"
 
@@ -243,25 +243,25 @@ function terraform_docs {
         echo -e "# ${PWD##*/}\n"
         echo "$insertion_marker_begin"
         echo "$insertion_marker_end"
-      } >> "$text_file"
+      } >> "$output_file"
     fi
 
     # If file still not exist - skip dir
-    [[ ! -f "$text_file" ]] && popd > /dev/null && continue
+    [[ ! -f "$output_file" ]] && popd > /dev/null && continue
 
-    replace_old_markers "$text_file"
+    replace_old_markers "$output_file"
 
     #
     # If `--add-to-existing-file=true` set, check is in file exist "hook markers",
     # and if not - append "hook markers" to the end of file.
     #
     if $add_to_existing; then
-      HAVE_MARKER=$(grep -o "$insertion_marker_begin" "$text_file" || exit 0)
+      HAVE_MARKER=$(grep -o "$insertion_marker_begin" "$output_file" || exit 0)
 
       if [ ! "$HAVE_MARKER" ]; then
         # Use of insertion markers, where addToExisting=true, with no markers in the existing file
-        echo "$insertion_marker_begin" >> "$text_file"
-        echo "$insertion_marker_end" >> "$text_file"
+        echo "$insertion_marker_begin" >> "$output_file"
+        echo "$insertion_marker_end" >> "$output_file"
       fi
     fi
 
@@ -285,10 +285,10 @@ function terraform_docs {
     # Use of insertion markers to insert the terraform-docs output between the markers
     # Replace content between markers with the placeholder - https://stackoverflow.com/questions/1212799/how-do-i-extract-lines-between-two-line-delimiters-in-perl#1212834
     perl_expression="if (/$insertion_marker_begin/../$insertion_marker_end/) { print \$_ if /$insertion_marker_begin/; print \"I_WANT_TO_BE_REPLACED\\n\$_\" if /$insertion_marker_end/;} else { print \$_ }"
-    perl -i -ne "$perl_expression" "$text_file"
+    perl -i -ne "$perl_expression" "$output_file"
 
     # Replace placeholder with the content of the file
-    perl -i -e 'open(F, "'"$tmp_file"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "$text_file"
+    perl -i -e 'open(F, "'"$tmp_file"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "$output_file"
 
     rm -f "$tmp_file"
 
