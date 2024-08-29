@@ -130,12 +130,11 @@ function terraform_docs {
     ((index += 1))
   done
 
-  local -r tmp_file=$(mktemp)
-
   #
   # Get hook settings
   #
   local output_file="README.md"
+  local output_mode="inject"
   local use_path_to_file=false
   local add_to_existing=false
   local create_if_not_exist=false
@@ -200,6 +199,14 @@ function terraform_docs {
       fi
 
       output_file=$config_output_file
+    fi
+
+    # Use `.terraform-docs.yml` `output.mode` if it set
+    local config_output_mode
+    config_output_mode=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+mode:' | tail -n 1) || true
+    if [[ $config_output_mode ]]; then
+      # Extract mode from `output.mode` line
+      output_mode=$(echo "$config_output_mode" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
     fi
 
     # Suppress terraform_docs color
@@ -267,7 +274,7 @@ function terraform_docs {
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs --output-file="" $tf_docs_formatter $args ./ > "$tmp_file"
+      terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter $args ./ > /dev/null
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
@@ -277,20 +284,22 @@ function terraform_docs {
       tmp_file_docs_tf="$tmp_file_docs.tf"
 
       awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
+
+      local -r tmp_file=$(mktemp)
       # shellcheck disable=SC2086
       terraform-docs --output-file="" $tf_docs_formatter $args "$tmp_file_docs_tf" > "$tmp_file"
       rm -f "$tmp_file_docs_tf"
+
+      # Use of insertion markers to insert the terraform-docs output between the markers
+      # Replace content between markers with the placeholder - https://stackoverflow.com/questions/1212799/how-do-i-extract-lines-between-two-line-delimiters-in-perl#1212834
+      perl_expression="if (/$insertion_marker_begin/../$insertion_marker_end/) { print \$_ if /$insertion_marker_begin/; print \"I_WANT_TO_BE_REPLACED\\n\$_\" if /$insertion_marker_end/;} else { print \$_ }"
+      perl -i -ne "$perl_expression" "$output_file"
+
+      # Replace placeholder with the content of the file
+      perl -i -e 'open(F, "'"$tmp_file"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "$output_file"
+
+      rm -f "$tmp_file"
     fi
-
-    # Use of insertion markers to insert the terraform-docs output between the markers
-    # Replace content between markers with the placeholder - https://stackoverflow.com/questions/1212799/how-do-i-extract-lines-between-two-line-delimiters-in-perl#1212834
-    perl_expression="if (/$insertion_marker_begin/../$insertion_marker_end/) { print \$_ if /$insertion_marker_begin/; print \"I_WANT_TO_BE_REPLACED\\n\$_\" if /$insertion_marker_end/;} else { print \$_ }"
-    perl -i -ne "$perl_expression" "$output_file"
-
-    # Replace placeholder with the content of the file
-    perl -i -e 'open(F, "'"$tmp_file"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "$output_file"
-
-    rm -f "$tmp_file"
 
     popd > /dev/null
   done
