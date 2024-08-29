@@ -130,8 +130,6 @@ function terraform_docs {
     ((index += 1))
   done
 
-  local -r tmp_file=$(mktemp)
-
   #
   # Get hook settings
   #
@@ -267,7 +265,7 @@ function terraform_docs {
 
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
       # shellcheck disable=SC2086
-      terraform-docs --output-file="" $tf_docs_formatter $args ./ > "$tmp_file"
+      terraform-docs --output-mode inject $tf_docs_formatter $args --output-file="$text_file" ./
     else
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
@@ -277,20 +275,22 @@ function terraform_docs {
       tmp_file_docs_tf="$tmp_file_docs.tf"
 
       awk -f "$terraform_docs_awk_file" ./*.tf > "$tmp_file_docs_tf"
+
+      local -r tmp_file=$(mktemp)
       # shellcheck disable=SC2086
       terraform-docs --output-file="" $tf_docs_formatter $args "$tmp_file_docs_tf" > "$tmp_file"
       rm -f "$tmp_file_docs_tf"
+
+      # Use of insertion markers to insert the terraform-docs output between the markers
+      # Replace content between markers with the placeholder - https://stackoverflow.com/questions/1212799/how-do-i-extract-lines-between-two-line-delimiters-in-perl#1212834
+      perl_expression="if (/$insertion_marker_begin/../$insertion_marker_end/) { print \$_ if /$insertion_marker_begin/; print \"I_WANT_TO_BE_REPLACED\\n\$_\" if /$insertion_marker_end/;} else { print \$_ }"
+      perl -i -ne "$perl_expression" "$text_file"
+
+      # Replace placeholder with the content of the file
+      perl -i -e 'open(F, "'"$tmp_file"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "$text_file"
+
+      rm -f "$tmp_file"
     fi
-
-    # Use of insertion markers to insert the terraform-docs output between the markers
-    # Replace content between markers with the placeholder - https://stackoverflow.com/questions/1212799/how-do-i-extract-lines-between-two-line-delimiters-in-perl#1212834
-    perl_expression="if (/$insertion_marker_begin/../$insertion_marker_end/) { print \$_ if /$insertion_marker_begin/; print \"I_WANT_TO_BE_REPLACED\\n\$_\" if /$insertion_marker_end/;} else { print \$_ }"
-    perl -i -ne "$perl_expression" "$text_file"
-
-    # Replace placeholder with the content of the file
-    perl -i -e 'open(F, "'"$tmp_file"'"); $f = join "", <F>; while(<>){if (/I_WANT_TO_BE_REPLACED/) {print $f} else {print $_};}' "$text_file"
-
-    rm -f "$tmp_file"
 
     popd > /dev/null
   done
