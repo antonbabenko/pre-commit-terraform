@@ -41,8 +41,15 @@ function replace_old_markers {
   local -r file=$1
 
   # Determine the appropriate sed command based on the operating system (GNU sed or BSD sed)
-  SED_CMD=$(sed --version > /dev/null 2>&1 && echo "sed -i''" || echo "sed -i ''")
+  if sed --version > /dev/null 2>&1; then
+    SED_CMD="sed -i''"
+  else
+    # shellcheck disable=SC2089
+    SED_CMD="sed -i ''"
+  fi
+  # shellcheck disable=SC2090
   $SED_CMD -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
+  # shellcheck disable=SC2090
   $SED_CMD -e "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
 }
 
