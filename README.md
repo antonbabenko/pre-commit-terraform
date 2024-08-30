@@ -599,7 +599,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --hook-config=--use-standard-markers=true     # Boolean. Defaults to true (v1.93+), false (<v1.93). Set to true for compatibility with terraform-docs
     ```
 
-1. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_doc` hook, for example:
+4. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_doc` hook, for example:
 
     ```yaml
     - id: terraform_docs
@@ -610,7 +610,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     > **Warning**  
     > Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
-2. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
+5. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
 
     ```yaml
     - id: terraform_docs
