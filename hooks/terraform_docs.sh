@@ -46,10 +46,8 @@ function replace_old_markers {
   else
     SED_CMD=(sed -i '')
   fi
-  # shellcheck disable=SC2068
-  ${SED_CMD[@]} -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
-  # shellcheck disable=SC2068
-  ${SED_CMD[@]} -e "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
+  "${SED_CMD[@]}" -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
+  "${SED_CMD[@]}" -e "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
 }
 
 #######################################################################
