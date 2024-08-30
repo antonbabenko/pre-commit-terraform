@@ -40,8 +40,10 @@ function main {
 function replace_old_markers {
   local -r file=$1
 
-  sed -i='' -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
-  sed -i='' -e "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
+  # Determine the appropriate sed command based on the operating system (GNU sed or BSD sed)
+  SED_CMD=$(sed --version > /dev/null 2>&1 && echo "sed -i''" || echo "sed -i ''")
+  $SED_CMD -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
+  $SED_CMD -e "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
 }
 
 #######################################################################
