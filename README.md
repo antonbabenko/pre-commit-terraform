@@ -585,9 +585,9 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
       To migrate everything to `terraform-docs` insertion markers, run in repo root:
 
       ```bash
-      SED_CMD=$(sed --version > /dev/null 2>&1 && echo "sed -i''" || echo "sed -i ''")
-      grep -rl --null 'BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK' . | xargs -0 $SED_CMD -e 's/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/BEGIN_TF_DOCS/'
-      grep -rl --null 'END OF PRE-COMMIT-TERRAFORM DOCS HOOK' . | xargs -0 $SED_CMD -e 's/END OF PRE-COMMIT-TERRAFORM DOCS HOOK/END_TF_DOCS/'
+      if sed --version > /dev/null 2>&1; then SED_CMD=(sed -i''); else SED_CMD=(sed -i ''); fi
+      grep -rl --null 'BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK' . | xargs -0 ${SED_CMD[@]} -e 's/BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK/BEGIN_TF_DOCS/'
+      grep -rl --null 'END OF PRE-COMMIT-TERRAFORM DOCS HOOK' . | xargs -0 ${SED_CMD[@]} -e 's/END OF PRE-COMMIT-TERRAFORM DOCS HOOK/END_TF_DOCS/'
       ```
 
     ```yaml
