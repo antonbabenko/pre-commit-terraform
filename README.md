@@ -599,7 +599,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --hook-config=--use-standard-markers=true     # Boolean. Defaults to true (v1.93+), false (<v1.93). Set to true for compatibility with terraform-docs
     ```
 
-4. If you'd like to use `terraform-docs` config, you must to provide it relative to git repo root path to hook:
+4. If you want to use a terraform-docs config file, you must supply the path to the file, relative to the git repo root path:
 
     ```yaml
     - id: terraform_docs
