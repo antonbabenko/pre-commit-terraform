@@ -610,7 +610,7 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     > **Warning**  
     > Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
-5. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_docs` hook.
+5. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_docs` hook:
 
     ```yaml
     - id: terraform_docs
