@@ -118,7 +118,7 @@ function per_dir_hook_unique_part {
   # First try `terraform validate` with the hope that all deps are
   # pre-installed. That is needed for cases when `.terraform/modules`
   # or `.terraform/providers` missed AND that is expected.
-  $tf_path validate "${args[@]}" &> /dev/null && {
+  "$tf_path" validate "${args[@]}" &> /dev/null && {
     exit_code=$?
     return $exit_code
   }
@@ -132,11 +132,11 @@ function per_dir_hook_unique_part {
 
   if [ "$retry_once_with_cleanup" != "true" ]; then
     # terraform validate only
-    validate_output=$($tf_path validate "${args[@]}" 2>&1)
+    validate_output=$("$tf_path" validate "${args[@]}" 2>&1)
     exit_code=$?
   else
     # terraform validate, plus capture possible errors
-    validate_output=$($tf_path validate -json "${args[@]}" 2>&1)
+    validate_output=$("$tf_path" validate -json "${args[@]}" 2>&1)
     exit_code=$?
 
     # Match specific validation errors
@@ -159,7 +159,7 @@ function per_dir_hook_unique_part {
         return $exit_code
       }
 
-      validate_output=$($tf_path validate "${args[@]}" 2>&1)
+      validate_output=$("$tf_path" validate "${args[@]}" 2>&1)
       exit_code=$?
     fi
   fi
