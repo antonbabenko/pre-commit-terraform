@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.94.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.1...v1.94.2) (2024-09-09)
+
+
+### Bug Fixes
+
+* Support custom TF paths which contains spaces ([#714](https://github.com/antonbabenko/pre-commit-terraform/issues/714)) ([2bca410](https://github.com/antonbabenko/pre-commit-terraform/commit/2bca410814fad06f4d9cc9e31123277ae0eed23c))
+
 ## [1.94.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.0...v1.94.1) (2024-08-30)
 
 
