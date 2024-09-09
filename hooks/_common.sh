@@ -536,13 +536,13 @@ function common::terraform_init {
     # Plugin cache dir can't be written concurrently or read during write
     # https://github.com/hashicorp/terraform/issues/31964
     if [[ -z $TF_PLUGIN_CACHE_DIR || $parallelism_disabled == true ]]; then
-      init_output=$($tf_path init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+      init_output=$("$tf_path" init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
       exit_code=$?
     else
       # Locking just doesn't work, and the below works quicker instead. Details:
       # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
       for i in {1..10}; do
-        init_output=$($tf_path init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        init_output=$("$tf_path" init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
         exit_code=$?
 
         if [ $exit_code -eq 0 ]; then

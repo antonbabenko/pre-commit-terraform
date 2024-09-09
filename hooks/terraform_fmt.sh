@@ -49,7 +49,7 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  $tf_path fmt "${args[@]}"
+  "$tf_path" fmt "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

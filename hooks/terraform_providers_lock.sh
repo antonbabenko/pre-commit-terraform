@@ -140,7 +140,7 @@ function per_dir_hook_unique_part {
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
 Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
 "
-    common::terraform_init 'terraform providers lock' "$dir_path" "$parallelism_disabled" "$tf_path" || {
+    common::terraform_init "$tf_path providers lock" "$dir_path" "$parallelism_disabled" "$tf_path" || {
       exit_code=$?
       return $exit_code
     }
@@ -155,7 +155,7 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
   #? Don't require `tf init` for providers, but required `tf init` for modules
   #? Mitigated by `function match_validate_errors` from terraform_validate hook
   # pass the arguments to hook
-  $tf_path providers lock "${args[@]}"
+  "$tf_path" providers lock "${args[@]}"
 
   # return exit code to common::per_dir_hook
   exit_code=$?
