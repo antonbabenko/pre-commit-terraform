@@ -269,7 +269,7 @@ function terraform_docs {
       # terraform-docs in 'inject' mode adds markers by default if they are not present
       #
       if [[ $add_to_existing == false ]]; then
-        HAVE_MARKER=$(grep -o "$insertion_marker_begin" "$output_file" || exit 0)
+        HAVE_MARKER=$(grep -o "$insertion_marker_begin" "$output_file") || true
         [[ ! $HAVE_MARKER ]] && continue
       fi
       # shellcheck disable=SC2086
@@ -286,7 +286,7 @@ function terraform_docs {
       # and, if not, append "hook markers" to the end of the file.
       #
       if [[ $add_to_existing == true ]]; then
-        HAVE_MARKER=$(grep -o "$insertion_marker_begin" "$output_file" || exit 0)
+        HAVE_MARKER=$(grep -o "$insertion_marker_begin" "$output_file") || true
 
         if [[ ! $HAVE_MARKER ]]; then
           # Use of insertion markers, when "add_to_existing=true" with no markers in the existing file
