@@ -24,7 +24,7 @@ function main {
     ARGS[i]=${ARGS[i]/--config=/--config=$(pwd)\/}
   done
   # shellcheck disable=SC2153 # False positive
-  terraform_docs_ "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
+  terraform_docs "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -47,31 +47,6 @@ function replace_old_markers {
 }
 
 #######################################################################
-# Function which prepares hacks for old versions of `terraform` and
-# `terraform-docs` that them call `terraform_docs`
-# Arguments:
-#   hook_config (string with array) arguments that configure hook behavior
-#   args (string with array) arguments that configure wrapped tool behavior
-#   files (array) filenames to check
-#######################################################################
-function terraform_docs_ {
-  local -r hook_config="$1"
-  local -r args="$2"
-  shift 2
-  local -a -r files=("$@")
-
-  # Get hook settings
-  IFS=";" read -r -a configs <<< "$hook_config"
-
-  if [[ ! $(command -v terraform-docs) ]]; then
-    echo "ERROR: terraform-docs is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
-    exit 1
-  fi
-
-  terraform_docs "${configs[*]}" "$args" "${files[@]}"
-}
-
-#######################################################################
 # Wrapper around `terraform-docs` tool that check and change/create
 # (depends on provided hook_config) terraform documentation in
 # markdown format
@@ -85,6 +60,11 @@ function terraform_docs {
   local args="$2"
   shift 2
   local -a -r files=("$@")
+
+  if [[ ! $(command -v terraform-docs) ]]; then
+    echo "ERROR: terraform-docs is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
+    exit 1
+  fi
 
   local -a paths
 
@@ -108,7 +88,7 @@ function terraform_docs {
   local create_if_not_exist=false
   local use_standard_markers=true
 
-  read -r -a configs <<< "$hook_config"
+  IFS=";" read -r -a configs <<< "$hook_config"
 
   for c in "${configs[@]}"; do
 
