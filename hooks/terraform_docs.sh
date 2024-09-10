@@ -260,24 +260,40 @@ function terraform_docs {
 
     replace_old_markers "$output_file"
 
-    #
-    # If `--add-to-existing-file=true` set, check is in file exist "hook markers",
-    # and if not - append "hook markers" to the end of file.
-    #
-    if $add_to_existing; then
-      HAVE_MARKER=$(grep -o "$insertion_marker_begin" "$output_file" || exit 0)
-
-      if [ ! "$HAVE_MARKER" ]; then
-        # Use of insertion markers, where addToExisting=true, with no markers in the existing file
-        echo "$insertion_marker_begin" >> "$output_file"
-        echo "$insertion_marker_end" >> "$output_file"
-      fi
-    fi
-
     if [[ "$terraform_docs_awk_file" == "0" ]]; then
+      #? TF 0.12+ and terraform-docs 0.12.0+
+
+      #
+      # If `--add-to-existing-file=false` (default behavior), check if "hook markers" exist in file,
+      # and, if not, skip execution to avoid addition of terraform-docs section, as
+      # terraform-docs in 'inject' mode adds markers by default if they are not present
+      #
+      if [[ $add_to_existing == false ]]; then
+        have_marker=$(grep -o "$insertion_marker_begin" "$output_file") || unset have_marker
+        [[ ! $have_marker ]] && continue
+      fi
       # shellcheck disable=SC2086
       terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter $args ./ > /dev/null
+
     else
+      #? TF 0.12+ and terraform-docs < 0.8
+      #? Yes, we don't cover case of TF 0.12+ and terraform-docs 0.8-0.11
+      #? but I probably just drop this section in next release of the hook,
+      #? as there's no sense to support hacks for tool versions which were released more than 3 years ago
+
+      #
+      # If `--add-to-existing-file=true` set, check if "hook markers" exist in file,
+      # and, if not, append "hook markers" to the end of the file.
+      #
+      if [[ $add_to_existing == true ]]; then
+        have_marker=$(grep -o "$insertion_marker_begin" "$output_file") || unset have_marker
+
+        if [[ ! $have_marker ]]; then
+          # Use of insertion markers, when "add_to_existing=true" with no markers in the existing file
+          echo "$insertion_marker_begin" >> "$output_file"
+          echo "$insertion_marker_end" >> "$output_file"
+        fi
+      fi
       # Can't append extension for mktemp, so renaming instead
       local tmp_file_docs
       tmp_file_docs=$(mktemp "${TMPDIR:-/tmp}/terraform-docs-XXXXXXXXXX")
