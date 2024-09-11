@@ -47,9 +47,9 @@ function replace_old_markers {
 }
 
 #######################################################################
-# Wrapper around `terraform-docs` tool that check and change/create
-# (depends on provided hook_config) terraform documentation in
-# markdown format
+# Wrapper around `terraform-docs` tool that checks and changes/creates
+# (depending on provided hook_config) terraform documentation in
+# Markdown
 # Arguments:
 #   hook_config (string with array) arguments that configure hook behavior
 #   args (string with array) arguments that configure wrapped tool behavior
