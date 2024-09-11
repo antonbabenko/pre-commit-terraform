@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.95.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.3...v1.95.0) (2024-09-11)
+
+
+### Features
+
+* **`terraform_docs`:** Drop support for `terraform-docs` <0.12.0 ([#717](https://github.com/antonbabenko/pre-commit-terraform/issues/717)) ([81e4572](https://github.com/antonbabenko/pre-commit-terraform/commit/81e4572ad4d24fb0066fbfc4626152b6c7d48838))
+
 ## [1.94.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.2...v1.94.3) (2024-09-10)
 
 
