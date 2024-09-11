@@ -75,7 +75,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   <sub><sup>Hope that it all will work.
   </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook
-* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) required for `terraform_docs` hook
+* [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) 0.12.0+ required for `terraform_docs` hook
 * [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
 * [`terrascan`](https://github.com/tenable/terrascan) required for `terrascan` hook
 * [`TFLint`](https://github.com/terraform-linters/tflint) required for `terraform_tflint` hook
