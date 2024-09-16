@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.96.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.95.0...v1.96.0) (2024-09-16)
+
+
+### Features
+
+* Expand environment variables in `--args=` which contains lowercase symbols, like `${TF_VAR_lowercase}` ([#719](https://github.com/antonbabenko/pre-commit-terraform/issues/719)) ([bf156b4](https://github.com/antonbabenko/pre-commit-terraform/commit/bf156b40780275db9b8ab5db6d9ef41cecc78861))
+
 # [1.95.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.3...v1.95.0) (2024-09-11)
 
 
