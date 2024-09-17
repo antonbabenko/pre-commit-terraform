@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.96.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.0...v1.96.1) (2024-09-17)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix issue with processing multiply files without `terraform-docs` markers. Issue introduced in v1.95.0 ([#720](https://github.com/antonbabenko/pre-commit-terraform/issues/720)) ([2b1aec8](https://github.com/antonbabenko/pre-commit-terraform/commit/2b1aec86d8a086de4f25b502bdb97345de2eaa27)), closes [#717](https://github.com/antonbabenko/pre-commit-terraform/issues/717) [/github.com/antonbabenko/pre-commit-terraform/blob/869a106a4c8c48f34f58318a830436142e31e10a/hooks/terraform_docs.sh#L216](https://github.com//github.com/antonbabenko/pre-commit-terraform/blob/869a106a4c8c48f34f58318a830436142e31e10a/hooks/terraform_docs.sh/issues/L216)
+
 # [1.96.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.95.0...v1.96.0) (2024-09-16)
 
 
