@@ -213,7 +213,7 @@ function terraform_docs {
     #
     if [[ $add_to_existing == false ]]; then
       have_marker=$(grep -o "$insertion_marker_begin" "$output_file") || unset have_marker
-      [[ ! $have_marker ]] && continue
+      [[ ! $have_marker ]] && popd > /dev/null && continue
     fi
     # shellcheck disable=SC2086
     terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter $args ./ > /dev/null
