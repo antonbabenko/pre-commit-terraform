@@ -199,8 +199,9 @@ function common::get_cpu_num {
 
   local millicpu
 
-  if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]]; then
-    # Inside K8s pod or DinD in K8s
+  if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us &&
+    ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+    # Inside K8s pod or DinD in K8s (but not inside WSL)
     millicpu=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
 
     if [[ $millicpu -eq -1 ]]; then
