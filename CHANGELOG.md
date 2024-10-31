@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.96.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.1...v1.96.2) (2024-10-31)
+
+
+### Bug Fixes
+
+* **WSL:** Make parallelism work appropriately ([#728](https://github.com/antonbabenko/pre-commit-terraform/issues/728)) ([e87ee43](https://github.com/antonbabenko/pre-commit-terraform/commit/e87ee4371c9f09daac814845df196a65cac28a7a))
+
 ## [1.96.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.0...v1.96.1) (2024-09-17)
 
 
