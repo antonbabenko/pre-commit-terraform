@@ -199,7 +199,8 @@ function common::get_cpu_num {
 
   local millicpu
 
-  if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]]; then
+  if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us &&
+    ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then # WSL have cfs_quota_us, but WSL should be checked as usual Linux host
     # Inside K8s pod or DinD in K8s
     millicpu=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
 
@@ -251,7 +252,7 @@ function common::get_cpu_num {
   fi
 
   # On host machine or any other case
-  # `nproc` - Linux/FreeBSD, `sysctl -n hw.ncpu` - macOS/BSD, `echo 1` - fallback
+  # `nproc` - Linux/FreeBSD/WSL, `sysctl -n hw.ncpu` - macOS/BSD, `echo 1` - fallback
   nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 1
 }
 
