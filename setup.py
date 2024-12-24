@@ -1,3 +1,4 @@
+# pylint: skip-file
 from setuptools import find_packages
 from setuptools import setup
 
@@ -28,6 +29,7 @@ setup(
     entry_points={
         'console_scripts': [
             'terraform_docs_replace = hooks.terraform_docs_replace:main',
+            'terraform_fmt = hooks.terraform_fmt:main',
         ],
     },
 )

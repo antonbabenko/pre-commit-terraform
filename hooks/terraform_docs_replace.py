@@ -1,14 +1,30 @@
+"""Deprecated hook to replace README.md with the output of terraform-docs."""
 import argparse
 import os
 import subprocess
 import sys
 
+print(
+    '`terraform_docs_replace` hook is DEPRECATED.'
+    'For migration instructions see ' +
+    'https://github.com/antonbabenko/pre-commit-terraform/issues/248#issuecomment-1290829226',
+)
 
-def main(argv=None):
+
+def main(argv=None) -> int:
+    """
+    TODO: Add docstring.
+
+    Args:
+        argv (list): List of command-line arguments (default: None)
+
+    Returns:
+        int: The return value indicating the success or failure of the function
+    """
     parser = argparse.ArgumentParser(
         description="""Run terraform-docs on a set of files. Follows the standard convention of
                        pulling the documentation from main.tf in order to replace the entire
-                       README.md file each time."""
+                       README.md file each time.""",
     )
     parser.add_argument(
         '--dest', dest='dest', default='README.md',
@@ -29,25 +45,27 @@ def main(argv=None):
 
     dirs = []
     for filename in args.filenames:
-        if (os.path.realpath(filename) not in dirs and
-                (filename.endswith(".tf") or filename.endswith(".tfvars"))):
+        if (
+            os.path.realpath(filename) not in dirs and
+            (filename.endswith('.tf') or filename.endswith('.tfvars'))
+        ):
             dirs.append(os.path.dirname(filename))
 
     retval = 0
 
-    for dir in dirs:
+    for directory in dirs:
         try:
-            procArgs = []
-            procArgs.append('terraform-docs')
+            proc_args = []
+            proc_args.append('terraform-docs')
             if args.sort:
-                procArgs.append('--sort-by-required')
-            procArgs.append('md')
-            procArgs.append("./{dir}".format(dir=dir))
-            procArgs.append('>')
-            procArgs.append("./{dir}/{dest}".format(dir=dir, dest=args.dest))
-            subprocess.check_call(" ".join(procArgs), shell=True)
-        except subprocess.CalledProcessError as e:
-            print(e)
+                proc_args.append('--sort-by-required')
+            proc_args.append('md')
+            proc_args.append(f'./{directory}')
+            proc_args.append('>')
+            proc_args.append(f'./{directory}/{args.dest}')
+            subprocess.check_call(' '.join(proc_args), shell=True)
+        except subprocess.CalledProcessError as exeption:
+            print(exeption)
             retval = 1
     return retval
 
