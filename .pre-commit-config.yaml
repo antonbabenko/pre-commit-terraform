@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.2.0
+  rev: v5.0.0
   hooks:
     # Git style
     - id: check-added-large-files
@@ -30,7 +30,7 @@ repos:
 
 
 - repo: https://github.com/jumanjihouse/pre-commit-hooks
-  rev: 2.1.6
+  rev: 3.0.0
   hooks:
     - id: shfmt
       args: ['-l', '-i', '2', '-ci', '-sr', '-w']
@@ -38,22 +38,23 @@ repos:
 
 # Dockerfile linter
 - repo: https://github.com/hadolint/hadolint
-  rev: v2.10.0
+  rev: v2.12.1-beta
   hooks:
     - id: hadolint
       args: [
-        '--ignore', 'DL3027', # Do not use apt
         '--ignore', 'DL3007', # Using latest
+        '--ignore', 'DL3013', # Pin versions in pip
+        '--ignore', 'DL3027', # Do not use apt
+        '--ignore', 'DL3059', # Docker `RUN`s shouldn't be consolidated here
         '--ignore', 'DL4006', # Not related to alpine
         '--ignore', 'SC1091', # Useless check
         '--ignore', 'SC2015', # Useless check
         '--ignore', 'SC3037', # Not related to alpine
-        '--ignore', 'DL3013', # Pin versions in pip
       ]
 
 # JSON5 Linter
 - repo: https://github.com/pre-commit/mirrors-prettier
-  rev: v3.0.0-alpha.4
+  rev: v3.1.0
   hooks:
   - id: prettier
     # https://prettier.io/docs/en/options.html#parser

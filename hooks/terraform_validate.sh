@@ -2,8 +2,8 @@
 set -eo pipefail
 
 # globals variables
-# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_DIR
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
@@ -55,6 +55,8 @@ function match_validate_errors {
       "Module version requirements have changed") return 1 ;;
       "Module not installed") return 1 ;;
       "Could not load plugin") return 1 ;;
+      "Missing required provider") return 1 ;;
+      *"there is no package for"*"cached in .terraform/providers") return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
 
@@ -70,13 +72,22 @@ function match_validate_errors {
 # Arguments:
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   change_dir_in_unique_part (string/false) Modifier which creates
+#     possibilities to use non-common chdir strategies.
+#     Availability depends on hook.
+#   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
+#   tf_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
   local -r dir_path="$1"
-  shift
+  # shellcheck disable=SC2034 # Unused var.
+  local -r change_dir_in_unique_part="$2"
+  local -r parallelism_disabled="$3"
+  local -r tf_path="$4"
+  shift 4
   local -a -r args=("$@")
 
   local exit_code
@@ -95,7 +106,7 @@ function per_dir_hook_unique_part {
 
     case $key in
       --retry-once-with-cleanup)
-        if [ $retry_once_with_cleanup ]; then 
+        if [ "$retry_once_with_cleanup" ]; then
           common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--retry-once-with-cleanup" flag'
           exit 1
         fi
@@ -104,18 +115,28 @@ function per_dir_hook_unique_part {
     esac
   done
 
-  common::terraform_init 'terraform validate' "$dir_path" || {
+  # First try `terraform validate` with the hope that all deps are
+  # pre-installed. That is needed for cases when `.terraform/modules`
+  # or `.terraform/providers` missed AND that is expected.
+  "$tf_path" validate "${args[@]}" &> /dev/null && {
+    exit_code=$?
+    return $exit_code
+  }
+
+  # In case `terraform validate` failed to execute
+  # - check is simple `terraform init` will help
+  common::terraform_init "$tf_path validate" "$dir_path" "$parallelism_disabled" "$tf_path" || {
     exit_code=$?
     return $exit_code
   }
 
   if [ "$retry_once_with_cleanup" != "true" ]; then
     # terraform validate only
-    validate_output=$(terraform validate "${args[@]}" 2>&1)
+    validate_output=$("$tf_path" validate "${args[@]}" 2>&1)
     exit_code=$?
   else
     # terraform validate, plus capture possible errors
-    validate_output=$(terraform validate -json "${args[@]}" 2>&1)
+    validate_output=$("$tf_path" validate -json "${args[@]}" 2>&1)
     exit_code=$?
 
     # Match specific validation errors
@@ -133,12 +154,12 @@ function per_dir_hook_unique_part {
 
       common::colorify "yellow" "Re-validating: $dir_path"
 
-      common::terraform_init 'terraform validate' "$dir_path" || {
+      common::terraform_init "$tf_path validate" "$dir_path" "$parallelism_disabled" "$tf_path" || {
         exit_code=$?
         return $exit_code
       }
 
-      validate_output=$(terraform validate "${args[@]}" 2>&1)
+      validate_output=$("$tf_path" validate "${args[@]}" 2>&1)
       exit_code=$?
     fi
   fi

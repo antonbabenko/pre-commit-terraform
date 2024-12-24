@@ -2,8 +2,8 @@
 set -eo pipefail
 
 # globals variables
-# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_DIR
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
@@ -24,14 +24,25 @@ function main {
 # Arguments:
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
+#   change_dir_in_unique_part (string/false) Modifier which creates
+#     possibilities to use non-common chdir strategies.
+#     Availability depends on hook.
+#   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
+#   tf_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
   # shellcheck disable=SC2034 # Unused var.
   local -r dir_path="$1"
-  shift
+  # shellcheck disable=SC2034 # Unused var.
+  local -r change_dir_in_unique_part="$2"
+  # shellcheck disable=SC2034 # Unused var.
+  local -r parallelism_disabled="$3"
+  # shellcheck disable=SC2034 # Unused var.
+  local -r tf_path="$4"
+  shift 4
   local -a -r args=("$@")
 
   # pass the arguments to hook

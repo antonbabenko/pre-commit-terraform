@@ -2,8 +2,8 @@
 set -eo pipefail
 
 # globals variables
-# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_DIR
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
@@ -291,8 +291,6 @@ EOF
     # Wrappers will be stored in "wrappers/{module_name}"
     output_dir="${root_dir}/${wrapper_dir}/${module_name}"
 
-    [[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
-
     # Calculate relative depth for module source by number of slashes
     module_depth="${module_dir//[^\/]/}"
 
@@ -323,20 +321,28 @@ EOF
 
     # Get names of module variables in all terraform files
     # shellcheck disable=SC2207
-    module_vars=($(echo "$all_tf_content" | hcledit block list | grep variable. | cut -d'.' -f 2))
+    module_vars=($(echo "$all_tf_content" | hcledit block list | { grep "^variable\." | cut -d'.' -f 2 | sort || true; }))
 
     # Get names of module outputs in all terraform files
     # shellcheck disable=SC2207
-    module_outputs=($(echo "$all_tf_content" | hcledit block list | grep output. | cut -d'.' -f 2))
+    module_outputs=($(echo "$all_tf_content" | hcledit block list | { grep "^output\." | cut -d'.' -f 2 || true; }))
+
+    # Get names of module providers in all terraform files
+    module_providers=$(echo "$all_tf_content" | hcledit block list | { grep "^provider\." || true; })
+
+    if [[ $module_providers ]]; then
+      common::colorify "yellow" "Skipping ${full_module_dir} because it is a legacy module which contains its own local provider configurations and so calls to it may not use the for_each argument."
+      break
+    fi
 
     # Looking for sensitive output
-    local wrapper_output_sensitive="# sensitive = false  # No sensitive module output found"
+    local wrapper_output_sensitive="# sensitive = false # No sensitive module output found"
     for module_output in "${module_outputs[@]}"; do
       module_output_sensitive=$(echo "$all_tf_content" | hcledit attribute get "output.${module_output}.sensitive")
 
       # At least one output is sensitive - the wrapper's output should be sensitive, too
       if [[ "$module_output_sensitive" == "true" ]]; then
-        wrapper_output_sensitive="sensitive   = true  # At least one sensitive module output (${module_output}) found (requires Terraform 0.14+)"
+        wrapper_output_sensitive="sensitive   = true # At least one sensitive module output (${module_output}) found (requires Terraform 0.14+)"
         break
       fi
     done
@@ -360,6 +366,13 @@ EOF
         # https://github.com/terraform-aws-modules/terraform-aws-security-group/blob/0bd31aa88339194efff470d3b3f58705bd008db0/rules.tf#L8
         # As a result, wrappers in terraform-aws-security-group module are missing values of the rules variable and is not useful. :(
         var_value="try(each.value.${module_var}, var.defaults.${module_var}, {})"
+      elif [[ $var_default == \<\<* ]]; then
+        # Heredoc style default values produce HCL parsing error:
+        # 'Unterminated template string; No closing marker was found for the string.'
+        # Because closing marker must be alone on it's own line:
+        # https://developer.hashicorp.com/terraform/language/expressions/strings#heredoc-strings
+        var_value="try(each.value.${module_var}, var.defaults.${module_var}, $var_default
+          )"
       else
         var_value="try(each.value.${module_var}, var.defaults.${module_var}, $var_default)"
       fi
@@ -374,10 +387,19 @@ EOF
     if [[ "$dry_run" == "false" ]]; then
       common::colorify "green" "Saving files into \"${output_dir}\""
 
+      # Create output dir
+      [[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
+
       mv "$tmp_file_tf" "${output_dir}/main.tf"
 
       echo "$CONTENT_VARIABLES_TF" > "${output_dir}/variables.tf"
-      echo "$CONTENT_VERSIONS_TF" > "${output_dir}/versions.tf"
+
+      # If the root module has a versions.tf, use that; otherwise, create it
+      if [[ -f "${full_module_dir}/versions.tf" ]]; then
+        cp "${full_module_dir}/versions.tf" "${output_dir}/versions.tf"
+      else
+        echo "$CONTENT_VERSIONS_TF" > "${output_dir}/versions.tf"
+      fi
 
       echo "$CONTENT_OUTPUTS_TF" > "${output_dir}/outputs.tf"
       sed -i.bak "s|WRAPPER_OUTPUT_SENSITIVE|${wrapper_output_sensitive}|g" "${output_dir}/outputs.tf"

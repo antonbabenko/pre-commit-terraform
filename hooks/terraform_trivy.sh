@@ -17,11 +17,6 @@ function main {
     ARGS[i]=${ARGS[i]/__GIT_WORKING_DIR__/$(pwd)\/}
   done
 
-  # Suppress checkov color
-  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
-    export ANSI_COLORS_DISABLED=true
-  fi
-
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
@@ -52,7 +47,8 @@ function per_dir_hook_unique_part {
   shift 4
   local -a -r args=("$@")
 
-  checkov -d . "${args[@]}"
+  # pass the arguments to hook
+  trivy conf "$(pwd)" --exit-code=1 "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
@@ -69,11 +65,11 @@ function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  checkov -d "$(pwd)" "${args[@]}"
+  trivy conf "$(pwd)" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
   return $exit_code
 }
 
-[[ ${BASH_SOURCE[0]} != "$0" ]] || main "$@"
+[ "${BASH_SOURCE[0]}" != "$0" ] || main "$@"

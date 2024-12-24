@@ -2,6 +2,349 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.96.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.2...v1.96.3) (2024-12-24)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Restore multiply `--hook-config` args support. Regression from v1.95.0 ([#731](https://github.com/antonbabenko/pre-commit-terraform/issues/731)) ([87143fb](https://github.com/antonbabenko/pre-commit-terraform/commit/87143fb465503f87d5871b2d579e29b318d2bddf))
+
+## [1.96.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.1...v1.96.2) (2024-10-31)
+
+
+### Bug Fixes
+
+* **WSL:** Make parallelism work appropriately ([#728](https://github.com/antonbabenko/pre-commit-terraform/issues/728)) ([e87ee43](https://github.com/antonbabenko/pre-commit-terraform/commit/e87ee4371c9f09daac814845df196a65cac28a7a))
+
+## [1.96.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.0...v1.96.1) (2024-09-17)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix issue with processing multiply files without `terraform-docs` markers. Issue introduced in v1.95.0 ([#720](https://github.com/antonbabenko/pre-commit-terraform/issues/720)) ([2b1aec8](https://github.com/antonbabenko/pre-commit-terraform/commit/2b1aec86d8a086de4f25b502bdb97345de2eaa27)), closes [#717](https://github.com/antonbabenko/pre-commit-terraform/issues/717) [/github.com/antonbabenko/pre-commit-terraform/blob/869a106a4c8c48f34f58318a830436142e31e10a/hooks/terraform_docs.sh#L216](https://github.com//github.com/antonbabenko/pre-commit-terraform/blob/869a106a4c8c48f34f58318a830436142e31e10a/hooks/terraform_docs.sh/issues/L216)
+
+# [1.96.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.95.0...v1.96.0) (2024-09-16)
+
+
+### Features
+
+* Expand environment variables in `--args=` which contains lowercase symbols, like `${TF_VAR_lowercase}` ([#719](https://github.com/antonbabenko/pre-commit-terraform/issues/719)) ([bf156b4](https://github.com/antonbabenko/pre-commit-terraform/commit/bf156b40780275db9b8ab5db6d9ef41cecc78861))
+
+# [1.95.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.3...v1.95.0) (2024-09-11)
+
+
+### Features
+
+* **`terraform_docs`:** Drop support for `terraform-docs` <0.12.0 ([#717](https://github.com/antonbabenko/pre-commit-terraform/issues/717)) ([81e4572](https://github.com/antonbabenko/pre-commit-terraform/commit/81e4572ad4d24fb0066fbfc4626152b6c7d48838))
+
+## [1.94.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.2...v1.94.3) (2024-09-10)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Restore `--hook-config=--add-to-existing-file` default behavior. Regression from 1.94.0. ([#716](https://github.com/antonbabenko/pre-commit-terraform/issues/716)) ([315342e](https://github.com/antonbabenko/pre-commit-terraform/commit/315342e16d8ac8afe67222176e417ea02e415407))
+
+## [1.94.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.1...v1.94.2) (2024-09-09)
+
+
+### Bug Fixes
+
+* Support custom TF paths which contains spaces ([#714](https://github.com/antonbabenko/pre-commit-terraform/issues/714)) ([2bca410](https://github.com/antonbabenko/pre-commit-terraform/commit/2bca410814fad06f4d9cc9e31123277ae0eed23c))
+
+## [1.94.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.94.0...v1.94.1) (2024-08-30)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix non-GNU sed issues, introduced in v1.93.0, as previous fix doesn't work correctly ([#708](https://github.com/antonbabenko/pre-commit-terraform/issues/708)) ([c986c5e](https://github.com/antonbabenko/pre-commit-terraform/commit/c986c5e3440be4bf5a46c7933bb629227a3cd292))
+
+# [1.94.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.93.1...v1.94.0) (2024-08-29)
+
+
+### Features
+
+* **`terraform-docs`:** Add support for `replace` mode  for TF 0.12+; Use native saving to file for TF 0.12+. Both requires `terraform-docs` v0.12.0+ which released in 2021. ([#705](https://github.com/antonbabenko/pre-commit-terraform/issues/705)) ([1a1b4a3](https://github.com/antonbabenko/pre-commit-terraform/commit/1a1b4a3181065f221568a9bff86319435a4a87e1))
+
+## [1.93.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.93.0...v1.93.1) (2024-08-29)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix non-GNU `sed` issues, introduced in v1.93.0 ([#704](https://github.com/antonbabenko/pre-commit-terraform/issues/704)) ([3c8734d](https://github.com/antonbabenko/pre-commit-terraform/commit/3c8734dc55e69bcfc70eceff485768a0ee89e811))
+
+# [1.93.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.3...v1.93.0) (2024-08-28)
+
+
+### Features
+
+* **`terraform_docs`:** Start seamless migration to `terraform-docs` markers ([#701](https://github.com/antonbabenko/pre-commit-terraform/issues/701)) ([d03f44f](https://github.com/antonbabenko/pre-commit-terraform/commit/d03f44facabf31ab7d464468907fb0a5d549e5e7))
+
+## [1.92.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.2...v1.92.3) (2024-08-27)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Suppress redundant warnings pop-ups introduced in v1.92.2 ([#700](https://github.com/antonbabenko/pre-commit-terraform/issues/700)) ([59b2454](https://github.com/antonbabenko/pre-commit-terraform/commit/59b2454e076a9d26ad93d0ca4037746fd7f5962d))
+
+## [1.92.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.1...v1.92.2) (2024-08-16)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix issue and prioritize `output.file` setting from `.terraform-docs.yml` config over `--hook-config=--path-to-file=` ([#698](https://github.com/antonbabenko/pre-commit-terraform/issues/698)) ([9d6a22b](https://github.com/antonbabenko/pre-commit-terraform/commit/9d6a22badbd9693a72c2519eb7dde01d10db57b2))
+
+## [1.92.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.92.0...v1.92.1) (2024-08-01)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Suppress "terraform command not found" error message in case binary does not exist ([#693](https://github.com/antonbabenko/pre-commit-terraform/issues/693)) ([6ff3572](https://github.com/antonbabenko/pre-commit-terraform/commit/6ff3572afb0a70c6fe4c6a0524d1f332a4f8fb6c))
+
+# [1.92.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.91.0...v1.92.0) (2024-06-19)
+
+
+### Features
+
+* Add `terragrunt_validate_inputs` hook to check unused and undefined inputs ([#677](https://github.com/antonbabenko/pre-commit-terraform/issues/677)) ([a139b71](https://github.com/antonbabenko/pre-commit-terraform/commit/a139b71bc722ac1d2d5ed89caeb74d66a882bb94))
+
+# [1.91.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.90.0...v1.91.0) (2024-06-07)
+
+
+### Features
+
+* Added Terramate as sponsor ([#676](https://github.com/antonbabenko/pre-commit-terraform/issues/676)) ([dae1a48](https://github.com/antonbabenko/pre-commit-terraform/commit/dae1a483b429506863c3c7203932fef4fa74f86a))
+
+# [1.90.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.89.1...v1.90.0) (2024-05-23)
+
+
+### Features
+
+* Support set custom TF/OpenTofu binary. | If you use a custom Docker image build, please note that `TERRAFORM_VERSION` now must be provided ([#670](https://github.com/antonbabenko/pre-commit-terraform/issues/670)) ([c7011c0](https://github.com/antonbabenko/pre-commit-terraform/commit/c7011c06b84fc96c9a5f2f4508d5ced83ddd2af0))
+
+## [1.89.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.89.0...v1.89.1) (2024-04-25)
+
+
+### Bug Fixes
+
+* **docker:** Prevent all possible "silent errors" during `docker build` ([#644](https://github.com/antonbabenko/pre-commit-terraform/issues/644)) ([0340c8d](https://github.com/antonbabenko/pre-commit-terraform/commit/0340c8d00fe3ba39829b66fd7890d828697a7878))
+
+# [1.89.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.4...v1.89.0) (2024-04-15)
+
+
+### Features
+
+* Hook terraform_wrapper_module_for_each should use versions.tf from the module if it exists ([#657](https://github.com/antonbabenko/pre-commit-terraform/issues/657)) ([b127601](https://github.com/antonbabenko/pre-commit-terraform/commit/b127601a0b3d5af3dcc9f91a6d74e16f37d66a60))
+
+## [1.88.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.3...v1.88.4) (2024-03-25)
+
+
+### Bug Fixes
+
+* Improve README and drop quotes from hook env vars ([#651](https://github.com/antonbabenko/pre-commit-terraform/issues/651)) ([daec682](https://github.com/antonbabenko/pre-commit-terraform/commit/daec6823f980ef0e9ac8675ed93b6861fcbe58cc))
+
+## [1.88.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.2...v1.88.3) (2024-03-22)
+
+
+### Bug Fixes
+
+* **`terraform_providers_lock`:** Require `terraform init` (and `terraform_validate` hook) run when only lockfile changed ([#649](https://github.com/antonbabenko/pre-commit-terraform/issues/649)) ([02c1935](https://github.com/antonbabenko/pre-commit-terraform/commit/02c1935a12c889a029bc0a571410f19eb39bbab1))
+
+## [1.88.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.1...v1.88.2) (2024-03-13)
+
+
+### Bug Fixes
+
+* **non-linux:** Bash environment variables in arguments not expanded + Add `trace` log level ([#645](https://github.com/antonbabenko/pre-commit-terraform/issues/645)) ([a2a2990](https://github.com/antonbabenko/pre-commit-terraform/commit/a2a2990ca42f93e2c1d61507d8c75e493d29dee6))
+
+## [1.88.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.88.0...v1.88.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* **docker:** Checkov installation silently fails on `docker build` in arm64. Workaround till issue will be fixed in `checkov` itself ([#635](https://github.com/antonbabenko/pre-commit-terraform/issues/635)) ([f255b05](https://github.com/antonbabenko/pre-commit-terraform/commit/f255b05feaace02f38822e3b53cf38c38e069115))
+
+# [1.88.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.87.1...v1.88.0) (2024-02-22)
+
+
+### Features
+
+* Add `terragrunt_providers_lock` hook ([#632](https://github.com/antonbabenko/pre-commit-terraform/issues/632)) ([77940fd](https://github.com/antonbabenko/pre-commit-terraform/commit/77940fd1fbbe9d3ea70306f396e1d8a13534d51d))
+
+## [1.87.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.87.0...v1.87.1) (2024-02-19)
+
+
+### Bug Fixes
+
+* Replace `mapfile` to support Bash 3.2.57 pre-installed in macOS ([#628](https://github.com/antonbabenko/pre-commit-terraform/issues/628)) ([01ab3f0](https://github.com/antonbabenko/pre-commit-terraform/commit/01ab3f0c68abda9f5799647f783c91c3d1fa3a90))
+
+# [1.87.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.86.1...v1.87.0) (2024-02-17)
+
+
+### Features
+
+* Add parallelism to major chunk of hooks. Check `Parallelism` section in README ([#620](https://github.com/antonbabenko/pre-commit-terraform/issues/620)) ([6c6eca4](https://github.com/antonbabenko/pre-commit-terraform/commit/6c6eca463a74fa2608cb3de3e03873765d46252f))
+
+## [1.86.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.86.0...v1.86.1) (2024-02-16)
+
+
+### Bug Fixes
+
+* `grep: warning: stray \ before /` which pop-up in `grep 3.8` ([#625](https://github.com/antonbabenko/pre-commit-terraform/issues/625)) ([e1a93b2](https://github.com/antonbabenko/pre-commit-terraform/commit/e1a93b26b29eda144fd0f53e3d84a99c07b15070))
+
+# [1.86.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.85.0...v1.86.0) (2023-12-21)
+
+
+### Features
+
+* **`terraform_docs`:** Add `terraform-docs` default markers support and describe how to migrate to them ([#609](https://github.com/antonbabenko/pre-commit-terraform/issues/609)) ([4a0e1fe](https://github.com/antonbabenko/pre-commit-terraform/commit/4a0e1fed008230b65085da0e42b7695bc4e0a5f1))
+
+# [1.85.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.84.0...v1.85.0) (2023-12-15)
+
+
+### Features
+
+* **trivy:** Add `terraform_trivy` hook and deprecate `terraform_tfsec` ([#606](https://github.com/antonbabenko/pre-commit-terraform/issues/606)) ([f3c819a](https://github.com/antonbabenko/pre-commit-terraform/commit/f3c819a747662d1257fa6989318d6ede5fabaff3))
+
+# [1.84.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.6...v1.84.0) (2023-12-12)
+
+
+### Features
+
+* **deps:** Bump Python version in docker image from 3.11.5 to v3.12.0 ([#597](https://github.com/antonbabenko/pre-commit-terraform/issues/597)) ([28e3cde](https://github.com/antonbabenko/pre-commit-terraform/commit/28e3cde152370bcc5b38e82beb0345299f8c511d))
+
+## [1.83.6](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.5...v1.83.6) (2023-11-16)
+
+
+### Bug Fixes
+
+* **`terraform_validate`:** Run `terraform init` on "Missing required provider" error ([#586](https://github.com/antonbabenko/pre-commit-terraform/issues/586)) ([6e2bb2e](https://github.com/antonbabenko/pre-commit-terraform/commit/6e2bb2e2a12528903d8b8a21f2924473e498385a))
+
+## [1.83.5](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.4...v1.83.5) (2023-10-11)
+
+
+### Bug Fixes
+
+* Suppress duplicate error messages in `terraform_validate` ([#577](https://github.com/antonbabenko/pre-commit-terraform/issues/577)) ([4ea6b14](https://github.com/antonbabenko/pre-commit-terraform/commit/4ea6b14c6fdf48e33fa6e116cbe332bba0888bbb))
+
+## [1.83.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.3...v1.83.4) (2023-09-22)
+
+
+### Bug Fixes
+
+* Fix terraform_wrapper_module_for_each for when resource name contains 'variable' ([#573](https://github.com/antonbabenko/pre-commit-terraform/issues/573)) ([941177e](https://github.com/antonbabenko/pre-commit-terraform/commit/941177e066e8de255f58f0a5afbda72995eb3f08))
+
+## [1.83.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.2...v1.83.3) (2023-09-15)
+
+
+### Bug Fixes
+
+* Run `terraform_tfsec` only on terraform code changes ([#571](https://github.com/antonbabenko/pre-commit-terraform/issues/571)) ([4253162](https://github.com/antonbabenko/pre-commit-terraform/commit/42531626144fb8cdca3d5750c7206393f501feb4))
+
+## [1.83.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.1...v1.83.2) (2023-09-04)
+
+
+### Bug Fixes
+
+* Extend `terraform_validate` `--retry-once-with-cleanup` errors list ([#566](https://github.com/antonbabenko/pre-commit-terraform/issues/566)) ([19188e5](https://github.com/antonbabenko/pre-commit-terraform/commit/19188e5c384a1803bca607e4e79faf61cc55a5b9))
+
+## [1.83.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.83.0...v1.83.1) (2023-09-04)
+
+
+### Bug Fixes
+
+* Fixed ordering issue in terraform_wrapper_module_for_each hook ([#565](https://github.com/antonbabenko/pre-commit-terraform/issues/565)) ([dc12be1](https://github.com/antonbabenko/pre-commit-terraform/commit/dc12be1faff4b73a3fc9bd62296c40a351597a20))
+
+# [1.83.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.82.0...v1.83.0) (2023-08-25)
+
+
+### Features
+
+* Skip legacy modules (with provider block) in terraform_wrapper_module_for_each hook ([#560](https://github.com/antonbabenko/pre-commit-terraform/issues/560)) ([456cc76](https://github.com/antonbabenko/pre-commit-terraform/commit/456cc7616ac4facc3392c51ed9606a7535f8fd0f))
+
+# [1.82.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.81.2...v1.82.0) (2023-08-15)
+
+
+### Features
+
+* **docker:** Add ssh-client to Docker image to access private modules via ssh ([#553](https://github.com/antonbabenko/pre-commit-terraform/issues/553)) ([1d76157](https://github.com/antonbabenko/pre-commit-terraform/commit/1d76157c9d67a2cbc1b08a4d7bc5ad53a3b663e7))
+
+## [1.81.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.81.1...v1.81.2) (2023-08-10)
+
+
+### Bug Fixes
+
+* Fix terraform_wrapper_module_for_each hook heredoc vars defaults ([#554](https://github.com/antonbabenko/pre-commit-terraform/issues/554)) ([6fd4263](https://github.com/antonbabenko/pre-commit-terraform/commit/6fd4263f599ff3318cc2095dde03a312bb617511))
+
+## [1.81.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.81.0...v1.81.1) (2023-08-10)
+
+
+### Bug Fixes
+
+* Fix the terraform_wrapper_module_for_each hook for modules without outputs or variables ([#552](https://github.com/antonbabenko/pre-commit-terraform/issues/552)) ([f24b3fa](https://github.com/antonbabenko/pre-commit-terraform/commit/f24b3fab71b248c4be75ec378c43e6921053491a))
+
+# [1.81.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.80.0...v1.81.0) (2023-06-12)
+
+
+### Features
+
+* Speedup `terraform_validate` - firstly try run validate without checking is `.terraform/` is valid ([#524](https://github.com/antonbabenko/pre-commit-terraform/issues/524)) ([d0d08ac](https://github.com/antonbabenko/pre-commit-terraform/commit/d0d08ac63cebd23e4ee7ff58fb91ea20c398ab69))
+
+# [1.80.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.79.1...v1.80.0) (2023-05-30)
+
+
+### Features
+
+* **`terraform_providers_lock`:** Add `--mode` option and deprecate previous workflow ([#528](https://github.com/antonbabenko/pre-commit-terraform/issues/528)) ([2426b52](https://github.com/antonbabenko/pre-commit-terraform/commit/2426b527aeee39aad0386cbbd734747d883ed7b6))
+
+## [1.79.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.79.0...v1.79.1) (2023-05-09)
+
+
+### Bug Fixes
+
+* Fix `terraform_providers_lock` hook broken in v1.79.0 ([#521](https://github.com/antonbabenko/pre-commit-terraform/issues/521)) ([6bfc5bf](https://github.com/antonbabenko/pre-commit-terraform/commit/6bfc5bf7670a6d9fbf21d1a686fdaa941ab34aa6))
+
+# [1.79.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.78.0...v1.79.0) (2023-05-08)
+
+
+### Features
+
+* TFLint: Add `--hook-config=--delegate-chdir` to use `tflint -chdir` ([#512](https://github.com/antonbabenko/pre-commit-terraform/issues/512)) ([1e9debc](https://github.com/antonbabenko/pre-commit-terraform/commit/1e9debc02f558156823fc1ddd5cf2b48b1593167))
+
+# [1.78.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.4...v1.78.0) (2023-04-28)
+
+
+### Features
+
+* **ci:** Build multi-arch Docker images (`amd64`, `arm64`) ([#496](https://github.com/antonbabenko/pre-commit-terraform/issues/496)) ([923c2c6](https://github.com/antonbabenko/pre-commit-terraform/commit/923c2c6a1e093620980790e864801f48a13ecf57))
+
+## [1.77.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.3...v1.77.4) (2023-04-28)
+
+
+### Bug Fixes
+
+* Speed up x2 TFLint hook execution in dirs with violations ([#514](https://github.com/antonbabenko/pre-commit-terraform/issues/514)) ([49974ab](https://github.com/antonbabenko/pre-commit-terraform/commit/49974ab9ef37e199d65778e6055aaf8130c6a875))
+
+## [1.77.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.2...v1.77.3) (2023-04-21)
+
+
+### Bug Fixes
+
+* Updates all dependencies used in Dockerfile and fix Docker image ([#507](https://github.com/antonbabenko/pre-commit-terraform/issues/507)) ([dc177fe](https://github.com/antonbabenko/pre-commit-terraform/commit/dc177fe29ed250fbb98702248c7de232bdb75f58))
+
+## [1.77.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.1...v1.77.2) (2023-04-09)
+
+
+### Bug Fixes
+
+* Fixed spacing in `terraform_wrapper_module_for_each` hook ([#503](https://github.com/antonbabenko/pre-commit-terraform/issues/503)) ([ddc0d81](https://github.com/antonbabenko/pre-commit-terraform/commit/ddc0d81d31a2571de95246b9970216ae0e4432c4))
+
+## [1.77.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.77.0...v1.77.1) (2023-02-03)
+
+
+### Bug Fixes
+
+* Pass command line arguments to tflint init ([#487](https://github.com/antonbabenko/pre-commit-terraform/issues/487)) ([29a8c00](https://github.com/antonbabenko/pre-commit-terraform/commit/29a8c00251e16941059df0f460b1e55890d4d7b5))
+
 # [1.77.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.76.1...v1.77.0) (2022-11-26)
 
 

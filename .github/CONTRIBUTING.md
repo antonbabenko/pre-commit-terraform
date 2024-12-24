@@ -12,6 +12,7 @@ Enjoy the clean, valid, and documented code!
   * [Run via Docker](#run-via-docker)
   * [Check results](#check-results)
   * [Cleanup](#cleanup)
+* [Required tools and plugins to simplify review process](#required-tools-and-plugins-to-simplify-review-process)
 * [Add new hook](#add-new-hook)
   * [Before write code](#before-write-code)
   * [Prepare basic documentation](#prepare-basic-documentation)
@@ -98,6 +99,13 @@ Results will be located at `./test/results` dir.
 sudo rm -rf tests/results
 ```
 
+## Required tools and plugins to simplify review process
+
+1. [editorconfig.org](https://editorconfig.org/) (preinstalled in some IDE)
+2. [pre-commit](https://pre-commit.com/#install)
+3. (Optional) If you use VS Code - feel free to install all recommended extensions
+
+
 ## Add new hook
 
 You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/252) as an example.
@@ -106,12 +114,17 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 1. Try to figure out future hook usage.
 2. Confirm the concept with [Anton Babenko](https://github.com/antonbabenko).
+3. Install [required tools and plugins](#required-tools-and-plugins-to-simplify-review-process)
+
 
 ### Prepare basic documentation
 
 1. Identify and describe dependencies in [Install dependencies](../README.md#1-install-dependencies) and [Available Hooks](../README.md#available-hooks) sections
 
 ### Add code
+
+> [!TIP]
+> Here is a screencast of [how to add new dependency in `tools/install/`](https://github.com/antonbabenko/pre-commit-terraform/assets/11096782/8fc461e9-f163-4592-9497-4a18fa89c0e8) - used in Dockerfile
 
 1. Based on prev. block, add hook dependencies installation to [Dockerfile](../Dockerfile).  
     Check that works:

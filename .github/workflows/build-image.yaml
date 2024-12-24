@@ -13,13 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -27,26 +27,39 @@ jobs:
       - name: Set tag for image
         run: |
           echo IMAGE_TAG=$([ ${{ github.ref_type }} == 'tag' ] && echo ${{ github.ref_name }} || echo 'latest') >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
+
       - name: Build and Push release
         if: github.event_name != 'schedule'
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2 # v6.0.1
         with:
           context: .
           build-args: |
             INSTALL_ALL=true
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
             ghcr.io/${{ github.repository }}:latest
+          # Fix multi-platform: https://github.com/docker/buildx/issues/1533
+          provenance: false
+          secrets: |
+            "github_token=${{ secrets.GITHUB_TOKEN }}"
+
       - name: Build and Push nightly
         if: github.event_name == 'schedule'
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2 # v6.0.1
         with:
           context: .
           build-args: |
             INSTALL_ALL=true
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:nightly
+          # Fix multi-platform: https://github.com/docker/buildx/issues/1533
+          provenance: false
+          secrets: |
+            "github_token=${{ secrets.GITHUB_TOKEN }}"
