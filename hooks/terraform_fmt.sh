@@ -33,6 +33,7 @@ function main {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
+#   tf_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
@@ -43,11 +44,12 @@ function per_dir_hook_unique_part {
   local -r change_dir_in_unique_part="$2"
   # shellcheck disable=SC2034 # Unused var.
   local -r parallelism_disabled="$3"
-  shift 3
+  local -r tf_path="$4"
+  shift 4
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terraform fmt "${args[@]}"
+  "$tf_path" fmt "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

@@ -1,0 +1,10 @@
+{
+  "editor.guides.bracketPairs": "active",
+  "markdown.extension.toc.unorderedList.marker": "*",
+  "markdown.extension.toc.levels": "2..6",
+  "cSpell.language": "en",
+  "markdownlint.config": {
+    "code-block-style": false
+  },
+  "markdown.validate.enabled": true,
+}

@@ -78,6 +78,7 @@ Linux DESKTOP-C7315EF 5.4.72-microsoft-standard-WSL2 #1 SMP Wed Oct 28 23:40:43 
 bash << EOF
 bash --version | head -n 1                2>/dev/null || echo "bash SKIPPED"
 pre-commit --version                      2>/dev/null || echo "pre-commit SKIPPED"
+tofu --version | head -n 1                2>/dev/null || echo "opentofu SKIPPED"
 terraform --version | head -n 1           2>/dev/null || echo "terraform SKIPPED"
 python --version                          2>/dev/null || echo "python SKIPPED"
 python3 --version                         2>/dev/null || echo "python3 SKIPPED"
@@ -104,7 +105,7 @@ INSERT_TOOLS_VERSIONS_HERE
 
 <details><summary>file content</summary>
 
-```bash
+```yaml
 INSERT_FILE_CONTENT_HERE
 ```
 
