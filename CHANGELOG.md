@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.96.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.2...v1.96.3) (2024-12-24)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Restore multiply `--hook-config` args support. Regression from v1.95.0 ([#731](https://github.com/antonbabenko/pre-commit-terraform/issues/731)) ([87143fb](https://github.com/antonbabenko/pre-commit-terraform/commit/87143fb465503f87d5871b2d579e29b318d2bddf))
+
 ## [1.96.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.1...v1.96.2) (2024-10-31)
 
 
