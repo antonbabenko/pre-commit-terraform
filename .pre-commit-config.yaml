@@ -105,6 +105,7 @@ repos:
       - --disable=fixme # W0511. 'TODO' notations.
       - --disable=logging-fstring-interpolation # Conflict with "use a single formatting" WPS323
       - --disable=ungrouped-imports # ignore `if TYPE_CHECKING` case. Other do reorder-python-imports
+      exclude: test_.+\.py$
 
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v1.10.0
@@ -142,4 +143,5 @@ repos:
 
               # WPS211  <!-- Found too many arguments. Handled by pylint -->
               # WPS420  <!-- Forbid some python keywords. Disabled as fix proposals unclear -->
-    #           RST,    <!-- Conflict with DAR -->
+              # RST,    <!-- Conflict with DAR -->
+    exclude: test_.+\.py$

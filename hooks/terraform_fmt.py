@@ -58,7 +58,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     final_exit_code = 0
     for dir_path in unique_dirs:
-        # TODO: per_dir_hook_unique_part call here
         exit_code = per_dir_hook_unique_part(dir_path, args, env_vars)
 
         if exit_code != 0:
@@ -79,7 +78,9 @@ def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str,
     Returns:
         int: The exit code of the hook.
     """
-    cmd = ['terraform', 'fmt', *args, dir_path]
+    # Just in case is someone somehow will add something like "; rm -rf" in the args
+    quoted_args = [shlex.quote(arg) for arg in args]
+    cmd = ['terraform', 'fmt', *quoted_args, dir_path]
 
     logger.info('calling %s', shlex.join(cmd))
     logger.debug('env_vars: %r', env_vars)
