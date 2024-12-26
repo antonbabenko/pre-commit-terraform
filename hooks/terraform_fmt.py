@@ -51,7 +51,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
         args.append('-no-color')
 
-    # TODO: Per-dir execution
+    return per_dir_hook(files, args, env_vars)
+
+def per_dir_hook(files: list[str], args: list[str], env_vars: dict[str, str]) -> int:
+    """
+    Run hook boilerplate logic which is common to hooks, that run on per dir basis.
+
+    Args:
+        files: The list of files to run the hook against.
+        args: The arguments to pass to the hook.
+        env_vars: The environment variables to pass to the hook.
+
+    Returns:
+        The exit code of the hook execution for all directories.
+    """
     # consume modified files passed from pre-commit so that
     # hook runs against only those relevant directories
     unique_dirs = get_unique_dirs(files)
