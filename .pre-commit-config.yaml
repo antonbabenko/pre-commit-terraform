@@ -133,6 +133,7 @@ repos:
     # https://wemake-python-stylegui.de/en/latest/pages/usage/violations/index.html
     - --extend-ignore=
               WPS210 <!-- Found too many local variables. Handled by pylint -->
+              WPS226 <!-- Found string literal over-use - append > 3 -->
               WPS300 <!-- Found local folder import. Nothing bad about this -->
               WPS305 <!-- Found `f` string -->
               WPS323 <!-- Found `%` string formatting. Conflict with pytlint "Use lazy % formatting in logging functions"

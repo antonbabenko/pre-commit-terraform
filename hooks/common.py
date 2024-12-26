@@ -60,7 +60,7 @@ def parse_env_vars(env_var_strs: list[str]) -> dict[str, str]:
 
 def parse_cmdline(
     argv: Sequence[str] | None = None,
-) -> tuple[list[str], list[str], list[str], list[str], dict[str, str]]:
+) -> tuple[list[str], list[str], list[str], list[str], dict[str, str]]:  # noqa: WPS221
     """
     Parse the command line arguments and return a tuple containing the parsed values.
 
@@ -76,8 +76,10 @@ def parse_cmdline(
             - files (list[str]): The parsed files.
             - tf_init_args (list[str]): The parsed Terraform initialization arguments.
             - env_var_dict (dict[str, str]): The parsed environment variables as a dictionary.
-    """
 
+    Raises:
+        NotImplementedError: If the '--hook-config' or '--tf-init-args' options are used.
+    """
     parser = argparse.ArgumentParser(
         add_help=False,  # Allow the use of `-h` for compatibility with the Bash version of the hook
     )
