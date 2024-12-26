@@ -18,6 +18,7 @@ Enjoy the clean, valid, and documented code!
   * [Prepare basic documentation](#prepare-basic-documentation)
   * [Add code](#add-code)
   * [Finish with the documentation](#finish-with-the-documentation)
+* [Testing](#testing)
 
 ## Run and debug hooks locally
 
@@ -154,3 +155,12 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 1. Add hook description to [Available Hooks](../README.md#available-hooks).
 2. Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
+
+
+## Testing
+
+```
+pip install pytest pytest-mock
+
+pytest -vv
+```
