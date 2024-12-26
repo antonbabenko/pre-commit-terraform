@@ -3,6 +3,7 @@ Here located common functions for hooks.
 
 It not executed directly, but imported by other hooks.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,9 +27,6 @@ def setup_logging() -> None:
 
     If the 'PCT_LOG' environment variable is not set or has an invalid value,
     the default logging level is 'warning'.
-
-    Returns:
-        None
     """
     log_level = {
         'error': logging.ERROR,

@@ -53,6 +53,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     return per_dir_hook(files, args, env_vars)
 
+
 def per_dir_hook(files: list[str], args: list[str], env_vars: dict[str, str]) -> int:
     """
     Run hook boilerplate logic which is common to hooks, that run on per dir basis.
