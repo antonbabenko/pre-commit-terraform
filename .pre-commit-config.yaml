@@ -65,10 +65,22 @@ repos:
 # PYTHON #
 ##########
 
-- repo: https://github.com/asottile/reorder_python_imports
-  rev: v3.12.0
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.8.4
   hooks:
-    - id: reorder-python-imports
+    - id: ruff
+      args: [--fix]
+      types_or: [python, pyi]
+    - id: ruff-format
+      types_or: [python, pyi]
+      args: [--config, format.quote-style = 'single', --config, line-length = 100]
+
+- repo: https://github.com/pycqa/isort
+  rev: 5.13.2
+  hooks:
+    - id: isort
+      name: isort
+      args: [--force-single-line, --profile=black]
 
 - repo: https://github.com/asottile/add-trailing-comma
   rev: v3.1.0
@@ -119,7 +131,15 @@ repos:
     # https://www.flake8rules.com/
     # https://wemake-python-stylegui.de/en/latest/pages/usage/violations/index.html
     - --extend-ignore=
-              WPS305, <!-- Found `f` string -->
-              E501,   <!-- line too long (> 79 characters). Use 100 -->
-              I,      <!-- opt out of using isort in favor of reorder-python-imports -->
+              WPS210 <!-- Found too many local variables. Handled by pylint -->
+              WPS300 <!-- Found local folder import. Nothing bad about this -->
+              WPS305 <!-- Found `f` string -->
+              WPS323 <!-- Found `%` string formatting. Conflict with pytlint "Use lazy % formatting in logging functions"
+              E501   <!-- line too long (> 79 characters). Use 100 -->
+              I      <!-- opt out of using isort in favor of reorder-python-imports -->
+              S404 <!-- Consider possible security implications associated with the subprocess module. Yep, we execute external tools -->
+              S603 <!-- subprocess call - check for execution of untrusted input -->
+
+              # WPS211  <!-- Found too many arguments. Handled by pylint -->
+              # WPS420  <!-- Forbid some python keywords. Disabled as fix proposals unclear -->
     #           RST,    <!-- Conflict with DAR -->

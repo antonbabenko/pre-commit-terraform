@@ -1,6 +1,5 @@
-"""
-Pre-commit hook for terraform fmt.
-"""
+"""Pre-commit hook for terraform fmt."""
+
 from __future__ import annotations
 
 import logging
@@ -17,12 +16,32 @@ from .common import setup_logging
 logger = logging.getLogger(__name__)
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def get_unique_dirs(files: list[str]) -> set[str]:
     """
-    Main entry point for terraform_fmt_py pre-commit hook.
+    Get unique directories from a list of files.
+
+    Args:
+        files: list of file paths.
+
+    Returns:
+        Set of unique directories.
+    """
+    unique_dirs = set()
+
+    for file_path in files:
+        dir_path = os.path.dirname(file_path)
+        unique_dirs.add(dir_path)
+
+    return unique_dirs
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    # noqa: DAR101, DAR201 # TODO: Add docstrings when will end up with final implementation
+    """
+    Execute terraform_fmt_py pre-commit hook.
+
     Parses args and calls `terraform fmt` on list of files provided by pre-commit.
     """
-
     setup_logging()
 
     logger.debug(sys.version_info)
@@ -32,19 +51,50 @@ def main(argv: Sequence[str] | None = None) -> int:
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
         args.append('-no-color')
 
-    cmd = ['terraform', 'fmt', *args, *files]
+    # TODO: Per-dir execution
+    # consume modified files passed from pre-commit so that
+    # hook runs against only those relevant directories
+    unique_dirs = get_unique_dirs(files)
+
+    final_exit_code = 0
+    for dir_path in unique_dirs:
+        # TODO: per_dir_hook_unique_part call here
+        exit_code = per_dir_hook_unique_part(dir_path, args, env_vars)
+
+        if exit_code != 0:
+            final_exit_code = exit_code
+
+    return final_exit_code
+
+
+def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str, str]) -> int:
+    """
+    Run the hook against a single directory.
+
+    Args:
+        dir_path: The directory to run the hook against.
+        args: The arguments to pass to the hook
+        env_vars: The environment variables to pass to the hook
+
+    Returns:
+        int: The exit code of the hook.
+    """
+    cmd = ['terraform', 'fmt', *args, dir_path]
 
     logger.info('calling %s', shlex.join(cmd))
     logger.debug('env_vars: %r', env_vars)
     logger.debug('args: %r', args)
 
     completed_process = run(
-        cmd, env={**os.environ, **env_vars},
-        text=True, stdout=PIPE, check=False,
+        cmd,
+        env={**os.environ, **env_vars},
+        text=True,
+        stdout=PIPE,
+        check=False,
     )
 
     if completed_process.stdout:
-        print(completed_process.stdout)
+        sys.stdout.write(completed_process.stdout)
 
     return completed_process.returncode
 
