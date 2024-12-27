@@ -10,6 +10,7 @@ import argparse
 import logging
 import os
 from collections.abc import Sequence
+from typing import Callable
 
 logger = logging.getLogger(__name__)
 
@@ -106,3 +107,54 @@ def parse_cmdline(
         raise NotImplementedError('TODO: implement: tf_init_args')
 
     return args, hook_config, files, tf_init_args, env_var_dict
+
+
+def get_unique_dirs(files: list[str]) -> set[str]:
+    """
+    Get unique directories from a list of files.
+
+    Args:
+        files: list of file paths.
+
+    Returns:
+        Set of unique directories.
+    """
+    unique_dirs = set()
+
+    for file_path in files:
+        dir_path = os.path.dirname(file_path)
+        unique_dirs.add(dir_path)
+
+    return unique_dirs
+
+
+def per_dir_hook(
+    files: list[str],
+    args: list[str],
+    env_vars: dict[str, str],
+    per_dir_hook_unique_part: Callable[[str, list[str], dict[str, str]], int],  # noqa: WPS221
+) -> int:
+    """
+    Run hook boilerplate logic which is common to hooks, that run on per dir basis.
+
+    Args:
+        files: The list of files to run the hook against.
+        args: The arguments to pass to the hook.
+        env_vars: The environment variables to pass to the hook.
+        per_dir_hook_unique_part: Function with unique part that is specific to running hook.
+
+    Returns:
+        The exit code of the hook execution for all directories.
+    """
+    # consume modified files passed from pre-commit so that
+    # hook runs against only those relevant directories
+    unique_dirs = get_unique_dirs(files)
+
+    final_exit_code = 0
+    for dir_path in unique_dirs:
+        exit_code = per_dir_hook_unique_part(dir_path, args, env_vars)
+
+        if exit_code != 0:
+            final_exit_code = exit_code
+
+    return final_exit_code

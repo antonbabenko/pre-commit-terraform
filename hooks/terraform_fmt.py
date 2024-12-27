@@ -11,28 +11,10 @@ from subprocess import run
 from typing import Sequence
 
 from .common import parse_cmdline
+from .common import per_dir_hook
 from .common import setup_logging
 
 logger = logging.getLogger(__name__)
-
-
-def get_unique_dirs(files: list[str]) -> set[str]:
-    """
-    Get unique directories from a list of files.
-
-    Args:
-        files: list of file paths.
-
-    Returns:
-        Set of unique directories.
-    """
-    unique_dirs = set()
-
-    for file_path in files:
-        dir_path = os.path.dirname(file_path)
-        unique_dirs.add(dir_path)
-
-    return unique_dirs
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -43,41 +25,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     Parses args and calls `terraform fmt` on list of files provided by pre-commit.
     """
     setup_logging()
-
     logger.debug(sys.version_info)
 
-    args, _hook_config, files, _tf_init_args, env_vars = parse_cmdline(argv)
+    args, _hook_config, files, _tf_init_args, env_vars = parse_cmdline(argv)  # noqa: WPS236 # FIXME
 
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
         args.append('-no-color')
 
-    return per_dir_hook(files, args, env_vars)
-
-
-def per_dir_hook(files: list[str], args: list[str], env_vars: dict[str, str]) -> int:
-    """
-    Run hook boilerplate logic which is common to hooks, that run on per dir basis.
-
-    Args:
-        files: The list of files to run the hook against.
-        args: The arguments to pass to the hook.
-        env_vars: The environment variables to pass to the hook.
-
-    Returns:
-        The exit code of the hook execution for all directories.
-    """
-    # consume modified files passed from pre-commit so that
-    # hook runs against only those relevant directories
-    unique_dirs = get_unique_dirs(files)
-
-    final_exit_code = 0
-    for dir_path in unique_dirs:
-        exit_code = per_dir_hook_unique_part(dir_path, args, env_vars)
-
-        if exit_code != 0:
-            final_exit_code = exit_code
-
-    return final_exit_code
+    return per_dir_hook(files, args, env_vars, per_dir_hook_unique_part)
 
 
 def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str, str]) -> int:

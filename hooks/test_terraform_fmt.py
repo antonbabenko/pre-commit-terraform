@@ -3,8 +3,8 @@ from os.path import join
 
 import pytest
 
-from hooks.terraform_fmt import get_unique_dirs
-from hooks.terraform_fmt import per_dir_hook
+from hooks.common import get_unique_dirs
+from hooks.common import per_dir_hook
 
 #
 # get_unique_dirs
@@ -58,7 +58,7 @@ def test_per_dir_hook_empty_files(mock_per_dir_hook_unique_part):
     files = []
     args = []
     env_vars = {}
-    result = per_dir_hook(files, args, env_vars)
+    result = per_dir_hook(files, args, env_vars, mock_per_dir_hook_unique_part)
     assert result == 0
     mock_per_dir_hook_unique_part.assert_not_called()
 
@@ -68,7 +68,7 @@ def test_per_dir_hook_single_file(mock_per_dir_hook_unique_part):
     args = []
     env_vars = {}
     mock_per_dir_hook_unique_part.return_value = 0
-    result = per_dir_hook(files, args, env_vars)
+    result = per_dir_hook(files, args, env_vars, mock_per_dir_hook_unique_part)
     assert result == 0
     mock_per_dir_hook_unique_part.assert_called_once_with(
         os.path.join('path', 'to'),
@@ -82,7 +82,7 @@ def test_per_dir_hook_multiple_files_same_dir(mock_per_dir_hook_unique_part):
     args = []
     env_vars = {}
     mock_per_dir_hook_unique_part.return_value = 0
-    result = per_dir_hook(files, args, env_vars)
+    result = per_dir_hook(files, args, env_vars, mock_per_dir_hook_unique_part)
     assert result == 0
     mock_per_dir_hook_unique_part.assert_called_once_with(
         os.path.join('path', 'to'),
@@ -96,7 +96,7 @@ def test_per_dir_hook_multiple_files_different_dirs(mocker, mock_per_dir_hook_un
     args = []
     env_vars = {}
     mock_per_dir_hook_unique_part.return_value = 0
-    result = per_dir_hook(files, args, env_vars)
+    result = per_dir_hook(files, args, env_vars, mock_per_dir_hook_unique_part)
     assert result == 0
     expected_calls = [
         mocker.call(os.path.join('path', 'to'), args, env_vars),
@@ -113,7 +113,7 @@ def test_per_dir_hook_nested_dirs(mocker, mock_per_dir_hook_unique_part):
     args = []
     env_vars = {}
     mock_per_dir_hook_unique_part.return_value = 0
-    result = per_dir_hook(files, args, env_vars)
+    result = per_dir_hook(files, args, env_vars, mock_per_dir_hook_unique_part)
     assert result == 0
     expected_calls = [
         mocker.call(os.path.join('path', 'to'), args, env_vars),
@@ -127,7 +127,7 @@ def test_per_dir_hook_with_errors(mocker, mock_per_dir_hook_unique_part):
     args = []
     env_vars = {}
     mock_per_dir_hook_unique_part.side_effect = [0, 1]
-    result = per_dir_hook(files, args, env_vars)
+    result = per_dir_hook(files, args, env_vars, mock_per_dir_hook_unique_part)
     assert result == 1
     expected_calls = [
         mocker.call(os.path.join('path', 'to'), args, env_vars),
