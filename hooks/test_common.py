@@ -4,7 +4,7 @@ from os.path import join
 
 import pytest
 
-from hooks.common import get_unique_dirs
+from hooks.common import _get_unique_dirs
 from hooks.common import parse_cmdline
 from hooks.common import parse_env_vars
 from hooks.common import per_dir_hook
@@ -15,31 +15,31 @@ from hooks.common import per_dir_hook
 #
 def test_get_unique_dirs_empty():
     files = []
-    result = get_unique_dirs(files)
+    result = _get_unique_dirs(files)
     assert result == set()
 
 
 def test_get_unique_dirs_single_file():
     files = [join('path', 'to', 'file1.tf')]
-    result = get_unique_dirs(files)
+    result = _get_unique_dirs(files)
     assert result == {join('path', 'to')}
 
 
 def test_get_unique_dirs_multiple_files_same_dir():
     files = [join('path', 'to', 'file1.tf'), join('path', 'to', 'file2.tf')]
-    result = get_unique_dirs(files)
+    result = _get_unique_dirs(files)
     assert result == {join('path', 'to')}
 
 
 def test_get_unique_dirs_multiple_files_different_dirs():
     files = [join('path', 'to', 'file1.tf'), join('another', 'path', 'file2.tf')]
-    result = get_unique_dirs(files)
+    result = _get_unique_dirs(files)
     assert result == {join('path', 'to'), join('another', 'path')}
 
 
 def test_get_unique_dirs_nested_dirs():
     files = [join('path', 'to', 'file1.tf'), join('path', 'to', 'nested', 'file2.tf')]
-    result = get_unique_dirs(files)
+    result = _get_unique_dirs(files)
     assert result == {join('path', 'to'), join('path', 'to', 'nested')}
 
 

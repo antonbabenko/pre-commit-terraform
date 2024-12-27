@@ -106,7 +106,7 @@ def parse_cmdline(
     return args, hook_config, files, tf_init_args, env_var_dict
 
 
-def get_unique_dirs(files: list[str]) -> set[str]:
+def _get_unique_dirs(files: list[str]) -> set[str]:
     """
     Get unique directories from a list of files.
 
@@ -145,7 +145,7 @@ def per_dir_hook(
     """
     # consume modified files passed from pre-commit so that
     # hook runs against only those relevant directories
-    unique_dirs = get_unique_dirs(files)
+    unique_dirs = _get_unique_dirs(files)
 
     final_exit_code = 0
     for dir_path in unique_dirs:
