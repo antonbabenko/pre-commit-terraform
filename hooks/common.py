@@ -61,7 +61,7 @@ def parse_env_vars(env_var_strs: list[str]) -> dict[str, str]:
 
 def parse_cmdline(
     argv: Sequence[str] | None = None,
-) -> tuple[list[str], list[str], list[str], list[str], dict[str, str]]:  # noqa: WPS221
+) -> tuple[list[str], list[str], list[str], list[str], list[str]]:  # noqa: WPS221
     """
     Parse the command line arguments and return a tuple containing the parsed values.
 
@@ -75,8 +75,7 @@ def parse_cmdline(
         - hook_config (list[str]): Arguments that configure hook behavior.
         - files (list[str]): File paths on which we should run the hook.
         - tf_init_args (list[str]): Arguments for `terraform init` command.
-        - env_var_dict (dict[str, str]): Custom environment variables defined by user in hook
-        config. Will be set for 3rd-party tools executed by a hook.
+        - env_vars (list[str]): Custom environment variable strings in the format "name=value".
     """
     parser = argparse.ArgumentParser(
         add_help=False,  # Allow the use of `-h` for compatibility with the Bash version of the hook
@@ -95,15 +94,7 @@ def parse_cmdline(
     tf_init_args = parsed_args.tf_init_args or []
     env_vars = parsed_args.env_vars or []
 
-    env_var_dict = parse_env_vars(env_vars)
-
-    # if hook_config:
-    #     raise NotImplementedError('TODO: implement: hook_config')
-
-    # if tf_init_args:
-    #     raise NotImplementedError('TODO: implement: tf_init_args')
-
-    return args, hook_config, files, tf_init_args, env_var_dict
+    return args, hook_config, files, tf_init_args, env_vars
 
 
 def _get_unique_dirs(files: list[str]) -> set[str]:

@@ -11,6 +11,7 @@ from subprocess import run
 from typing import Sequence
 
 from .common import parse_cmdline
+from .common import parse_env_vars
 from .common import per_dir_hook
 from .common import setup_logging
 
@@ -26,8 +27,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     """
     setup_logging()
     logger.debug(sys.version_info)
-
-    args, _hook_config, files, _tf_init_args, env_vars = parse_cmdline(argv)  # noqa: WPS236 # FIXME
+    # FIXME: WPS236
+    args, _hook_config, files, _tf_init_args, env_vars_strs = parse_cmdline(argv)  # noqa: WPS236
+    env_vars = parse_env_vars(env_vars_strs)
 
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
         args.append('-no-color')

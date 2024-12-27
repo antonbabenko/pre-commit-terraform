@@ -174,52 +174,52 @@ def test_parse_env_vars_with_empty_value():
 
 def test_parse_cmdline_no_arguments():
     argv = []
-    args, hook_config, files, tf_init_args, env_var_dict = parse_cmdline(argv)
+    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
     assert args == []
     assert hook_config == []
     assert files == []
     assert tf_init_args == []
-    assert env_var_dict == {}
+    assert env_vars_strs == []
 
 
 def test_parse_cmdline_with_arguments():
     argv = ['-a', 'arg1', '-a', 'arg2', '-h', 'hook1', 'file1', 'file2']
-    args, hook_config, files, tf_init_args, env_var_dict = parse_cmdline(argv)
+    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
     assert args == ['arg1', 'arg2']
     assert hook_config == ['hook1']
     assert files == ['file1', 'file2']
     assert tf_init_args == []
-    assert env_var_dict == {}
+    assert env_vars_strs == []
 
 
 def test_parse_cmdline_with_env_vars():
     argv = ['-e', 'VAR1=value1', '-e', 'VAR2=value2']
-    args, hook_config, files, tf_init_args, env_var_dict = parse_cmdline(argv)
+    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
     assert args == []
     assert hook_config == []
     assert files == []
     assert tf_init_args == []
-    assert env_var_dict == {'VAR1': 'value1', 'VAR2': 'value2'}
+    assert env_vars_strs == ['VAR1=value1', 'VAR2=value2']
 
 
 def test_parse_cmdline_with_tf_init_args():
     argv = ['-i', 'init1', '-i', 'init2']
-    args, hook_config, files, tf_init_args, env_var_dict = parse_cmdline(argv)
+    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
     assert args == []
     assert hook_config == []
     assert files == []
     assert tf_init_args == ['init1', 'init2']
-    assert env_var_dict == {}
+    assert env_vars_strs == []
 
 
 def test_parse_cmdline_with_files():
     argv = ['file1', 'file2']
-    args, hook_config, files, tf_init_args, env_var_dict = parse_cmdline(argv)
+    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
     assert args == []
     assert hook_config == []
     assert files == ['file1', 'file2']
     assert tf_init_args == []
-    assert env_var_dict == {}
+    assert env_vars_strs == []
 
 
 # def test_parse_cmdline_with_hook_config():
