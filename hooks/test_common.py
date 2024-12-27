@@ -4,13 +4,13 @@ from os.path import join
 import pytest
 
 from hooks.common import get_unique_dirs
+from hooks.common import parse_env_vars
 from hooks.common import per_dir_hook
+
 
 #
 # get_unique_dirs
 #
-
-
 def test_get_unique_dirs_empty():
     files = []
     result = get_unique_dirs(files)
@@ -44,11 +44,6 @@ def test_get_unique_dirs_nested_dirs():
 #
 # per_dir_hook
 #
-
-
-# from unittest.mock import patch, call
-
-
 @pytest.fixture
 def mock_per_dir_hook_unique_part(mocker):
     return mocker.patch('hooks.terraform_fmt.per_dir_hook_unique_part')
@@ -134,6 +129,49 @@ def test_per_dir_hook_with_errors(mocker, mock_per_dir_hook_unique_part):
         mocker.call(os.path.join('another', 'path'), args, env_vars),
     ]
     mock_per_dir_hook_unique_part.assert_has_calls(expected_calls, any_order=True)
+
+
+#
+# parse_env_vars
+#
+def test_parse_env_vars_empty():
+    env_var_strs = []
+    result = parse_env_vars(env_var_strs)
+    assert result == {}
+
+
+def test_parse_env_vars_single():
+    env_var_strs = ['VAR1=value1']
+    result = parse_env_vars(env_var_strs)
+    assert result == {'VAR1': 'value1'}
+
+
+def test_parse_env_vars_multiple():
+    env_var_strs = ['VAR1=value1', 'VAR2=value2']
+    result = parse_env_vars(env_var_strs)
+    assert result == {'VAR1': 'value1', 'VAR2': 'value2'}
+
+
+def test_parse_env_vars_with_quotes():
+    env_var_strs = ['VAR1="value1"', 'VAR2="value2"']
+    result = parse_env_vars(env_var_strs)
+    assert result == {'VAR1': 'value1', 'VAR2': 'value2'}
+
+
+def test_parse_env_vars_with_equal_sign_in_value():
+    env_var_strs = ['VAR1=value=1', 'VAR2=value=2']
+    result = parse_env_vars(env_var_strs)
+    assert result == {'VAR1': 'value=1', 'VAR2': 'value=2'}
+
+
+def test_parse_env_vars_with_empty_value():
+    env_var_strs = ['VAR1=', 'VAR2=']
+    result = parse_env_vars(env_var_strs)
+    assert result == {'VAR1': '', 'VAR2': ''}
+
+
+if __name__ == '__main__':
+    pytest.main()
 
 
 if __name__ == '__main__':
