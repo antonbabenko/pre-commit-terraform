@@ -105,6 +105,8 @@ repos:
       - --disable=fixme # W0511. 'TODO' notations.
       - --disable=logging-fstring-interpolation # Conflict with "use a single formatting" WPS323
       - --disable=ungrouped-imports # ignore `if TYPE_CHECKING` case. Other do reorder-python-imports
+      - --disable=R0801 # Similar lines in 2 files. Currently I don't think that it possible to DRY hooks unique files boilerplate
+
       exclude: test_.+\.py$
 
 - repo: https://github.com/pre-commit/mirrors-mypy

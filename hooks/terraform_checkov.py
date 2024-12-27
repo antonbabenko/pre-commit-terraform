@@ -16,6 +16,21 @@ from .logger import setup_logging
 logger = logging.getLogger(__name__)
 
 
+def replace_git_working_dir_to_repo_root(args: list[str]) -> list[str]:
+    """
+    Support for setting PATH to repo root.
+
+    Replace '__GIT_WORKING_DIR__' with the current working directory in each argument.
+
+    Args:
+        args: List of arguments to process.
+
+    Returns:
+        List of arguments with '__GIT_WORKING_DIR__' replaced.
+    """
+    return [arg.replace('__GIT_WORKING_DIR__', os.getcwd()) for arg in args]
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     # noqa: DAR101, DAR201 # TODO: Add docstrings when will end up with final implementation
     """
@@ -30,11 +45,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     all_env_vars = {**os.environ, **common.parse_env_vars(env_vars_strs)}
     expanded_args = common.expand_env_vars(args, all_env_vars)
+    expanded_args = replace_git_working_dir_to_repo_root(expanded_args)
     # Just in case is someone somehow will add something like "; rm -rf" in the args
     safe_args = [shlex.quote(arg) for arg in expanded_args]
 
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
-        args.append('-no-color')
+        all_env_vars['ANSI_COLORS_DISABLED'] = 'true'  # TODO: Check is it works as expected
 
     return common.per_dir_hook(
         hook_config,
@@ -46,7 +62,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def per_dir_hook_unique_part(
-    tf_path: str,
+    tf_path: str,  # pylint: disable=unused-argument
     dir_path: str,
     args: list[str],
     env_vars: dict[str, str],
@@ -64,8 +80,7 @@ def per_dir_hook_unique_part(
     Returns:
         int: The exit code of the hook.
     """
-    # Just in case is someone somehow will add something like "; rm -rf" in the args
-    cmd = [tf_path, 'fmt', *args, dir_path]
+    cmd = ['checkov', '-d', dir_path, *args]
 
     logger.info('calling %s', shlex.join(cmd))
 

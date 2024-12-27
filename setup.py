@@ -1,4 +1,6 @@
+"""setup.py for pre-commit-terraform."""
 # pylint: skip-file
+
 from setuptools import find_packages
 from setuptools import setup
 
@@ -23,6 +25,7 @@ setup(
         'console_scripts': [
             'terraform_docs_replace = hooks.terraform_docs_replace:main',
             'terraform_fmt = hooks.terraform_fmt:main',
+            'terraform_checkov = hooks.terraform_checkov:main',
         ],
     },
 )

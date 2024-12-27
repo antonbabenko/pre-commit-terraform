@@ -147,6 +147,16 @@
   exclude: \.terraform/.*$
   require_serial: true
 
+- id: terraform_checkov_py
+  name: Checkov
+  description: Runs checkov on Terraform templates.
+  entry: terraform_checkov
+  language: python
+  always_run: false
+  files: \.tf$
+  exclude: \.terraform/.*$
+  require_serial: true
+
 - id: terraform_wrapper_module_for_each
   name: Terraform wrapper with for_each in module
   description: Generate Terraform wrappers with for_each in module.
