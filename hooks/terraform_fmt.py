@@ -24,8 +24,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     """
     common.setup_logging()
     logger.debug(sys.version_info)
-    # FIXME: WPS236
-    args, hook_config, files, _tf_init_args, env_vars_strs = common.parse_cmdline(argv)  # noqa: WPS236
+
+    args, hook_config, files, _tf_init_args, env_vars_strs = common.parse_cmdline(argv)
 
     all_env_vars = {**os.environ, **common.parse_env_vars(env_vars_strs)}
     expanded_args = common.expand_env_vars(args, all_env_vars)

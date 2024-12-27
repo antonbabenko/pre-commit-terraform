@@ -215,7 +215,7 @@ def expand_env_vars(args: list[str], env_vars: dict[str, str]) -> list[str]:
     return expanded_args
 
 
-def per_dir_hook(  # noqa: WPS211 # Found too many arguments # TODO: Maybe refactor?
+def per_dir_hook(
     hook_config: list[str],
     files: list[str],
     args: list[str],
@@ -263,7 +263,7 @@ class BinaryNotFoundError(Exception):
     """Exception raised when neither Terraform nor OpenTofu binary could be found."""
 
 
-def get_tf_binary_path(hook_config: list[str]) -> str:  # noqa: WPS212 - Not Applicable
+def get_tf_binary_path(hook_config: list[str]) -> str:
     """
     Get Terraform/OpenTofu binary path.
 
