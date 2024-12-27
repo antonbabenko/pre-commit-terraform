@@ -50,13 +50,15 @@ def parse_env_vars(env_var_strs: list[str]) -> dict[str, str]:
     Returns:
         dict[str, str]: A dictionary mapping variable names to their corresponding values.
     """
-    ret = {}
+    env_var_dict = {}
+
     for env_var_str in env_var_strs:
-        name, env_var_value = env_var_str.split('=', 1)
-        if env_var_value.startswith('"') and env_var_value.endswith('"'):
-            env_var_value = env_var_value[1:-1]
-        ret[name] = env_var_value
-    return ret
+        name, value = env_var_str.split('=', 1)  # noqa: WPS110 # 'value' is valid var name here
+        if value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]  # noqa: WPS110 # 'value' is valid var name here
+        env_var_dict[name] = value
+
+    return env_var_dict
 
 
 def parse_cmdline(
