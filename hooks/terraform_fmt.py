@@ -11,6 +11,7 @@ from subprocess import run
 from typing import Sequence
 
 from . import common
+from .logger import setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     Parses args and calls `terraform fmt` on list of files provided by pre-commit.
     """
-    common.setup_logging()
+    setup_logging()
     logger.debug(sys.version_info)
 
     args, hook_config, files, _tf_init_args, env_vars_strs = common.parse_cmdline(argv)
