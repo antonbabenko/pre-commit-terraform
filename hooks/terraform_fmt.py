@@ -42,7 +42,7 @@ def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str,
     Args:
         dir_path: The directory to run the hook against.
         args: The arguments to pass to the hook
-        env_vars: The environment variables to pass to the hook
+        env_vars: The custom environment variables defined by user in hook config.
 
     Returns:
         int: The exit code of the hook.

@@ -70,13 +70,13 @@ def parse_cmdline(
             If None, the arguments from sys.argv will be used.
 
     Returns:
-        tuple[list[str], list[str], list[str], list[str], dict[str, str]]:
-            A tuple containing the parsed values:
-            - args (list[str]): The parsed arguments.
-            - hook_config (list[str]): The parsed hook configurations.
-            - files (list[str]): The parsed files.
-            - tf_init_args (list[str]): The parsed Terraform initialization arguments.
-            - env_var_dict (dict[str, str]): The parsed environment variables as a dictionary.
+        A tuple containing the parsed values:
+        - args (list[str]): Arguments that configure wrapped tool behavior.
+        - hook_config (list[str]): Arguments that configure hook behavior.
+        - files (list[str]): File paths on which we should run the hook.
+        - tf_init_args (list[str]): Arguments for `terraform init` command.
+        - env_var_dict (dict[str, str]): Custom environment variables defined by user in hook
+        config. Will be set for 3rd-party tools executed by a hook.
     """
     parser = argparse.ArgumentParser(
         add_help=False,  # Allow the use of `-h` for compatibility with the Bash version of the hook
