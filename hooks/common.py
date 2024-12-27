@@ -77,17 +77,14 @@ def parse_cmdline(
             - files (list[str]): The parsed files.
             - tf_init_args (list[str]): The parsed Terraform initialization arguments.
             - env_var_dict (dict[str, str]): The parsed environment variables as a dictionary.
-
-    Raises:
-        NotImplementedError: If the '--hook-config' or '--tf-init-args' options are used.
     """
     parser = argparse.ArgumentParser(
         add_help=False,  # Allow the use of `-h` for compatibility with the Bash version of the hook
     )
     parser.add_argument('-a', '--args', action='append', help='Arguments')
     parser.add_argument('-h', '--hook-config', action='append', help='Hook Config')
-    parser.add_argument('-i', '--init-args', '--tf-init-args', action='append', help='Init Args')
-    parser.add_argument('-e', '--envs', '--env-vars', action='append', help='Environment Variables')
+    parser.add_argument('-i', '--tf-init-args', '--init-args', action='append', help='Init Args')
+    parser.add_argument('-e', '--env-vars', '--envs', action='append', help='Environment Variables')
     parser.add_argument('FILES', nargs='*', help='Files')
 
     parsed_args = parser.parse_args(argv)
@@ -95,16 +92,16 @@ def parse_cmdline(
     args = parsed_args.args or []
     hook_config = parsed_args.hook_config or []
     files = parsed_args.FILES or []
-    tf_init_args = parsed_args.init_args or []
-    env_vars = parsed_args.envs or []
+    tf_init_args = parsed_args.tf_init_args or []
+    env_vars = parsed_args.env_vars or []
 
     env_var_dict = parse_env_vars(env_vars)
 
-    if hook_config:
-        raise NotImplementedError('TODO: implement: hook_config')
+    # if hook_config:
+    #     raise NotImplementedError('TODO: implement: hook_config')
 
-    if tf_init_args:
-        raise NotImplementedError('TODO: implement: tf_init_args')
+    # if tf_init_args:
+    #     raise NotImplementedError('TODO: implement: tf_init_args')
 
     return args, hook_config, files, tf_init_args, env_var_dict
 
