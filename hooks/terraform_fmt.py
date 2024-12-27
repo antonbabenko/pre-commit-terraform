@@ -29,7 +29,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     setup_logging()
     logger.debug(sys.version_info)
     # FIXME: WPS236
-    args, _hook_config, files, _tf_init_args, env_vars_strs = parse_cmdline(argv)  # noqa: WPS236
+    args, hook_config, files, _tf_init_args, env_vars_strs = parse_cmdline(argv)  # noqa: WPS236
 
     all_env_vars = {**os.environ, **parse_env_vars(env_vars_strs)}
     expanded_args = expand_env_vars(args, all_env_vars)
@@ -37,14 +37,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
         args.append('-no-color')
 
-    return per_dir_hook(files, expanded_args, all_env_vars, per_dir_hook_unique_part)
+    return per_dir_hook(hook_config, files, expanded_args, all_env_vars, per_dir_hook_unique_part)
 
 
-def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str, str]) -> int:
+def per_dir_hook_unique_part(
+    tf_path: str,
+    dir_path: str,
+    args: list[str],
+    env_vars: dict[str, str],
+) -> int:
     """
     Run the hook against a single directory.
 
     Args:
+        tf_path: The path to the terraform binary.
         dir_path: The directory to run the hook against.
         args: The arguments to pass to the hook
         env_vars: All environment variables provided to hook from system and
@@ -55,7 +61,7 @@ def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str,
     """
     # Just in case is someone somehow will add something like "; rm -rf" in the args
     quoted_args = [shlex.quote(arg) for arg in args]
-    cmd = ['terraform', 'fmt', *quoted_args, dir_path]
+    cmd = [tf_path, 'fmt', *quoted_args, dir_path]
 
     logger.info('calling %s', shlex.join(cmd))
 

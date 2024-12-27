@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import shutil
 from collections.abc import Sequence
 from copy import copy
 from typing import Callable
@@ -214,16 +215,18 @@ def expand_env_vars(args: list[str], env_vars: dict[str, str]) -> list[str]:
     return expanded_args
 
 
-def per_dir_hook(
+def per_dir_hook(  # noqa: WPS211 # Found too many arguments # TODO: Maybe refactor?
+    hook_config: list[str],
     files: list[str],
     args: list[str],
     env_vars: dict[str, str],
-    per_dir_hook_unique_part: Callable[[str, list[str], dict[str, str]], int],  # noqa: WPS221
+    per_dir_hook_unique_part: Callable[[str, str, list[str], dict[str, str]], int],  # noqa: WPS221
 ) -> int:
     """
     Run hook boilerplate logic which is common to hooks, that run on per dir basis.
 
     Args:
+        hook_config: Arguments that configure hook behavior.
         files: The list of files to run the hook against.
         args: The arguments to pass to the hook.
         env_vars: The environment variables to pass to the hook.
@@ -236,11 +239,84 @@ def per_dir_hook(
     # hook runs against only those relevant directories
     unique_dirs = _get_unique_dirs(files)
 
+    tf_path = get_tf_binary_path(hook_config)
+
+    logger.debug(
+        'Iterate per_dir_hook_unique_part with values:'
+        + '\ntf_path: %s\nunique_dirs: %r\nargs: %r\nenv_vars: %r',
+        tf_path,
+        unique_dirs,
+        args,
+        env_vars,
+    )
     final_exit_code = 0
     for dir_path in unique_dirs:
-        exit_code = per_dir_hook_unique_part(dir_path, args, env_vars)
+        exit_code = per_dir_hook_unique_part(tf_path, dir_path, args, env_vars)
 
         if exit_code != 0:
             final_exit_code = exit_code
 
     return final_exit_code
+
+
+class BinaryNotFoundError(Exception):
+    """Exception raised when neither Terraform nor OpenTofu binary could be found."""
+
+
+def get_tf_binary_path(hook_config: list[str]) -> str:  # noqa: WPS212 - Not Applicable
+    """
+    Get Terraform/OpenTofu binary path.
+
+    Allows user to set the path to custom Terraform or OpenTofu binary.
+
+    Args:
+        hook_config (list[str]): Arguments that configure hook behavior.
+
+    Environment Variables:
+        PCT_TFPATH: Path to Terraform or OpenTofu binary.
+        TERRAGRUNT_TFPATH: Path to Terraform or OpenTofu binary provided by Terragrunt.
+
+    Returns:
+        str: The path to the Terraform or OpenTofu binary.
+
+    Raises:
+        BinaryNotFoundError: If neither Terraform nor OpenTofu binary could be found.
+
+    """
+    hook_config_tf_path = None
+
+    for config in hook_config:
+        if config.startswith('--tf-path='):
+            hook_config_tf_path = config.split('=', 1)[1].rstrip(';')
+            break
+
+    # direct hook config, has the highest precedence
+    if hook_config_tf_path:
+        return hook_config_tf_path
+
+    # environment variable
+    pct_tfpath = os.getenv('PCT_TFPATH')
+    if pct_tfpath:
+        return pct_tfpath
+
+    # Maybe there is a similar setting for Terragrunt already
+    terragrunt_tfpath = os.getenv('TERRAGRUNT_TFPATH')
+    if terragrunt_tfpath:
+        return terragrunt_tfpath
+
+    # check if Terraform binary is available
+    terraform_path = shutil.which('terraform')
+    if terraform_path:
+        return terraform_path
+
+    # finally, check if Tofu binary is available
+    tofu_path = shutil.which('tofu')
+    if tofu_path:
+        return tofu_path
+
+    # If no binary is found, raise an exception
+    raise BinaryNotFoundError(
+        'Neither Terraform nor OpenTofu binary could be found. Please either set the "--tf-path"'
+        + ' hook configuration argument, or set the "PCT_TFPATH" environment variable, or set the'
+        + ' "TERRAGRUNT_TFPATH" environment variable, or install Terraform or OpenTofu globally.',
+    )
