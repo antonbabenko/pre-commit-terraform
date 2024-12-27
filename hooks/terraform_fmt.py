@@ -10,11 +10,7 @@ from subprocess import PIPE
 from subprocess import run
 from typing import Sequence
 
-from .common import expand_env_vars
-from .common import parse_cmdline
-from .common import parse_env_vars
-from .common import per_dir_hook
-from .common import setup_logging
+from . import common
 
 logger = logging.getLogger(__name__)
 
@@ -26,18 +22,24 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     Parses args and calls `terraform fmt` on list of files provided by pre-commit.
     """
-    setup_logging()
+    common.setup_logging()
     logger.debug(sys.version_info)
     # FIXME: WPS236
-    args, hook_config, files, _tf_init_args, env_vars_strs = parse_cmdline(argv)  # noqa: WPS236
+    args, hook_config, files, _tf_init_args, env_vars_strs = common.parse_cmdline(argv)  # noqa: WPS236
 
-    all_env_vars = {**os.environ, **parse_env_vars(env_vars_strs)}
-    expanded_args = expand_env_vars(args, all_env_vars)
+    all_env_vars = {**os.environ, **common.parse_env_vars(env_vars_strs)}
+    expanded_args = common.expand_env_vars(args, all_env_vars)
 
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
         args.append('-no-color')
 
-    return per_dir_hook(hook_config, files, expanded_args, all_env_vars, per_dir_hook_unique_part)
+    return common.per_dir_hook(
+        hook_config,
+        files,
+        expanded_args,
+        all_env_vars,
+        per_dir_hook_unique_part,
+    )
 
 
 def per_dir_hook_unique_part(
