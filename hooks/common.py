@@ -37,7 +37,14 @@ def setup_logging() -> None:
         'debug': logging.DEBUG,
     }[os.environ.get('PCT_LOG', 'warning').lower()]
 
-    logging.basicConfig(level=log_level)
+    log_format = '%(levelname)s:%(funcName)s:%(message)s'
+    if log_level == logging.DEBUG:
+        log_format = (
+            '\n%(levelname)s:\t%(asctime)s.%(msecs)03d %(filename)s:%(lineno)s -> %(funcName)s()'
+            + '\n%(message)s'
+        )
+
+    logging.basicConfig(level=log_level, format=log_format, datefmt='%H:%M:%S')
 
 
 def parse_env_vars(env_var_strs: list[str]) -> dict[str, str]:
@@ -96,6 +103,15 @@ def parse_cmdline(
     tf_init_args = parsed_args.tf_init_args or []
     env_vars = parsed_args.env_vars or []
 
+    logger.debug(
+        'Parsed values:\nargs: %r\nhook_config: %r\nfiles: %r\ntf_init_args: %r\nenv_vars: %r',
+        args,
+        hook_config,
+        files,
+        tf_init_args,
+        env_vars,
+    )
+
     return args, hook_config, files, tf_init_args, env_vars
 
 
@@ -116,6 +132,33 @@ def _get_unique_dirs(files: list[str]) -> set[str]:
         unique_dirs.add(dir_path)
 
     return unique_dirs
+
+
+def expand_env_vars(args: list[str], env_vars: dict[str, str]) -> list[str]:
+    """
+    Expand environment variables definition into their values in '--args'.
+
+    Support expansion only for ${ENV_VAR} vars, not $ENV_VAR.
+
+    Args:
+        args: The arguments to expand environment variables in.
+        env_vars: The environment variables to expand.
+
+    Returns:
+        The arguments with expanded environment variables.
+    """
+    expanded_args = []
+
+    for arg in args:
+        for env_var_name, env_var_value in env_vars.items():
+            if f'${{{env_var_name}}}' in arg:
+                logger.info('Expanding ${%s} in "%s"', env_var_name, arg)
+                arg = arg.replace(f'${{{env_var_name}}}', env_var_value)
+                logger.debug('After ${%s} expansion: "%s"', env_var_name, arg)
+
+        expanded_args.append(arg)
+
+    return expanded_args
 
 
 def per_dir_hook(

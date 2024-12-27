@@ -5,14 +5,15 @@ from os.path import join
 import pytest
 
 from hooks.common import _get_unique_dirs
+from hooks.common import expand_env_vars
 from hooks.common import parse_cmdline
 from hooks.common import parse_env_vars
 from hooks.common import per_dir_hook
 
 
-#
-# get_unique_dirs
-#
+# ?
+# ? get_unique_dirs
+# ?
 def test_get_unique_dirs_empty():
     files = []
     result = _get_unique_dirs(files)
@@ -43,9 +44,9 @@ def test_get_unique_dirs_nested_dirs():
     assert result == {join('path', 'to'), join('path', 'to', 'nested')}
 
 
-#
-# per_dir_hook
-#
+# ?
+# ? per_dir_hook
+# ?
 @pytest.fixture
 def mock_per_dir_hook_unique_part(mocker):
     return mocker.patch('hooks.terraform_fmt.per_dir_hook_unique_part')
@@ -133,9 +134,9 @@ def test_per_dir_hook_with_errors(mocker, mock_per_dir_hook_unique_part):
     mock_per_dir_hook_unique_part.assert_has_calls(expected_calls, any_order=True)
 
 
-#
-# parse_env_vars
-#
+# ?
+# ? parse_env_vars
+# ?
 def test_parse_env_vars_empty():
     env_var_strs = []
     result = parse_env_vars(env_var_strs)
@@ -222,13 +223,59 @@ def test_parse_cmdline_with_files():
     assert env_vars_strs == []
 
 
-# def test_parse_cmdline_with_hook_config():
-#     argv = ['-h', 'hook1']
-#     with pytest.raises(NotImplementedError, match='TODO: implement: hook_config'):
-#         parse_cmdline(argv)
+def test_parse_cmdline_with_hook_config():
+    argv = ['-h', 'hook1', '-h', 'hook2']
+    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
+    assert args == []
+    assert hook_config == ['hook1', 'hook2']
+    assert files == []
+    assert tf_init_args == []
+    assert env_vars_strs == []
 
-# def test_parse_cmdline_with_tf_init_args_not_implemented():
-#     argv = ['-i', 'init1']
+
+# ?
+# ? expand_env_vars
+# ?
+def test_expand_env_vars_no_vars():
+    args = ['arg1', 'arg2']
+    env_vars = {}
+    result = expand_env_vars(args, env_vars)
+    assert result == ['arg1', 'arg2']
+
+
+def test_expand_env_vars_single_var():
+    args = ['arg1', '${VAR1}', 'arg3']
+    env_vars = {'VAR1': 'value1'}
+    result = expand_env_vars(args, env_vars)
+    assert result == ['arg1', 'value1', 'arg3']
+
+
+def test_expand_env_vars_multiple_vars():
+    args = ['${VAR1}', 'arg2', '${VAR2}']
+    env_vars = {'VAR1': 'value1', 'VAR2': 'value2'}
+    result = expand_env_vars(args, env_vars)
+    assert result == ['value1', 'arg2', 'value2']
+
+
+def test_expand_env_vars_no_expansion():
+    args = ['arg1', 'arg2']
+    env_vars = {'VAR1': 'value1'}
+    result = expand_env_vars(args, env_vars)
+    assert result == ['arg1', 'arg2']
+
+
+def test_expand_env_vars_partial_expansion():
+    args = ['arg1', '${VAR1}', '${VAR2}']
+    env_vars = {'VAR1': 'value1'}
+    result = expand_env_vars(args, env_vars)
+    assert result == ['arg1', 'value1', '${VAR2}']
+
+
+def test_expand_env_vars_with_special_chars():
+    args = ['arg1', '${VAR_1}', 'arg3']
+    env_vars = {'VAR_1': 'value1'}
+    result = expand_env_vars(args, env_vars)
+    assert result == ['arg1', 'value1', 'arg3']
 
 
 if __name__ == '__main__':

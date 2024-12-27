@@ -10,6 +10,7 @@ from subprocess import PIPE
 from subprocess import run
 from typing import Sequence
 
+from .common import expand_env_vars
 from .common import parse_cmdline
 from .common import parse_env_vars
 from .common import per_dir_hook
@@ -29,12 +30,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     logger.debug(sys.version_info)
     # FIXME: WPS236
     args, _hook_config, files, _tf_init_args, env_vars_strs = parse_cmdline(argv)  # noqa: WPS236
-    env_vars = parse_env_vars(env_vars_strs)
+
+    all_env_vars = {**os.environ, **parse_env_vars(env_vars_strs)}
+    expanded_args = expand_env_vars(args, all_env_vars)
 
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
         args.append('-no-color')
 
-    return per_dir_hook(files, args, env_vars, per_dir_hook_unique_part)
+    return per_dir_hook(files, expanded_args, all_env_vars, per_dir_hook_unique_part)
 
 
 def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str, str]) -> int:
@@ -44,7 +47,8 @@ def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str,
     Args:
         dir_path: The directory to run the hook against.
         args: The arguments to pass to the hook
-        env_vars: The custom environment variables defined by user in hook config.
+        env_vars: All environment variables provided to hook from system and
+            defined by user in hook config.
 
     Returns:
         int: The exit code of the hook.
@@ -54,12 +58,10 @@ def per_dir_hook_unique_part(dir_path: str, args: list[str], env_vars: dict[str,
     cmd = ['terraform', 'fmt', *quoted_args, dir_path]
 
     logger.info('calling %s', shlex.join(cmd))
-    logger.debug('env_vars: %r', env_vars)
-    logger.debug('args: %r', args)
 
     completed_process = run(
         cmd,
-        env={**os.environ, **env_vars},
+        env=env_vars,
         text=True,
         stdout=PIPE,
         check=False,

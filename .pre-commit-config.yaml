@@ -141,6 +141,10 @@ repos:
               I      <!-- opt out of using isort in favor of reorder-python-imports -->
               S404 <!-- Consider possible security implications associated with the subprocess module. Yep, we execute external tools -->
               S603 <!-- subprocess call - check for execution of untrusted input -->
+              <!-- Google Python style is not RST until after processed by Napoleon -->
+              <!-- See https://github.com/peterjc/flake8-rst-docstrings/issues/17 -->
+              RST201 RST203 RST301
+              WPS201 <!-- Found module with too many imports. --> # TODO
 
               # WPS211  <!-- Found too many arguments. Handled by pylint -->
               # WPS420  <!-- Forbid some python keywords. Disabled as fix proposals unclear -->
