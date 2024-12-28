@@ -2,6 +2,7 @@ import argparse
 import os
 import subprocess
 import sys
+import warnings
 
 
 def main(argv=None):
@@ -26,6 +27,14 @@ def main(argv=None):
     )
     parser.add_argument('filenames', nargs='*', help='Filenames to check.')
     args = parser.parse_args(argv)
+
+    warnings.warn(
+        '`terraform_docs_replace` hook is DEPRECATED.'
+        'For migration instructions see '
+        'https://github.com/antonbabenko/pre-commit-terraform/issues/248'
+        '#issuecomment-1290829226',
+        category=UserWarning,
+    )
 
     dirs = []
     for filename in args.filenames:
