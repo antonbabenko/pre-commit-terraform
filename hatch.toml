@@ -1,0 +1,12 @@
+[build.targets.sdist]
+include = [
+  'hooks/*.py',
+]
+exclude = [
+  'hooks/*.sh',
+]
+
+[build.targets.wheel]
+packages = [
+  'hooks/',
+]

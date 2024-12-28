@@ -1,0 +1,38 @@
+[build-system]
+requires = [
+  'hatchling',
+]
+build-backend = 'hatchling.build'
+
+[project]
+name = 'pre-commit-terraform'
+version = '0.0.0'
+# version_format = '{tag}+{gitsha}'
+classifiers = [
+  'License :: OSI Approved :: MIT License',
+  'Programming Language :: Python :: 2',
+  'Programming Language :: Python :: 2.7',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3.6',
+  'Programming Language :: Python :: 3.7',
+  'Programming Language :: Python :: Implementation :: CPython',
+  'Programming Language :: Python :: Implementation :: PyPy',
+]
+description = 'Pre-commit hooks for terraform_docs_replace'
+dependencies = [
+  'setuptools-git-version',
+]
+
+[[project.authors]]
+name = 'Contributors'  # FIXME
+# email = 'степан@криївка.укр'
+
+[project.urls]
+'GitHub: repo' = 'https://github.com/antonbabenko/pre-commit-terraform'
+
+[project.readme]
+file = 'README.md'
+content-type = 'text/markdown'
+
+[project.scripts]
+terraform_docs_replace = 'hooks.terraform_docs_replace:main'
