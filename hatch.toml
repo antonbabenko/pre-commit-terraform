@@ -17,3 +17,6 @@ packages = [
 
 [version]
 source = 'vcs'
+
+[version.raw-options]
+root = '.'
