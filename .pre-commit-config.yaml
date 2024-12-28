@@ -1,3 +1,12 @@
+---
+
+ci:
+  autoupdate_schedule: quarterly
+  skip:
+    - shfmt
+    - shellcheck
+    - hadolint
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v5.0.0
@@ -59,3 +68,5 @@ repos:
   - id: prettier
     # https://prettier.io/docs/en/options.html#parser
     files: '.json5$'
+
+...
