@@ -33,4 +33,4 @@ file = 'README.md'
 content-type = 'text/markdown'
 
 [project.scripts]
-terraform_docs_replace = 'hooks.terraform_docs_replace:main'
+terraform_docs_replace = 'pre_commit_terraform.terraform_docs_replace:main'

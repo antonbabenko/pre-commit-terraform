@@ -1,14 +1,11 @@
 [build.targets.sdist]
 include = [
-  'hooks/*.py',
-]
-exclude = [
-  'hooks/*.sh',
+  'src/',
 ]
 
 [build.targets.wheel]
 packages = [
-  'hooks/',
+  'src/pre_commit_terraform/',
 ]
 
 [metadata.hooks.vcs.urls]
