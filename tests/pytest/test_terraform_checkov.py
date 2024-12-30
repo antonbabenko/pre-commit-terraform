@@ -1,6 +1,6 @@
 import pytest
 
-from hooks.terraform_checkov import replace_git_working_dir_to_repo_root
+from pre_commit_terraform.terraform_checkov import replace_git_working_dir_to_repo_root
 
 # FILE: hooks/test_terraform_checkov.py
 

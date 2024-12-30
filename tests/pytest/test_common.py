@@ -4,14 +4,14 @@ from os.path import join
 
 import pytest
 
-from hooks.common import BinaryNotFoundError
-from hooks.common import _get_unique_dirs
-from hooks.common import expand_env_vars
-from hooks.common import get_tf_binary_path
-from hooks.common import is_function_defined
-from hooks.common import parse_cmdline
-from hooks.common import parse_env_vars
-from hooks.common import per_dir_hook
+from pre_commit_terraform.common import BinaryNotFoundError
+from pre_commit_terraform.common import _get_unique_dirs
+from pre_commit_terraform.common import expand_env_vars
+from pre_commit_terraform.common import get_tf_binary_path
+from pre_commit_terraform.common import is_function_defined
+from pre_commit_terraform.common import parse_cmdline
+from pre_commit_terraform.common import parse_env_vars
+from pre_commit_terraform.common import per_dir_hook
 
 
 # ?
@@ -52,7 +52,7 @@ def test_get_unique_dirs_nested_dirs():
 # ?
 @pytest.fixture
 def mock_per_dir_hook_unique_part(mocker):
-    return mocker.patch('hooks.terraform_fmt.per_dir_hook_unique_part')
+    return mocker.patch('pre_commit_terraform.terraform_fmt.per_dir_hook_unique_part')
 
 
 def test_per_dir_hook_empty_files(mock_per_dir_hook_unique_part):

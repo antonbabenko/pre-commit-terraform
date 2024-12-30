@@ -5,38 +5,38 @@ from subprocess import PIPE
 
 import pytest
 
-from hooks.terraform_fmt import main
-from hooks.terraform_fmt import per_dir_hook_unique_part
+from pre_commit_terraform.terraform_fmt import main
+from pre_commit_terraform.terraform_fmt import per_dir_hook_unique_part
 
 
 @pytest.fixture
 def mock_setup_logging(mocker):
-    return mocker.patch('hooks.terraform_fmt.setup_logging')
+    return mocker.patch('pre_commit_terraform.terraform_fmt.setup_logging')
 
 
 @pytest.fixture
 def mock_parse_cmdline(mocker):
-    return mocker.patch('hooks.terraform_fmt.common.parse_cmdline')
+    return mocker.patch('pre_commit_terraform.terraform_fmt.common.parse_cmdline')
 
 
 @pytest.fixture
 def mock_parse_env_vars(mocker):
-    return mocker.patch('hooks.terraform_fmt.common.parse_env_vars')
+    return mocker.patch('pre_commit_terraform.terraform_fmt.common.parse_env_vars')
 
 
 @pytest.fixture
 def mock_expand_env_vars(mocker):
-    return mocker.patch('hooks.terraform_fmt.common.expand_env_vars')
+    return mocker.patch('pre_commit_terraform.terraform_fmt.common.expand_env_vars')
 
 
 @pytest.fixture
 def mock_per_dir_hook(mocker):
-    return mocker.patch('hooks.terraform_fmt.common.per_dir_hook')
+    return mocker.patch('pre_commit_terraform.terraform_fmt.common.per_dir_hook')
 
 
 @pytest.fixture
 def mock_run(mocker):
-    return mocker.patch('hooks.terraform_fmt.run')
+    return mocker.patch('pre_commit_terraform.terraform_fmt.run')
 
 
 def test_main(
