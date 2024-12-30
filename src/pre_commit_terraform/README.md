@@ -55,9 +55,37 @@ POSIX-inspired CLI app.
 Since it's an app that can be executed outside the [`pre-commit` framework],
 it is useful to check out and follow these [CLI guidelines][clig].
 
+## Subcommand development
+
+`populate_argument_parser()` accepts a regular instance of
+[`argparse.ArgumentParser`]. Call its methods to extend the CLI arguments that
+would be specific for the subcommand you are creating. Those arguments will be
+available later, as an argument to the `invoke_cli_app()` function — through an
+instance of [`argparse.Namespace`]. For the `CLI_SUBCOMMAND_NAME` constant,
+choose `kebab-space-sub-command-style`, it does not need to be `snake_case`.
+
+Make sure to return a `ReturnCode` instance or an integer from
+`invoke_cli_app()`. Returning a non-zero value will result in the CLI app
+exiting with a return code typically interpreted as an error while zero means
+success. You can `import errno` to use typical POSIX error codes through their
+human-readable identifiers.
+
+Another way to interrupt the CLI app control flow is by raising an instance of
+one of the in-app errors. `raise PreCommitTerraformExit` for a successful exit,
+but it can be turned into an error outcome via
+`raise PreCommitTerraformExit(1)`.
+`raise PreCommitTerraformRuntimeError('The world is broken')` to indicate
+problems within the runtime. The framework will intercept any exceptions
+inheriting `PreCommitTerraformBaseError`, so they won't be presented to the
+end-users.
+
 [`.pre-commit-hooks.yaml`]: ../../.pre-commit-hooks.yaml
 [`_cli_parsing.py`]: ./_cli_parsing.py
 [`_cli_subcommands.py`]: ./_cli_subcommands.py
+[`argparse.ArgumentParser`]:
+https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser
+[`argparse.Namespace`]:
+https://docs.python.org/3/library/argparse.html#argparse.Namespace
 [clig]: https://clig.dev
 [importable package]: https://docs.python.org/3/tutorial/modules.html#packages
 [import package]: https://packaging.python.org/en/latest/glossary/#term-Import-Package
