@@ -1,0 +1,66 @@
+# Maintainer's manual
+
+## Structure
+
+This folder is what's called an [importable package]. It's a top-level folder
+that ends up being installed into `site-packages/` of virtualenvs.
+
+When the Git repository is `pip install`ed, this [import package] becomes
+available for use within respective Python interpreter instance. It can be
+imported and sub-modules can be imported through the dot-syntax.
+Additionally, the modules within are able to import the neighboring ones
+using relative imports that have a leading dot in them.
+
+It additionally implements a [runpy interface], meaning that its name can
+be passed to `python -m` in order to invoke the CLI. This is the primary method
+of integration with the [`pre-commit` framework] and local development/testing.
+
+The layout allows for having several Python modules wrapping third-party tools,
+each having an argument parser and being a subcommand for the main CLI
+interface.
+
+## Control flow
+
+When `python -m pre_commit_terraform` is executed, it imports `__main__.py`.
+Which in turn, performs the initialization of the main argument parser and the
+parsers of subcommands, followed by executing the logic defined in dedicated
+subcommand modules.
+
+## Integrating a new subcommand
+
+1. Create a new module called `subcommand_x.py`.
+2. Within that module, define two functions —
+   `invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType | int` and
+   `populate_argument_parser(subcommand_parser: ArgumentParser) -> None`.
+3. Edit [`_cli_parsing.py`], importing `populate_argument_parser` from
+   `subcommand_x` and adding it into `PARSER_MAP` with `subcommand-x` as
+   a key.
+5. Edit [`_cli_subcommands.py`] `invoke_cli_app` from `subcommand_x` and
+   adding it into `SUBCOMMAND_MAP` with `subcommand-x` as a key.
+6. Edit [`.pre-commit-hooks.yaml`], adding a new hook that invokes
+   `python -m pre_commit_terraform subcommand-x`.
+
+## Manual testing
+
+Usually, having a development virtualenv where you `pip install -e .` is enough
+to make it possible to invoke the CLI app. Do so first. Most source code
+updates do not require running it again. But sometimes, it's needed.
+
+Once done, you can run `python -m pre_commit_terraform` and/or
+`python -m pre_commit_terraform subcommand-x` to see how it behaves. There's
+`--help` and all other typical conventions one would usually expect from a
+POSIX-inspired CLI app.
+
+## DX/UX considerations
+
+Since it's an app that can be executed outside of the [`pre-commit` framework],
+it is useful to check out and follow these [CLI guidelines][clig].
+
+[`.pre-commit-hooks.yaml`]: ../../.pre-commit-hooks.yaml
+[`_cli_parsing.py`]: ./_cli_parsing.py
+[`_cli_subcommands.py`]: ./_cli_subcommands.py
+[clig]: https://clig.dev
+[importable package]: https://docs.python.org/3/tutorial/modules.html#packages
+[import package]: https://packaging.python.org/en/latest/glossary/#term-Import-Package
+[`pre-commit` framework]: https://pre-commit.com
+[runpy interface]: https://docs.python.org/3/library/__main__.html
