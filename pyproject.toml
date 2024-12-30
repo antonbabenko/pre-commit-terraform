@@ -15,7 +15,9 @@ classifiers = [
   'Programming Language :: Python :: Implementation :: PyPy',
 ]
 description='Pre-commit hooks for terraform'
-dependencies = []
+dependencies = [
+  'pyyaml',
+]
 dynamic = [
   'urls',
   'version',

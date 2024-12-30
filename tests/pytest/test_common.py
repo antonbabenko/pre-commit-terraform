@@ -1,14 +1,17 @@
 # pylint: skip-file
 import os
 from os.path import join
+from pathlib import Path
 
 import pytest
+import yaml
 
 from pre_commit_terraform.common import BinaryNotFoundError
 from pre_commit_terraform.common import _get_unique_dirs
 from pre_commit_terraform.common import expand_env_vars
 from pre_commit_terraform.common import get_tf_binary_path
 from pre_commit_terraform.common import is_function_defined
+from pre_commit_terraform.common import is_hook_run_on_whole_repo
 from pre_commit_terraform.common import parse_cmdline
 from pre_commit_terraform.common import parse_env_vars
 from pre_commit_terraform.common import per_dir_hook
@@ -377,6 +380,68 @@ def test_is_function_defined_callable_object():
     scope['callable_object'] = callable_object
 
     assert is_function_defined('callable_object', scope) is True
+
+
+# ?
+# ? is_hook_run_on_whole_repo
+# ?
+
+
+@pytest.fixture
+def mock_git_ls_files():
+    return [
+        'environment/prd/backends.tf',
+        'environment/prd/data.tf',
+        'environment/prd/main.tf',
+        'environment/prd/outputs.tf',
+        'environment/prd/providers.tf',
+        'environment/prd/variables.tf',
+        'environment/prd/versions.tf',
+        'environment/qa/backends.tf',
+    ]
+
+
+@pytest.fixture
+def mock_hooks_config():
+    return [{'id': 'example_hook_id', 'files': r'\.tf$', 'exclude': r'\.terraform/.*$'}]
+
+
+def test_is_hook_run_on_whole_repo(mocker, mock_git_ls_files, mock_hooks_config):
+    # Mock the return value of git ls-files
+    mocker.patch('subprocess.check_output', return_value='\n'.join(mock_git_ls_files))
+    # Mock the return value of reading the .pre-commit-hooks.yaml file
+    mocker.patch('builtins.open', mocker.mock_open(read_data=yaml.dump(mock_hooks_config)))
+    # Mock the Path object to return a specific path
+    mock_path = mocker.patch('pathlib.Path.resolve')
+    mock_path.return_value.parents.__getitem__.return_value = Path('/mocked/path')
+
+    # Test case where files match the included pattern and do not match the excluded pattern
+    files = [
+        'environment/prd/backends.tf',
+        'environment/prd/data.tf',
+        'environment/prd/main.tf',
+        'environment/prd/outputs.tf',
+        'environment/prd/providers.tf',
+        'environment/prd/variables.tf',
+        'environment/prd/versions.tf',
+        'environment/qa/backends.tf',
+    ]
+    assert is_hook_run_on_whole_repo('example_hook_id', files) is True
+
+    # Test case where files do not match the included pattern
+    files = ['environment/prd/README.md']
+    assert is_hook_run_on_whole_repo('example_hook_id', files) is False
+
+    # Test case where files match the excluded pattern
+    files = ['environment/prd/.terraform/config.tf']
+    assert is_hook_run_on_whole_repo('example_hook_id', files) is False
+
+    # Test case where hook_id is not found
+    with pytest.raises(
+        ValueError,
+        match='Hook ID "non_existing_hook_id" not found in .pre-commit-hooks.yaml',
+    ):
+        is_hook_run_on_whole_repo('non_existing_hook_id', files)
 
 
 if __name__ == '__main__':

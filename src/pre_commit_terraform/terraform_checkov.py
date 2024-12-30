@@ -53,7 +53,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         all_env_vars['ANSI_COLORS_DISABLED'] = 'true'  # TODO: Check is it works as expected
     # WPS421 - IDK how to check is function exist w/o passing globals()
     if common.is_function_defined('run_hook_on_whole_repo', globals()):  # noqa: WPS421
-        if common.is_hook_run_on_whole_repo(files):
+        hook_id = os.path.basename(__file__).replace('.py', '_py')
+        if common.is_hook_run_on_whole_repo(hook_id, files):
             return run_hook_on_whole_repo(safe_args, all_env_vars)
 
     return common.per_dir_hook(

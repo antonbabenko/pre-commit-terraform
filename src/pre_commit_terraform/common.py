@@ -9,9 +9,14 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import re
 import shutil
+import subprocess
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Callable
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -264,14 +269,69 @@ def is_function_defined(func_name: str, scope: dict) -> bool:
     return is_defined and is_callable
 
 
-def is_hook_run_on_whole_repo(files: list[str]) -> bool:
+def is_hook_run_on_whole_repo(hook_id: str, file_paths: list[str]) -> bool:
     """
     Check if the hook is run on the whole repository.
 
     Args:
-        files: The list of files.
+        hook_id (str): The ID of the hook.
+        file_paths: The list of files paths.
 
     Returns:
         bool: True if the hook is run on the whole repository, False otherwise.
+
+    Raises:
+        ValueError: If the hook ID is not found in the .pre-commit-hooks.yaml file.
     """
-    return True
+    logger.debug('Hook ID: %s', hook_id)
+
+    # Get the directory containing `.pre-commit-hooks.yaml` file
+    git_repo_root = Path(__file__).resolve().parents[5]
+    hook_config_path = os.path.join(git_repo_root, '.pre-commit-hooks.yaml')
+
+    logger.debug('Hook config path: %s', hook_config_path)
+
+    # Read the .pre-commit-hooks.yaml file
+    with open(hook_config_path, 'r', encoding='utf-8') as pre_commit_hooks_yaml:
+        hooks_config = yaml.safe_load(pre_commit_hooks_yaml)
+
+    # Get the included and excluded file patterns for the given hook_id
+    for hook in hooks_config:
+        if hook['id'] == hook_id:
+            included_pattern = re.compile(hook.get('files', ''))
+            excluded_pattern = re.compile(hook.get('exclude', ''))
+            break
+    else:
+        raise ValueError(f'Hook ID "{hook_id}" not found in .pre-commit-hooks.yaml')
+
+    logger.debug(
+        'Included files pattern: %s\nExcluded files pattern: %s',
+        included_pattern,
+        excluded_pattern,
+    )
+    # S607 disabled as we need to maintain ability to call git command no matter where it located.
+    git_ls_files_cmd = ['git', 'ls-files']  # noqa: S607
+    # Get the sorted list of all files that can be checked using `git ls-files`
+    git_ls_file_paths = subprocess.check_output(git_ls_files_cmd, text=True).splitlines()
+
+    if excluded_pattern:
+        all_file_paths_that_can_be_checked = [
+            file_path
+            for file_path in git_ls_file_paths
+            if included_pattern.search(file_path) and not excluded_pattern.search(file_path)
+        ]
+    else:
+        all_file_paths_that_can_be_checked = [
+            file_path for file_path in git_ls_file_paths if included_pattern.search(file_path)
+        ]
+
+    # Get the sorted list of files passed to the hook
+    file_paths_to_check = sorted(file_paths)
+    logger.debug(
+        'Files to check:\n%s\n\nAll files that can be checked:\n%s\n\nIdentical lists: %s',
+        file_paths_to_check,
+        all_file_paths_that_can_be_checked,
+        file_paths_to_check == all_file_paths_that_can_be_checked,
+    )
+    # Compare the sorted lists of file
+    return file_paths_to_check == all_file_paths_that_can_be_checked
