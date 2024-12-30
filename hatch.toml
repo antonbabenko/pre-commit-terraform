@@ -1,0 +1,16 @@
+[build.targets.sdist]
+include = [
+  'src/',
+]
+
+[build.targets.wheel]
+packages = [
+  'src/pre_commit_terraform/',
+]
+
+[metadata.hooks.vcs.urls]
+'Source Archive' = 'https://github.com/antonbabenko/pre-commit-terraform/archive/{commit_hash}.tar.gz'
+'GitHub: repo' = 'https://github.com/antonbabenko/pre-commit-terraform'
+
+[version]
+source = 'vcs'
