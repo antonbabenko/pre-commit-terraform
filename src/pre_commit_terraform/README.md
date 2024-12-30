@@ -7,13 +7,13 @@ that ends up being installed into `site-packages/` of virtualenvs.
 
 When the Git repository is `pip install`ed, this [import package] becomes
 available for use within respective Python interpreter instance. It can be
-imported and sub-modules can be imported through the dot-syntax.
-Additionally, the modules within are able to import the neighboring ones
-using relative imports that have a leading dot in them.
+imported and sub-modules can be imported through the dot-syntax. Additionally,
+the modules within can import the neighboring ones using relative imports that
+have a leading dot in them.
 
 It additionally implements a [runpy interface], meaning that its name can
-be passed to `python -m` in order to invoke the CLI. This is the primary method
-of integration with the [`pre-commit` framework] and local development/testing.
+be passed to `python -m` to invoke the CLI. This is the primary method of
+integration with the [`pre-commit` framework] and local development/testing.
 
 The layout allows for having several Python modules wrapping third-party tools,
 each having an argument parser and being a subcommand for the main CLI
@@ -32,12 +32,11 @@ subcommand modules.
 2. Within that module, define two functions —
    `invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType | int` and
    `populate_argument_parser(subcommand_parser: ArgumentParser) -> None`.
-3. Edit [`_cli_parsing.py`], importing `populate_argument_parser` from
-   `subcommand_x` and adding it into `PARSER_MAP` with `subcommand-x` as
-   a key.
-5. Edit [`_cli_subcommands.py`] `invoke_cli_app` from `subcommand_x` and
-   adding it into `SUBCOMMAND_MAP` with `subcommand-x` as a key.
-6. Edit [`.pre-commit-hooks.yaml`], adding a new hook that invokes
+   Additionally, define a module-level constant
+   `CLI_SUBCOMMAND_NAME: Final[str] = 'subcommand-x'`.
+3. Edit [`_cli_subcommands.py`], importing `subcommand_x` as a relative module
+   and add it into the `SUBCOMMAND_MODULES` list.
+4. Edit [`.pre-commit-hooks.yaml`], adding a new hook that invokes
    `python -m pre_commit_terraform subcommand-x`.
 
 ## Manual testing
@@ -53,7 +52,7 @@ POSIX-inspired CLI app.
 
 ## DX/UX considerations
 
-Since it's an app that can be executed outside of the [`pre-commit` framework],
+Since it's an app that can be executed outside the [`pre-commit` framework],
 it is useful to check out and follow these [CLI guidelines][clig].
 
 [`.pre-commit-hooks.yaml`]: ../../.pre-commit-hooks.yaml

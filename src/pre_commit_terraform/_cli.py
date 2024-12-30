@@ -2,7 +2,6 @@
 
 from sys import stderr
 
-from ._cli_subcommands import choose_cli_app
 from ._cli_parsing import initialize_argument_parser
 from ._errors import (
     PreCommitTerraformBaseError,
@@ -21,14 +20,9 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     """
     root_cli_parser = initialize_argument_parser()
     parsed_cli_args = root_cli_parser.parse_args(cli_args)
-    try:
-        invoke_chosen_app = choose_cli_app(parsed_cli_args.check_name)
-    except LookupError as lookup_err:
-        print(f'Sourcing subcommand failed: {lookup_err !s}', file=stderr)
-        return ReturnCode.ERROR
 
     try:
-        return invoke_chosen_app(parsed_cli_args)
+        return parsed_cli_args.invoke_cli_app(parsed_cli_args)
     except PreCommitTerraformExit as exit_err:
         print(f'App exiting: {exit_err !s}', file=stderr)
         raise

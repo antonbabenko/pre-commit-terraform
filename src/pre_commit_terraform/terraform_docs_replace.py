@@ -2,9 +2,13 @@ import os
 import subprocess
 import warnings
 from argparse import ArgumentParser, Namespace
+from typing import Final
 
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
+
+
+CLI_SUBCOMMAND_NAME: Final[str] = 'replace-docs'
 
 
 def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:

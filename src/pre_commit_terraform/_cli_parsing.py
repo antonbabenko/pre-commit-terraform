@@ -6,14 +6,7 @@ of all the sub-commands.
 
 from argparse import ArgumentParser
 
-from .terraform_docs_replace import (
-    populate_argument_parser as populate_replace_docs_argument_parser,
-)
-
-
-PARSER_MAP = {
-    'replace-docs': populate_replace_docs_argument_parser,
-}
+from ._cli_subcommands import SUBCOMMAND_MODULES
 
 
 def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
@@ -28,9 +21,12 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
         help='A check to be performed.',
         required=True,
     )
-    for subcommand_name, initialize_subcommand_parser in PARSER_MAP.items():
-        replace_docs_parser = subcommand_parsers.add_parser(subcommand_name)
-        initialize_subcommand_parser(replace_docs_parser)
+    for subcommand_module in SUBCOMMAND_MODULES:
+        replace_docs_parser = subcommand_parsers.add_parser(subcommand_module.CLI_SUBCOMMAND_NAME)
+        replace_docs_parser.set_defaults(
+            invoke_cli_app=subcommand_module.invoke_cli_app,
+        )
+        subcommand_module.populate_argument_parser(replace_docs_parser)
 
 
 def initialize_argument_parser() -> ArgumentParser:
