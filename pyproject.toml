@@ -40,8 +40,3 @@ email = 'yz@yz.kiev.ua'
 [project.readme]
 file = 'README.md'
 content-type = 'text/markdown'
-
-[project.scripts]
-terraform_docs_replace = 'pre_commit_terraform.terraform_docs_replace:main'
-terraform_fmt = 'pre_commit_terraform.terraform_fmt:main'
-terraform_checkov = 'pre_commit_terraform.terraform_checkov:main'
