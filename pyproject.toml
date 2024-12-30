@@ -25,8 +25,19 @@ dynamic = [
 ]
 
 [[project.authors]]
-name = 'Contributors'  # FIXME
-# email = 'степан@криївка.укр'
+name = 'Anton Babenko'
+email = 'anton <at> antonbabenko.com'
+
+[[project.authors]]
+name = 'Contributors'
+
+[[project.maintainers]]
+name = 'Maksym Vlasov'
+email = '11096782+maxymvlasov <at> users.noreply.github.com'
+
+[[project.maintainers]]
+name = 'George L. Yermulnik'
+email = 'yz <at> yz.kiev.ua'
 
 [project.readme]
 file = 'README.md'
