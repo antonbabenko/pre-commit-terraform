@@ -65,7 +65,7 @@ def parse_cmdline(
     parser.add_argument('FILES', nargs='*', help='Files')
 
     parsed_args = parser.parse_args(argv)
-
+    # TODO: move to defaults
     args = parsed_args.args or []
     hook_config = parsed_args.hook_config or []
     files = parsed_args.FILES or []
@@ -235,3 +235,43 @@ def get_tf_binary_path(hook_config: list[str]) -> str:
         + ' hook configuration argument, or set the "PCT_TFPATH" environment variable, or set the'
         + ' "TERRAGRUNT_TFPATH" environment variable, or install Terraform or OpenTofu globally.',
     )
+
+
+# ?
+# ? Related to run_hook_on_whole_repo functions
+# ?
+def is_function_defined(func_name: str, scope: dict) -> bool:
+    """
+    Check if a function is defined in the global scope.
+
+    Args:
+        func_name (str): The name of the function to check.
+        scope (dict): The scope (usually globals()) to check in.
+
+    Returns:
+        bool: True if the function is defined, False otherwise.
+    """
+    is_defined = func_name in scope
+    is_callable = callable(scope[func_name]) if is_defined else False
+
+    logger.debug(
+        'Checking if "%s":\n1. Defined in hook: %s\n2. Is it callable: %s',
+        func_name,
+        is_defined,
+        is_callable,
+    )
+
+    return is_defined and is_callable
+
+
+def is_hook_run_on_whole_repo(files: list[str]) -> bool:
+    """
+    Check if the hook is run on the whole repository.
+
+    Args:
+        files: The list of files.
+
+    Returns:
+        bool: True if the hook is run on the whole repository, False otherwise.
+    """
+    return True

@@ -8,6 +8,7 @@ from hooks.common import BinaryNotFoundError
 from hooks.common import _get_unique_dirs
 from hooks.common import expand_env_vars
 from hooks.common import get_tf_binary_path
+from hooks.common import is_function_defined
 from hooks.common import parse_cmdline
 from hooks.common import parse_env_vars
 from hooks.common import per_dir_hook
@@ -335,6 +336,47 @@ def test_get_tf_binary_path_not_found(mocker):
         + ' "TERRAGRUNT_TFPATH" environment variable, or install Terraform or OpenTofu globally.',
     ):
         get_tf_binary_path(hook_config)
+
+
+# ?
+# ? is_function_defined
+# ?
+
+
+def test_is_function_defined_existing_function():
+    def sample_function():
+        pass
+
+    scope = globals()
+    scope['sample_function'] = sample_function
+
+    assert is_function_defined('sample_function', scope) is True
+
+
+def test_is_function_defined_non_existing_function():
+    scope = globals()
+
+    assert is_function_defined('non_existing_function', scope) is False
+
+
+def test_is_function_defined_non_callable():
+    non_callable = 'I am not a function'
+    scope = globals()
+    scope['non_callable'] = non_callable
+
+    assert is_function_defined('non_callable', scope) is False
+
+
+def test_is_function_defined_callable_object():
+    class CallableObject:
+        def __call__(self):
+            pass
+
+    callable_object = CallableObject()
+    scope = globals()
+    scope['callable_object'] = callable_object
+
+    assert is_function_defined('callable_object', scope) is True
 
 
 if __name__ == '__main__':
