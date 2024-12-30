@@ -59,34 +59,54 @@ def parse_cmdline(
         - files (list[str]): File paths on which we should run the hook.
         - tf_init_args (list[str]): Arguments for `terraform init` command.
         - env_vars (list[str]): Custom environment variable strings in the format "name=value".
+
+    Raises:
+        ValueError: If no files are provided.
     """
     parser = argparse.ArgumentParser(
         add_help=False,  # Allow the use of `-h` for compatibility with the Bash version of the hook
     )
-    parser.add_argument('-a', '--args', action='append', help='Arguments')
-    parser.add_argument('-h', '--hook-config', action='append', help='Hook Config')
-    parser.add_argument('-i', '--tf-init-args', '--init-args', action='append', help='Init Args')
-    parser.add_argument('-e', '--env-vars', '--envs', action='append', help='Environment Variables')
-    parser.add_argument('FILES', nargs='*', help='Files')
+    parser.add_argument('-a', '--args', action='append', help='Arguments', default=[])
+    parser.add_argument('-h', '--hook-config', action='append', help='Hook Config', default=[])
+    parser.add_argument(
+        '-i',
+        '--tf-init-args',
+        '--init-args',
+        action='append',
+        help='TF Init Args',
+        default=[],
+    )
+    parser.add_argument(
+        '-e',
+        '--env-vars',
+        '--envs',
+        action='append',
+        help='Environment Variables',
+        default=[],
+    )
+    parser.add_argument('files', nargs='*', help='Files')
 
     parsed_args = parser.parse_args(argv)
-    # TODO: move to defaults
-    args = parsed_args.args or []
-    hook_config = parsed_args.hook_config or []
-    files = parsed_args.FILES or []
-    tf_init_args = parsed_args.tf_init_args or []
-    env_vars = parsed_args.env_vars or []
+
+    if parsed_args.files is None:
+        raise ValueError('No files provided')
 
     logger.debug(
         'Parsed values:\nargs: %r\nhook_config: %r\nfiles: %r\ntf_init_args: %r\nenv_vars: %r',
-        args,
-        hook_config,
-        files,
-        tf_init_args,
-        env_vars,
+        parsed_args.args,
+        parsed_args.hook_config,
+        parsed_args.files,
+        parsed_args.tf_init_args,
+        parsed_args.env_vars,
     )
 
-    return args, hook_config, files, tf_init_args, env_vars
+    return (
+        parsed_args.args,
+        parsed_args.hook_config,
+        parsed_args.files,
+        parsed_args.tf_init_args,
+        parsed_args.env_vars,
+    )
 
 
 def _get_unique_dirs(files: list[str]) -> set[str]:

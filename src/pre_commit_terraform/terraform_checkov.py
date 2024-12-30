@@ -50,7 +50,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     safe_args = [shlex.quote(arg) for arg in expanded_args]
 
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
-        all_env_vars['ANSI_COLORS_DISABLED'] = 'true'  # TODO: Check is it works as expected
+        all_env_vars['ANSI_COLORS_DISABLED'] = 'true'  # TODO: subprocess.run ignore colors
     # WPS421 - IDK how to check is function exist w/o passing globals()
     if common.is_function_defined('run_hook_on_whole_repo', globals()):  # noqa: WPS421
         hook_id = os.path.basename(__file__).replace('.py', '_py')
