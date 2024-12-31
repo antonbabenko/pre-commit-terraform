@@ -58,11 +58,10 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
     """
     subcommand_parsers = root_cli_parser.add_subparsers(
         dest='check_name',
-        help='A check to be performed.',
         required=True,
     )
     for subcommand_module in SUBCOMMAND_MODULES:
-        subcommand_parser = subcommand_parsers.add_parser(subcommand_module.CLI_SUBCOMMAND_NAME)
+        subcommand_parser = subcommand_parsers.add_parser(subcommand_module.CLI_SUBCOMMAND_NAME, add_help=False,)
         subcommand_parser.set_defaults(
             invoke_cli_app=subcommand_module.invoke_cli_app,
         )
