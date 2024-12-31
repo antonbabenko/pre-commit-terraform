@@ -19,7 +19,7 @@
   name: Terraform fmt
   description: Rewrites all Terraform configuration files to a canonical format.
   require_serial: true
-  entry: terraform_fmt
+  entry: python -Im pre_commit_terraform terraform_fmt_py
   language: python
   files: \.tf(vars)?$
   exclude: \.terraform/.*$
