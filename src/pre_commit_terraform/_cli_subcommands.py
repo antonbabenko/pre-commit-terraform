@@ -1,9 +1,9 @@
 """A CLI sub-commands organization module."""
 
-from . import terraform_checkov
-from . import terraform_docs_replace
-from . import terraform_fmt
-from ._types import CLISubcommandModuleProtocol
+from pre_commit_terraform import terraform_checkov
+from pre_commit_terraform import terraform_docs_replace
+from pre_commit_terraform import terraform_fmt
+from pre_commit_terraform._types import CLISubcommandModuleProtocol
 
 SUBCOMMAND_MODULES: list[CLISubcommandModuleProtocol] = [
     terraform_docs_replace,

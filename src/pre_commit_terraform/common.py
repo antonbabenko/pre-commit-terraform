@@ -6,13 +6,11 @@ It not executed directly, but imported by other hooks.
 
 from __future__ import annotations
 
-import argparse
 import logging
 import os
 import re
 import shutil
 import subprocess
-from collections.abc import Sequence
 from importlib.resources import files as access_artifacts_of
 from typing import Callable
 

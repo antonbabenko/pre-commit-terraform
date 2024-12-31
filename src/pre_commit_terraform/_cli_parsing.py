@@ -6,7 +6,7 @@ of all the sub-commands.
 
 from argparse import ArgumentParser
 
-from ._cli_subcommands import SUBCOMMAND_MODULES
+from pre_commit_terraform._cli_subcommands import SUBCOMMAND_MODULES
 
 
 def populate_common_argument_parser(parser: ArgumentParser) -> None:
@@ -61,7 +61,10 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
         required=True,
     )
     for subcommand_module in SUBCOMMAND_MODULES:
-        subcommand_parser = subcommand_parsers.add_parser(subcommand_module.HOOK_ID, add_help=False,)
+        subcommand_parser = subcommand_parsers.add_parser(
+            subcommand_module.HOOK_ID,
+            add_help=False,
+        )
         subcommand_parser.set_defaults(
             invoke_cli_app=subcommand_module.invoke_cli_app,
         )
@@ -70,7 +73,12 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
 
 
 def initialize_argument_parser() -> ArgumentParser:
-    """Return the root argument parser with sub-commands."""
+    """
+    Parse the command line arguments and return the parsed arguments.
+
+    Return the root argument parser with sub-commands.
+
+    """
     root_cli_parser = ArgumentParser(prog=f'python -m {__package__ !s}')
     attach_subcommand_parsers_to(root_cli_parser)
     return root_cli_parser

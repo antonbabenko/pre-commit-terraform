@@ -5,7 +5,7 @@ from argparse import Namespace
 from typing import Final
 from typing import Protocol
 
-from ._structs import ReturnCode
+from pre_commit_terraform._structs import ReturnCode
 
 ReturnCodeType = ReturnCode | int
 

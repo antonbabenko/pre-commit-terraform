@@ -2,12 +2,12 @@
 
 from sys import stderr
 
-from ._cli_parsing import initialize_argument_parser
-from ._errors import PreCommitTerraformBaseError
-from ._errors import PreCommitTerraformExit
-from ._errors import PreCommitTerraformRuntimeError
-from ._structs import ReturnCode
-from ._types import ReturnCodeType
+from pre_commit_terraform._cli_parsing import initialize_argument_parser
+from pre_commit_terraform._errors import PreCommitTerraformBaseError
+from pre_commit_terraform._errors import PreCommitTerraformExit
+from pre_commit_terraform._errors import PreCommitTerraformRuntimeError
+from pre_commit_terraform._structs import ReturnCode
+from pre_commit_terraform._types import ReturnCodeType
 
 
 def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:

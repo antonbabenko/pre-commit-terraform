@@ -6,15 +6,14 @@ import logging
 import os
 import shlex
 import sys
+from argparse import ArgumentParser
+from argparse import Namespace
 from subprocess import PIPE
 from subprocess import run
 from typing import Final
-from argparse import ArgumentParser
-from argparse import Namespace
-from ._types import ReturnCodeType
-
 
 from pre_commit_terraform import common
+from pre_commit_terraform._types import ReturnCodeType
 from pre_commit_terraform.logger import setup_logging
 
 logger = logging.getLogger(__name__)
@@ -35,18 +34,22 @@ def replace_git_working_dir_to_repo_root(args: list[str]) -> list[str]:
     return [arg.replace('__GIT_WORKING_DIR__', os.getcwd()) for arg in args]
 
 
-HOOK_ID: Final[str] = "%s_py" % __name__.rpartition('.')[-1]
+HOOK_ID: Final[str] = f"{__name__.rpartition('.')[-1]}_py"
 
+
+# pylint: disable=unused-argument
 def populate_hook_specific_argument_parser(subcommand_parser: ArgumentParser) -> None:
-    pass
+    """
+    Populate the argument parser with the hook-specific arguments.
+
+    Args:
+        subcommand_parser: The argument parser to populate.
+    """
 
 
 def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
-    # noqa: DAR101, DAR201 # TODO: Add docstrings when will end up with final implementation
     """
-    Execute terraform_fmt_py pre-commit hook.
-
-    Parses args and calls `terraform fmt` on list of files provided by pre-commit.
+    Execute main pre-commit hook logic.
 
     Args:
         parsed_cli_args: Parsed arguments from CLI.
@@ -64,7 +67,8 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
     safe_args = [shlex.quote(arg) for arg in expanded_args]
 
     if os.environ.get('PRE_COMMIT_COLOR') == 'never':
-        all_env_vars['ANSI_COLORS_DISABLED'] = 'true'  # TODO: subprocess.run ignore colors
+        # TODO: subprocess.run ignore colors. Try `rich` lib
+        all_env_vars['ANSI_COLORS_DISABLED'] = 'true'
     # WPS421 - IDK how to check is function exist w/o passing globals()
     if common.is_function_defined('run_hook_on_whole_repo', globals()):  # noqa: WPS421
         if common.is_hook_run_on_whole_repo(HOOK_ID, parsed_cli_args.files):
