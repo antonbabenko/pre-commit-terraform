@@ -13,6 +13,7 @@ import re
 import shutil
 import subprocess
 from collections.abc import Sequence
+from importlib.resources import files as access_artifacts_of
 from pathlib import Path
 from typing import Callable
 
@@ -305,15 +306,21 @@ def is_hook_run_on_whole_repo(hook_id: str, file_paths: list[str]) -> bool:
     """
     logger.debug('Hook ID: %s', hook_id)
 
-    # Get the directory containing `.pre-commit-hooks.yaml` file
-    git_repo_root = Path(__file__).resolve().parents[5]
-    hook_config_path = os.path.join(git_repo_root, '.pre-commit-hooks.yaml')
+    # Get the directory containing the packaged `.pre-commit-hooks.yaml` copy
+    artifacts_root_path = (
+        access_artifacts_of('pre_commit_terraform')
+        / '_artifacts'
+    )
+    pre_commit_hooks_yaml_path = artifacts_root_path / '.pre-commit-hooks.yaml'
+    pre_commit_hooks_yaml_path.read_text(encoding='utf-8')
 
-    logger.debug('Hook config path: %s', hook_config_path)
+    logger.debug('Hook config path: %s', pre_commit_hooks_yaml_path)
 
     # Read the .pre-commit-hooks.yaml file
-    with open(hook_config_path, 'r', encoding='utf-8') as pre_commit_hooks_yaml:
-        hooks_config = yaml.safe_load(pre_commit_hooks_yaml)
+    pre_commit_hooks_yaml_txt = pre_commit_hooks_yaml_path.read_text(
+        encoding='utf-8',
+    )
+    hooks_config = yaml.safe_load(pre_commit_hooks_yaml_txt)
 
     # Get the included and excluded file patterns for the given hook_id
     for hook in hooks_config:
