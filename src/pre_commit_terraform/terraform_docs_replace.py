@@ -11,7 +11,7 @@ from ._types import ReturnCodeType
 CLI_SUBCOMMAND_NAME: Final[str] = 'replace-docs'
 
 
-def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
+def populate_hook_specific_argument_parser(subcommand_parser: ArgumentParser) -> None:
     subcommand_parser.description = (
         'Run terraform-docs on a set of files. Follows the standard '
         'convention of pulling the documentation from main.tf in order to '
