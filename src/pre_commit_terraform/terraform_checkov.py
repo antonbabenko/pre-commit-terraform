@@ -12,7 +12,9 @@ from subprocess import PIPE
 from subprocess import run
 from typing import Final
 
-from pre_commit_terraform import common
+from pre_commit_terraform import _common as common
+from pre_commit_terraform._run_on_whole_repo import is_function_defined
+from pre_commit_terraform._run_on_whole_repo import is_hook_run_on_whole_repo
 from pre_commit_terraform._types import ReturnCodeType
 from pre_commit_terraform.logger import setup_logging
 
@@ -70,8 +72,8 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         # TODO: subprocess.run ignore colors. Try `rich` lib
         all_env_vars['ANSI_COLORS_DISABLED'] = 'true'
     # WPS421 - IDK how to check is function exist w/o passing globals()
-    if common.is_function_defined('run_hook_on_whole_repo', globals()):  # noqa: WPS421
-        if common.is_hook_run_on_whole_repo(HOOK_ID, parsed_cli_args.files):
+    if is_function_defined('run_hook_on_whole_repo', globals()):  # noqa: WPS421
+        if is_hook_run_on_whole_repo(HOOK_ID, parsed_cli_args.files):
             return run_hook_on_whole_repo(safe_args, all_env_vars)
 
     return common.per_dir_hook(

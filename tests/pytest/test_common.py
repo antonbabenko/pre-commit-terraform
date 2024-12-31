@@ -1,20 +1,15 @@
 # pylint: skip-file
 import os
 from os.path import join
-from pathlib import Path
 
 import pytest
-import yaml
 
-from pre_commit_terraform.common import BinaryNotFoundError
-from pre_commit_terraform.common import _get_unique_dirs
-from pre_commit_terraform.common import expand_env_vars
-from pre_commit_terraform.common import get_tf_binary_path
-from pre_commit_terraform.common import is_function_defined
-from pre_commit_terraform.common import is_hook_run_on_whole_repo
-from pre_commit_terraform.common import parse_cmdline
-from pre_commit_terraform.common import parse_env_vars
-from pre_commit_terraform.common import per_dir_hook
+from pre_commit_terraform._common import BinaryNotFoundError
+from pre_commit_terraform._common import _get_unique_dirs
+from pre_commit_terraform._common import expand_env_vars
+from pre_commit_terraform._common import get_tf_binary_path
+from pre_commit_terraform._common import parse_env_vars
+from pre_commit_terraform._common import per_dir_hook
 
 
 # ?
@@ -187,66 +182,6 @@ def test_parse_env_vars_with_empty_value():
     assert result == {'VAR1': '', 'VAR2': ''}
 
 
-def test_parse_cmdline_no_arguments():
-    argv = []
-    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
-    assert args == []
-    assert hook_config == []
-    assert files == []
-    assert tf_init_args == []
-    assert env_vars_strs == []
-
-
-def test_parse_cmdline_with_arguments():
-    argv = ['-a', 'arg1', '-a', 'arg2', '-h', 'hook1', 'file1', 'file2']
-    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
-    assert args == ['arg1', 'arg2']
-    assert hook_config == ['hook1']
-    assert files == ['file1', 'file2']
-    assert tf_init_args == []
-    assert env_vars_strs == []
-
-
-def test_parse_cmdline_with_env_vars():
-    argv = ['-e', 'VAR1=value1', '-e', 'VAR2=value2']
-    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
-    assert args == []
-    assert hook_config == []
-    assert files == []
-    assert tf_init_args == []
-    assert env_vars_strs == ['VAR1=value1', 'VAR2=value2']
-
-
-def test_parse_cmdline_with_tf_init_args():
-    argv = ['-i', 'init1', '-i', 'init2']
-    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
-    assert args == []
-    assert hook_config == []
-    assert files == []
-    assert tf_init_args == ['init1', 'init2']
-    assert env_vars_strs == []
-
-
-def test_parse_cmdline_with_files():
-    argv = ['file1', 'file2']
-    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
-    assert args == []
-    assert hook_config == []
-    assert files == ['file1', 'file2']
-    assert tf_init_args == []
-    assert env_vars_strs == []
-
-
-def test_parse_cmdline_with_hook_config():
-    argv = ['-h', 'hook1', '-h', 'hook2']
-    args, hook_config, files, tf_init_args, env_vars_strs = parse_cmdline(argv)
-    assert args == []
-    assert hook_config == ['hook1', 'hook2']
-    assert files == []
-    assert tf_init_args == []
-    assert env_vars_strs == []
-
-
 # ?
 # ? expand_env_vars
 # ?
@@ -339,109 +274,6 @@ def test_get_tf_binary_path_not_found(mocker):
         + ' "TERRAGRUNT_TFPATH" environment variable, or install Terraform or OpenTofu globally.',
     ):
         get_tf_binary_path(hook_config)
-
-
-# ?
-# ? is_function_defined
-# ?
-
-
-def test_is_function_defined_existing_function():
-    def sample_function():
-        pass
-
-    scope = globals()
-    scope['sample_function'] = sample_function
-
-    assert is_function_defined('sample_function', scope) is True
-
-
-def test_is_function_defined_non_existing_function():
-    scope = globals()
-
-    assert is_function_defined('non_existing_function', scope) is False
-
-
-def test_is_function_defined_non_callable():
-    non_callable = 'I am not a function'
-    scope = globals()
-    scope['non_callable'] = non_callable
-
-    assert is_function_defined('non_callable', scope) is False
-
-
-def test_is_function_defined_callable_object():
-    class CallableObject:
-        def __call__(self):
-            pass
-
-    callable_object = CallableObject()
-    scope = globals()
-    scope['callable_object'] = callable_object
-
-    assert is_function_defined('callable_object', scope) is True
-
-
-# ?
-# ? is_hook_run_on_whole_repo
-# ?
-
-
-@pytest.fixture
-def mock_git_ls_files():
-    return [
-        'environment/prd/backends.tf',
-        'environment/prd/data.tf',
-        'environment/prd/main.tf',
-        'environment/prd/outputs.tf',
-        'environment/prd/providers.tf',
-        'environment/prd/variables.tf',
-        'environment/prd/versions.tf',
-        'environment/qa/backends.tf',
-    ]
-
-
-@pytest.fixture
-def mock_hooks_config():
-    return [{'id': 'example_hook_id', 'files': r'\.tf$', 'exclude': r'\.terraform/.*$'}]
-
-
-def test_is_hook_run_on_whole_repo(mocker, mock_git_ls_files, mock_hooks_config):
-    # Mock the return value of git ls-files
-    mocker.patch('subprocess.check_output', return_value='\n'.join(mock_git_ls_files))
-    # Mock the return value of reading the .pre-commit-hooks.yaml file
-    mocker.patch('builtins.open', mocker.mock_open(read_data=yaml.dump(mock_hooks_config)))
-    # Mock the Path object to return a specific path
-    mock_path = mocker.patch('pathlib.Path.resolve')
-    mock_path.return_value.parents.__getitem__.return_value = Path('/mocked/path')
-
-    # Test case where files match the included pattern and do not match the excluded pattern
-    files = [
-        'environment/prd/backends.tf',
-        'environment/prd/data.tf',
-        'environment/prd/main.tf',
-        'environment/prd/outputs.tf',
-        'environment/prd/providers.tf',
-        'environment/prd/variables.tf',
-        'environment/prd/versions.tf',
-        'environment/qa/backends.tf',
-    ]
-    assert is_hook_run_on_whole_repo('example_hook_id', files) is True
-
-    # Test case where files do not match the included pattern
-    files = ['environment/prd/README.md']
-    assert is_hook_run_on_whole_repo('example_hook_id', files) is False
-
-    # Test case where files match the excluded pattern
-    files = ['environment/prd/.terraform/config.tf']
-    assert is_hook_run_on_whole_repo('example_hook_id', files) is False
-
-    # Test case where hook_id is not found
-    with pytest.raises(
-        ValueError,
-        match='Hook ID "non_existing_hook_id" not found in .pre-commit-hooks.yaml',
-    ):
-        is_hook_run_on_whole_repo('non_existing_hook_id', files)
 
 
 if __name__ == '__main__':

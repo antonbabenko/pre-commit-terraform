@@ -136,7 +136,7 @@ repos:
       - --allowed-module-metadata=__all__ # Default to ''
       - --max-local-variables=6 # Default to 5
       - --max-returns=6 # Default to 5
-      - --max-imports=13 # Default to 12
+      - --max-imports=15 # Default to 12
       # https://wemake-python-stylegui.de/en/latest/pages/usage/violations/index.html
       - --extend-ignore=
           E501   <!-- line too long (> 79 characters). Use 100 -->
