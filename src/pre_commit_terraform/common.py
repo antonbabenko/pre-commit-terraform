@@ -14,7 +14,6 @@ import shutil
 import subprocess
 from collections.abc import Sequence
 from importlib.resources import files as access_artifacts_of
-from pathlib import Path
 from typing import Callable
 
 import yaml
@@ -307,10 +306,7 @@ def is_hook_run_on_whole_repo(hook_id: str, file_paths: list[str]) -> bool:
     logger.debug('Hook ID: %s', hook_id)
 
     # Get the directory containing the packaged `.pre-commit-hooks.yaml` copy
-    artifacts_root_path = (
-        access_artifacts_of('pre_commit_terraform')
-        / '_artifacts'
-    )
+    artifacts_root_path = access_artifacts_of('pre_commit_terraform') / '_artifacts'
     pre_commit_hooks_yaml_path = artifacts_root_path / '.pre-commit-hooks.yaml'
     pre_commit_hooks_yaml_path.read_text(encoding='utf-8')
 
