@@ -3,11 +3,9 @@
 from sys import stderr
 
 from ._cli_parsing import initialize_argument_parser
-from ._errors import (
-    PreCommitTerraformBaseError,
-    PreCommitTerraformExit,
-    PreCommitTerraformRuntimeError,
-)
+from ._errors import PreCommitTerraformBaseError
+from ._errors import PreCommitTerraformExit
+from ._errors import PreCommitTerraformRuntimeError
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
 
@@ -28,8 +26,7 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
         raise
     except PreCommitTerraformRuntimeError as unhandled_exc:
         print(
-            f'App execution took an unexpected turn: {unhandled_exc !s}. '
-            'Exiting...',
+            f'App execution took an unexpected turn: {unhandled_exc !s}. Exiting...',
             file=stderr,
         )
         return ReturnCode.ERROR
