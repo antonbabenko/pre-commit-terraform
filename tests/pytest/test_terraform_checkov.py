@@ -2,8 +2,6 @@ import os
 from argparse import Namespace
 from subprocess import PIPE
 
-import pytest
-
 from pre_commit_terraform.terraform_checkov import invoke_cli_app
 from pre_commit_terraform.terraform_checkov import per_dir_hook_unique_part
 from pre_commit_terraform.terraform_checkov import replace_git_working_dir_to_repo_root
@@ -301,7 +299,3 @@ def test_per_dir_hook_unique_part_failure(mocker):
     )
     mock_sys_stdout_write.assert_called_once_with('Checkov error output')
     assert result == 1
-
-
-if __name__ == '__main__':
-    pytest.main()

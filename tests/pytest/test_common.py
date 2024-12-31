@@ -274,7 +274,3 @@ def test_get_tf_binary_path_not_found(mocker):
         + ' "TERRAGRUNT_TFPATH" environment variable, or install Terraform or OpenTofu globally.',
     ):
         get_tf_binary_path(hook_config)
-
-
-if __name__ == '__main__':
-    pytest.main()

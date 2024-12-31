@@ -106,7 +106,3 @@ def test_is_hook_run_on_whole_repo(mocker, mock_git_ls_files, mock_hooks_config)
         match='Hook ID "non_existing_hook_id" not found in .pre-commit-hooks.yaml',
     ):
         is_hook_run_on_whole_repo('non_existing_hook_id', files)
-
-
-if __name__ == '__main__':
-    pytest.main()
