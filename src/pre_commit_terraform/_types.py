@@ -13,7 +13,7 @@ ReturnCodeType = ReturnCode | int
 class CLISubcommandModuleProtocol(Protocol):
     """A protocol for the subcommand-implementing module shape."""
 
-    CLI_SUBCOMMAND_NAME: Final[str]
+    HOOK_ID: Final[str]
     """This constant contains a CLI."""
 
     def populate_argument_parser(self, subcommand_parser: ArgumentParser) -> None:

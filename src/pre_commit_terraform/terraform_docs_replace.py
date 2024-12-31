@@ -8,7 +8,7 @@ from typing import Final
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
 
-CLI_SUBCOMMAND_NAME: Final[str] = 'terraform_docs_replace'
+HOOK_ID: Final[str] = __name__.rpartition('.')[-1]
 
 
 def populate_hook_specific_argument_parser(subcommand_parser: ArgumentParser) -> None:

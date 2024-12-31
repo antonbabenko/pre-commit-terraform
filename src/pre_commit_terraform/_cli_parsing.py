@@ -61,7 +61,7 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
         required=True,
     )
     for subcommand_module in SUBCOMMAND_MODULES:
-        subcommand_parser = subcommand_parsers.add_parser(subcommand_module.CLI_SUBCOMMAND_NAME, add_help=False,)
+        subcommand_parser = subcommand_parsers.add_parser(subcommand_module.HOOK_ID, add_help=False,)
         subcommand_parser.set_defaults(
             invoke_cli_app=subcommand_module.invoke_cli_app,
         )

@@ -35,7 +35,7 @@ def replace_git_working_dir_to_repo_root(args: list[str]) -> list[str]:
     return [arg.replace('__GIT_WORKING_DIR__', os.getcwd()) for arg in args]
 
 
-CLI_SUBCOMMAND_NAME: Final[str] = 'terraform_checkov_py'
+HOOK_ID: Final[str] = "%s_py" % __name__.rpartition('.')[-1]
 
 def populate_hook_specific_argument_parser(subcommand_parser: ArgumentParser) -> None:
     pass
@@ -67,7 +67,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         all_env_vars['ANSI_COLORS_DISABLED'] = 'true'  # TODO: subprocess.run ignore colors
     # WPS421 - IDK how to check is function exist w/o passing globals()
     if common.is_function_defined('run_hook_on_whole_repo', globals()):  # noqa: WPS421
-        if common.is_hook_run_on_whole_repo(CLI_SUBCOMMAND_NAME, parsed_cli_args.files):
+        if common.is_hook_run_on_whole_repo(HOOK_ID, parsed_cli_args.files):
             return run_hook_on_whole_repo(safe_args, all_env_vars)
 
     return common.per_dir_hook(
