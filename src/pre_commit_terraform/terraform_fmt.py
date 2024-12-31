@@ -13,8 +13,8 @@ from subprocess import run
 from typing import Final
 
 from pre_commit_terraform import _common as common
+from pre_commit_terraform._logger import setup_logging
 from pre_commit_terraform._types import ReturnCodeType
-from pre_commit_terraform.logger import setup_logging
 
 logger = logging.getLogger(__name__)
 

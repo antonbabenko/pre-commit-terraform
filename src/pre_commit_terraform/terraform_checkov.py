@@ -13,10 +13,10 @@ from subprocess import run
 from typing import Final
 
 from pre_commit_terraform import _common as common
+from pre_commit_terraform._logger import setup_logging
 from pre_commit_terraform._run_on_whole_repo import is_function_defined
 from pre_commit_terraform._run_on_whole_repo import is_hook_run_on_whole_repo
 from pre_commit_terraform._types import ReturnCodeType
-from pre_commit_terraform.logger import setup_logging
 
 logger = logging.getLogger(__name__)
 
