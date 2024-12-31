@@ -1,153 +1,138 @@
-# pylint: skip-file
 import os
-import sys
-from subprocess import PIPE
+import subprocess
+from argparse import Namespace
 
 import pytest
 
-from pre_commit_terraform.terraform_fmt import main
+from pre_commit_terraform.terraform_fmt import invoke_cli_app
 from pre_commit_terraform.terraform_fmt import per_dir_hook_unique_part
 
 
 @pytest.fixture
-def mock_setup_logging(mocker):
-    return mocker.patch('pre_commit_terraform.terraform_fmt.setup_logging')
-
-
-@pytest.fixture
-def mock_parse_cmdline(mocker):
-    return mocker.patch('pre_commit_terraform.terraform_fmt.common.parse_cmdline')
-
-
-@pytest.fixture
-def mock_parse_env_vars(mocker):
-    return mocker.patch('pre_commit_terraform.terraform_fmt.common.parse_env_vars')
-
-
-@pytest.fixture
-def mock_expand_env_vars(mocker):
-    return mocker.patch('pre_commit_terraform.terraform_fmt.common.expand_env_vars')
-
-
-@pytest.fixture
-def mock_per_dir_hook(mocker):
-    return mocker.patch('pre_commit_terraform.terraform_fmt.common.per_dir_hook')
-
-
-@pytest.fixture
-def mock_run(mocker):
-    return mocker.patch('pre_commit_terraform.terraform_fmt.run')
-
-
-def test_main(
-    mocker,
-    mock_setup_logging,
-    mock_parse_cmdline,
-    mock_parse_env_vars,
-    mock_expand_env_vars,
-    mock_per_dir_hook,
-):
-    mock_parse_cmdline.return_value = (['arg1'], ['hook1'], ['file1'], [], ['VAR1=value1'])
-    mock_parse_env_vars.return_value = {'VAR1': 'value1'}
-    mock_expand_env_vars.return_value = ['expanded_arg1']
-    mock_per_dir_hook.return_value = 0
-
-    mocker.patch.object(sys, 'argv', ['terraform_fmt.py'])
-    exit_code = main(sys.argv)
-    assert exit_code == 0
-
-    mock_setup_logging.assert_called_once()
-    mock_parse_cmdline.assert_called_once_with(['terraform_fmt.py'])
-    mock_parse_env_vars.assert_called_once_with(['VAR1=value1'])
-    mock_expand_env_vars.assert_called_once_with(['arg1'], {**os.environ, 'VAR1': 'value1'})
-    mock_per_dir_hook.assert_called_once_with(
-        ['hook1'],
-        ['file1'],
-        ['expanded_arg1'],
-        {**os.environ, 'VAR1': 'value1'},
-        mocker.ANY,
+def mock_parsed_cli_args():
+    return Namespace(
+        hook_config=[],
+        files=['file1.tf', 'file2.tf'],
+        args=['-diff'],
+        env_vars=['ENV_VAR=value'],
     )
 
 
-def test_main_with_no_color(
-    mocker,
-    mock_setup_logging,
-    mock_parse_cmdline,
-    mock_parse_env_vars,
-    mock_expand_env_vars,
-    mock_per_dir_hook,
-):
-    mock_parse_cmdline.return_value = (['arg1'], ['hook1'], ['file1'], [], ['VAR1=value1'])
-    mock_parse_env_vars.return_value = {'VAR1': 'value1'}
-    mock_expand_env_vars.return_value = ['expanded_arg1']
-    mock_per_dir_hook.return_value = 0
+@pytest.fixture
+def mock_env_vars():
+    return {'ENV_VAR': 'value', 'PRE_COMMIT_COLOR': 'always'}
 
-    mocker.patch.dict(os.environ, {'PRE_COMMIT_COLOR': 'never'})
-    mocker.patch.object(sys, 'argv', ['terraform_fmt.py'])
-    exit_code = main(sys.argv)
-    assert exit_code == 0
+
+def test_invoke_cli_app(mocker, mock_parsed_cli_args, mock_env_vars):
+    mock_setup_logging = mocker.patch('pre_commit_terraform.terraform_fmt.setup_logging')
+    mock_expand_env_vars = mocker.patch(
+        'pre_commit_terraform.terraform_fmt.common.expand_env_vars',
+        return_value=['-diff'],
+    )
+    mock_parse_env_vars = mocker.patch(
+        'pre_commit_terraform.terraform_fmt.common.parse_env_vars',
+        return_value=mock_env_vars,
+    )
+    mock_run = mocker.patch(
+        'pre_commit_terraform.terraform_fmt.run',
+        return_value=subprocess.CompletedProcess(
+            args=['terraform', 'fmt'],
+            returncode=0,
+            stdout='Formatted output',
+        ),
+    )
+
+    result = invoke_cli_app(mock_parsed_cli_args)
 
     mock_setup_logging.assert_called_once()
-    mock_parse_cmdline.assert_called_once_with(['terraform_fmt.py'])
-    mock_parse_env_vars.assert_called_once_with(['VAR1=value1'])
+    mock_parse_env_vars.assert_called_once_with(mock_parsed_cli_args.env_vars)
     mock_expand_env_vars.assert_called_once_with(
-        ['arg1', '-no-color'],
-        {**os.environ, 'VAR1': 'value1'},
+        mock_parsed_cli_args.args,
+        {**os.environ, **mock_env_vars},
     )
-    mock_per_dir_hook.assert_called_once_with(
-        ['hook1'],
-        ['file1'],
-        ['expanded_arg1'],
-        {**os.environ, 'VAR1': 'value1'},
-        mocker.ANY,
+    mock_run.assert_called_once()
+
+    assert result == 0
+
+
+def test_per_dir_hook_unique_part(mocker):
+    tf_path = '/usr/local/bin/terraform'
+    dir_path = 'test_dir'
+    args = ['-diff']
+    env_vars = {'ENV_VAR': 'value'}
+
+    mock_run = mocker.patch(
+        'pre_commit_terraform.terraform_fmt.run',
+        return_value=subprocess.CompletedProcess(args, 0, stdout='Formatted output'),
     )
 
+    result = per_dir_hook_unique_part(tf_path, dir_path, args, env_vars)
 
-def test_per_dir_hook_unique_part(mocker, mock_run):
-    tf_path = '/path/to/terraform'
-    dir_path = '/path/to/dir'
-    args = ['arg1', 'arg2']
-    env_vars = {'VAR1': 'value1'}
-
-    mock_completed_process = mocker.MagicMock()
-    mock_completed_process.stdout = 'output'
-    mock_completed_process.returncode = 0
-    mock_run.return_value = mock_completed_process
-
-    exit_code = per_dir_hook_unique_part(tf_path, dir_path, args, env_vars)
-    assert exit_code == 0
-
+    expected_cmd = [tf_path, 'fmt', *args, dir_path]
     mock_run.assert_called_once_with(
-        ['/path/to/terraform', 'fmt', 'arg1', 'arg2', '/path/to/dir'],
+        expected_cmd,
         env=env_vars,
         text=True,
-        stdout=PIPE,
+        stdout=subprocess.PIPE,
         check=False,
     )
 
+    assert result == 0
 
-def test_per_dir_hook_unique_part_with_error(mocker, mock_run):
-    tf_path = '/path/to/terraform'
-    dir_path = '/path/to/dir'
-    args = ['arg1', 'arg2']
-    env_vars = {'VAR1': 'value1'}
 
-    mock_completed_process = mocker.MagicMock()
-    mock_completed_process.stdout = 'error output'
-    mock_completed_process.returncode = 1
-    mock_run.return_value = mock_completed_process
+def test_invoke_cli_app_no_color(mocker, mock_parsed_cli_args, mock_env_vars):
+    mock_env_vars['PRE_COMMIT_COLOR'] = 'never'
+    mock_setup_logging = mocker.patch('pre_commit_terraform.terraform_fmt.setup_logging')
+    mock_expand_env_vars = mocker.patch(
+        'pre_commit_terraform.terraform_fmt.common.expand_env_vars',
+        return_value=['-diff'],
+    )
+    mock_parse_env_vars = mocker.patch(
+        'pre_commit_terraform.terraform_fmt.common.parse_env_vars',
+        return_value=mock_env_vars,
+    )
+    mock_run = mocker.patch(
+        'pre_commit_terraform.terraform_fmt.run',
+        return_value=subprocess.CompletedProcess(
+            args=['terraform', 'fmt'],
+            returncode=0,
+            stdout='Formatted output',
+        ),
+    )
 
-    exit_code = per_dir_hook_unique_part(tf_path, dir_path, args, env_vars)
-    assert exit_code == 1
+    result = invoke_cli_app(mock_parsed_cli_args)
 
+    mock_setup_logging.assert_called_once()
+    mock_parse_env_vars.assert_called_once_with(mock_parsed_cli_args.env_vars)
+    mock_expand_env_vars.assert_called_once_with(
+        mock_parsed_cli_args.args,
+        {**os.environ, **mock_env_vars},
+    )
+    mock_run.assert_called_once()
+
+    assert result == 0
+
+
+def test_per_dir_hook_unique_part_failure(mocker):
+    tf_path = '/usr/local/bin/terraform'
+    dir_path = 'test_dir'
+    args = ['-diff']
+    env_vars = {'ENV_VAR': 'value'}
+
+    mock_run = mocker.patch(
+        'pre_commit_terraform.terraform_fmt.run',
+        return_value=subprocess.CompletedProcess(args, 1, stdout='Error output'),
+    )
+
+    result = per_dir_hook_unique_part(tf_path, dir_path, args, env_vars)
+
+    expected_cmd = [tf_path, 'fmt', *args, dir_path]
     mock_run.assert_called_once_with(
-        ['/path/to/terraform', 'fmt', 'arg1', 'arg2', '/path/to/dir'],
+        expected_cmd,
         env=env_vars,
         text=True,
-        stdout=PIPE,
+        stdout=subprocess.PIPE,
         check=False,
     )
 
-
-if __name__ == '__main__':
-    pytest.main()
+    assert result == 1
