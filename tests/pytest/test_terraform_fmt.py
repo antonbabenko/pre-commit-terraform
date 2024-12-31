@@ -8,6 +8,9 @@ from pre_commit_terraform.terraform_fmt import invoke_cli_app
 from pre_commit_terraform.terraform_fmt import per_dir_hook_unique_part
 
 
+# ?
+# ? invoke_cli_app
+# ?
 @pytest.fixture
 def mock_parsed_cli_args():
     return Namespace(
@@ -55,6 +58,9 @@ def test_invoke_cli_app(mocker, mock_parsed_cli_args, mock_env_vars):
     assert result == 0
 
 
+# ?
+# ? per_dir_hook_unique_part
+# ?
 def test_per_dir_hook_unique_part(mocker):
     tf_path = '/usr/local/bin/terraform'
     dir_path = 'test_dir'

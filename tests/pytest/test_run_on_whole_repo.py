@@ -49,8 +49,6 @@ def test_is_function_defined_callable_object():
 # ?
 # ? is_hook_run_on_whole_repo
 # ?
-
-
 @pytest.fixture
 def mock_git_ls_files():
     return [
@@ -78,6 +76,8 @@ def test_is_hook_run_on_whole_repo(mocker, mock_git_ls_files, mock_hooks_config)
     # Mock the Path object to return a specific path
     mock_path = mocker.patch('pathlib.Path.resolve')
     mock_path.return_value.parents.__getitem__.return_value = Path('/mocked/path')
+    # Mock the read_text method of Path to return the hooks config
+    mocker.patch('pathlib.Path.read_text', return_value=yaml.dump(mock_hooks_config))
 
     # Test case where files match the included pattern and do not match the excluded pattern
     files = [
