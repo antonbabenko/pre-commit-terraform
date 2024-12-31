@@ -156,10 +156,6 @@ def get_tf_binary_path(hook_config: list[str]) -> str:
             hook_config_tf_path = config.split('=', 1)[1].rstrip(';')
             return hook_config_tf_path
 
-    # direct hook config, has the highest precedence
-    if hook_config_tf_path:
-        return hook_config_tf_path
-
     # environment variable
     pct_tfpath = os.getenv('PCT_TFPATH')
     if pct_tfpath:
