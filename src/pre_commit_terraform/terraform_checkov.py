@@ -34,7 +34,7 @@ def replace_git_working_dir_to_repo_root(args: list[str]) -> list[str]:
     return [arg.replace('__GIT_WORKING_DIR__', os.getcwd()) for arg in args]
 
 
-HOOK_ID: Final[str] = f"{__name__.rpartition('.')[-1]}_py"
+HOOK_ID: Final[str] = __name__.rpartition('.')[-1] + '_py'  # noqa: WPS336
 
 
 # pylint: disable=unused-argument

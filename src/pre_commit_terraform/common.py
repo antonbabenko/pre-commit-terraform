@@ -154,12 +154,12 @@ def get_tf_binary_path(hook_config: list[str]) -> str:
         BinaryNotFoundError: If neither Terraform nor OpenTofu binary could be found.
 
     """
-    hook_config_tf_path = None
 
+    # direct hook config, has the highest precedence
     for config in hook_config:
         if config.startswith('--tf-path='):
             hook_config_tf_path = config.split('=', 1)[1].rstrip(';')
-            break
+            return hook_config_tf_path
 
     # direct hook config, has the highest precedence
     if hook_config_tf_path:
@@ -244,9 +244,7 @@ def is_hook_run_on_whole_repo(hook_id: str, file_paths: list[str]) -> bool:
     logger.debug('Hook config path: %s', pre_commit_hooks_yaml_path)
 
     # Read the .pre-commit-hooks.yaml file
-    pre_commit_hooks_yaml_txt = pre_commit_hooks_yaml_path.read_text(
-        encoding='utf-8',
-    )
+    pre_commit_hooks_yaml_txt = pre_commit_hooks_yaml_path.read_text(encoding='utf-8')
     hooks_config = yaml.safe_load(pre_commit_hooks_yaml_txt)
 
     # Get the included and excluded file patterns for the given hook_id

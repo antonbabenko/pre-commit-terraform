@@ -19,7 +19,7 @@ from pre_commit_terraform.logger import setup_logging
 logger = logging.getLogger(__name__)
 
 
-HOOK_ID: Final[str] = f"{__name__.rpartition('.')[-1]}_py"
+HOOK_ID: Final[str] = __name__.rpartition('.')[-1] + '_py'  # noqa: WPS336
 
 
 # pylint: disable=unused-argument

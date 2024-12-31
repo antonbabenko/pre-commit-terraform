@@ -19,7 +19,7 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     root_cli_parser = initialize_argument_parser()
     parsed_cli_args = root_cli_parser.parse_args(cli_args)
 
-    try:
+    try:  # noqa: WPS225 - Found too many `except` cases: 4 > 3
         return parsed_cli_args.invoke_cli_app(parsed_cli_args)
     except PreCommitTerraformExit as exit_err:
         print(f'App exiting: {exit_err !s}', file=stderr)

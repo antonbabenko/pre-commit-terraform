@@ -128,37 +128,26 @@ repos:
         --warn-redundant-casts,
       ]
 
-- repo: https://github.com/pycqa/flake8.git
-  rev: 7.0.0
+- repo: https://github.com/wemake-services/wemake-python-styleguide
+  rev: 1.0.0
   hooks:
-  - id: flake8
-    additional_dependencies:
-    - flake8-2020
-    - flake8-docstrings
-    - flake8-pytest-style
-    - wemake-python-styleguide
-    args:
-    - --max-returns=5 # Default to 2
-    - --max-arguments=5 # Default to 4
-    # https://www.flake8rules.com/
-    # https://wemake-python-stylegui.de/en/latest/pages/usage/violations/index.html
-    - --extend-ignore=
-              WPS210 <!-- Found too many local variables. Handled by pylint -->
-              WPS226 <!-- Found string literal over-use - append > 3 -->
-              WPS236 <!-- Found too many variables used to unpack a tuple > 4. common.parse_cmdline() requires 5 -->
-              WPS300 <!-- Found local folder import. Nothing bad about this -->
-              WPS305 <!-- Found `f` string -->
-              WPS323 <!-- Found `%` string formatting. Conflict with pytlint "Use lazy % formatting in logging functions"
-              E501   <!-- line too long (> 79 characters). Use 100 -->
-              I      <!-- opt out of using isort in favor of reorder-python-imports -->
-              S404 <!-- Consider possible security implications associated with the subprocess module. Yep, we execute external tools -->
-              S603 <!-- subprocess call - check for execution of untrusted input -->
-              <!-- Google Python style is not RST until after processed by Napoleon -->
-              <!-- See https://github.com/peterjc/flake8-rst-docstrings/issues/17 -->
-              RST201 RST203 RST301
+    - id: wemake-python-styleguide
+      args:
+      - --allowed-module-metadata=__all__ # Default to ''
+      - --max-local-variables=6 # Default to 5
+      - --max-returns=6 # Default to 5
+      - --max-imports=13 # Default to 12
+      # https://wemake-python-stylegui.de/en/latest/pages/usage/violations/index.html
+      - --extend-ignore=
+          E501   <!-- line too long (> 79 characters). Use 100 -->
+          WPS115 <!-- Found upper-case constant in a class. All occurrences are false positive -->
+          WPS226 <!-- Found string literal over-use - append > 3 -->
 
 
-              # WPS211  <!-- Found too many arguments. Handled by pylint -->
-              # WPS420  <!-- Forbid some python keywords. Disabled as fix proposals unclear -->
-              # RST,    <!-- Conflict with DAR -->
-    exclude: test_.+\.py$
+      exclude: |
+        (?x)
+          # Ignore tests
+          (^tests/pytest/test_.+\.py$
+          # Ignore deprecated hook
+          |^src/pre_commit_terraform/terraform_docs_replace.py$
+        )

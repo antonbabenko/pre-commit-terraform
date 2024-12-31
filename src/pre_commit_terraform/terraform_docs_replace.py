@@ -94,7 +94,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
             proc_args.append('>')
             proc_args.append(f'./{directory}/{parsed_cli_args.dest}')
             subprocess.check_call(' '.join(proc_args), shell=True)
-        except subprocess.CalledProcessError as e:
-            print(e)
+        except subprocess.CalledProcessError as exception:
+            print(exception)
             retval = ReturnCode.ERROR
     return retval

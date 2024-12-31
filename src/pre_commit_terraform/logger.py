@@ -39,14 +39,12 @@ class ColoredFormatter(logging.Formatter):
             'CRITICAL': 41,  # white on red background
         }
 
-        prefix = '\033['
-        suffix = '\033[0m'
-
         colored_record = copy(record)
         levelname = colored_record.levelname
-        seq = color_mapping.get(levelname, 37)  # default white   # noqa: WPS432
-        colored_levelname = f'{prefix}{seq}m{levelname}{suffix}'
-        colored_record.levelname = colored_levelname
+
+        set_color = f'\033[{color_mapping.get(levelname, 37)}'  # default white   # noqa: WPS432
+        reset_color = '\033[0m'
+        colored_record.levelname = f'{set_color}m{levelname}{reset_color}'
 
         return super().format(colored_record)
 
