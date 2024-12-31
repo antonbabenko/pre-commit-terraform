@@ -22,11 +22,11 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
         required=True,
     )
     for subcommand_module in SUBCOMMAND_MODULES:
-        replace_docs_parser = subcommand_parsers.add_parser(subcommand_module.CLI_SUBCOMMAND_NAME)
-        replace_docs_parser.set_defaults(
+        subcommand_parser = subcommand_parsers.add_parser(subcommand_module.CLI_SUBCOMMAND_NAME)
+        subcommand_parser.set_defaults(
             invoke_cli_app=subcommand_module.invoke_cli_app,
         )
-        subcommand_module.populate_argument_parser(replace_docs_parser)
+        subcommand_module.populate_argument_parser(subcommand_parser)
 
 
 def initialize_argument_parser() -> ArgumentParser:
