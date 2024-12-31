@@ -46,7 +46,7 @@
   name: Terraform docs (overwrite README.md)
   description: Overwrite content of README.md with terraform-docs.
   require_serial: true
-  entry: python -Im pre_commit_terraform replace-docs
+  entry: python -Im pre_commit_terraform terraform_docs_replace
   language: python
   files: (\.tf)$
   exclude: \.terraform/.*$
@@ -150,7 +150,7 @@
 - id: terraform_checkov_py
   name: Checkov
   description: Runs checkov on Terraform templates.
-  entry: terraform_checkov
+  entry: python -Im pre_commit_terraform terraform_checkov_py
   language: python
   always_run: false
   files: \.tf$
