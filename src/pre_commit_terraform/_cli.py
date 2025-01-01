@@ -1,6 +1,7 @@
 """Outer CLI layer of the app interface."""
 
 from sys import stderr
+from typing import cast as cast_to
 
 from ._cli_parsing import initialize_argument_parser
 from ._errors import (
@@ -9,7 +10,7 @@ from ._errors import (
     PreCommitTerraformRuntimeError,
 )
 from ._structs import ReturnCode
-from ._types import ReturnCodeType
+from ._types import CLIAppEntryPointCallableType, ReturnCodeType
 
 
 def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
@@ -20,9 +21,14 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     """
     root_cli_parser = initialize_argument_parser()
     parsed_cli_args = root_cli_parser.parse_args(cli_args)
+    invoke_cli_app = cast_to(
+        # FIXME: attempt typing per https://stackoverflow.com/a/75666611/595220
+        CLIAppEntryPointCallableType,
+        parsed_cli_args.invoke_cli_app,
+    )
 
     try:
-        return parsed_cli_args.invoke_cli_app(parsed_cli_args)
+        return invoke_cli_app(parsed_cli_args)
     except PreCommitTerraformExit as exit_err:
         print(f'App exiting: {exit_err !s}', file=stderr)
         raise
