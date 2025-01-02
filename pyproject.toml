@@ -6,6 +6,9 @@ requires = [
 build-backend = 'hatchling.build'
 
 [dependency-groups]
+linting = [
+  'pre-commit',
+]
 testing = [
   'covdefaults',  # sets up `coveragepy` config boilerplate
   'pytest >= 8',
