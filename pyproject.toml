@@ -5,6 +5,15 @@ requires = [
 ]
 build-backend = 'hatchling.build'
 
+[dependency-groups]
+testing = [
+  'covdefaults',  # sets up `coveragepy` config boilerplate
+  'pytest >= 8',
+  'pytest-cov',  # integrates `coveragepy` into pytest runs
+  'pytest-mock',  # provides a `mocker` fixture
+  'pytest-xdist',  # paralellizes tests through subprocesses
+]
+
 [project]
 name = 'pre-commit-terraform'
 classifiers = [
