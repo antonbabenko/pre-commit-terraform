@@ -15,15 +15,6 @@
   files: (\.tf|\.tfvars)$
   exclude: \.terraform/.*$
 
-- id: terraform_fmt_py
-  name: Terraform fmt
-  description: Rewrites all Terraform configuration files to a canonical format.
-  require_serial: true
-  entry: python -Im pre_commit_terraform terraform_fmt_py
-  language: python
-  files: \.tf(vars)?$
-  exclude: \.terraform/.*$
-
 - id: terraform_docs
   name: Terraform docs
   description: Inserts input and output documentation into README.md (using terraform-docs).
@@ -142,16 +133,6 @@
   description: Runs checkov on Terraform templates.
   entry: hooks/terraform_checkov.sh
   language: script
-  always_run: false
-  files: \.tf$
-  exclude: \.terraform/.*$
-  require_serial: true
-
-- id: terraform_checkov_py
-  name: Checkov
-  description: Runs checkov on Terraform templates.
-  entry: python -Im pre_commit_terraform terraform_checkov_py
-  language: python
   always_run: false
   files: \.tf$
   exclude: \.terraform/.*$
