@@ -4,12 +4,14 @@ from argparse import ArgumentParser
 from argparse import Namespace
 from typing import Protocol
 from typing import TypeAlias
+from typing import runtime_checkable
 
 from pre_commit_terraform._structs import ReturnCode
 
 ReturnCodeType: TypeAlias = ReturnCode | int
 
 
+@runtime_checkable
 class CLISubcommandModuleProtocol(Protocol):
     """A protocol for the subcommand-implementing module shape."""
 
