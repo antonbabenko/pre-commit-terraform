@@ -1,5 +1,6 @@
 [build.targets.sdist]
 include = [
+  '.pre-commit-hooks.yaml',
   'src/',
 ]
 
@@ -7,6 +8,9 @@ include = [
 packages = [
   'src/pre_commit_terraform/',
 ]
+
+[build.targets.wheel.force-include]
+'.pre-commit-hooks.yaml' = 'pre_commit_terraform/_artifacts/.pre-commit-hooks.yaml'
 
 [metadata.hooks.vcs.urls]
 'Source Archive' = 'https://github.com/antonbabenko/pre-commit-terraform/archive/{commit_hash}.tar.gz'
