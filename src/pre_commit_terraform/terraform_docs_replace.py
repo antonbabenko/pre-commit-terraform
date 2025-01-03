@@ -48,11 +48,6 @@ def populate_hook_specific_argument_parser(subcommand_parser: ArgumentParser) ->
         action='store_true',
         help='[deprecated]',
     )
-    subcommand_parser.add_argument(
-        'filenames',
-        nargs='*',
-        help='Filenames to check.',
-    )
 
 
 def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
@@ -75,7 +70,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
     )
 
     dirs = []
-    for filename in parsed_cli_args.filenames:
+    for filename in parsed_cli_args.files:
         if os.path.realpath(filename) not in dirs and (
             filename.endswith('.tf') or filename.endswith('.tfvars')
         ):
