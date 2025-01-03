@@ -62,7 +62,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
     setup_logging()
     logger.debug(sys.version_info)
 
-    all_env_vars = {**os.environ, **common.parse_env_vars(parsed_cli_args.env_vars)}
+    all_env_vars = {**os.environ, **common.parse_env_vars(parsed_cli_args.env_vars_strs)}
     expanded_args = common.expand_env_vars(parsed_cli_args.args, all_env_vars)
     expanded_args = replace_git_working_dir_to_repo_root(expanded_args)
     # Just in case is someone somehow will add something like "; rm -rf" in the args

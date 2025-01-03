@@ -27,6 +27,7 @@ def populate_common_argument_parser(parser: ArgumentParser) -> None:
         '-h',  # TODO: --help could be useful in pre-commit too. Think about replacing to `-c`
         '--hook-config',
         action='append',
+        metavar='KEY=VALUE',
         help='Arguments that configure hook behavior',
         default=[],
     )
@@ -42,6 +43,8 @@ def populate_common_argument_parser(parser: ArgumentParser) -> None:
         '-e',
         '--env-vars',
         '--envs',  # TODO: Think is this is best time to drop this deprecated alias
+        dest='env_vars_strs',
+        metavar='KEY=VALUE',
         action='append',
         help='Setup additional Environment Variables during hook execution',
         default=[],

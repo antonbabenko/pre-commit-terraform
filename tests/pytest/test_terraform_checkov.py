@@ -52,7 +52,7 @@ def test_invoke_cli_app_no_color(mocker):
         hook_config=[],
         files=['file1.tf', 'file2.tf'],
         args=['-d', '.'],
-        env_vars=['ENV_VAR=value'],
+        env_vars_strs=['ENV_VAR=value'],
     )
     mock_env_vars = {'ENV_VAR': 'value', 'PRE_COMMIT_COLOR': 'never'}
 
@@ -85,7 +85,7 @@ def test_invoke_cli_app_no_color(mocker):
     result = invoke_cli_app(mock_parsed_cli_args)
 
     mock_setup_logging.assert_called_once()
-    mock_parse_env_vars.assert_called_once_with(mock_parsed_cli_args.env_vars)
+    mock_parse_env_vars.assert_called_once_with(mock_parsed_cli_args.env_vars_strs)
     mock_expand_env_vars.assert_called_once_with(
         mock_parsed_cli_args.args,
         {**os.environ, **mock_env_vars},
@@ -100,7 +100,7 @@ def test_invoke_cli_app_run_on_whole_repo(mocker):
         hook_config=[],
         files=['file1.tf', 'file2.tf'],
         args=['-d', '.'],
-        env_vars=['ENV_VAR=value'],
+        env_vars_strs=['ENV_VAR=value'],
     )
     mock_env_vars = {'ENV_VAR': 'value'}
 
@@ -133,7 +133,7 @@ def test_invoke_cli_app_run_on_whole_repo(mocker):
     result = invoke_cli_app(mock_parsed_cli_args)
 
     mock_setup_logging.assert_called_once()
-    mock_parse_env_vars.assert_called_once_with(mock_parsed_cli_args.env_vars)
+    mock_parse_env_vars.assert_called_once_with(mock_parsed_cli_args.env_vars_strs)
     mock_expand_env_vars.assert_called_once_with(
         mock_parsed_cli_args.args,
         {**os.environ, **mock_env_vars},
@@ -148,7 +148,7 @@ def test_invoke_cli_app_per_dir_hook(mocker):
         hook_config=[],
         files=['file1.tf', 'file2.tf'],
         args=['-d', '.'],
-        env_vars=['ENV_VAR=value'],
+        env_vars_strs=['ENV_VAR=value'],
     )
     mock_env_vars = {'ENV_VAR': 'value'}
 
@@ -177,7 +177,7 @@ def test_invoke_cli_app_per_dir_hook(mocker):
     result = invoke_cli_app(mock_parsed_cli_args)
 
     mock_setup_logging.assert_called_once()
-    mock_parse_env_vars.assert_called_once_with(mock_parsed_cli_args.env_vars)
+    mock_parse_env_vars.assert_called_once_with(mock_parsed_cli_args.env_vars_strs)
     mock_expand_env_vars.assert_called_once_with(
         mock_parsed_cli_args.args,
         {**os.environ, **mock_env_vars},
