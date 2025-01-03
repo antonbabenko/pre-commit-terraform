@@ -92,7 +92,7 @@ repos:
         (?x)
           # It set wrong indent in imports in place where it shouldn't
           # https://github.com/PyCQA/isort/issues/2315#issuecomment-2566703698
-          (^tests/pytest/test_cli_subcommands.py$
+          (^tests/pytest/test__cli_subcommands.py$
         )
 
 - repo: https://github.com/asottile/add-trailing-comma
