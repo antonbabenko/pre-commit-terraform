@@ -33,7 +33,7 @@ def populate_common_argument_parser(parser: ArgumentParser) -> None:
     parser.add_argument(
         '-i',
         '--tf-init-args',
-        '--init-args',
+        '--init-args',  # TODO: Think is this is best time to drop this deprecated alias
         action='append',
         help='Arguments for `tf init` command',
         default=[],
@@ -41,7 +41,7 @@ def populate_common_argument_parser(parser: ArgumentParser) -> None:
     parser.add_argument(
         '-e',
         '--env-vars',
-        '--envs',
+        '--envs',  # TODO: Think is this is best time to drop this deprecated alias
         action='append',
         help='Setup additional Environment Variables during hook execution',
         default=[],
