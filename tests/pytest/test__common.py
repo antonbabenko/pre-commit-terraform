@@ -9,7 +9,6 @@ from pre_commit_terraform._common import _get_unique_dirs
 from pre_commit_terraform._common import expand_env_vars
 from pre_commit_terraform._common import get_tf_binary_path
 from pre_commit_terraform._common import parse_env_vars
-from pre_commit_terraform._common import per_dir_hook
 
 
 # ?
@@ -46,101 +45,101 @@ def test_get_unique_dirs_nested_dirs():
 
 
 # ?
-# ? per_dir_hook
+# ? per_dir_hook  # TODO: Requires `terraform_fmt` to be implemented
 # ?
-@pytest.fixture
-def mock_per_dir_hook_unique_part(mocker):
-    return mocker.patch('pre_commit_terraform.terraform_fmt.per_dir_hook_unique_part')
+# @pytest.fixture
+# def mock_per_dir_hook_unique_part(mocker):
+#     return mocker.patch('pre_commit_terraform.terraform_fmt.per_dir_hook_unique_part')
 
 
-def test_per_dir_hook_empty_files(mock_per_dir_hook_unique_part):
-    hook_config = []
-    files = []
-    args = []
-    env_vars = {}
-    result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
-    assert result == 0
-    mock_per_dir_hook_unique_part.assert_not_called()
+# def test_per_dir_hook_empty_files(mock_per_dir_hook_unique_part):
+#     hook_config = []
+#     files = []
+#     args = []
+#     env_vars = {}
+#     result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
+#     assert result == 0
+#     mock_per_dir_hook_unique_part.assert_not_called()
 
 
-def test_per_dir_hook_single_file(mocker, mock_per_dir_hook_unique_part):
-    hook_config = []
-    files = [os.path.join('path', 'to', 'file1.tf')]
-    args = []
-    env_vars = {}
-    mock_per_dir_hook_unique_part.return_value = 0
-    result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
-    assert result == 0
-    mock_per_dir_hook_unique_part.assert_called_once_with(
-        mocker.ANY,  # Terraform binary path
-        os.path.join('path', 'to'),
-        args,
-        env_vars,
-    )
+# def test_per_dir_hook_single_file(mocker, mock_per_dir_hook_unique_part):
+#     hook_config = []
+#     files = [os.path.join('path', 'to', 'file1.tf')]
+#     args = []
+#     env_vars = {}
+#     mock_per_dir_hook_unique_part.return_value = 0
+#     result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
+#     assert result == 0
+#     mock_per_dir_hook_unique_part.assert_called_once_with(
+#         mocker.ANY,  # Terraform binary path
+#         os.path.join('path', 'to'),
+#         args,
+#         env_vars,
+#     )
 
 
-def test_per_dir_hook_multiple_files_same_dir(mocker, mock_per_dir_hook_unique_part):
-    hook_config = []
-    files = [os.path.join('path', 'to', 'file1.tf'), os.path.join('path', 'to', 'file2.tf')]
-    args = []
-    env_vars = {}
-    mock_per_dir_hook_unique_part.return_value = 0
-    result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
-    assert result == 0
-    mock_per_dir_hook_unique_part.assert_called_once_with(
-        mocker.ANY,  # Terraform binary path
-        os.path.join('path', 'to'),
-        args,
-        env_vars,
-    )
+# def test_per_dir_hook_multiple_files_same_dir(mocker, mock_per_dir_hook_unique_part):
+#     hook_config = []
+#     files = [os.path.join('path', 'to', 'file1.tf'), os.path.join('path', 'to', 'file2.tf')]
+#     args = []
+#     env_vars = {}
+#     mock_per_dir_hook_unique_part.return_value = 0
+#     result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
+#     assert result == 0
+#     mock_per_dir_hook_unique_part.assert_called_once_with(
+#         mocker.ANY,  # Terraform binary path
+#         os.path.join('path', 'to'),
+#         args,
+#         env_vars,
+#     )
 
 
-def test_per_dir_hook_multiple_files_different_dirs(mocker, mock_per_dir_hook_unique_part):
-    hook_config = []
-    files = [os.path.join('path', 'to', 'file1.tf'), os.path.join('another', 'path', 'file2.tf')]
-    args = []
-    env_vars = {}
-    mock_per_dir_hook_unique_part.return_value = 0
-    result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
-    assert result == 0
-    expected_calls = [
-        mocker.call(mocker.ANY, os.path.join('path', 'to'), args, env_vars),
-        mocker.call(mocker.ANY, os.path.join('another', 'path'), args, env_vars),
-    ]
-    mock_per_dir_hook_unique_part.assert_has_calls(expected_calls, any_order=True)
+# def test_per_dir_hook_multiple_files_different_dirs(mocker, mock_per_dir_hook_unique_part):
+#     hook_config = []
+#     files = [os.path.join('path', 'to', 'file1.tf'), os.path.join('another', 'path', 'file2.tf')]
+#     args = []
+#     env_vars = {}
+#     mock_per_dir_hook_unique_part.return_value = 0
+#     result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
+#     assert result == 0
+#     expected_calls = [
+#         mocker.call(mocker.ANY, os.path.join('path', 'to'), args, env_vars),
+#         mocker.call(mocker.ANY, os.path.join('another', 'path'), args, env_vars),
+#     ]
+#     mock_per_dir_hook_unique_part.assert_has_calls(expected_calls, any_order=True)
 
 
-def test_per_dir_hook_nested_dirs(mocker, mock_per_dir_hook_unique_part):
-    hook_config = []
-    files = [
-        os.path.join('path', 'to', 'file1.tf'),
-        os.path.join('path', 'to', 'nested', 'file2.tf'),
-    ]
-    args = []
-    env_vars = {}
-    mock_per_dir_hook_unique_part.return_value = 0
-    result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
-    assert result == 0
-    expected_calls = [
-        mocker.call(mocker.ANY, os.path.join('path', 'to'), args, env_vars),
-        mocker.call(mocker.ANY, os.path.join('path', 'to', 'nested'), args, env_vars),
-    ]
-    mock_per_dir_hook_unique_part.assert_has_calls(expected_calls, any_order=True)
+# def test_per_dir_hook_nested_dirs(mocker, mock_per_dir_hook_unique_part):
+#     hook_config = []
+#     files = [
+#         os.path.join('path', 'to', 'file1.tf'),
+#         os.path.join('path', 'to', 'nested', 'file2.tf'),
+#     ]
+#     args = []
+#     env_vars = {}
+#     mock_per_dir_hook_unique_part.return_value = 0
+#     result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
+#     assert result == 0
+#     expected_calls = [
+#         mocker.call(mocker.ANY, os.path.join('path', 'to'), args, env_vars),
+#         mocker.call(mocker.ANY, os.path.join('path', 'to', 'nested'), args, env_vars),
+#     ]
+#     mock_per_dir_hook_unique_part.assert_has_calls(expected_calls, any_order=True)
 
 
-def test_per_dir_hook_with_errors(mocker, mock_per_dir_hook_unique_part):
-    hook_config = []
-    files = [os.path.join('path', 'to', 'file1.tf'), os.path.join('another', 'path', 'file2.tf')]
-    args = []
-    env_vars = {}
-    mock_per_dir_hook_unique_part.side_effect = [0, 1]
-    result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
-    assert result == 1
-    expected_calls = [
-        mocker.call(mocker.ANY, os.path.join('path', 'to'), args, env_vars),
-        mocker.call(mocker.ANY, os.path.join('another', 'path'), args, env_vars),
-    ]
-    mock_per_dir_hook_unique_part.assert_has_calls(expected_calls, any_order=True)
+# def test_per_dir_hook_with_errors(mocker, mock_per_dir_hook_unique_part):
+#     hook_config = []
+#     files = [os.path.join('path', 'to', 'file1.tf'), os.path.join('another', 'path', 'file2.tf')]
+#     args = []
+#     env_vars = {}
+#     mock_per_dir_hook_unique_part.side_effect = [0, 1]
+#     result = per_dir_hook(hook_config, files, args, env_vars, mock_per_dir_hook_unique_part)
+#     assert result == 1
+#     expected_calls = [
+#         mocker.call(mocker.ANY, os.path.join('path', 'to'), args, env_vars),
+#         mocker.call(mocker.ANY, os.path.join('another', 'path'), args, env_vars),
+#     ]
+#     mock_per_dir_hook_unique_part.assert_has_calls(expected_calls, any_order=True)
 
 
 # ?
