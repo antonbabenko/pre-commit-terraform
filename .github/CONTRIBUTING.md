@@ -18,7 +18,7 @@ Enjoy the clean, valid, and documented code!
   * [Prepare basic documentation](#prepare-basic-documentation)
   * [Add code](#add-code)
   * [Finish with the documentation](#finish-with-the-documentation)
-* [Testing](#testing-python-hooks)
+* [Testing python hooks](#testing-python-hooks)
 
 ## Run and debug hooks locally
 
@@ -159,7 +159,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 ## Testing python hooks
 
-Tu run tests, you need:
+To run tests, you need:
 
 ```bash
 pip install pytest pytest-mock
