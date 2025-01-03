@@ -20,7 +20,7 @@ def test_populate_common_argument_parser(mocker):
     assert args.args == ['arg1']
     assert args.hook_config == ['hook1']
     assert args.tf_init_args == ['init1']
-    assert args.env_vars == ['env1']
+    assert args.env_vars_strs == ['env1']
     assert args.files == ['file1', 'file2']
 
 
@@ -32,7 +32,7 @@ def test_populate_common_argument_parser_defaults(mocker):
     assert args.args == []
     assert args.hook_config == []
     assert args.tf_init_args == []
-    assert args.env_vars == []
+    assert args.env_vars_strs == []
     assert args.files == []
 
 
@@ -65,7 +65,7 @@ def test_populate_common_argument_parser_multiple_values(mocker):
     assert args.args == ['arg1', 'arg2']
     assert args.hook_config == ['hook1', 'hook2']
     assert args.tf_init_args == ['init1', 'init2']
-    assert args.env_vars == ['env1', 'env2']
+    assert args.env_vars_strs == ['env1', 'env2']
     assert args.files == ['file1', 'file2']
 
 
@@ -91,7 +91,7 @@ def test_attach_subcommand_parsers_to(mocker):
     assert args.args == ['arg1']
     assert args.hook_config == ['hook1']
     assert args.tf_init_args == ['init1']
-    assert args.env_vars == ['env1']
+    assert args.env_vars_strs == ['env1']
     assert args.files == ['file1', 'file2']
     assert args.invoke_cli_app == mock_subcommand_module.invoke_cli_app
 
@@ -168,7 +168,7 @@ def test_initialize_argument_parser(mocker):
     assert args.args == ['arg1']
     assert args.hook_config == ['hook1']
     assert args.tf_init_args == ['init1']
-    assert args.env_vars == ['env1']
+    assert args.env_vars_strs == ['env1']
     assert args.files == ['file1', 'file2']
     assert args.invoke_cli_app == mock_subcommand_module.invoke_cli_app
 

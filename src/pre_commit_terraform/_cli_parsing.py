@@ -27,6 +27,7 @@ def populate_common_argument_parser(parser: ArgumentParser) -> None:
         '-h',
         '--hook-config',
         action='append',
+        metavar='KEY=VALUE',
         help='Arguments that configure hook behavior',
         default=[],
     )
@@ -42,6 +43,8 @@ def populate_common_argument_parser(parser: ArgumentParser) -> None:
         '-e',
         '--env-vars',
         '--envs',
+        dest='env_vars_strs',
+        metavar='KEY=VALUE',
         action='append',
         help='Setup additional Environment Variables during hook execution',
         default=[],
