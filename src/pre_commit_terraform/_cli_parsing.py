@@ -24,7 +24,7 @@ def populate_common_argument_parser(parser: ArgumentParser) -> None:
         default=[],
     )
     parser.add_argument(
-        '-h',
+        '-h',  # TODO: --help could be useful in pre-commit too. Think about replacing to `-c`
         '--hook-config',
         action='append',
         help='Arguments that configure hook behavior',
