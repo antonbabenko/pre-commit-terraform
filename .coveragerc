@@ -1,0 +1,34 @@
+[html]
+show_contexts = true
+skip_covered = false
+
+[paths]
+_site-packages-to-src-mapping =
+  src
+  */src
+  *\src
+  */lib/pypy*/site-packages
+  */lib/python*/site-packages
+  *\Lib\site-packages
+
+[report]
+skip_covered = true
+skip_empty = true
+show_missing = true
+exclude_also =
+  ^\s*@pytest\.mark\.xfail
+  ^\s*\.\.\.\s*(#.*)?$
+
+[run]
+branch = true
+cover_pylib = false
+# https://coverage.rtfd.io/en/latest/contexts.html#dynamic-contexts
+# dynamic_context = test_function  # conflicts with `pytest-cov` if set here
+parallel = true
+plugins =
+  covdefaults
+relative_files = true
+source =
+  .
+source_pkgs =
+  pre_commit_terraform

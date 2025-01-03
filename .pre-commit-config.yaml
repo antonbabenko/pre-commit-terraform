@@ -35,6 +35,65 @@ repos:
       args: ['--allow-missing-credentials']
     - id: detect-private-key
 
+    # Non-modifying checks:
+    - id: name-tests-test
+      files: >-
+        ^tests/[^_].*\.py$
+
+- repo: https://github.com/pre-commit/mirrors-mypy.git
+  rev: v1.14.1
+  hooks:
+  - id: mypy
+    alias: mypy-py313
+    name: MyPy, for Python 3.13
+    additional_dependencies:
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - pytest
+    - pytest-mock
+    args:
+    - --python-version=3.13
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.13
+    pass_filenames: false
+  - id: mypy
+    alias: mypy-py311
+    name: MyPy, for Python 3.11
+    additional_dependencies:
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - pytest
+    - pytest-mock
+    args:
+    - --python-version=3.11
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.11
+    pass_filenames: false
+  - id: mypy
+    alias: mypy-py39
+    name: MyPy, for Python 3.9
+    additional_dependencies:
+    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
+    - pytest
+    - pytest-mock
+    args:
+    - --python-version=3.9
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.9
+    pass_filenames: false
 
 - repo: https://github.com/jumanjihouse/pre-commit-hooks
   rev: 3.0.0
