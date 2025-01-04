@@ -1,12 +1,12 @@
 import os
 import subprocess
 import warnings
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
+from argparse import Namespace
 from typing import Final
 
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
-
 
 CLI_SUBCOMMAND_NAME: Final[str] = 'replace-docs'
 
@@ -18,14 +18,20 @@ def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
         'replace the entire README.md file each time.'
     )
     subcommand_parser.add_argument(
-        '--dest', dest='dest', default='README.md',
+        '--dest',
+        dest='dest',
+        default='README.md',
     )
     subcommand_parser.add_argument(
-        '--sort-inputs-by-required', dest='sort', action='store_true',
+        '--sort-inputs-by-required',
+        dest='sort',
+        action='store_true',
         help='[deprecated] use --sort-by-required instead',
     )
     subcommand_parser.add_argument(
-        '--sort-by-required', dest='sort', action='store_true',
+        '--sort-by-required',
+        dest='sort',
+        action='store_true',
     )
     subcommand_parser.add_argument(
         '--with-aggregate-type-defaults',
@@ -51,8 +57,9 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
 
     dirs = []
     for filename in parsed_cli_args.filenames:
-        if (os.path.realpath(filename) not in dirs and
-                (filename.endswith(".tf") or filename.endswith(".tfvars"))):
+        if os.path.realpath(filename) not in dirs and (
+            filename.endswith('.tf') or filename.endswith('.tfvars')
+        ):
             dirs.append(os.path.dirname(filename))
 
     retval = ReturnCode.OK
@@ -64,13 +71,12 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
             if parsed_cli_args.sort:
                 procArgs.append('--sort-by-required')
             procArgs.append('md')
-            procArgs.append("./{dir}".format(dir=dir))
+            procArgs.append('./{dir}'.format(dir=dir))
             procArgs.append('>')
             procArgs.append(
-                './{dir}/{dest}'.
-                format(dir=dir, dest=parsed_cli_args.dest),
+                './{dir}/{dest}'.format(dir=dir, dest=parsed_cli_args.dest),
             )
-            subprocess.check_call(" ".join(procArgs), shell=True)
+            subprocess.check_call(' '.join(procArgs), shell=True)
         except subprocess.CalledProcessError as e:
             print(e)
             retval = ReturnCode.ERROR
