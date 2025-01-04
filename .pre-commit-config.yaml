@@ -45,7 +45,7 @@ repos:
 
 # Dockerfile linter
 - repo: https://github.com/hadolint/hadolint
-  rev: v2.12.1-beta
+  rev: v2.13.1-beta
   hooks:
     - id: hadolint
       args: [
@@ -61,8 +61,89 @@ repos:
 
 # JSON5 Linter
 - repo: https://github.com/pre-commit/mirrors-prettier
-  rev: v3.1.0
+  rev: v4.0.0-alpha.8
   hooks:
   - id: prettier
     # https://prettier.io/docs/en/options.html#parser
     files: '.json5$'
+
+
+##########
+# PYTHON #
+##########
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.8.4
+  hooks:
+    - id: ruff
+      args: [--fix]
+      types_or: [python, pyi]
+    - id: ruff-format
+      types_or: [python, pyi]
+      args: [--config, format.quote-style = 'single', --config, line-length = 100]
+
+- repo: https://github.com/pycqa/isort
+  rev: 5.13.2
+  hooks:
+    - id: isort
+      name: isort
+      args: [--force-single-line, --profile=black]
+
+- repo: https://github.com/asottile/add-trailing-comma
+  rev: v3.1.0
+  hooks:
+    - id: add-trailing-comma
+
+- repo: https://github.com/pre-commit/mirrors-autopep8
+  rev: v2.0.4
+  hooks:
+    - id: autopep8
+      args:
+      - -i
+      - --max-line-length=100
+
+# Usage: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
+- repo: https://github.com/PyCQA/pylint
+  rev: v3.3.3
+  hooks:
+    - id: pylint
+      args:
+      - --disable=import-error # E0401. Locally you could not have all imports.
+      - --disable=fixme # W0511. 'TODO' notations.
+      - --disable=logging-fstring-interpolation # Conflict with "use a single formatting" WPS323
+      - --disable=ungrouped-imports # ignore `if TYPE_CHECKING` case. Other do reorder-python-imports
+      - --disable=R0801 # Similar lines in 2 files. Currently I don't think that it possible to DRY hooks unique files boilerplate
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.14.1
+  hooks:
+    - id: mypy
+      additional_dependencies:
+          - types-PyYAML
+      args: [
+        --ignore-missing-imports,
+        --disallow-untyped-calls,
+        --warn-redundant-casts,
+      ]
+
+- repo: https://github.com/wemake-services/wemake-python-styleguide
+  rev: 1.0.0
+  hooks:
+    - id: wemake-python-styleguide
+      args:
+      - --allowed-module-metadata=__all__ # Default to ''
+      - --max-local-variables=6 # Default to 5
+      - --max-returns=6 # Default to 5
+      - --max-imports=15 # Default to 12
+      # https://wemake-python-stylegui.de/en/latest/pages/usage/violations/index.html
+      - --extend-ignore=
+          E501   <!-- line too long (> 79 characters). Use 100 -->
+          WPS115 <!-- Found upper-case constant in a class. All occurrences are false positive -->
+          WPS226 <!-- Found string literal over-use - append > 3 -->
+
+
+      exclude: |
+        (?x)
+          # Ignore deprecated hook
+          (^src/pre_commit_terraform/terraform_docs_replace.py$
+        )
