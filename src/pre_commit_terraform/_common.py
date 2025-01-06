@@ -1,7 +1,7 @@
 """
-Here located common functions for hooks.
+Common functions for hooks.
 
-It not executed directly, but imported by other hooks.
+These are not executed directly, but imported by other hooks.
 """
 
 from __future__ import annotations
@@ -45,20 +45,14 @@ def _get_unique_dirs(files: list[str]) -> set[str]:
     Returns:
         Set of unique directories.
     """
-    unique_dirs = set()
-
-    for file_path in files:
-        dir_path = os.path.dirname(file_path)
-        unique_dirs.add(dir_path)
-
-    return unique_dirs
+    return set(os.path.dirname(path) for path in files)
 
 
 def expand_env_vars(args: list[str], env_vars: dict[str, str]) -> list[str]:
     """
     Expand environment variables definition into their values in '--args'.
 
-    Support expansion only for ${ENV_VAR} vars, not $ENV_VAR.
+    Supports expansion only for ${ENV_VAR} vars, not $ENV_VAR.
 
     Args:
         args: The arguments to expand environment variables in.

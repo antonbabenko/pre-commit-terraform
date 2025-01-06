@@ -25,7 +25,7 @@ def is_function_defined(func_name: str, scope: dict) -> bool:
     is_callable = callable(scope[func_name]) if is_defined else False
 
     logger.debug(
-        'Checking if "%s":\n1. Defined in hook: %s\n2. Is it callable: %s',
+        'Checking if "%s":\n1. Defined in hook: %s\n2. Is callable: %s',
         func_name,
         is_defined,
         is_callable,
@@ -53,7 +53,6 @@ def is_hook_run_on_whole_repo(hook_id: str, file_paths: list[str]) -> bool:
     # Get the directory containing the packaged `.pre-commit-hooks.yaml` copy
     artifacts_root_path = access_artifacts_of('pre_commit_terraform') / '_artifacts'
     pre_commit_hooks_yaml_path = artifacts_root_path / '.pre-commit-hooks.yaml'
-    pre_commit_hooks_yaml_path.read_text(encoding='utf-8')
 
     logger.debug('Hook config path: %s', pre_commit_hooks_yaml_path)
 
@@ -75,7 +74,7 @@ def is_hook_run_on_whole_repo(hook_id: str, file_paths: list[str]) -> bool:
         included_pattern,
         excluded_pattern,
     )
-    # S607 disabled as we need to maintain ability to call git command no matter where it located.
+    # S607 disabled as we need to maintain ability to call git command no matter where it is located.
     git_ls_files_cmd = ['git', 'ls-files']  # noqa: S607
     # Get the sorted list of all files that can be checked using `git ls-files`
     git_ls_file_paths = subprocess.check_output(git_ls_files_cmd, text=True).splitlines()
@@ -94,10 +93,10 @@ def is_hook_run_on_whole_repo(hook_id: str, file_paths: list[str]) -> bool:
     # Get the sorted list of files passed to the hook
     file_paths_to_check = sorted(file_paths)
     logger.debug(
-        'Files to check:\n%s\n\nAll files that can be checked:\n%s\n\nIdentical lists: %s',
+        'Files to check:\n%s\n\nAll files that can be checked:\n%s\n\nAre these lists identical: %s',
         file_paths_to_check,
         all_file_paths_that_can_be_checked,
         file_paths_to_check == all_file_paths_that_can_be_checked,
     )
-    # Compare the sorted lists of file
+    # Compare the sorted lists of files
     return file_paths_to_check == all_file_paths_that_can_be_checked

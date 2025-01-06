@@ -1,4 +1,4 @@
-"""Here located logs-related functions."""
+"""Logs-related functions."""
 
 import logging
 import os
