@@ -18,7 +18,6 @@ Enjoy the clean, valid, and documented code!
   * [Prepare basic documentation](#prepare-basic-documentation)
   * [Add code](#add-code)
   * [Finish with the documentation](#finish-with-the-documentation)
-* [Testing python hooks](#testing-python-hooks)
 
 ## Run and debug hooks locally
 
@@ -155,27 +154,3 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 1. Add hook description to [Available Hooks](../README.md#available-hooks).
 2. Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
-
-
-## Testing python hooks
-
-To run tests, you need:
-
-```bash
-pip install pytest pytest-mock
-
-pytest -vv
-```
-
-To run and debug hooks as CLI:
-
-1. Create [`venv`](https://docs.python.org/3/library/venv.html) and activate it, IE by `virtualenv venv`
-2. Inside virtual env install pre-commit-terraform as package:
-	```bash
-	pip install --editable .
-	```
-
-3. Run next to show basic help:
-	```bash
-	python -Im pre_commit_terraform --help
-	```
