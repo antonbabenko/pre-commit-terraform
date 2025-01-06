@@ -155,5 +155,5 @@ repos:
           # Ignore tests
           (^tests/pytest/test_.+\.py$
           # Ignore deprecated hook
-          |^src/pre_commit_terraform/terraform_docs_replace.py$
+          |^src/pre_commit_terraform/terraform_docs_replace\.py$
         )
