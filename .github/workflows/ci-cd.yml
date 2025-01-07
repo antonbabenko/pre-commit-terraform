@@ -387,7 +387,8 @@ jobs:
         - pre-commit
         - metadata-validation
         environment-variables:
-        - ''
+        - >-  # only affects pre-commit, set for all for simplicity:
+          SKIP=hadolint,shfmt
         tox-run-posargs:
         - ''
         xfail:
