@@ -1,6 +1,7 @@
 [build.targets.sdist]
 include = [
   'src/',
+  'tox.ini',
 ]
 
 [build.targets.wheel]
