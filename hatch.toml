@@ -1,7 +1,9 @@
 [build.targets.sdist]
 include = [
+  '.coveragerc',
   'src/',
   'tests/',
+  'pytest.ini',
   'tox.ini',
 ]
 
