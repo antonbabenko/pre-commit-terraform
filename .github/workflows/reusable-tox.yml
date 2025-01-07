@@ -1,0 +1,415 @@
+---
+
+name: >-
+  ❌
+  [DO NOT CLICK]
+  Reusable Tox
+
+on:
+  workflow_call:
+    inputs:
+      built-wheel-names:
+        description: >-
+          A glob for the built distributions in the artifact
+          to test (is installed into tox env if passed)
+        required: false
+        type: string
+      cache-key-files:
+        description: Dependency files cache
+        required: true
+        type: string
+      check-name:
+        description: A custom name for the Checks API-reported status
+        required: false
+        type: string
+      dists-artifact-name:
+        description: Workflow artifact name containing dists
+        required: true
+        type: string
+      environment-variables:
+        description: >-
+          A newline-delimited blob of text with environment variables
+          to be set using `${GITHUB_ENV}`
+        required: false
+        type: string
+      python-version:
+        description: Python version to provision in the VM
+        required: true
+        type: string
+      release-requested:
+        description: Flag whether this is CI run is a release request
+        default: 'false'
+        required: false
+        type: string
+      runner-vm-os:
+        description: VM OS to use
+        default: ubuntu
+        required: false
+        type: string
+      source-tarball-name:
+        description: Sdist filename wildcard
+        required: true
+        type: string
+      timeout-minutes:
+        description: Deadline for the job to complete
+        required: true
+        type: string
+      toxenv:
+        description: Name of the tox environment to use
+        required: true
+        type: string
+      tox-run-posargs:
+        description: Positional arguments to pass to the regular tox run
+        required: false
+        type: string
+      tox-rerun-posargs:
+        description: Positional arguments to pass to the re-attempted tox run
+        required: false
+        type: string
+      upstream-repository-id:
+        description: ID of the upstream GitHub Repository
+        required: true
+        type: string
+      xfail:
+        description: >-
+          Whether this job is expected to fail. Controls if the run outcomes
+          contribute to the failing CI status or not. The job status will be
+          treated as successful if this is set to `true`. Setting `false`
+          should be preferred typically.
+        required: true
+        type: string
+    secrets:
+      codecov-token:
+        description: Mandatory token for uploading to Codecov
+        required: true
+
+env:
+  COLOR: >-  # Supposedly, pytest or coveragepy use this
+    yes
+  FORCE_COLOR: 1  # Request colored output from CLI tools supporting it
+  MYPY_FORCE_COLOR: 1  # MyPy's color enforcement
+  PIP_DISABLE_PIP_VERSION_CHECK: 1
+  PIP_NO_PYTHON_VERSION_WARNING: 1
+  PIP_NO_WARN_SCRIPT_LOCATION: 1
+  PRE_COMMIT_COLOR: always
+  PY_COLORS: 1  # Recognized by the `py` package, dependency of `pytest`
+  PYTHONIOENCODING: utf-8
+  PYTHONUTF8: 1
+  TOX_PARALLEL_NO_SPINNER: 1
+  TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
+    COLOR
+    FORCE_COLOR
+    MYPY_FORCE_COLOR
+    NO_COLOR
+    PIP_DISABLE_PIP_VERSION_CHECK
+    PIP_NO_PYTHON_VERSION_WARNING
+    PIP_NO_WARN_SCRIPT_LOCATION
+    PRE_COMMIT_COLOR
+    PY_COLORS
+    PYTEST_THEME
+    PYTEST_THEME_MODE
+    PYTHONIOENCODING
+    PYTHONLEGACYWINDOWSSTDIO
+    PYTHONUTF8
+
+jobs:
+  tox:
+    name: >-
+      ${{
+        inputs.check-name
+        && inputs.check-name
+        || format(
+             '{0}@🐍{1}@{2}',
+             inputs.toxenv,
+             inputs.python-version,
+             inputs.runner-vm-os
+           )
+      }}
+
+    runs-on: ${{ inputs.runner-vm-os }}
+
+    timeout-minutes: ${{ fromJSON(inputs.timeout-minutes) }}
+
+    continue-on-error: >-
+      ${{
+          (
+            fromJSON(inputs.xfail) ||
+            (
+              startsWith(inputs.python-version, '~')
+            ) ||
+            contains(inputs.python-version, 'alpha')
+          ) && true || false
+      }}
+
+    env:
+      TOXENV: ${{ inputs.toxenv }}
+
+    steps:
+    - name: Export requested job-global environment variables
+      if: inputs.environment-variables != ''
+      run: >-
+        echo '${{ inputs.environment-variables }}'
+        >> "${GITHUB_ENV}"
+
+    - name: >-
+        Switch to using Python v${{ inputs.python-version }}
+        by default
+      id: python-install
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    # NOTE: `pre-commit --show-diff-on-failure` and `sphinxcontrib-spellcheck`
+    # NOTE: with Git authors allowlist enabled both depend on the presence of a
+    # NOTE: Git repository.
+    - name: Grab the source from Git
+      if: >-
+        contains(fromJSON('["pre-commit", "spellcheck-docs"]'), inputs.toxenv)
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.release-committish }}
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      if: >-
+        !contains(fromJSON('["pre-commit", "spellcheck-docs"]'), inputs.toxenv)
+      uses: re-actors/checkout-python-sdist@release/v2
+      with:
+        source-tarball-name: ${{ inputs.source-tarball-name }}
+        workflow-artifact-name: ${{ inputs.dists-artifact-name }}
+
+    - name: Cache pre-commit.com virtualenvs
+      if: inputs.toxenv == 'pre-commit'
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pre-commit
+        key: >-
+          ${{
+            runner.os
+          }}-pre-commit-${{
+            hashFiles('.pre-commit-config.yaml')
+          }}
+
+    - name: Figure out if the interpreter ABI is stable
+      id: py-abi
+      run: |
+        from os import environ
+        from pathlib import Path
+        from sys import version_info
+
+        FILE_APPEND_MODE = 'a'
+
+        is_stable_abi = version_info.releaselevel == 'final'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(
+                'is-stable-abi={is_stable_abi}'.
+                format(is_stable_abi=str(is_stable_abi).lower()),
+                file=outputs_file,
+            )
+      shell: python
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
+      id: calc-cache-key-py
+      run: |
+        from hashlib import sha512
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
+      shell: python
+    - name: Get pip cache dir
+      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
+      id: pip-cache-dir
+      run: >-
+        echo "dir=$(python -Im pip cache dir)" >> "${GITHUB_OUTPUT}"
+      shell: bash
+    - name: Set up pip cache
+      if: fromJSON(steps.py-abi.outputs.is-stable-abi)
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pip-cache-dir.outputs.dir }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          inputs.cache-key-files }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{
+              steps.calc-cache-key-py.outputs.py-hash-key
+          }}-
+          ${{ runner.os }}-pip-
+
+    - name: Install tox
+      run: >-
+        python -Im pip install tox
+      shell: bash  # windows compat
+
+    - name: Make the env clean of non-test files
+      if: inputs.toxenv == 'metadata-validation'
+      run: |
+        shopt -s extglob
+        rm -rf !tox.ini
+      shell: bash
+    - name: Download all the dists
+      if: >-
+        contains(fromJSON('["metadata-validation", "py"]'), inputs.toxenv)
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.dists-artifact-name }}
+        path: dist/
+
+    - name: >-
+        Pre-populate tox envs: `${{ env.TOXENV }}`
+      run: >-
+        python -Im
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        ${{
+          inputs.built-wheel-names != ''
+          && format('--installpkg dist/{0}', inputs.built-wheel-names)
+          || ''
+        }}
+        --notest
+    - name: Initialize pre-commit envs if needed
+      if: inputs.toxenv == 'pre-commit'
+      run: >-
+        python -Im
+        tox
+        exec
+        --skip-pkg-install
+        --quiet
+        --
+        python -Im pre_commit install-hooks
+    - name: >-
+        Run tox envs: `${{ env.TOXENV }}`
+      id: tox-run
+      run: >-
+        python -Im
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --skip-pkg-install
+        --quiet
+        ${{
+          inputs.tox-run-posargs != ''
+          && format('-- {0}', inputs.tox-run-posargs)
+          || ''
+        }}
+    - name: Produce markdown test summary from JUnit
+      if: >-
+        !cancelled()
+        && steps.tox-run.outputs.test-result-files != ''
+      uses: test-summary/action@v2.3
+      with:
+        paths: >-
+          ${{ steps.tox-run.outputs.test-result-files }}
+    - name: Produce markdown test summary from Cobertura XML
+      # NOTE: MyPy is temporarily excluded because it produces incomplete XML
+      # NOTE: files that `irongut/CodeCoverageSummary` can't stomach.
+      # Refs:
+      # * https://github.com/irongut/CodeCoverageSummary/issues/324
+      # * https://github.com/python/mypy/issues/17689
+      # FIXME: Revert the exclusion once upstream fixes the bug.
+      if: >-
+        !cancelled()
+        && runner.os == 'Linux'
+        && steps.tox-run.outputs.cov-report-files != ''
+        && steps.tox-run.outputs.test-result-files == ''
+        && steps.tox-run.outputs.codecov-flags != 'MyPy'
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      with:
+        badge: true
+        filename: >-
+          ${{ steps.tox-run.outputs.cov-report-files }}
+        format: markdown
+        output: both
+    # Ref: https://github.com/irongut/CodeCoverageSummary/issues/66
+    - name: Append coverage results to Job Summary
+      if: >-
+        !cancelled()
+        && runner.os == 'Linux'
+        && steps.tox-run.outputs.cov-report-files != ''
+        && steps.tox-run.outputs.test-result-files == ''
+        && steps.tox-run.outputs.codecov-flags != 'MyPy'
+      run: >-
+        cat code-coverage-results.md >> "${GITHUB_STEP_SUMMARY}"
+    - name: Re-run the failing tests with maximum verbosity
+      if: >-
+        !cancelled()
+        && failure()
+        && inputs.tox-rerun-posargs != ''
+      run: >-  # `exit 1` makes sure that the job remains red with flaky runs
+        python -Im
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        -vvvvv
+        --skip-pkg-install
+        --
+        ${{ inputs.tox-rerun-posargs }}
+        && exit 1
+      shell: bash
+    - name: Send coverage data to Codecov
+      if: >-
+        !cancelled()
+        && steps.tox-run.outputs.cov-report-files != ''
+      uses: codecov/codecov-action@v4
+      with:
+        disable_search: true
+        fail_ci_if_error: >-
+          ${{ toJSON(inputs.upstream-repository-id == github.repository_id) }}
+        files: >-
+          ${{ steps.tox-run.outputs.cov-report-files }}
+        flags: >-
+          CI-GHA,
+          ${{ steps.tox-run.outputs.codecov-flags }},
+          OS-${{
+            runner.os
+          }},
+          VM-${{
+            inputs.runner-vm-os
+          }},
+          Py-${{
+            steps.python-install.outputs.python-version
+          }}
+        token: ${{ secrets.codecov-token }}
+    - name: Upload test results to Codecov
+      if: >-
+        !cancelled()
+        && steps.tox-run.outputs.test-result-files != ''
+      uses: codecov/test-results-action@v1
+      with:
+        disable_search: true
+        fail_ci_if_error: >-
+          ${{ toJSON(inputs.upstream-repository-id == github.repository_id) }}
+        files: >-
+          ${{ steps.tox-run.outputs.test-result-files }}
+        flags: >-
+          CI-GHA,
+          ${{ steps.tox-run.outputs.codecov-flags }},
+          OS-${{
+            runner.os
+          }},
+          VM-${{
+            inputs.runner-vm-os
+          }},
+          Py-${{
+            steps.python-install.outputs.python-version
+          }}
+        token: ${{ secrets.codecov-token }}
+
+...
