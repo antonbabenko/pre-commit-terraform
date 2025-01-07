@@ -8,7 +8,7 @@ codecov:
   require_ci_to_pass: false
 
   token: >-  # notsecret  # repo-scoped, upload-only, stability in fork PRs
-    REPLACE WITH A CLEAR-TEXT TOKEN
+    7316089b-55fe-4646-b640-78d84b79d109
 
 comment:
   require_changes: true
