@@ -6,6 +6,9 @@ requires = [
 build-backend = 'hatchling.build'
 
 [dependency-groups]
+building = [
+  'build',
+]
 linting = [
   'pre-commit',
 ]
@@ -15,6 +18,9 @@ testing = [
   'pytest-cov',  # integrates `coveragepy` into pytest runs
   'pytest-mock',  # provides a `mocker` fixture
   'pytest-xdist',  # paralellizes tests through subprocesses
+]
+upstreaming = [
+  'twine',
 ]
 
 [project]
