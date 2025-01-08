@@ -1,5 +1,6 @@
 [build.targets.sdist]
 include = [
+  '.codecov.yml',
   '.coveragerc',
   'src/',
   'tests/',
