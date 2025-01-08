@@ -1,3 +1,5 @@
+---
+
 - id: infracost_breakdown
   name: Infracost breakdown
   description: Check terraform infrastructure cost
@@ -9,7 +11,8 @@
 
 - id: terraform_fmt
   name: Terraform fmt
-  description: Rewrites all Terraform configuration files to a canonical format.
+  description: >-
+    Rewrites all Terraform configuration files to a canonical format.
   entry: hooks/terraform_fmt.sh
   language: script
   files: (\.tf|\.tfvars)$
@@ -17,7 +20,9 @@
 
 - id: terraform_docs
   name: Terraform docs
-  description: Inserts input and output documentation into README.md (using terraform-docs).
+  description: >-
+    Inserts input and output documentation into README.md
+    (using terraform-docs).
   require_serial: true
   entry: hooks/terraform_docs.sh
   language: script
@@ -26,7 +31,9 @@
 
 - id: terraform_docs_without_aggregate_type_defaults
   name: Terraform docs (without aggregate type defaults)
-  description: Inserts input and output documentation into README.md (using terraform-docs). Identical to terraform_docs.
+  description: >-
+    Inserts input and output documentation into README.md
+    (using terraform-docs). Identical to terraform_docs.
   require_serial: true
   entry: hooks/terraform_docs.sh
   language: script
@@ -71,7 +78,8 @@
 
 - id: terragrunt_fmt
   name: Terragrunt fmt
-  description: Rewrites all Terragrunt configuration files to a canonical format.
+  description: >-
+    Rewrites all Terragrunt configuration files to a canonical format.
   entry: hooks/terragrunt_fmt.sh
   language: script
   files: (\.hcl)$
@@ -95,7 +103,8 @@
 
 - id: terragrunt_providers_lock
   name: Terragrunt providers lock
-  description: Updates provider signatures in dependency lock files using terragrunt.
+  description: >-
+    Updates provider signatures in dependency lock files using terragrunt.
   entry: hooks/terragrunt_providers_lock.sh
   language: script
   files: (terragrunt|\.terraform\.lock)\.hcl$
@@ -103,7 +112,8 @@
 
 - id: terraform_tfsec
   name: Terraform validate with tfsec (deprecated, use "terraform_trivy")
-  description: Static analysis of Terraform templates to spot potential security issues.
+  description: >-
+    Static analysis of Terraform templates to spot potential security issues.
   require_serial: true
   entry: hooks/terraform_tfsec.sh
   files: \.tf(vars)?$
@@ -111,7 +121,8 @@
 
 - id: terraform_trivy
   name: Terraform validate with trivy
-  description: Static analysis of Terraform templates to spot potential security issues.
+  description: >-
+    Static analysis of Terraform templates to spot potential security issues.
   require_serial: true
   entry: hooks/terraform_trivy.sh
   files: \.tf(vars)?$
@@ -164,6 +175,6 @@
   language: script
   entry: hooks/tfupdate.sh
   args:
-    - --args=terraform
+  - --args=terraform
   files: \.tf$
   require_serial: true
