@@ -387,8 +387,14 @@ jobs:
         - pre-commit
         - metadata-validation
         environment-variables:
+        # `no-commit-to-branch` is skipped because it does not make sense
+        # in the CI, only locally.
+        # Ref: https://github.com/pre-commit/pre-commit-hooks/issues/1124
         - >-  # only affects pre-commit, set for all for simplicity:
-          SKIP=hadolint,shfmt
+          SKIP=
+          hadolint,
+          no-commit-to-branch,
+          shfmt,
         tox-run-posargs:
         - ''
         xfail:
