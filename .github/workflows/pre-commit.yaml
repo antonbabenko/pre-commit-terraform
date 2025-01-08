@@ -38,7 +38,7 @@ jobs:
     # Skip terraform_tflint which interferes to commit pre-commit auto-fixes
     - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Execute pre-commit
       uses: pre-commit/action@9b88afc9cd57fd75b655d5c71bd38146d07135fe # v2.0.3
       env:
