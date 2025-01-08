@@ -3,9 +3,9 @@
 import os
 import subprocess
 import warnings
-from argparse import ArgumentParser
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
 from typing import Final
+from typing import cast as cast_to
 
 from pre_commit_terraform._structs import ReturnCode
 from pre_commit_terraform._types import ReturnCodeType
@@ -70,26 +70,28 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
     )
 
     dirs = []
-    for filename in parsed_cli_args.files:
-        if os.path.realpath(filename) not in dirs and (
-            filename.endswith('.tf') or filename.endswith('.tfvars')
-        ):
+    for filename in cast_to(list[str], parsed_cli_args.filenames):
+        if (os.path.realpath(filename) not in dirs and
+                (filename.endswith(".tf") or filename.endswith(".tfvars"))):
             dirs.append(os.path.dirname(filename))
 
     retval = ReturnCode.OK
 
     for directory in dirs:
         try:
-            proc_args = []
-            proc_args.append('terraform-docs')
-            if parsed_cli_args.sort:
-                proc_args.append('--sort-by-required')
-            proc_args.append('md')
-            proc_args.append(f'./{directory}')
-            proc_args.append('>')
-            proc_args.append(f'./{directory}/{parsed_cli_args.dest}')
-            subprocess.check_call(' '.join(proc_args), shell=True)
-        except subprocess.CalledProcessError as exception:
-            print(exception)
+            procArgs = []
+            procArgs.append('terraform-docs')
+            if cast_to(bool, parsed_cli_args.sort):
+                procArgs.append('--sort-by-required')
+            procArgs.append('md')
+            procArgs.append("./{dir}".format(dir=dir))
+            procArgs.append('>')
+            procArgs.append(
+                './{dir}/{dest}'.
+                format(dir=dir, dest=cast_to(bool, parsed_cli_args.dest)),
+            )
+            subprocess.check_call(" ".join(procArgs), shell=True)
+        except subprocess.CalledProcessError as e:
+            print(e)
             retval = ReturnCode.ERROR
     return retval

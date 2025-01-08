@@ -1,7 +1,12 @@
 [build.targets.sdist]
 include = [
   '.pre-commit-hooks.yaml',
+  '.codecov.yml',
+  '.coveragerc',
   'src/',
+  'tests/',
+  'pytest.ini',
+  'tox.ini',
 ]
 
 [build.targets.wheel]
