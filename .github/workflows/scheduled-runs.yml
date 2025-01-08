@@ -1,0 +1,41 @@
+---
+
+name: ⏳
+
+on:
+  pull_request:
+    paths:  # only changes to this workflow itself trigger PR testing
+    - .github/workflows/scheduled-runs.yml
+  schedule:
+  - cron: 3 5 * * *  # run daily at 5:03 UTC
+  workflow_dispatch:  # manual trigger
+
+run-name: >-
+  🌃
+  Nightly run of
+  ${{
+      github.event.pull_request.number && 'PR' || ''
+  }}${{
+      !github.event.pull_request.number && 'Commit' || ''
+  }}
+  ${{ github.event.pull_request.number || github.sha }}
+  triggered by: ${{ github.event_name }} of ${{
+    github.ref
+  }} ${{
+    github.ref_type
+  }}
+  (workflow run ID: ${{
+    github.run_id
+  }}; number: ${{
+    github.run_number
+  }}; attempt: ${{
+    github.run_attempt
+  }})
+
+jobs:
+  main-ci-cd-pipeline:
+    name: 🧪 Main CI/CD pipeline
+    uses: ./.github/workflows/ci-cd.yml
+    secrets: inherit
+
+...

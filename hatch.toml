@@ -1,6 +1,11 @@
 [build.targets.sdist]
 include = [
+  '.codecov.yml',
+  '.coveragerc',
   'src/',
+  'tests/',
+  'pytest.ini',
+  'tox.ini',
 ]
 
 [build.targets.wheel]
