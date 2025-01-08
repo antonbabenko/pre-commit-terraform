@@ -46,4 +46,9 @@ coverage:
         - MyPy
         target: 90%
 
+github_checks:
+  # Annotations are deprecated in Codecov because they are misleading.
+  # Ref: https://github.com/codecov/codecov-action/issues/1710
+  annotations: false
+
 ...
