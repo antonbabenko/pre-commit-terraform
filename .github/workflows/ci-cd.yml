@@ -392,9 +392,9 @@ jobs:
         # Ref: https://github.com/pre-commit/pre-commit-hooks/issues/1124
         - >-  # only affects pre-commit, set for all for simplicity:
           SKIP=
-          hadolint,
-          no-commit-to-branch,
-          shfmt,
+            hadolint,
+            no-commit-to-branch,
+            shfmt,
         tox-run-posargs:
         - ''
         xfail:
