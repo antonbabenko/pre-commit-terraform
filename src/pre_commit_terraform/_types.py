@@ -1,11 +1,12 @@
 """Composite types for annotating in-project code."""
 
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
+from argparse import Namespace
 from collections.abc import Callable
-from typing import Protocol, Union
+from typing import Protocol
+from typing import Union
 
 from pre_commit_terraform._structs import ReturnCode
-
 
 ReturnCodeType = Union[ReturnCode, int]  # Union instead of pipe for Python 3.9
 CLIAppEntryPointCallableType = Callable[[Namespace], ReturnCodeType]
