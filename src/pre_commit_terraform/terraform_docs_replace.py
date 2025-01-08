@@ -2,13 +2,13 @@ import os
 import subprocess
 import warnings
 from argparse import ArgumentParser, Namespace
-from typing import Final
+from typing import cast as cast_to
 
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
 
 
-CLI_SUBCOMMAND_NAME: Final[str] = 'replace-docs'
+CLI_SUBCOMMAND_NAME: str = 'replace-docs'
 
 
 def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
@@ -50,7 +50,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
     )
 
     dirs = []
-    for filename in parsed_cli_args.filenames:
+    for filename in cast_to(list[str], parsed_cli_args.filenames):
         if (os.path.realpath(filename) not in dirs and
                 (filename.endswith(".tf") or filename.endswith(".tfvars"))):
             dirs.append(os.path.dirname(filename))
@@ -61,14 +61,14 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         try:
             procArgs = []
             procArgs.append('terraform-docs')
-            if parsed_cli_args.sort:
+            if cast_to(bool, parsed_cli_args.sort):
                 procArgs.append('--sort-by-required')
             procArgs.append('md')
             procArgs.append("./{dir}".format(dir=dir))
             procArgs.append('>')
             procArgs.append(
                 './{dir}/{dest}'.
-                format(dir=dir, dest=parsed_cli_args.dest),
+                format(dir=dir, dest=cast_to(bool, parsed_cli_args.dest)),
             )
             subprocess.check_call(" ".join(procArgs), shell=True)
         except subprocess.CalledProcessError as e:
