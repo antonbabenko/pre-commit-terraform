@@ -20,7 +20,7 @@ coverage:
       default:
         target: 100%
       pytest:
-        target: 50%
+        target: 100%
         flags:
         - pytest
       typing:
