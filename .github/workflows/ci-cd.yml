@@ -452,7 +452,7 @@ jobs:
         - macos-13
         - windows-2025
         toxenv:
-        - py
+        - pytest
         xfail:
         - false
 
