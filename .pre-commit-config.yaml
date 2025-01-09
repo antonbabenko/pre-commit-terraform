@@ -1,44 +1,57 @@
+---
+
 ci:
   autoupdate_schedule: quarterly
   skip:
-    - shfmt
-    - shellcheck
-    - hadolint
+  - shfmt
+  - shellcheck
+  - hadolint
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v5.0.0
   hooks:
-    # Git style
-    - id: check-added-large-files
-    - id: check-merge-conflict
-    - id: check-vcs-permalinks
-    - id: forbid-new-submodules
-    - id: no-commit-to-branch
+  # Git style
+  - id: check-added-large-files
+  - id: check-merge-conflict
+  - id: check-vcs-permalinks
+  - id: forbid-new-submodules
+  - id: no-commit-to-branch
 
-    # Common errors
-    - id: end-of-file-fixer
-    - id: trailing-whitespace
-      args: [--markdown-linebreak-ext=md]
-      exclude: CHANGELOG.md
-    - id: check-yaml
-    - id: check-merge-conflict
-    - id: check-executables-have-shebangs
+  # Common errors
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+    args: [--markdown-linebreak-ext=md]
+    exclude: CHANGELOG.md
+  - id: check-yaml
+  - id: check-merge-conflict
+  - id: check-executables-have-shebangs
 
-    # Cross platform
-    - id: check-case-conflict
-    - id: mixed-line-ending
-      args: [--fix=lf]
+  # Cross platform
+  - id: check-case-conflict
+  - id: mixed-line-ending
+    args: [--fix=lf]
 
-    # Security
-    - id: detect-aws-credentials
-      args: ['--allow-missing-credentials']
-    - id: detect-private-key
+  # Security
+  - id: detect-aws-credentials
+    args:
+    - --allow-missing-credentials
+  - id: detect-private-key
 
-    # Non-modifying checks:
-    - id: name-tests-test
-      files: >-
-        ^tests/[^_].*\.py$
+  # Non-modifying checks:
+  - id: name-tests-test
+    files: >-
+      ^tests/[^_].*\.py$
+
+- repo: https://github.com/adrienverge/yamllint.git
+  rev: v1.35.1
+  hooks:
+  - id: yamllint
+    types:
+    - file
+    - yaml
+    args:
+    - --strict
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git
   rev: v1.14.1
@@ -98,25 +111,30 @@ repos:
 - repo: https://github.com/jumanjihouse/pre-commit-hooks
   rev: 3.0.0
   hooks:
-    - id: shfmt
-      args: ['-l', '-i', '2', '-ci', '-sr', '-w']
-    - id: shellcheck
+  - id: shfmt
+    args:
+    - -l
+    - -i
+    - '2'
+    - -ci
+    - -sr
+    - -w
+  - id: shellcheck
 
 # Dockerfile linter
 - repo: https://github.com/hadolint/hadolint
   rev: v2.12.1-beta
   hooks:
-    - id: hadolint
-      args: [
-        '--ignore', 'DL3007', # Using latest
-        '--ignore', 'DL3013', # Pin versions in pip
-        '--ignore', 'DL3027', # Do not use apt
-        '--ignore', 'DL3059', # Docker `RUN`s shouldn't be consolidated here
-        '--ignore', 'DL4006', # Not related to alpine
-        '--ignore', 'SC1091', # Useless check
-        '--ignore', 'SC2015', # Useless check
-        '--ignore', 'SC3037', # Not related to alpine
-      ]
+  - id: hadolint
+    args:
+    - --ignore=DL3007  # Using latest
+    - --ignore=DL3013  # Pin versions in pip
+    - --ignore=DL3027  # Do not use apt
+    - --ignore=DL3059  # Docker `RUN`s shouldn't be consolidated here
+    - --ignore=DL4006  # Not related to alpine
+    - --ignore=SC1091  # Useless check
+    - --ignore=SC2015  # Useless check
+    - --ignore=SC3037  # Not related to alpine
 
 # JSON5 Linter
 - repo: https://github.com/pre-commit/mirrors-prettier
@@ -124,4 +142,4 @@ repos:
   hooks:
   - id: prettier
     # https://prettier.io/docs/en/options.html#parser
-    files: '.json5$'
+    files: .json5$

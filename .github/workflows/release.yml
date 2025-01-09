@@ -1,34 +1,37 @@
+---
+
 name: Release
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - master
+    - master
     paths:
-      - '**/*.py'
-      - '**/*.sh'
-      - 'Dockerfile'
-      - '.pre-commit-hooks.yaml'
-      # Ignore paths
-      - '!tests/**'
+    - '**/*.py'
+    - '**/*.sh'
+    - Dockerfile
+    - .pre-commit-hooks.yaml
+    # Ignore paths
+    - '!tests/**'
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          persist-credentials: false
-          fetch-depth: 0
+    - name: Checkout
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+      with:
+        persist-credentials: false
+        fetch-depth: 0
 
-      - name: Release
-        uses: cycjimmy/semantic-release-action@cb425203a562475bca039ba4dbf90c7f9ac790f4 # v4.1.0
-        with:
-          semantic_version: 18.0.0
-          extra_plugins: |
-            @semantic-release/changelog@6.0.0
-            @semantic-release/git@10.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+    - name: Release
+      # yamllint disable-line rule:line-length
+      uses: cycjimmy/semantic-release-action@cb425203a562475bca039ba4dbf90c7f9ac790f4  # v4.1.0
+      with:
+        semantic_version: 18.0.0
+        extra_plugins: |
+          @semantic-release/changelog@6.0.0
+          @semantic-release/git@10.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
