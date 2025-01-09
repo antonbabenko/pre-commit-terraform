@@ -169,7 +169,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
     Make sure that all checks pass.
 
-4. (Optional): If you want to see more explicit MyPy checks, you can run:
+4. (Optional): If you want to see more details on MyPy checks, you can run:
 
     ```bash
     tox r -qq -e pre-commit -- mypy --all-files
@@ -177,7 +177,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
     Then copy-paste and run the `python3 ...` commands to check the strictest MyPy coverage reports.
 
-5. (Optional): You can find all available environments by running:
+5. (Optional): You can find all available `tox` environments by running:
 
     ```bash
     tox list
