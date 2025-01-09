@@ -49,7 +49,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         category=UserWarning,
     )
 
-    dirs = []
+    dirs: list[str] = []
     for filename in cast_to(list[str], parsed_cli_args.filenames):
         if (os.path.realpath(filename) not in dirs and
                 (filename.endswith(".tf") or filename.endswith(".tfvars"))):
