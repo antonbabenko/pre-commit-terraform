@@ -262,7 +262,7 @@ jobs:
       shell: bash
     - name: Download all the dists
       if: >-
-        contains(fromJSON('["metadata-validation", "py"]'), inputs.toxenv)
+        contains(fromJSON('["metadata-validation", "pytest"]'), inputs.toxenv)
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.dists-artifact-name }}
