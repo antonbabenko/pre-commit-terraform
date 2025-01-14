@@ -139,7 +139,7 @@ function common::parse_and_export_env_vars {
         # `$arg` will be checked in `if` conditional, `$ARGS` will be used in the next functions.
         # shellcheck disable=SC2016 # '${' should not be expanded
         arg=${arg/'${'$env_var_name'}'/$env_var_value}
-        ARGS[$arg_idx]=$arg
+        ARGS[arg_idx]=$arg
         # shellcheck disable=SC2016 # '${' should not be expanded
         common::colorify "green" 'After ${'"$env_var_name"'} expansion: '"'$arg'\n"
         continue
