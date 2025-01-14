@@ -169,7 +169,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
     Make sure that all checks pass.
 
-4. (Optional): If you want to see more details on MyPy checks, you can run:
+4. (Optional): If you want to limit the checks to MyPy only, you can run:
 
     ```bash
     tox r -qq -e pre-commit -- mypy --all-files
