@@ -42,8 +42,8 @@ function replace_old_markers {
 
   # Determine the appropriate sed command based on the operating system (GNU sed or BSD sed)
   sed --version &> /dev/null && SED_CMD=(sed -i) || SED_CMD=(sed -i '')
-  "${SED_CMD[@]}" -e "s|^${old_insertion_marker_begin}$|${insertion_marker_begin}|" "$file"
-  "${SED_CMD[@]}" -e "s|^${old_insertion_marker_end}$|${insertion_marker_end}|" "$file"
+  "${SED_CMD[@]}" -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin//\//\\/}/" "$file"
+  "${SED_CMD[@]}" -e "s/^${old_insertion_marker_end}$/${insertion_marker_begin//\//\\/}/" "$file"
 }
 
 #######################################################################
@@ -115,11 +115,13 @@ function terraform_docs {
         common::colorify "yellow" "WARNING: --use-standard-markers is deprecated and will be removed in the future."
         common::colorify "yellow" "         All needed changes already done by the hook, feel free to remove --use-standard-markers setting from your pre-commit config"
         ;;
-        --custom-marker-begin)
+      --custom-marker-begin)
         insertion_marker_begin=$value
+        common::colorify "yellow" "INFO: --custom-marker-begin is used and the marker is set to \"$value\"."
         ;;
-        --custom-marker-end)
+      --custom-marker-end)
         insertion_marker_end=$value
+        common::colorify "yellow" "INFO: --custom-marker-end is used and the marker is set to \"$value\"."
         ;;
     esac
   done
