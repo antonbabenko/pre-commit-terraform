@@ -41,7 +41,7 @@ jobs:
 
     - name: Set up Docker Buildx
       # yamllint disable-line rule:line-length
-      uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb  # v3.3.0
+      uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5  # v3.8.0
 
     - name: Build if Dockerfile changed
       if: steps.changed-files-specific.outputs.any_changed == 'true'
