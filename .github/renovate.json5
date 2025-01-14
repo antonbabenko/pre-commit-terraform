@@ -1,4 +1,6 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["local>SpotOnInc/renovate-config"],
+  // To make happy 'Validate PR title' GHA
+  commitMessageLowerCase: "never",
 }
