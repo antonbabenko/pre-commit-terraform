@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
     - name: Set up QEMU
       # yamllint disable-line rule:line-length
       uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3  # v3.0.0
