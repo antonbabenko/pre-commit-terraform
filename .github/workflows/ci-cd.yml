@@ -106,6 +106,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.13 by default
+      # yamllint disable-line rule:line-length
       uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
       with:
         python-version: 3.13
@@ -268,6 +269,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.13
+      # yamllint disable-line rule:line-length
       uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
       with:
         python-version: 3.13
