@@ -46,7 +46,7 @@ jobs:
     - name: Build if Dockerfile changed
       if: steps.changed-files-specific.outputs.any_changed == 'true'
       # yamllint disable-line rule:line-length
-      uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2  # v6.0.1
+      uses: docker/build-push-action@b32b51a8eda65d6793cd0494a773d4f6bcef32dc  # v6.11.0
       with:
         context: .
         build-args: |
@@ -88,7 +88,7 @@ jobs:
         && matrix.os == 'ubuntu-latest'
         && matrix.arch == 'amd64'
       # yamllint disable-line rule:line-length
-      uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2  # v6.0.1
+      uses: docker/build-push-action@b32b51a8eda65d6793cd0494a773d4f6bcef32dc  # v6.11.0
       with:
         context: .
         build-args: |
