@@ -23,7 +23,7 @@ jobs:
     - name: Get changed Docker related files
       id: changed-files-specific
       # yamllint disable-line rule:line-length
-      uses: tj-actions/changed-files@d6babd6899969df1a11d14c368283ea4436bca78  # v44.5.2
+      uses: tj-actions/changed-files@d6e91a2266cdb9d62096cebf1e8546899c6aa18f  # v45.0.6
       with:
         files: |
           Dockerfile
