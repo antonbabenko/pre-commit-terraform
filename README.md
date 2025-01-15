@@ -609,13 +609,13 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --hook-config=--create-file-if-not-exist=true # Boolean. true or false
         - --hook-config=--use-standard-markers=true     # Boolean. Defaults to true (v1.93+), false (<v1.93). Set to true for compatibility with terraform-docs
           # The following two options "--custom-marker-begin" and "--custom-marker-end" are ignored if "--use-standard-markers" is set to false
-        - --hook-config=--custom-marker-begin           # String. Defaults to "<!-- BEGIN_TF_DOCS -->" (v1.93+), "<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" (<v1.93).
+        - --hook-config=--custom-marker-begin=<!-- BEGIN_TF_DOCS -->  # String.
                                                         # Set to use custom marker which helps you with using other formats like asciidoc.
                                                         # For Asciidoc this could be "--hook-config=--custom-marker-begin=// BEGIN_TF_DOCS"
-        - --hook-config=--custom-marker-end             # String. Defaults to "<!-- END_TF_DOCS -->" (v1.93+), "<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->" (<v1.93).
+        - --hook-config=--custom-marker-end=<!-- END_TF_DOCS -->  # String.
                                                         # Set to use custom marker which helps you with using other formats like asciidoc.
                                                         # For Asciidoc this could be "--hook-config=--custom-marker-end=// END_TF_DOCS"
-        - --hook-config=--custom-doc-header             # String. Defaults to "# "
+        - --hook-config=--custom-doc-header="# "        # String. Defaults to "# "
                                                         # Set to use custom marker which helps you with using other formats like asciidoc.
                                                         # For Asciidoc this could be "--hook-config=--custom-marker-end=\= "
     ```
