@@ -35,7 +35,7 @@ jobs:
     - name: Set up QEMU
       if: matrix.os != 'ubuntu-latest' || matrix.arch != 'amd64'
       # yamllint disable-line rule:line-length
-      uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3  # v3.0.0
+      uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a  # v3.3.0
       with:
         platforms: arm64
 
