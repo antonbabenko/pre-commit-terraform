@@ -9,6 +9,7 @@ readonly SCRIPT_DIR
 
 insertion_marker_begin="<!-- BEGIN_TF_DOCS -->"
 insertion_marker_end="<!-- END_TF_DOCS -->"
+doc_header="# "
 
 # Old markers used by the hook before the introduction of the terraform-docs markers
 readonly old_insertion_marker_begin="<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
@@ -123,6 +124,10 @@ function terraform_docs {
         insertion_marker_end=$value
         common::colorify "yellow" "INFO: --custom-marker-end is used and the marker is set to \"$value\"."
         ;;
+      --custom-doc-header)
+        doc_header=$value
+        common::colorify "yellow" "INFO: --custom-doc-header is used and the marker is set to \"$value\"."
+        ;;
     esac
   done
 
@@ -206,7 +211,7 @@ function terraform_docs {
 
       # Use of insertion markers, where there is no existing README file
       {
-        echo -e "# ${PWD##*/}\n"
+        echo -e "${doc_header}${PWD##*/}\n"
         echo "$insertion_marker_begin"
         echo "$insertion_marker_end"
       } >> "$output_file"
