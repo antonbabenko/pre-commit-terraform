@@ -1,11 +1,5 @@
 # Notes for contributors
 
-1. Python hooks are supported now too. All you have to do is:
-    1. add a line to the `console_scripts` array in `entry_points` in `setup.py`
-    2. Put your python script in the `pre_commit_hooks` folder
-
-Enjoy the clean, valid, and documented code!
-
 * [Run and debug hooks locally](#run-and-debug-hooks-locally)
 * [Run hook performance test](#run-hook-performance-test)
   * [Run via BASH](#run-via-bash)
@@ -18,6 +12,7 @@ Enjoy the clean, valid, and documented code!
   * [Prepare basic documentation](#prepare-basic-documentation)
   * [Add code](#add-code)
   * [Finish with the documentation](#finish-with-the-documentation)
+* [Contributing to Python code](#contributing-to-python-code)
 
 ## Run and debug hooks locally
 
@@ -152,5 +147,38 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 ### Finish with the documentation
 
-1. Add hook description to [Available Hooks](../README.md#available-hooks).
+1. Add the hook description to [Available Hooks](../README.md#available-hooks).
 2. Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
+
+## Contributing to Python code
+
+1. [Install `tox`](https://tox.wiki/en/stable/installation.html)
+2. To run tests, run:
+
+    ```bash
+    tox -qq
+    ```
+
+    The easiest way to find out what parts of the code base are left uncovered, is to copy-paste and run the `python3 ...` command that will open the HTML report, so you can inspect it visually.
+
+3. Before committing any changes (if you do not have `pre-commit` installed locally), run:
+
+    ```bash
+    tox r -qq -e pre-commit
+    ```
+
+    Make sure that all checks pass.
+
+4. (Optional): If you want to limit the checks to MyPy only, you can run:
+
+    ```bash
+    tox r -qq -e pre-commit -- mypy --all-files
+    ```
+
+    Then copy-paste and run the `python3 ...` commands to inspect the strictest MyPy coverage reports visually.
+
+5. (Optional): You can find all available `tox` environments by running:
+
+    ```bash
+    tox list
+    ```
