@@ -166,7 +166,8 @@ jobs:
     - name: Grab the source from Git
       if: >-
         contains(fromJSON('["pre-commit", "spellcheck-docs"]'), inputs.toxenv)
-      uses: actions/checkout@v4
+      # yamllint disable-line rule:line-length
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       with:
         ref: ${{ github.event.inputs.release-committish }}
     - name: Retrieve the project source from an sdist inside the GHA artifact
