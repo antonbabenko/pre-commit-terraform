@@ -106,7 +106,8 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.13 by default
-      uses: actions/setup-python@v5
+      # yamllint disable-line rule:line-length
+      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
       with:
         python-version: 3.13
     - name: Check out src from Git
@@ -269,7 +270,8 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.13
-      uses: actions/setup-python@v5
+      # yamllint disable-line rule:line-length
+      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
       with:
         python-version: 3.13
 
@@ -361,7 +363,8 @@ jobs:
         >> "${GITHUB_OUTPUT}"
       working-directory: dist
     - name: Store the distribution packages
-      uses: actions/upload-artifact@v4
+      # yamllint disable-line rule:line-length
+      uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08  # v4.6.0
       with:
         name: >-
           ${{ needs.pre-setup.outputs.dists-artifact-name }}
