@@ -12,7 +12,7 @@
   * [Prepare basic documentation](#prepare-basic-documentation)
   * [Add code](#add-code)
   * [Finish with the documentation](#finish-with-the-documentation)
-  * [Work with Python hooks](#work-with-python-hooks)
+* [Contributing to Python code](#contributing-to-python-code)
 
 ## Run and debug hooks locally
 
@@ -150,7 +150,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 1. Add the hook description to [Available Hooks](../README.md#available-hooks).
 2. Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
 
-### Work with Python hooks
+## Contributing to Python code
 
 1. [Install `tox`](https://tox.wiki/en/stable/installation.html)
 2. To run tests, run:
