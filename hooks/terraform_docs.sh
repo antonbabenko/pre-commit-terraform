@@ -118,15 +118,15 @@ function terraform_docs {
         ;;
       --custom-marker-begin)
         insertion_marker_begin=$value
-        common::colorify "yellow" "INFO: --custom-marker-begin is used and the marker is set to \"$value\"."
+        common::colorify "green" "INFO: --custom-marker-begin is used and the marker is set to \"$value\"."
         ;;
       --custom-marker-end)
         insertion_marker_end=$value
-        common::colorify "yellow" "INFO: --custom-marker-end is used and the marker is set to \"$value\"."
+        common::colorify "green" "INFO: --custom-marker-end is used and the marker is set to \"$value\"."
         ;;
       --custom-doc-header)
         doc_header=$value
-        common::colorify "yellow" "INFO: --custom-doc-header is used and the marker is set to \"$value\"."
+        common::colorify "green" "INFO: --custom-doc-header is used and the doc header is set to \"$value\"."
         ;;
     esac
   done
