@@ -159,7 +159,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
     tox -qq
     ```
 
-    If there are any issues, copy-paste and run the `python3 ...` command to visualize the pytest coverage report.
+    The easiest way to find out what parts of the code base are left uncovered, is to copy-paste and run the `python3 ...` command that will open the HTML report, so you can inspect it visually.
 
 3. Before committing any changes (if you do not have `pre-commit` installed locally), run:
 
@@ -175,7 +175,7 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
     tox r -qq -e pre-commit -- mypy --all-files
     ```
 
-    Then copy-paste and run the `python3 ...` commands to check the strictest MyPy coverage reports.
+    Then copy-paste and run the `python3 ...` commands to inspect the strictest MyPy coverage reports visually.
 
 5. (Optional): You can find all available `tox` environments by running:
 

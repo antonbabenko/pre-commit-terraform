@@ -293,7 +293,8 @@ jobs:
         --
         python -Im pre_commit install-hooks
     # Create GHA Job Summary markdown table of the coverage report
-    # For details: ../../tox.ini '[testenv]' 'commands_post'
+    # But only for 'pytest' env in 'tox'.
+    # For details: ../../tox.ini '[testenv:pytest]' 'commands_post'
     - name: >-
         Run tox envs: `${{ env.TOXENV }}`
       id: tox-run
@@ -310,7 +311,7 @@ jobs:
           && format('-- {0}', inputs.tox-run-posargs)
           || ''
         }}
-    # Generate nice picture of passed/failed tests in GHA Job Summary
+    # Generate nice SVG image of passed/failed tests in GHA Job Summary
     - name: Produce markdown test summary from JUnit
       if: >-
         !cancelled()
