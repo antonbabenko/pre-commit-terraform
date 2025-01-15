@@ -15,16 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
     - name: Set up QEMU
       # yamllint disable-line rule:line-length
-      uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3  # v3.0.0
+      uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a  # v3.3.0
     - name: Set up Docker Buildx
       # yamllint disable-line rule:line-length
-      uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb  # v3.3.0
+      uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5  # v3.8.0
     - name: Login to GitHub Container Registry
       # yamllint disable-line rule:line-length
-      uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446  # v3.2.0
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567  # v3.3.0
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
@@ -39,12 +39,12 @@ jobs:
 
     - name: Set up Docker Buildx
       # yamllint disable-line rule:line-length
-      uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb  # v3.3.0
+      uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5  # v3.8.0
 
     - name: Build and Push release
       if: github.event_name != 'schedule'
       # yamllint disable-line rule:line-length
-      uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2  # v6.0.1
+      uses: docker/build-push-action@b32b51a8eda65d6793cd0494a773d4f6bcef32dc  # v6.11.0
       with:
         context: .
         build-args: |
@@ -62,7 +62,7 @@ jobs:
     - name: Build and Push nightly
       if: github.event_name == 'schedule'
       # yamllint disable-line rule:line-length
-      uses: docker/build-push-action@94f8f8c2eec4bc3f1d78c1755580779804cb87b2  # v6.0.1
+      uses: docker/build-push-action@b32b51a8eda65d6793cd0494a773d4f6bcef32dc  # v6.11.0
       with:
         context: .
         build-args: |
