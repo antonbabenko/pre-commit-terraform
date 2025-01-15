@@ -317,7 +317,7 @@ jobs:
       if: >-
         !cancelled()
         && steps.tox-run.outputs.test-result-files != ''
-      uses: test-summary/action@v2.3
+      uses: test-summary/action@032c8a9cec6aaa3c20228112cae6ca10a3b29336 # v2.3
       with:
         paths: >-
           ${{ steps.tox-run.outputs.test-result-files }}
@@ -334,7 +334,7 @@ jobs:
         && steps.tox-run.outputs.cov-report-files != ''
         && steps.tox-run.outputs.test-result-files == ''
         && steps.tox-run.outputs.codecov-flags != 'MyPy'
-      uses: irongut/CodeCoverageSummary@v1.3.0
+      uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95 # v1.3.0
       with:
         badge: true
         filename: >-
