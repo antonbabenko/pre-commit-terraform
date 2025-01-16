@@ -9,6 +9,7 @@ readonly SCRIPT_DIR
 
 insertion_marker_begin="<!-- BEGIN_TF_DOCS -->"
 insertion_marker_end="<!-- END_TF_DOCS -->"
+doc_header="# "
 
 # Old markers used by the hook before the introduction of the terraform-docs markers
 readonly old_insertion_marker_begin="<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->"
@@ -42,8 +43,8 @@ function replace_old_markers {
 
   # Determine the appropriate sed command based on the operating system (GNU sed or BSD sed)
   sed --version &> /dev/null && SED_CMD=(sed -i) || SED_CMD=(sed -i '')
-  "${SED_CMD[@]}" -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin}/" "$file"
-  "${SED_CMD[@]}" -e "s/^${old_insertion_marker_end}$/${insertion_marker_end}/" "$file"
+  "${SED_CMD[@]}" -e "s/^${old_insertion_marker_begin}$/${insertion_marker_begin//\//\\/}/" "$file"
+  "${SED_CMD[@]}" -e "s/^${old_insertion_marker_end}$/${insertion_marker_end//\//\\/}/" "$file"
 }
 
 #######################################################################
@@ -114,6 +115,18 @@ function terraform_docs {
         use_standard_markers=$value
         common::colorify "yellow" "WARNING: --use-standard-markers is deprecated and will be removed in the future."
         common::colorify "yellow" "         All needed changes already done by the hook, feel free to remove --use-standard-markers setting from your pre-commit config"
+        ;;
+      --custom-marker-begin)
+        insertion_marker_begin=$value
+        common::colorify "green" "INFO: --custom-marker-begin is used and the marker is set to \"$value\"."
+        ;;
+      --custom-marker-end)
+        insertion_marker_end=$value
+        common::colorify "green" "INFO: --custom-marker-end is used and the marker is set to \"$value\"."
+        ;;
+      --custom-doc-header)
+        doc_header=$value
+        common::colorify "green" "INFO: --custom-doc-header is used and the doc header is set to \"$value\"."
         ;;
     esac
   done
@@ -198,7 +211,7 @@ function terraform_docs {
 
       # Use of insertion markers, where there is no existing README file
       {
-        echo -e "# ${PWD##*/}\n"
+        echo -e "${doc_header}${PWD##*/}\n"
         echo "$insertion_marker_begin"
         echo "$insertion_marker_end"
       } >> "$output_file"

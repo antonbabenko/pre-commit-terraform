@@ -608,6 +608,16 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --hook-config=--add-to-existing-file=true     # Boolean. true or false
         - --hook-config=--create-file-if-not-exist=true # Boolean. true or false
         - --hook-config=--use-standard-markers=true     # Boolean. Defaults to true (v1.93+), false (<v1.93). Set to true for compatibility with terraform-docs
+          # The following two options "--custom-marker-begin" and "--custom-marker-end" are ignored if "--use-standard-markers" is set to false
+        - --hook-config=--custom-marker-begin=<!-- BEGIN_TF_DOCS -->  # String.
+                                                        # Set to use custom marker which helps you with using other formats like asciidoc.
+                                                        # For Asciidoc this could be "--hook-config=--custom-marker-begin=// BEGIN_TF_DOCS"
+        - --hook-config=--custom-marker-end=<!-- END_TF_DOCS -->  # String.
+                                                        # Set to use custom marker which helps you with using other formats like asciidoc.
+                                                        # For Asciidoc this could be "--hook-config=--custom-marker-end=// END_TF_DOCS"
+        - --hook-config=--custom-doc-header="# "        # String. Defaults to "# "
+                                                        # Set to use custom marker which helps you with using other formats like asciidoc.
+                                                        # For Asciidoc this could be "--hook-config=--custom-marker-end=\= "
     ```
 
 4. If you want to use a terraform-docs config file, you must supply the path to the file, relative to the git repo root path:
