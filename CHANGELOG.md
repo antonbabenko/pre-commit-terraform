@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.97.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.3...v1.97.0) (2025-01-16)
+
+
+### Features
+
+* **`terraform_docs`:** Add support for custom markers to better support other formats than Markdown ([#752](https://github.com/antonbabenko/pre-commit-terraform/issues/752)) ([cd090b6](https://github.com/antonbabenko/pre-commit-terraform/commit/cd090b69c19869924a468b5a81be63264b679171))
+
 ## [1.96.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.2...v1.96.3) (2024-12-24)
 
 
