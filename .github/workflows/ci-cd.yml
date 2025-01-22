@@ -335,8 +335,6 @@ jobs:
         --notest
 
     - name: Drop Git tags from HEAD for non-tag-create events
-      if: >-
-        !fromJSON(needs.pre-setup.outputs.release-requested)
       run: >-
         git tag --points-at HEAD
         |
