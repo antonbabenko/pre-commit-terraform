@@ -334,6 +334,15 @@ jobs:
         --skip-missing-interpreters false
         --notest
 
+    - name: Drop Git tags from HEAD for non-tag-create events
+      if: >-
+        !fromJSON(needs.pre-setup.outputs.release-requested)
+      run: >-
+        git tag --points-at HEAD
+        |
+        xargs git tag --delete
+      shell: bash
+
     - name: Set static timestamp for dist build reproducibility
       # ... from the last Git commit since it's immutable
       run: >-
