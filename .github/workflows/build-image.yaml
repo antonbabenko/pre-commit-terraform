@@ -10,6 +10,9 @@ on:
   schedule:
   - cron: 00 00 * * *
 
+permissions:
+  contents: read
+
 jobs:
   docker:
     runs-on: ubuntu-latest
