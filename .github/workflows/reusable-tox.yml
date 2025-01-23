@@ -173,7 +173,7 @@ jobs:
     - name: Retrieve the project source from an sdist inside the GHA artifact
       if: >-
         !contains(fromJSON('["pre-commit", "spellcheck-docs"]'), inputs.toxenv)
-      uses: re-actors/checkout-python-sdist@release/v2
+      uses: re-actors/checkout-python-sdist@187f55296b0f54d88259aaaf99af32ad3647d3bc # release/v2
       with:
         source-tarball-name: ${{ inputs.source-tarball-name }}
         workflow-artifact-name: ${{ inputs.dists-artifact-name }}
