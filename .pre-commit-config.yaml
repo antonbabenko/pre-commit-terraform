@@ -32,16 +32,22 @@ repos:
   - id: mixed-line-ending
     args: [--fix=lf]
 
+  # Non-modifying checks:
+  - id: name-tests-test
+    files: >-
+      ^tests/[^_].*\.py$
+
   # Security
   - id: detect-aws-credentials
     args:
     - --allow-missing-credentials
   - id: detect-private-key
 
-  # Non-modifying checks:
-  - id: name-tests-test
-    files: >-
-      ^tests/[^_].*\.py$
+  # Detect hardcoded secrets
+- repo: https://github.com/gitleaks/gitleaks
+  rev: v8.16.3
+  hooks:
+  - id: gitleaks
 
 - repo: https://github.com/adrienverge/yamllint.git
   rev: v1.35.1
@@ -52,6 +58,14 @@ repos:
     - yaml
     args:
     - --strict
+
+# JSON5 Linter
+- repo: https://github.com/pre-commit/mirrors-prettier
+  rev: v3.1.0
+  hooks:
+  - id: prettier
+    # https://prettier.io/docs/en/options.html#parser
+    files: .json5$
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git
   rev: v1.14.1
@@ -135,11 +149,3 @@ repos:
     - --ignore=SC1091  # Useless check
     - --ignore=SC2015  # Useless check
     - --ignore=SC3037  # Not related to alpine
-
-# JSON5 Linter
-- repo: https://github.com/pre-commit/mirrors-prettier
-  rev: v3.1.0
-  hooks:
-  - id: prettier
-    # https://prettier.io/docs/en/options.html#parser
-    files: .json5$
