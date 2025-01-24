@@ -36,8 +36,9 @@ jobs:
       # Lowercase the repo name for make able to run workflow in forks,
       # which owners have uppercase letters in nickname
       run: >-
-        echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY@L}:${{ env.IMAGE_TAG }}"
-          >> $GITHUB_ENV
+        echo "IMAGE=ghcr.io/$(
+          echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'
+        ):${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
 
     - name: Set up QEMU
       if: matrix.os != 'ubuntu-latest' || matrix.arch != 'amd64'
