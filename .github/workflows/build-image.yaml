@@ -15,6 +15,10 @@ permissions:
 
 jobs:
   docker:
+    permissions:
+      # for docker/build-push-action to publish docker image
+      packages: write
+
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code

@@ -14,11 +14,18 @@ on:
     - .pre-commit-hooks.yaml
     # Ignore paths
     - '!tests/**'
+
 permissions:
   contents: read
 
 jobs:
   release:
+    permissions:
+      # for cycjimmy/semantic-release-action to create a release
+      contents: write
+      # for cycjimmy/semantic-release-action to write comments to issues
+      issues: write
+
     name: Release
     runs-on: ubuntu-latest
     steps:
