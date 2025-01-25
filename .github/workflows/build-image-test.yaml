@@ -78,10 +78,10 @@ jobs:
         # renovate: datasource=github-releases depName=container-structure-test lookupName=GoogleContainerTools/container-structure-test
         CST_VERSION: 1.19.3
         CST_REPO: github.com/GoogleContainerTools/container-structure-test
-      run: |
+      run: >-
         curl -L "https://${{ env.CST_REPO }}/releases/download/v${{
-        env.CST_VERSION }}/container-structure-test-linux-${{ matrix.arch
-        }}" > container-structure-test
+        env.CST_VERSION }}/container-structure-test-linux-${{ matrix.arch }}"
+        > container-structure-test
         && chmod +x container-structure-test
         && mv container-structure-test /usr/bin/
 
