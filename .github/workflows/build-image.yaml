@@ -38,12 +38,12 @@ jobs:
         ) >> $GITHUB_ENV
 
     - name: Set IMAGE_REPO environment variable
-      # Lowercase the repo name for make able to run workflow in forks,
-      # which owners have uppercase letters in nickname
+      shell: bash
+      # Lowercase the org/repo name to allow for workflow to run in forks,
+      # which owners have uppercase letters in username
       run: >-
-        echo "IMAGE_REPO=ghcr.io/$(
-          echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'
-        )" >> $GITHUB_ENV
+        echo "IMAGE_REPO=ghcr.io/:${GITHUB_REPOSITORY@L}"
+          >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
       # yamllint disable-line rule:line-length
