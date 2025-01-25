@@ -15,6 +15,9 @@ on:
   pull_request:
   workflow_call:  # a way to embed the main tests
 
+permissions:
+  contents: read
+
 concurrency:
   group: >-
     ${{

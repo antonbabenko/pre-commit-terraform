@@ -83,6 +83,9 @@ on:
         description: Mandatory token for uploading to Codecov
         required: true
 
+permissions:
+  contents: read
+
 env:
   COLOR: >-  # Supposedly, pytest or coveragepy use this
     yes

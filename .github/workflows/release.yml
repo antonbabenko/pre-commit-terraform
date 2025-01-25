@@ -14,8 +14,20 @@ on:
     - .pre-commit-hooks.yaml
     # Ignore paths
     - '!tests/**'
+
+permissions:
+  contents: read
+
 jobs:
   release:
+    permissions:
+      # for cycjimmy/semantic-release-action to create a release
+      contents: write
+      # for cycjimmy/semantic-release-action to write comments to issues
+      issues: write
+      # for cycjimmy/semantic-release-action to write comments to PRs
+      pull-requests: write
+
     name: Release
     runs-on: ubuntu-latest
     steps:
@@ -34,4 +46,7 @@ jobs:
           @semantic-release/changelog@6.0.0
           @semantic-release/git@10.0.0
       env:
+        # Custom token for triggering Docker image build GH Workflow on release
+        # created by cycjimmy/semantic-release-action. Events created by
+        # workflows with default GITHUB_TOKEN not trigger other GH Workflow.
         GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
