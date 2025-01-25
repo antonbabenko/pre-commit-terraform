@@ -11,8 +11,10 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        arch: [amd64, arm64]
+        os:
+        - ubuntu-latest
+        - ubuntu-24.04-arm
+
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -31,13 +33,6 @@ jobs:
           tools/entrypoint.sh
           .github/workflows/build-image-test.yaml
           tools/*.sh
-
-    - name: Set up QEMU
-      if: matrix.os != 'ubuntu-latest' || matrix.arch != 'amd64'
-      # yamllint disable-line rule:line-length
-      uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a  # v3.3.0
-      with:
-        platforms: arm64
 
     - name: Set up Docker Buildx
       # yamllint disable-line rule:line-length
@@ -86,7 +81,6 @@ jobs:
       if: >-
         steps.changed-files-specific.outputs.any_changed == 'true'
         && matrix.os == 'ubuntu-latest'
-        && matrix.arch == 'amd64'
       # yamllint disable-line rule:line-length
       uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d  # v6.12.0
       with:
