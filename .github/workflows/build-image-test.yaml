@@ -32,6 +32,12 @@ jobs:
           .github/workflows/build-image-test.yaml
           tools/*.sh
 
+    - name: Set IMAGE environment variable
+      # Lowercase the org/repo name to allow for workflow to run in forks,
+      # which owners have uppercase letters in username
+      run: >-
+        echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY@L}:${{ env.IMAGE_TAG }}"
+        >> $GITHUB_ENV
     - name: Set up QEMU
       if: matrix.os != 'ubuntu-latest' || matrix.arch != 'amd64'
       # yamllint disable-line rule:line-length
@@ -56,8 +62,7 @@ jobs:
           linux/${{ matrix.arch }}
         push: false
         load: true
-        tags: |
-          ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+        tags: ${{ env.IMAGE }}
         # Fix multi-platform: https://github.com/docker/buildx/issues/1533
         provenance: false
         secrets: |
@@ -68,7 +73,7 @@ jobs:
       # yamllint disable-line rule:line-length
       uses: plexsystems/container-structure-test-action@c0a028aa96e8e82ae35be556040340cbb3e280ca  # v0.3.0
       with:
-        image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+        image: ${{ env.IMAGE }}
         config: .github/.container-structure-test-config.yaml
 
     - name: Dive - check image for waste files
@@ -76,7 +81,7 @@ jobs:
       # yamllint disable-line rule:line-length
       uses: MaxymVlasov/dive-action@379af3fc636888ada5899c997e8b52db6ad45023  # v1.0.1
       with:
-        image: ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+        image: ${{ env.IMAGE }}
         config-file: ${{ github.workspace }}/.github/.dive-ci.yaml
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -95,8 +100,7 @@ jobs:
           INSTALL_ALL=true
         platforms: linux/amd64,linux/arm64
         push: false
-        tags: |
-          ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+        tags: ${{ env.IMAGE }}
         # Fix multi-platform: https://github.com/docker/buildx/issues/1533
         provenance: false
         secrets: |
