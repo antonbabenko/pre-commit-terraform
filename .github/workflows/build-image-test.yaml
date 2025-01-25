@@ -77,12 +77,11 @@ jobs:
         # yamllint disable-line rule:line-length
         # renovate: datasource=github-releases depName=container-structure-test lookupName=GoogleContainerTools/container-structure-test
         CST_VERSION: 1.19.3
-      run: >-
-        curl -L "
-        https://github.com/GoogleContainerTools/container-structure-test/
-        releases/download/v${CST_VERSION}/
-        container-structure-test-linux-${{ matrix.arch }}
-        " > container-structure-test
+        CST_REPO: github.com/GoogleContainerTools/container-structure-test
+      run: |
+        curl -L "https://${{ env.CST_REPO }}/releases/download/v${{
+        env.CST_VERSION }}/container-structure-test-linux-${{ matrix.arch }}"
+        > container-structure-test
         && chmod +x container-structure-test
         && mv container-structure-test /usr/bin/
 
