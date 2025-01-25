@@ -35,10 +35,8 @@ jobs:
     - name: Set IMAGE environment variable
       # Lowercase the org/repo name to allow for workflow to run in forks,
       # which owners have uppercase letters in username
-      shell: bash
       run: >-
-        echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
-
+        echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY@L}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
     - name: Set up QEMU
       if: matrix.os != 'ubuntu-latest' || matrix.arch != 'amd64'
       # yamllint disable-line rule:line-length
