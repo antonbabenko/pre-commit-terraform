@@ -87,16 +87,13 @@ jobs:
         && mv container-structure-test $HOME/bin/
         && echo $HOME/bin/ >> $GITHUB_PATH
 
-    - name: Check file existence and list directory
-      run: ls -al ${{ github.workspace }}/.github
-
-
     - name: Run structure tests
       if: steps.changed-files-specific.outputs.any_changed == 'true'
       run: >-
         container-structure-test test
-        -c ${{ github.workspace }}/.github/.spacelift-runners-container-structure-test-config.yaml
-        -i ${{ env.IMAGE }}
+        --config ${{ github.workspace
+        }}/.github/.container-structure-test-config.yaml
+        --image ${{ env.IMAGE }}
 
     - name: Dive - check image for waste files
       if: steps.changed-files-specific.outputs.any_changed == 'true'
