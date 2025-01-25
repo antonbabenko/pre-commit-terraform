@@ -13,6 +13,10 @@ env:
 
 jobs:
   build:
+    permissions:
+      # for MaxymVlasov/dive-action to write comments to PRs
+      pull-requests: write
+
     strategy:
       matrix:
         arch:
