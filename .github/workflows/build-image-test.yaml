@@ -83,6 +83,7 @@ jobs:
         env.CST_VERSION }}/container-structure-test-linux-${{ matrix.arch }}"
         > container-structure-test
         && chmod +x container-structure-test
+        && mkdir -p $HOME/bin/
         && mv container-structure-test $HOME/bin/
         && echo $HOME/bin/ >> $GITHUB_PATH
 
