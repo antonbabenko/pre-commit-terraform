@@ -46,9 +46,6 @@ jobs:
         context: .
         build-args: |
           INSTALL_ALL=true
-        # yamllint disable-line rule:line-length
-        platforms: >-  # Only one allowed here, see https://github.com/docker/buildx/issues/59#issuecomment-1433097926
-          linux/${{ matrix.arch }}
         push: false
         load: true
         tags: |
