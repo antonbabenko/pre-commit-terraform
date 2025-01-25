@@ -42,8 +42,7 @@ jobs:
       # Lowercase the org/repo name to allow for workflow to run in forks,
       # which owners have uppercase letters in username
       run: >-
-        echo "IMAGE_REPO=ghcr.io/:${${{ github.repository }},,}"
-          >> $GITHUB_ENV
+        echo "IMAGE_REPO=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
       # yamllint disable-line rule:line-length
