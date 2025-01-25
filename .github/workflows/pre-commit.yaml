@@ -2,7 +2,8 @@
 
 name: Common issues check
 
-on: [pull_request]
+on:
+  pull_request:
 
 permissions:
   contents: read

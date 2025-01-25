@@ -25,6 +25,8 @@ jobs:
       contents: write
       # for cycjimmy/semantic-release-action to write comments to issues
       issues: write
+      # for cycjimmy/semantic-release-action to write comments to PRs
+      pull-requests: write
 
     name: Release
     runs-on: ubuntu-latest
