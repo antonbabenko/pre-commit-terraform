@@ -83,7 +83,9 @@ jobs:
         env.CST_VERSION }}/container-structure-test-linux-${{ matrix.arch }}"
         > container-structure-test
         && chmod +x container-structure-test
-        && mv container-structure-test /usr/bin/
+        && mv container-structure-test $HOME/bin/
+        && echo $HOME/bin/ >> $GITHUB_PATH
+
 
     - name: Run structure tests
       if: steps.changed-files-specific.outputs.any_changed == 'true'
