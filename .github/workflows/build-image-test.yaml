@@ -92,7 +92,7 @@ jobs:
       if: steps.changed-files-specific.outputs.any_changed == 'true'
       run: >-
         container-structure-test test
-        -c .github/.spacelift-runners-container-structure-test-config.yaml
+        -c ${{ github.workspace }}/.github/.spacelift-runners-container-structure-test-config.yaml
         -i ${{ env.IMAGE }}
 
     - name: Dive - check image for waste files
