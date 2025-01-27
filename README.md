@@ -3,6 +3,7 @@
 [![Github tag](https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg)](https://github.com/antonbabenko/pre-commit-terraform/releases) ![maintenance status](https://img.shields.io/maintenance/yes/2025.svg) [![Help Contribute to Open Source](https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg)](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
 [![CI/CD Badge]][CI/CD]
 [![Codecov Badge]][Codecov]
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/antonbabenko/pre-commit-terraform/badge)](https://scorecard.dev/viewer/?uri=github.com/antonbabenko/pre-commit-terraform)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9963/badge)](https://www.bestpractices.dev/projects/9963)
 
 [CI/CD Badge]:
