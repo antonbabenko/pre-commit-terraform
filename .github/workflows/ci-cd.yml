@@ -523,7 +523,7 @@ jobs:
     steps:
     - name: Decide whether the needed jobs succeeded or failed
       # yamllint disable-line rule:line-length
-      uses: re-actors/alls-green@223e4bb7a751b91f43eda76992bcfbf23b8b0302  # release/v1
+      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe  # v1.2.2
       with:
         jobs: ${{ toJSON(needs) }}
 
