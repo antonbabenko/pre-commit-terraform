@@ -177,7 +177,7 @@ jobs:
       if: >-
         !contains(fromJSON('["pre-commit", "spellcheck-docs"]'), inputs.toxenv)
       # yamllint disable-line rule:line-length
-      uses: re-actors/checkout-python-sdist@187f55296b0f54d88259aaaf99af32ad3647d3bc  # release/v2
+      uses: re-actors/checkout-python-sdist@187f55296b0f54d88259aaaf99af32ad3647d3bc  # v2.0.0
       with:
         source-tarball-name: ${{ inputs.source-tarball-name }}
         workflow-artifact-name: ${{ inputs.dists-artifact-name }}
@@ -383,7 +383,7 @@ jobs:
         !cancelled()
         && steps.tox-run.outputs.cov-report-files != ''
       # yamllint disable-line rule:line-length
-      uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303  # v5.1.2
+      uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3  # v5.3.1
       with:
         disable_search: true
         fail_ci_if_error: >-
