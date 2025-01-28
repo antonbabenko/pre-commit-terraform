@@ -45,7 +45,7 @@ repos:
 
   # Detect hardcoded secrets
 - repo: https://github.com/gitleaks/gitleaks
-  rev: v8.16.3
+  rev: v8.23.2
   hooks:
   - id: gitleaks
 
