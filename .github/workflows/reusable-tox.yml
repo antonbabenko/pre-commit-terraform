@@ -383,7 +383,7 @@ jobs:
         !cancelled()
         && steps.tox-run.outputs.cov-report-files != ''
       # yamllint disable-line rule:line-length
-      uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303  # v5.1.2
+      uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3  # v5.3.1
       with:
         disable_search: true
         fail_ci_if_error: >-
