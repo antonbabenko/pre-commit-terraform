@@ -177,7 +177,7 @@ jobs:
       if: >-
         !contains(fromJSON('["pre-commit", "spellcheck-docs"]'), inputs.toxenv)
       # yamllint disable-line rule:line-length
-      uses: re-actors/checkout-python-sdist@6e64b748e2ea49be5772c593583c027a801c118a  # release/v2
+      uses: re-actors/checkout-python-sdist@187f55296b0f54d88259aaaf99af32ad3647d3bc  # v2.0.0
       with:
         source-tarball-name: ${{ inputs.source-tarball-name }}
         workflow-artifact-name: ${{ inputs.dists-artifact-name }}
