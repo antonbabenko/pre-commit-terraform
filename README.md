@@ -12,7 +12,7 @@ https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml
 
 [Codecov Badge]:
 https://codecov.io/gh/antonbabenko/pre-commit-terraform/branch/master/graph/badge.svg?flag=pytest
-[Codecov]: https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flag=pytest
+[Codecov]: https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest
 
 [![SWUbanner](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
