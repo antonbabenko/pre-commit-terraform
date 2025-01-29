@@ -14,7 +14,7 @@ comment:
   require_changes: true
 
 coverage:
-  range: 100..100
+  range: 96..100
   status:
     patch:
       default:
