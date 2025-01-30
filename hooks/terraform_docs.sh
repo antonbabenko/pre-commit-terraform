@@ -88,6 +88,7 @@ function terraform_docs {
   local add_to_existing=false
   local create_if_not_exist=false
   local use_standard_markers=true
+  local had_config_flag=false
 
   IFS=";" read -r -a configs <<< "$hook_config"
 
@@ -142,10 +143,11 @@ function terraform_docs {
     local tf_docs_formatter="md"
 
   else
-
+    had_config_flag=true
     local config_file=${args#*--config}
     config_file=${config_file#*=}
-    config_file=${config_file% *}
+    config_file=${config_file% --*}
+    args=${args/--config=$config_file/}
 
     # Prioritize `.terraform-docs.yml` `output.file` over
     # `--hook-config=--path-to-file=` if it set
@@ -231,8 +233,13 @@ function terraform_docs {
       have_marker=$(grep -o "$insertion_marker_begin" "$output_file") || unset have_marker
       [[ ! $have_marker ]] && popd > /dev/null && continue
     fi
+    if [[ $had_config_flag == true ]]; then
     # shellcheck disable=SC2086
-    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter $args ./ > /dev/null
+    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter --config="$config_file" $args ./ > /dev/null
+    else
+    # shellcheck disable=SC2086
+    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter $config_arg $args ./ > /dev/null
+    fi
 
     popd > /dev/null
   done
