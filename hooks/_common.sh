@@ -197,14 +197,15 @@ function common::is_hook_run_on_whole_repo {
 function common::get_cpu_num {
   local -r parallelism_ci_cpu_cores=$1
 
+  local cpu_quota cpu_period cpu_num
   local millicpu
 
   if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us &&
     ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then # WSL have cfs_quota_us, but WSL should be checked as usual Linux host
     # Inside K8s pod or DinD in K8s
-    millicpu=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+    cpu_quota=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
 
-    if [[ $millicpu -eq -1 ]]; then
+    if [[ $cpu_quota -eq -1 ]]; then
       # K8s no limits or in DinD
       if [[ -n $parallelism_ci_cpu_cores ]]; then
         if [[ ! $parallelism_ci_cpu_cores =~ ^[[:digit:]]+$ ]]; then
@@ -233,7 +234,13 @@ function common::get_cpu_num {
       return
     fi
 
-    echo $((millicpu / 1000))
+    cpu_period=$(< /sys/fs/cgroup/cpu/cpu.cfs_period_us)
+    cpu_num=$((cpu_quota / cpu_period))
+    if ((cpu_num < 1)); then
+      echo 1
+    else
+      echo $cpu_num
+    fi
     return
   fi
 
