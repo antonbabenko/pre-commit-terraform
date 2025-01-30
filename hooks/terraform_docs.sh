@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail
-
 # globals variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly SCRIPT_DIR
@@ -233,13 +232,12 @@ function terraform_docs {
       have_marker=$(grep -o "$insertion_marker_begin" "$output_file") || unset have_marker
       [[ ! $have_marker ]] && popd > /dev/null && continue
     fi
+    local config_options=""
     if [[ $had_config_flag == true ]]; then
-    # shellcheck disable=SC2086
-    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter --config="$config_file" $args ./ > /dev/null
-    else
-    # shellcheck disable=SC2086
-    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter $config_arg $args ./ > /dev/null
+        config_options="--config=$config_file"
     fi
+    # shellcheck disable=SC2086
+    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter "$config_options" $args ./ > /dev/null
 
     popd > /dev/null
   done
