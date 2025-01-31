@@ -204,7 +204,7 @@ function common::get_cpu_num {
     ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then # WSL have cfs_quota_us, but WSL should be checked as usual Linux host
     # Inside K8s pod or DinD in K8s
     cpu_quota=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
-    cpu_period=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us || echo "$cpu_quota")
+    cpu_period=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us 2> /dev/null || echo "$cpu_quota")
 
     if [[ $cpu_quota -eq -1 || $cpu_period -lt 1 ]]; then
       # K8s no limits or in DinD
