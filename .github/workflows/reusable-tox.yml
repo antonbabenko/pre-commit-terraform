@@ -407,6 +407,7 @@ jobs:
       if: >-
         !cancelled()
         && steps.tox-run.outputs.test-result-files != ''
+      # yamllint disable-line rule:line-length
       uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9  # v1.0.2
       with:
         disable_search: true
