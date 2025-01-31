@@ -188,7 +188,7 @@ function common::is_hook_run_on_whole_repo {
 
 #######################################################################
 # Get the number of CPU logical cores available for pre-commit to use
-
+#
 # CPU quota should be calculated as `cpu.cfs_quota_us / cpu.cfs_period_us`
 # For K8s see: https://docs.kernel.org/scheduler/sched-bwc.html
 # For Docker see: https://docs.docker.com/engine/containers/resource_constraints/#configure-the-default-cfs-scheduler
