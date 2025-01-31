@@ -145,8 +145,13 @@ function terraform_docs {
     had_config_flag=true
     local config_file=${args#*--config}
     config_file=${config_file#*=}
-    config_file=${config_file% --*}
-    args=${args/--config=$config_file/}
+    # If there are more parameters after config path, trim until --
+    if [[ $config_file == *" --"* ]]; then
+      config_file=${config_file%% --*}
+    fi
+    # Trim trailing whitespace but preserve internal spaces
+
+    config_file="${config_file%"${config_file##*[![:space:]]}"}" args=${args/--config=$config_file/}
 
     # Prioritize `.terraform-docs.yml` `output.file` over
     # `--hook-config=--path-to-file=` if it set
@@ -234,7 +239,7 @@ function terraform_docs {
     fi
     local config_options=""
     if [[ $had_config_flag == true ]]; then
-        config_options="--config=$config_file"
+      config_options="--config=$config_file"
     fi
     # shellcheck disable=SC2086
     terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter "$config_options" $args ./ > /dev/null
