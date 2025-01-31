@@ -236,11 +236,7 @@ function common::get_cpu_num {
 
     cpu_period=$(< /sys/fs/cgroup/cpu/cpu.cfs_period_us)
     cpu_num=$((cpu_quota / cpu_period))
-    if ((cpu_num < 1)); then
-      echo 1
-    else
-      echo $cpu_num
-    fi
+    [[ $cpu_num -lt 1 ]] && echo 1 || echo $cpu_num
     return
   fi
 
