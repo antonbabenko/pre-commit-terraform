@@ -87,7 +87,7 @@ function terraform_docs {
   local add_to_existing=false
   local create_if_not_exist=false
   local use_standard_markers=true
-  local had_config_flag=false
+  local have_config_flag=false
 
   IFS=";" read -r -a configs <<< "$hook_config"
 
@@ -142,7 +142,7 @@ function terraform_docs {
     local tf_docs_formatter="md"
 
   else
-    had_config_flag=true
+    have_config_flag=true
     local config_file=${args#*--config}
     config_file=${config_file#*=}
     # If there are more parameters after config path, trim until --
@@ -238,7 +238,7 @@ function terraform_docs {
       [[ ! $have_marker ]] && popd > /dev/null && continue
     fi
     local config_options=""
-    if [[ $had_config_flag == true ]]; then
+    if [[ $have_config_flag == true ]]; then
       config_options="--config=$config_file"
     fi
     # shellcheck disable=SC2086
