@@ -52,7 +52,9 @@ function common::initialize {
 function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
-  ARGS=() HOOK_CONFIG=() FILES=()
+  ARGS=()
+  HOOK_CONFIG=()
+  FILES=()
   # Used inside `common::terraform_init` function
   TF_INIT_ARGS=()
   # Used inside `common::export_provided_env_vars` function
