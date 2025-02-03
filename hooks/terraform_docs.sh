@@ -146,7 +146,7 @@ function terraform_docs {
     # Enable extended pattern matching operators
     shopt -qp extglob || EXTGLOB_IS_NOT_SET=true && shopt -s extglob
     # Trim any args before the `--config` arg value
-    local config_file=${args##*--config(+([[:space:]])|=)}
+    local config_file=${args##*--config@(+([[:space:]])|=)}
     # Trim any trailing spaces and args (if any)
     config_file="${config_file%%+([[:space:]])?(--*)}"
     # Trim `--config` arg and its value from original args as we will
