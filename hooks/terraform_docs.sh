@@ -241,6 +241,8 @@ function terraform_docs {
       [[ ! $have_marker ]] && popd > /dev/null && continue
     fi
 
+    # shellcheck disable=SC2206
+    # Need to pass $tf_docs_formatter and $args as separate arguments, not as single string
     local tfdocs_cmd=(
       terraform-docs
         --output-mode="$output_mode"
@@ -249,9 +251,9 @@ function terraform_docs {
         $args
     )
     if [[ $have_config_flag == true ]]; then
-      ${tfdocs_cmd[@]} "--config=$config_file" ./ > /dev/null
+      "${tfdocs_cmd[@]}" "--config=$config_file" ./ > /dev/null
     else
-      ${tfdocs_cmd[@]} ./ > /dev/null
+      "${tfdocs_cmd[@]}" ./ > /dev/null
     fi
 
     popd > /dev/null
