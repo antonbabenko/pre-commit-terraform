@@ -88,6 +88,7 @@ function terraform_docs {
   local add_to_existing=false
   local create_if_not_exist=false
   local use_standard_markers=true
+  local have_config_flag=false
 
   IFS=";" read -r -a configs <<< "$hook_config"
 
@@ -142,10 +143,18 @@ function terraform_docs {
     local tf_docs_formatter="md"
 
   else
-
-    local config_file=${args#*--config}
-    config_file=${config_file#*=}
-    config_file=${config_file% *}
+    have_config_flag=true
+    # Enable extended pattern matching operators
+    shopt -qp extglob || EXTGLOB_IS_NOT_SET=true && shopt -s extglob
+    # Trim any args before the `--config` arg value
+    local config_file=${args##*--config@(+([[:space:]])|=)}
+    # Trim any trailing spaces and args (if any)
+    config_file="${config_file%%+([[:space:]])?(--*)}"
+    # Trim `--config` arg and its value from original args as we will
+    # pass `--config` separately to allow whitespaces in its value
+    args=${args/--config@(+([[:space:]])|=)$config_file*([[:space:]])/}
+    # Restore state of `extglob` if we changed it
+    [[ $EXTGLOB_IS_NOT_SET ]] && shopt -u extglob
 
     # Prioritize `.terraform-docs.yml` `output.file` over
     # `--hook-config=--path-to-file=` if it set
@@ -231,8 +240,10 @@ function terraform_docs {
       have_marker=$(grep -o "$insertion_marker_begin" "$output_file") || unset have_marker
       [[ ! $have_marker ]] && popd > /dev/null && continue
     fi
+    local config_options
+    [[ $have_config_flag == true ]] && config_options="--config=$config_file"
     # shellcheck disable=SC2086
-    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter $args ./ > /dev/null
+    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter "$config_options" $args ./ > /dev/null
 
     popd > /dev/null
   done
