@@ -245,10 +245,10 @@ function terraform_docs {
     # Need to pass $tf_docs_formatter and $args as separate arguments, not as single string
     local tfdocs_cmd=(
       terraform-docs
-        --output-mode="$output_mode"
-        --output-file="$output_file"
-        $tf_docs_formatter
-        $args
+      --output-mode="$output_mode"
+      --output-file="$output_file"
+      $tf_docs_formatter
+      $args
     )
     if [[ $have_config_flag == true ]]; then
       "${tfdocs_cmd[@]}" "--config=$config_file" ./ > /dev/null
