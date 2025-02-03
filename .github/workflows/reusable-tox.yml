@@ -407,10 +407,8 @@ jobs:
       if: >-
         !cancelled()
         && steps.tox-run.outputs.test-result-files != ''
-      # FIXME: revert to v1 once Codecov releases v1.0.2 of their action.
-      # Ref: https://github.com/codecov/test-results-action/issues/108.
-      # uses: codecov/test-results-action@v1
-      uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9
+      # yamllint disable-line rule:line-length
+      uses: codecov/test-results-action@4e79e65778be1cecd5df25e14af1eafb6df80ea9  # v1.0.2
       with:
         disable_search: true
         fail_ci_if_error: >-
