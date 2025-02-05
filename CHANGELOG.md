@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.97.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.2...v1.97.3) (2025-02-04)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix bug introduced in `v1.97.2` ([#801](https://github.com/antonbabenko/pre-commit-terraform/issues/801)) ([64b81f4](https://github.com/antonbabenko/pre-commit-terraform/commit/64b81f449344ed72d180d57ce0a801389c018584)), closes [#796](https://github.com/antonbabenko/pre-commit-terraform/issues/796)
+
 ## [1.97.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.1...v1.97.2) (2025-02-03)
 
 
