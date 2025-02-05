@@ -160,7 +160,7 @@ function terraform_docs {
     # `--hook-config=--path-to-file=` if it set
     local config_output_file
     # Get latest non-commented `output.file` from `.terraform-docs.yml`
-    config_output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+file:' | tail -n 1) || true
+    config_output_file=$(grep -A1000 -e '^output:$' "$config_file" 2> /dev/null | grep -E '^[[:space:]]+file:' | tail -n 1) || true
 
     if [[ $config_output_file ]]; then
       # Extract filename from `output.file` line
@@ -176,7 +176,7 @@ function terraform_docs {
 
     # Use `.terraform-docs.yml` `output.mode` if it set
     local config_output_mode
-    config_output_mode=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+mode:' | tail -n 1) || true
+    config_output_mode=$(grep -A1000 -e '^output:$' "$config_file" 2> /dev/null | grep -E '^[[:space:]]+mode:' | tail -n 1) || true
     if [[ $config_output_mode ]]; then
       # Extract mode from `output.mode` line
       output_mode=$(echo "$config_output_mode" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
@@ -240,10 +240,21 @@ function terraform_docs {
       have_marker=$(grep -o "$insertion_marker_begin" "$output_file") || unset have_marker
       [[ ! $have_marker ]] && popd > /dev/null && continue
     fi
-    local config_options
-    [[ $have_config_flag == true ]] && config_options="--config=$config_file"
-    # shellcheck disable=SC2086
-    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter "$config_options" $args ./ > /dev/null
+
+    # shellcheck disable=SC2206
+    # Need to pass $tf_docs_formatter and $args as separate arguments, not as single string
+    local tfdocs_cmd=(
+      terraform-docs
+      --output-mode="$output_mode"
+      --output-file="$output_file"
+      $tf_docs_formatter
+      $args
+    )
+    if [[ $have_config_flag == true ]]; then
+      "${tfdocs_cmd[@]}" "--config=$config_file" ./ > /dev/null
+    else
+      "${tfdocs_cmd[@]}" ./ > /dev/null
+    fi
 
     popd > /dev/null
   done
