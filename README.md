@@ -23,7 +23,9 @@ Want to contribute? Check [open issues](https://github.com/antonbabenko/pre-comm
 <!-- markdownlint-disable no-inline-html -->
 
 <br />
-<a href="https://www.terramate.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social"><img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/master/assets/terramate.png" alt="Terramate: Automate, Orchestrate and Observe Terraform" width="200" height="36" />
+<a href="https://www.terramate.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social">
+<img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/master/assets/terramate.png" alt="Terramate: Automate, Orchestrate and Observe Terraform" width="200" height="36" />
+</a>
 
 Terramate is an IaC collaboration, visibility and observability platform that empowers your team to manage Terraform and OpenTofu faster and more confidently than ever before.</a>
 
@@ -66,7 +68,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
 * [Docker Usage](#docker-usage)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
-* [Github Actions](#github-actions)
+* [GitHub Actions](#github-actions)
 * [Authors](#authors)
 * [License](#license)
   * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
@@ -76,16 +78,12 @@ If you want to support the development of `pre-commit-terraform` and [many other
 ### 1. Install dependencies
 
 * [`pre-commit`](https://pre-commit.com/#install),
-  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
-  <sub><sup>[`git`](https://git-scm.com/downloads),
-  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
-  <sub><sup>Internet connection (on first run),
-  <sub><sup>x86_64 or arm64 compatible operation system,
-  <sub><sup>Some hardware where this OS will run,
-  <sub><sup>Electricity for hardware and internet connection,
-  <sub><sup>Some basic physical laws,
-  <sub><sup>Hope that it all will work.
-  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
+  [`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
+  [`git`](https://git-scm.com/downloads),
+  [BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
+  Internet connection (on first run),  x86_64 or arm64 compatible operating system,
+  Some hardware where this OS will run,  Electricity for hardware and internet connection,
+  Some basic physical laws,  Hope that it all will work.
 * [`checkov`](https://github.com/bridgecrewio/checkov) required for `terraform_checkov` hook
 * [`terraform-docs`](https://github.com/terraform-docs/terraform-docs) 0.12.0+ required for `terraform_docs` hook
 * [`terragrunt`](https://terragrunt.gruntwork.io/docs/getting-started/install/) required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
@@ -294,7 +292,7 @@ docker run --rm --entrypoint cat ghcr.io/antonbabenko/pre-commit-terraform:$TAG 
 There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform configurations (both `*.tf` and `*.tfvars`) and Terragrunt configurations (`*.hcl`) in a good shape:
 
 | Hook name                                              | Description                                                                                                                                                                                                                                                      | Dependencies<br><sup>[Install instructions here](#1-install-dependencies)</sup>      |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+|:-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | `checkov` and `terraform_checkov`                      | [checkov](https://github.com/bridgecrewio/checkov) static analysis of terraform templates to spot potential security issues. [Hook notes](#checkov-deprecated-and-terraform_checkov)                                                                             | `checkov`<br>Ubuntu deps: `python3`, `python3-pip`                                   |
 | `infracost_breakdown`                                  | Check how much your infra costs with [infracost](https://github.com/infracost/infracost). [Hook notes](#infracost_breakdown)                                                                                                                                     | `infracost`, `jq`, [Infracost API key](https://www.infracost.io/docs/#2-get-api-key) |
 | `terraform_docs`                                       | Inserts input and output documentation into `README.md`. Recommended. [Hook notes](#terraform_docs)                                                                                                                                                              | `terraform-docs`                                                                     |
@@ -308,7 +306,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                                                   | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`) to a canonical format.                                                                                                                                       | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt](https://github.com/gruntwork-io/terragrunt) configuration files (`*.hcl`)                                                                                                                                                             | `terragrunt`                                                                         |
-| `terragrunt_validate_inputs`                           | Validates [Terragrunt](https://github.com/gruntwork-io/terragrunt) unused and undefined inputs (`*.hcl`)
+| `terragrunt_validate_inputs`                           | Validates [Terragrunt](https://github.com/gruntwork-io/terragrunt) unused and undefined inputs (`*.hcl`)                                                                                                                                                         |                                                                                      |
 | `terragrunt_providers_lock`                            | Generates `.terraform.lock.hcl` files using [Terragrunt](https://github.com/gruntwork-io/terragrunt).                                                                                                                                                            | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                                                         | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan](https://github.com/tenable/terrascan) Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                                            | `terrascan`                                                                          |
@@ -421,7 +419,7 @@ If you'd like to set parallelism value relative to number of CPU logical cores -
 >
 >
 > | Hook                                                                           | Most used resource                 | Comparison of optimization results / Notes                      |
-> | ------------------------------------------------------------------------------ | ---------------------------------- | --------------------------------------------------------------- |
+> |--------------------------------------------------------------------------------|------------------------------------|-----------------------------------------------------------------|
 > | terraform_checkov                                                              | CPU heavy                          | -                                                               |
 > | terraform_fmt                                                                  | CPU heavy                          | -                                                               |
 > | terraform_providers_lock (3 platforms,<br>`--mode=always-regenerate-lockfile`) | Network & Disk heavy               | `defaults (CPU-1)` - 3m 39s; `CPU*2` - 3m 19s; `CPU*4` - 2m 56s |
@@ -465,15 +463,15 @@ Note that `terraform_checkov` runs recursively during `-d .` usage. That means, 
 
     Check all available arguments [here](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
 
-For deprecated hook you need to specify each argument separately:
-
-```yaml
-- id: checkov
-  args: [
-    "-d", ".",
-    "--skip-check", "CKV2_AWS_8",
-  ]
-```
+    For deprecated hook you need to specify each argument separately:
+    
+    ```yaml
+    - id: checkov
+      args: [
+        "-d", ".",
+        "--skip-check", "CKV2_AWS_8",
+      ]
+    ```
 
 2. When you have multiple directories and want to run `terraform_checkov` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_checkov` hooks with the Git working directory (repo root) at run time. For example:
 
@@ -672,7 +670,7 @@ To replicate functionality in `terraform_docs` hook:
 
     ```yaml
     - id: terraform_docs
-    args:
+      args:
         - --args=--config=.terraform-docs.yml
     ```
 
@@ -762,8 +760,7 @@ To replicate functionality in `terraform_docs` hook:
           - --hook-config=--mode=always-regenerate-lockfile
         ```
 
-
-3. `terraform_providers_lock` supports custom arguments:
+2. `terraform_providers_lock` supports custom arguments:
 
     ```yaml
      - id: terraform_providers_lock
@@ -772,7 +769,7 @@ To replicate functionality in `terraform_docs` hook:
           - --args=-platform=darwin_amd64
     ```
 
-4. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
+3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -786,7 +783,7 @@ To replicate functionality in `terraform_docs` hook:
 
     `terraform_providers_lock` hook will try to reinitialize directories before running the `terraform providers lock` command.
 
-3. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
+4. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
 
     > **Warning**  
     > DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
@@ -823,8 +820,8 @@ To replicate functionality in `terraform_docs` hook:
 
     ```yaml
     - id: terraform_tflint
-          args:
-            - --hook-config=--delegate-chdir
+      args:
+        - --hook-config=--delegate-chdir
     ```
 
 
@@ -923,9 +920,9 @@ To replicate functionality in `terraform_docs` hook:
 
     ```yaml
      - id: terraform_trivy
-        args:
-          - --args=--format=json
-          - --args=--skip-dirs="**/.terraform"
+       args:
+         - --args=--format=json
+         - --args=--skip-dirs="**/.terraform"
     ```
 
 4. When you have multiple directories and want to run `trivy` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_trivy` hooks with Git working directory (repo root) at run time. For example:
@@ -1005,7 +1002,7 @@ To replicate functionality in `terraform_docs` hook:
     > **Caution**  
     > If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
-1. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
+4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
    When running the hook against Terraform code where you have provider `configuration_aliases` defined in a `required_providers` configuration block, terraform will throw an error like:
 
@@ -1043,15 +1040,14 @@ To replicate functionality in `terraform_docs` hook:
      - repo: local
        hooks:
          - id: generate-terraform-providers
-            name: generate-terraform-providers
-            require_serial: true
-            entry: .generate-providers.sh
-            language: script
-            files: \.tf(vars)?$
-            pass_filenames: false
+           name: generate-terraform-providers
+           require_serial: true
+           entry: .generate-providers.sh
+           language: script
+           files: \.tf(vars)?$
+           pass_filenames: false
 
      - repo: https://github.com/pre-commit/pre-commit-hooks
-   [...]
    ```
 
     > **Tip**  
@@ -1234,13 +1230,16 @@ Finally, you can execute `docker run` with an additional volume mount so that th
 docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:latest run -a
 ```
 
-## Github Actions
+## GitHub Actions
 
-You can use this hook in your GitHub Actions workflow togehther with [pre-commit](https://pre-commit.com). To easy up dependency management, you can use the managed [docker image](#docker-usage) within your workflow. Make sure to set the image tag to the version you want to use.
+You can use this hook in your GitHub Actions workflow together with [pre-commit](https://pre-commit.com). To easy up
+dependency management, you can use the managed [docker image](#docker-usage) within your workflow. Make sure to set the
+image tag to the version you want to use.
 
 In this repository's pre-commit [workflow file](.github/workflows/pre-commit.yaml) we run pre-commit without the container image.
 
-Here is an example that use the container image, includes caching of pre-commit dependencies and uses the `pre-commit` command to run the checks (but fixes will be not automatically push back to your branch, when it possible):
+Here is an example that use the container image, includes caching of pre-commit dependencies and uses the `pre-commit`
+command to run the checks (but fixes will be not automatically push back to your branch, when it possible):
 
 ```yaml
 name: pre-commit-terraform
@@ -1295,7 +1294,7 @@ jobs:
 This repository is managed by [Anton Babenko](https://github.com/antonbabenko) with help from these awesome contributors:
 
 <a href="https://github.com/antonbabenko/pre-commit-terraform/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=antonbabenko/pre-commit-terraform" />
+  <img alt="Contributors" src="https://contrib.rocks/image?repo=antonbabenko/pre-commit-terraform" />
 </a>
 
 
