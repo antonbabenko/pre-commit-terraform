@@ -464,7 +464,7 @@ Note that `terraform_checkov` runs recursively during `-d .` usage. That means, 
     Check all available arguments [here](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
 
     For deprecated hook you need to specify each argument separately:
-    
+
     ```yaml
     - id: checkov
       args: [
