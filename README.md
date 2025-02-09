@@ -75,8 +75,8 @@ If you want to support the development of `pre-commit-terraform` and [many other
 
 ## How to install
 
+[//]: # (Do not modify the first section with <sub> <sup> tags)
 ### 1. Install dependencies
-
 * [`pre-commit`](https://pre-commit.com/#install),
   <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
   <sub><sup>[`git`](https://git-scm.com/downloads),
