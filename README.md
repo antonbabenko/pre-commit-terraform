@@ -1242,8 +1242,8 @@ image tag to the version you want to use.
 
 In this repository's pre-commit [workflow file](.github/workflows/pre-commit.yaml) we run pre-commit without the container image.
 
-Here is an example that use the container image, includes caching of pre-commit dependencies and uses the `pre-commit`
-command to run the checks (but fixes will be not automatically push back to your branch, when it possible):
+Here's an example using the container image. It includes caching of pre-commit dependencies and utilizes the pre-commit
+command to run checks (Note: Fixes will not be automatically pushed back to your branch, even when possible.):
 
 ```yaml
 name: pre-commit-terraform
