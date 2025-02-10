@@ -8,6 +8,8 @@ rules:
     present: false
   quoted-strings:
     required: only-when-needed
+  line-length:
+    max: 100
   truthy:
     allowed-values:
     - >-
