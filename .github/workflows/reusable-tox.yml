@@ -1,5 +1,3 @@
----
-
 name: >-
   ❌
   [DO NOT CLICK]
@@ -428,5 +426,3 @@ jobs:
             steps.python-install.outputs.python-version
           }}
         token: ${{ secrets.codecov-token }}
-
-...

@@ -1,5 +1,3 @@
----
-
 - id: infracost_breakdown
   name: Infracost breakdown
   description: Check terraform infrastructure cost

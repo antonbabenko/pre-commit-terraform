@@ -1,5 +1,3 @@
----
-
 # Dependency Review Action
 #
 # This Action will scan dependency manifest files that change as part of a
