@@ -4,6 +4,7 @@
 [![CI/CD Badge]][CI/CD]
 [![Codecov Badge]][Codecov]
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/antonbabenko/pre-commit-terraform/badge)](https://scorecard.dev/viewer/?uri=github.com/antonbabenko/pre-commit-terraform)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9963/badge)](https://www.bestpractices.dev/projects/9963)
 
 [CI/CD Badge]:
 https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml/badge.svg?branch=master
@@ -13,6 +14,8 @@ https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml
 [Codecov Badge]:
 https://codecov.io/gh/antonbabenko/pre-commit-terraform/branch/master/graph/badge.svg?flag=pytest
 [Codecov]: https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest
+
+
 
 [![SWUbanner](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
