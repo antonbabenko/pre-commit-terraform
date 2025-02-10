@@ -1,22 +1,24 @@
 # Collection of git hooks for Terraform to be used with [pre-commit framework](http://pre-commit.com/)
 
-[![Github tag](https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg)](https://github.com/antonbabenko/pre-commit-terraform/releases) ![maintenance status](https://img.shields.io/maintenance/yes/2025.svg) [![Help Contribute to Open Source](https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg)](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
-[![CI/CD Badge]][CI/CD]
-[![Codecov Badge]][Codecov]
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/antonbabenko/pre-commit-terraform/badge)](https://scorecard.dev/viewer/?uri=github.com/antonbabenko/pre-commit-terraform)
+[![Latest Github tag]](https://github.com/antonbabenko/pre-commit-terraform/releases)
+![Maintenance status](https://img.shields.io/maintenance/yes/2025.svg)
+[![Codetriage - Help Contribute to Open Source Badge]](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
+[![GHA Tests CI/CD Badge]](https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml)
+[![Codecov pytest Badge]](https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest)
+[![OpenSSF Scorecard Badge]](https://scorecard.dev/viewer/?uri=github.com/antonbabenko/pre-commit-terraform)
 
-[CI/CD Badge]:
-https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml/badge.svg?branch=master
-[CI/CD]:
-https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml
+[![StandWithUkraine Banner]](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
-[Codecov Badge]:
-https://codecov.io/gh/antonbabenko/pre-commit-terraform/branch/master/graph/badge.svg?flag=pytest
-[Codecov]: https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest
+Want to contribute?
+Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc)
+and [contributing notes](/.github/CONTRIBUTING.md).
 
-[![SWUbanner](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
-
-Want to contribute? Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc) and [contributing notes](/.github/CONTRIBUTING.md).
+[Latest Github tag]: https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg
+[Codetriage - Help Contribute to Open Source Badge]: https://www.codetriage.com/antonbabenko/pre-commit-terraform/badges/users.svg
+[GHA Tests CI/CD Badge]: https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml/badge.svg?branch=master
+[Codecov Pytest Badge]: https://codecov.io/gh/antonbabenko/pre-commit-terraform/branch/master/graph/badge.svg?flag=pytest
+[OpenSSF Scorecard Badge]: https://api.scorecard.dev/projects/github.com/antonbabenko/pre-commit-terraform/badge
+[StandWithUkraine Banner]: https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg
 
 ## Sponsors
 
@@ -75,8 +77,10 @@ If you want to support the development of `pre-commit-terraform` and [many other
 
 ## How to install
 
-[//]: # (Do not modify the first section with <sub> <sup> tags)
 ### 1. Install dependencies
+
+[//]: # (Do not modify the first section with <sub> <sup> tags)
+
 * [`pre-commit`](https://pre-commit.com/#install),
   <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
   <sub><sup>[`git`](https://git-scm.com/downloads),
