@@ -40,7 +40,6 @@ jobs:
 
     - name: Get changed Docker related files
       id: changed-files-specific
-      # yamllint disable-line rule:line-length
       uses: tj-actions/changed-files@d6e91a2266cdb9d62096cebf1e8546899c6aa18f  # v45.0.6
       with:
         files: |
@@ -59,13 +58,11 @@ jobs:
         >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
-      # yamllint disable-line rule:line-length
       uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5  # v3.8.0
       if: steps.changed-files-specific.outputs.any_changed == 'true'
 
     - name: Build if Dockerfile changed
       if: steps.changed-files-specific.outputs.any_changed == 'true'
-      # yamllint disable-line rule:line-length
       uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991  # v6.13.0
       with:
         context: .
@@ -105,7 +102,6 @@ jobs:
 
     - name: Dive - check image for waste files
       if: steps.changed-files-specific.outputs.any_changed == 'true'
-      # yamllint disable-line rule:line-length
       uses: MaxymVlasov/dive-action@b6a02b38f0f309e8817199658eab090d4f0f93ce  # v1.1.0
       with:
         image: ${{ env.IMAGE }}
@@ -118,7 +114,6 @@ jobs:
       if: >-
         steps.changed-files-specific.outputs.any_changed == 'true'
         && matrix.os == 'ubuntu-latest'
-      # yamllint disable-line rule:line-length
       uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991  # v6.13.0
       with:
         context: .
