@@ -1,5 +1,3 @@
----
-
 name: Mark or close stale issues and PRs
 on:
   schedule:

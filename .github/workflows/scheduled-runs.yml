@@ -1,5 +1,3 @@
----
-
 name: ⏳
 
 on:
@@ -40,5 +38,3 @@ jobs:
     name: 🧪 Main CI/CD pipeline
     uses: ./.github/workflows/ci-cd.yml
     secrets: inherit
-
-...
