@@ -17,6 +17,6 @@ reviews:
   auto_review:
     # Enable AI review for Draft PRs
     drafts: true
-    # ? NOT TESTED: Make latest review is only actual review, to avoiding
-    # checking all previous reviews
+    # Make latest review is only actual review, to avoiding checking
+    # all previous reviews
     auto_incremental_review: false
