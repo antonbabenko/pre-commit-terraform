@@ -1,13 +1,15 @@
----
-
 extends: default
 
 rules:
   indentation:
     level: error
     indent-sequences: false
+  document-start:
+    present: false
   quoted-strings:
     required: only-when-needed
+  line-length:
+    max: 100
   truthy:
     allowed-values:
     - >-
@@ -16,5 +18,3 @@ rules:
       true
     - >-  # Allow "on" key name in GHA CI/CD workflow definitions
       on
-
-...

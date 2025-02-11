@@ -1,5 +1,3 @@
----
-
 codecov:
   notify:
     after_n_builds: 21  # Number of test matrix+lint jobs uploading coverage
@@ -50,5 +48,3 @@ github_checks:
   # Annotations are deprecated in Codecov because they are misleading.
   # Ref: https://github.com/codecov/codecov-action/issues/1710
   annotations: false
-
-...

@@ -1,5 +1,3 @@
----
-
 name: Release
 
 on:
@@ -38,7 +36,6 @@ jobs:
         fetch-depth: 0
 
     - name: Release
-      # yamllint disable-line rule:line-length
       uses: cycjimmy/semantic-release-action@b1b432f13acb7768e0c8efdec416d363a57546f2  # v4.1.1
       with:
         semantic_version: 18.0.0
