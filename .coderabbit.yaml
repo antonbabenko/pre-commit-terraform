@@ -3,8 +3,7 @@ reviews:
   collapse_walkthrough: true
   related_issues: false
   related_prs: false
-  suggested_labels: true
-  suggested_reviewers: true
+  high_level_summary_in_walkthrough: true
   poem: false
   auto_review:
     drafts: true
