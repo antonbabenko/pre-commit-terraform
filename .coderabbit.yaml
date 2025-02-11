@@ -17,7 +17,3 @@ reviews:
   auto_review:
     # Enable AI review for Draft PRs
     drafts: true
-    # Make latest review is only actual review, to avoiding checking all
-    # previous reviews. This also prevent cluttering of PR, as AI remove its
-    # previous review comments
-    auto_incremental_review: false
