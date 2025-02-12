@@ -1,15 +1,15 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 reviews:
-  # Make AI main comment collapsed by default, as it took too much space when
-  # expanded. Plus it's not needed during every PR opening, mostly during first
-  # check
+  # Collapse main AI comment by default, as it takes too much space when
+  # expanded. It also is needless for subsequent rounds of PR review, mostly
+  # only for the first one
   collapse_walkthrough: true
-  # Move AI-generated summary from PR description to AI main comment. It
-  # hallucinate sometimes, especially in PRs which change linting rules
+  # Move AI-generated summary from PR description to main AI comment. It
+  # hallucinates sometimes, especially with PRs that change code linting rules
   high_level_summary_in_walkthrough: true
-  # Disable false-positive cross links between PRs and issues
+  # Disable false-positive cross links to issues
   related_issues: false
-  # Disable false-positive cross links between PRs and issues
+  # Disable false-positive cross links to PRs
   related_prs: false
   # Disable useless Poem generation
   poem: false
