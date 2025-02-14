@@ -65,6 +65,12 @@ repos:
     # https://prettier.io/docs/en/options.html#parser
     files: .json5$
 
+# Github Action statis analysis tool
+- repo: https://github.com/woodruffw/zizmor-pre-commit
+  rev: v1.3.1
+  hooks:
+  - id: zizmor
+
 - repo: https://github.com/pre-commit/mirrors-mypy.git
   rev: v1.15.0
   hooks:
