@@ -89,8 +89,7 @@ jobs:
     if: >-
       !(github.event_name == 'push' &&
         github.repository == 'pre-commit/pre-commit-terraform' &&
-        github.ref != 'refs/heads/master'
-      )
+        github.ref != 'refs/heads/master')
 
     timeout-minutes: 1
 
