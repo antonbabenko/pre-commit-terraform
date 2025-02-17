@@ -13,26 +13,13 @@
   * [Add code](#add-code)
   * [Finish with the documentation](#finish-with-the-documentation)
 * [Contributing to Python code](#contributing-to-python-code)
+* [Run tests in your fork](#run-tests-in-your-fork)
 
 ## Run and debug hooks locally
 
 ```bash
 pre-commit try-repo {-a} /path/to/local/pre-commit-terraform/repo {hook_name}
-```
-
-I.e.
-
-```bash
-pre-commit try-repo /mnt/c/Users/tf/pre-commit-terraform terraform_fmt # Run only `terraform_fmt` check
-pre-commit try-repo -a ~/pre-commit-terraform # run all existing checks from repo
-```
-
-Running `pre-commit` with `try-repo` ignores all arguments specified in `.pre-commit-config.yaml`.
-
-If you need to test hook with arguments, follow [pre-commit doc](https://pre-commit.com/#arguments-pattern-in-hooks) to test hooks.
-
-For example, to test that the [`terraform_fmt`](../README.md#terraform_fmt) hook works fine with arguments:
-
+```g run on this fork
 ```bash
 /tmp/pre-commit-terraform/terraform_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
 ```
@@ -182,3 +169,11 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
     ```bash
     tox list
     ```
+
+## Run tests in your fork
+
+Go to you fork `Actions` tab and click on big green button
+
+![Enable workflows](/assets/contributing/enable_actions_in_fork.png)
+
+Now you can see are the tests pass before submitting PR.
