@@ -87,9 +87,9 @@ jobs:
     # Prevent run 'push' events for the branches in upstream repository as it
     # already covered by 'pull_request' event
     if: >-
-      ${{ github.repository_owner }}/${{ github.repository }} != 'antonbabenko/pre-commit-terraform'
-      || github.ref == 'refs/heads/master'
+      github.repository != 'antonbabenko/pre-commit-terraform'
       || github.event_name != 'push'
+      || github.ref == 'refs/heads/master'
 
     timeout-minutes: 1
 
