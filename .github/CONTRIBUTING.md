@@ -186,8 +186,8 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 ## Run tests in your fork
 
-Go to you fork `Actions` tab and click on big green button
+Go to your fork's `Actions` tab and click the big green button.
 
 ![Enable workflows](/assets/contributing/enable_actions_in_fork.png)
 
-Now you can see are the tests pass before submitting PR.
+Now you can verify that the tests pass before submitting your PR.
