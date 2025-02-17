@@ -1,14 +1,12 @@
-name: ♾️
+name: ∞
 
 on:
   merge_group:
   push:
     branches-ignore:
     - dependabot/**  # Dependabot always creates PRs
+    - renovate/**  # Our Renovate setup always creates PRs
     - gh-readonly-queue/**  # Temporary merge queue-related GH-made branches
-    - maintenance/pip-tools-constraint-lockfiles  # Lock files through PRs
-    - maintenance/pip-tools-constraint-lockfiles-**  # Lock files through PRs
-    - patchback/backports/**  # Patchback always creates PRs
     - pre-commit-ci-update-config  # pre-commit.ci always creates a PR
   pull_request:
   workflow_call:  # a way to embed the main tests
