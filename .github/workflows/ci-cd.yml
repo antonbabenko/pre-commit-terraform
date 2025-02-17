@@ -508,6 +508,7 @@ jobs:
     if: always()
 
     needs:
+    - pre-setup
     - lint
     - tests
 
