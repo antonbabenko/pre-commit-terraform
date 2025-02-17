@@ -273,6 +273,17 @@ jobs:
       dists-base64-hash: ${{ steps.dist-hashes.outputs.combined-hash }}
 
     steps:
+    - name: TEST OUTPUTS
+      run: |
+        echo "GITHUB_OUTPUT: ${{ env.GITHUB_OUTPUT }}"
+        echo "GITHUB_ENV: ${{ env.GITHUB_ENV }}"
+        echo "needs.pre-setup.outputs.upstream-repository-id:" \
+          "${{ needs.pre-setup.outputs.upstream-repository-id }}"
+        echo "github.repository_id: ${{ github.repository_id }}"
+        echo "github.event_name: ${{ github.event_name }}"
+        echo "github.ref_name: ${{ github.ref_name }}"
+        echo "github.event.repository.default_branch: ${{ github.event.repository.default_branch }}"
+
     - name: Switch to using Python 3.13
       uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
       with:
