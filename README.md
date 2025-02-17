@@ -9,6 +9,8 @@
 
 [![StandWithUkraine Banner]](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
+`pre-commit-terraform` provides a collection of git hooks for Terraform and related tools to be used with the [pre-commit framework](https://pre-commit.com). It helps ensure that Terraform, OpenTofu and Terragrunt configurations are kept in good shape by automatically running checks and formatting code before commits, and you can run these checks in CI too. This helps maintain code quality and consistency across the project.
+
 Want to contribute?
 Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc)
 and [contributing notes](/.github/CONTRIBUTING.md).
