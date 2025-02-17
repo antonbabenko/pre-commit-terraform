@@ -86,10 +86,11 @@ jobs:
     runs-on: ubuntu-latest
     # Prevent run 'push' events for the branches in upstream repository as it
     # already covered by 'pull_request' event
-    if: (github.event_name == 'push' && github.repository == 'pre-commit/pre-commit-terraform' &&
-      github.branch == 'master') ||
-      (github.event_name == 'push' && github.repository != 'pre-commit/pre-commit-terraform') ||
-      github.event_name != 'push'
+    if: >-
+      !(github.event_name == 'push' &&
+        github.repository == 'pre-commit/pre-commit-terraform' &&
+        github.ref != 'refs/heads/master'
+      )
 
     timeout-minutes: 1
 

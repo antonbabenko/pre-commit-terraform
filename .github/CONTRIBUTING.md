@@ -19,7 +19,21 @@
 
 ```bash
 pre-commit try-repo {-a} /path/to/local/pre-commit-terraform/repo {hook_name}
-```g run on this fork
+```
+
+I.e.
+
+```bash
+pre-commit try-repo /mnt/c/Users/tf/pre-commit-terraform terraform_fmt # Run only `terraform_fmt` check
+pre-commit try-repo -a ~/pre-commit-terraform # run all existing checks from repo
+```
+
+Running `pre-commit` with `try-repo` ignores all arguments specified in `.pre-commit-config.yaml`.
+
+If you need to test hook with arguments, follow [pre-commit doc](https://pre-commit.com/#arguments-pattern-in-hooks) to test hooks.
+
+For example, to test that the [`terraform_fmt`](../README.md#terraform_fmt) hook works fine with arguments:
+
 ```bash
 /tmp/pre-commit-terraform/terraform_fmt.sh --args=-diff --args=-write=false test-dir/main.tf test-dir/vars.tf
 ```
