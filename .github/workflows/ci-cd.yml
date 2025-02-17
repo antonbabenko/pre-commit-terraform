@@ -505,10 +505,14 @@ jobs:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   check:  # This job does nothing and is only used for the branch protection
-    if: always()
+    if: >-
+      always() && (
+        github.repository != 'antonbabenko/pre-commit-terraform'
+        || github.event_name != 'push'
+        || github.ref == 'refs/heads/master'
+      )
 
     needs:
-    - pre-setup
     - lint
     - tests
 
