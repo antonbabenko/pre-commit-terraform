@@ -9,6 +9,13 @@
 
 [![StandWithUkraine Banner]](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
+[`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform) provides a collection of [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) for Terraform and related tools and is driven by the [pre-commit framework](https://pre-commit.com). It helps ensure that Terraform, OpenTofu, and Terragrunt configurations are kept in good shape by automatically running various checks and formatting code before committing changes to version control system. This helps maintain code quality and consistency across the project.
+
+It can be run:
+* Locally and in CI
+* As standalone Git hooks or as a Docker image
+* For the entire repository or just for change-related files (e.g., local git stash, last commit, or all changes in a Pull Request)
+
 Want to contribute?
 Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc)
 and [contributing notes](/.github/CONTRIBUTING.md).
