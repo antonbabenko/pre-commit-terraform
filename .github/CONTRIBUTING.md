@@ -13,6 +13,7 @@
   * [Add code](#add-code)
   * [Finish with the documentation](#finish-with-the-documentation)
 * [Contributing to Python code](#contributing-to-python-code)
+* [Run tests in your fork](#run-tests-in-your-fork)
 
 ## Run and debug hooks locally
 
@@ -182,3 +183,11 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
     ```bash
     tox list
     ```
+
+## Run tests in your fork
+
+Go to your fork's `Actions` tab and click the big green button.
+
+![Enable workflows](/assets/contributing/enable_actions_in_fork.png)
+
+Now you can verify that the tests pass before submitting your PR.
