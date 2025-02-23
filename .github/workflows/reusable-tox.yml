@@ -85,7 +85,8 @@ permissions:
   contents: read
 
 env:
-  COLOR: >-  # Supposedly, pytest or coveragepy use this
+  # Supposedly, pytest or coveragepy use this
+  COLOR: >-
     yes
   FORCE_COLOR: 1  # Request colored output from CLI tools supporting it
   MYPY_FORCE_COLOR: 1  # MyPy's color enforcement
@@ -97,7 +98,8 @@ env:
   PYTHONIOENCODING: utf-8
   PYTHONUTF8: 1
   TOX_PARALLEL_NO_SPINNER: 1
-  TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
+  # Make tox-wrapped tools see color requests
+  TOX_TESTENV_PASSENV: >-
     COLOR
     FORCE_COLOR
     MYPY_FORCE_COLOR
@@ -356,7 +358,8 @@ jobs:
         !cancelled()
         && failure()
         && inputs.tox-rerun-posargs != ''
-      run: >-  # `exit 1` makes sure that the job remains red with flaky runs
+      # `exit 1` makes sure that the job remains red with flaky runs
+      run: >-
         python -Im
         tox
         --parallel auto

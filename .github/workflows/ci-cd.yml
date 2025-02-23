@@ -37,7 +37,8 @@ env:
   PYTHONIOENCODING: utf-8
   PYTHONUTF8: 1
   TOX_PARALLEL_NO_SPINNER: 1  # Disable tox's parallel run spinner animation
-  TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
+  # Make tox-wrapped tools see color requests
+  TOX_TESTENV_PASSENV: >-
     FORCE_COLOR
     MYPY_FORCE_COLOR
     NO_COLOR
@@ -396,7 +397,8 @@ jobs:
         # `no-commit-to-branch` is skipped because it does not make sense
         # in the CI, only locally.
         # Ref: https://github.com/pre-commit/pre-commit-hooks/issues/1124
-        - >-  # only affects pre-commit, set for all for simplicity:
+        # only affects pre-commit, set for all for simplicity:
+        - >-
           SKIP=
           hadolint,
           no-commit-to-branch,
@@ -448,7 +450,8 @@ jobs:
         # NOTE: important results first.
         - 3.13
         - 3.9
-        - >-  # str
+        # str
+        - >-
           3.10
         - 3.12
         - 3.11

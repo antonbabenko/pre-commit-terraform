@@ -47,6 +47,20 @@ repos:
   hooks:
   - id: gitleaks
 
+#
+# YAML Linters
+#
+- repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+  rev: 0.2.3
+  hooks:
+  - id: yamlfmt
+    args:
+    - --mapping=2
+    - --sequence=2
+    - --offset=0
+    - --width=75
+    - --implicit_start
+
 - repo: https://github.com/adrienverge/yamllint.git
   rev: v1.35.1
   hooks:
