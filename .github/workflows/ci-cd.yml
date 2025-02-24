@@ -52,8 +52,7 @@ env:
     PYTHONIOENCODING
     PYTHONLEGACYWINDOWSSTDIO
     PYTHONUTF8
-  UPSTREAM_REPOSITORY_ID: >-  # Repo ID of antonbabenko/pre-commit-terraform
-    69382485
+  UPSTREAM_REPOSITORY_ID: 69382485  # Repo ID of antonbabenko/pre-commit-terraform
 
 run-name: >-
   ${{
@@ -511,6 +510,7 @@ jobs:
   check:  # This job does nothing and is only used for the branch protection
     # Prevent run 'push' events for the branches in upstream repository as it
     # already covered by 'pull_request' event
+    name: check - ${{ github.event_name }}
     if: >-
       always() && (
         github.repository_id != needs.pre-setup.outputs.upstream-repository-id
