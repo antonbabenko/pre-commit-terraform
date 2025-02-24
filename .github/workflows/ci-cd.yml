@@ -508,9 +508,12 @@ jobs:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   check:  # This job does nothing and is only used for the branch protection
-    # Prevent run 'push' events for the branches in upstream repository as it
-    # already covered by 'pull_request' event
-    name: ${{ github.event_name == 'pull_request' && '🔀 check' || 'check' }}
+
+    # Separate 'pull_request' check from other checks to avoid confusion in
+    # GitHub branch protection about which check is required when multiple
+    # events trigger this workflow.
+    name: >-
+      ${{ github.event_name == 'pull_request' && 'check' || 'check&nbsp;' }}
     if: always()
 
     needs:
