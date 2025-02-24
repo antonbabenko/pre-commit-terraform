@@ -31,14 +31,6 @@ and [contributing notes](/.github/CONTRIBUTING.md).
 
 <!-- markdownlint-disable no-inline-html -->
 
-<br />
-<a href="https://www.terramate.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social">
-    <img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/master/assets/terramate.png"
-         alt="Terramate: Automate, Orchestrate and Observe Terraform" width="200" height="36" />
-</a>
-
-Terramate is an IaC collaboration, visibility and observability platform that empowers your team to manage Terraform and OpenTofu faster and more confidently than ever before.
-
 If you want to support the development of `pre-commit-terraform` and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
 
 
