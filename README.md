@@ -10,7 +10,7 @@
 [![StandWithUkraine Banner]](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
 <!-- markdownlint-disable no-inline-html -->
-<center><img src="assets/pre-commit-terraform-banner.png" alt="pre-commit-terraform logo" width="700"/></center>
+<p align="center"><img src="assets/pre-commit-terraform-banner.png" alt="pre-commit-terraform logo" width="700"/></p>
 
 [`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform) provides a collection of [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) for Terraform and related tools and is driven by the [pre-commit framework](https://pre-commit.com). It helps ensure that Terraform, OpenTofu, and Terragrunt configurations are kept in good shape by automatically running various checks and formatting code before committing changes to version control system. This helps maintain code quality and consistency across the project.
 
