@@ -9,9 +9,13 @@
 
 [![StandWithUkraine Banner]](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
+<!-- markdownlint-disable no-inline-html -->
+<center><img src="assets/pre-commit-terraform-banner.png" alt="pre-commit-terraform logo" width="700"/></center>
+
 [`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform) provides a collection of [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) for Terraform and related tools and is driven by the [pre-commit framework](https://pre-commit.com). It helps ensure that Terraform, OpenTofu, and Terragrunt configurations are kept in good shape by automatically running various checks and formatting code before committing changes to version control system. This helps maintain code quality and consistency across the project.
 
 It can be run:
+
 * Locally and in CI
 * As standalone Git hooks or as a Docker image
 * For the entire repository or just for change-related files (e.g., local git stash, last commit, or all changes in a Pull Request)
@@ -28,8 +32,6 @@ and [contributing notes](/.github/CONTRIBUTING.md).
 [StandWithUkraine Banner]: https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg
 
 ## Sponsors
-
-<!-- markdownlint-disable no-inline-html -->
 
 If you want to support the development of `pre-commit-terraform` and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
 
