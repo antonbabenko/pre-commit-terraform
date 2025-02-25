@@ -513,7 +513,7 @@ jobs:
     # GitHub branch protection about which check is required when multiple
     # events trigger this workflow.
     name: >-
-      ${{ github.event_name == 'pull_request' && 'check' || 'check&nbsp;' }}
+      ${{ github.event_name == 'push' && 'check&nbsp;' || 'check' }}
     if: always()
 
     needs:
