@@ -513,7 +513,7 @@ jobs:
     # GitHub branch protection about which check is required when multiple
     # events trigger this workflow.
     name: >-
-      ${{ github.event_name == 'push' && 'check&nbsp;' || 'check' }}
+      ${{ github.event_name == 'push' && 'check&ZeroWidthSpace;' || 'check' }}
     if: always()
 
     needs:
@@ -531,4 +531,13 @@ jobs:
         jobs: ${{ toJSON(needs) }}
         # Needed to not fail on skipped 'push' events for the branches in
         # upstream repository as they already covered by 'pull_request' event
-        allowed-skips: lint, tests
+        allowed-skips: >-
+          ${{
+            (
+              github.repository_id != needs.pre-setup.outputs.upstream-repository-id
+              || github.event_name != 'push'
+              || github.ref_name == github.event.repository.default_branch
+            )
+            && 'lint, tests'
+            || ''
+          }}
