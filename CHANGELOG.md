@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.97.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.3...v1.97.4) (2025-02-26)
+
+
+### Bug Fixes
+
+* **docker image security:** Improve dependency pinning and disable ability to build image from different tag from what specified in Dockefile ([#830](https://github.com/antonbabenko/pre-commit-terraform/issues/830)) ([2c3aa85](https://github.com/antonbabenko/pre-commit-terraform/commit/2c3aa85a2ad4a2d903b2f54ae83ef56ac63146e0))
+
 ## [1.97.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.2...v1.97.3) (2025-02-04)
 
 
