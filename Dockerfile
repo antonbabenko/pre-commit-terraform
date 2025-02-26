@@ -1,5 +1,6 @@
-ARG TAG=3.12.0-alpine3.17@sha256:fc34b07ec97a4f288bc17083d288374a803dd59800399c76b977016c9fe5b8f2
-FROM python:${TAG} as builder
+FROM python:3.12.0-alpine3.17@sha256:fc34b07ec97a4f288bc17083d288374a803dd59800399c76b977016c9fe5b8f2 AS python_base
+
+FROM python_base AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -11,8 +12,8 @@ RUN apk add --no-cache \
     curl=~8 && \
     # Upgrade packages for be able get latest Checkov
     python3 -m pip install --no-cache-dir --upgrade \
-        pip \
-        setuptools
+        pip~=25.0 \
+        setuptools~=75.8
 
 COPY tools/install/ /install/
 
@@ -100,7 +101,7 @@ RUN . /.env && \
 
 
 
-FROM python:${TAG}
+FROM python_base
 
 RUN apk add --no-cache \
     # pre-commit deps

@@ -185,7 +185,7 @@ jobs:
         python -m
         pip install
         --user
-        setuptools-scm
+        setuptools-scm~=8.2
       shell: bash
     - name: Set the current dist version from Git
       id: scm-version
