@@ -52,8 +52,7 @@ env:
     PYTHONIOENCODING
     PYTHONLEGACYWINDOWSSTDIO
     PYTHONUTF8
-  UPSTREAM_REPOSITORY_ID: >-
-    69382485
+  UPSTREAM_REPOSITORY_ID: 69382485  # Repo ID of antonbabenko/pre-commit-terraform
 
 run-name: >-
   ${{
@@ -255,6 +254,13 @@ jobs:
     name: 📦 ${{ needs.pre-setup.outputs.git-tag }}
     needs:
     - pre-setup
+    # Prevent run 'push' events for the branches in upstream repository as it
+    # already covered by 'pull_request' event
+    if: >-
+      github.repository_id != needs.pre-setup.outputs.upstream-repository-id
+      || github.event_name != 'push'
+      || github.ref_name == github.event.repository.default_branch
+
 
     runs-on: ubuntu-latest
 
@@ -502,6 +508,12 @@ jobs:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   check:  # This job does nothing and is only used for the branch protection
+
+    # Separate 'pull_request' check from other checks to avoid confusion in
+    # GitHub branch protection about which check is required when multiple
+    # events trigger this workflow.
+    name: >-
+      ${{ github.event_name == 'push' && 'check&ZeroWidthSpace;' || 'check' }}
     if: always()
 
     needs:
@@ -517,3 +529,15 @@ jobs:
       uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe  # v1.2.2
       with:
         jobs: ${{ toJSON(needs) }}
+        # Needed to not fail on skipped 'push' events for the branches in
+        # upstream repository as they already covered by 'pull_request' event
+        allowed-skips: >-
+          ${{
+            (
+              github.repository_id != needs.pre-setup.outputs.upstream-repository-id
+              || github.event_name != 'push'
+              || github.ref_name == github.event.repository.default_branch
+            )
+            && 'lint, tests'
+            || ''
+          }}
