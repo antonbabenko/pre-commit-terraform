@@ -1,0 +1,28 @@
+# Assume Python 3.9
+target-version = "py39"
+
+[format]
+quote-style = "single"
+
+[lint.flake8-quotes]
+inline-quotes = "single"
+
+[lint]
+select = ["ALL"]
+preview = true
+ignore = [
+  "CPY001", # Missing copyright notice at top of file
+  "D213", # multi-line-summary-second-line. Incompatible with multi-line-summary-first-line (D212)
+  "D203", # one-blank-line-before-class. Incompatible with no-blank-line-before-class (D211)
+  "INP001", # We use namespace packages in this project
+]
+
+[lint.isort]
+force-single-line = true
+
+[lint.per-file-ignores]
+# Ignore in the `tests/` directory.
+"tests/**.py" = [
+  "S101", # Use of `assert` detected
+  "PLC2701", # We need import marked as internal files for testing
+]

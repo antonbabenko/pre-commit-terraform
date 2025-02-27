@@ -1,15 +1,16 @@
 """Tests for the `replace-docs` subcommand."""
 
-from argparse import ArgumentParser, Namespace
-from subprocess import CalledProcessError
+from argparse import ArgumentParser
+from argparse import Namespace
+from subprocess import CalledProcessError  # noqa: S404. We invoke cli tools
 
 import pytest
 import pytest_mock
 
 from pre_commit_terraform._structs import ReturnCode
+from pre_commit_terraform.terraform_docs_replace import invoke_cli_app
+from pre_commit_terraform.terraform_docs_replace import populate_argument_parser
 from pre_commit_terraform.terraform_docs_replace import (
-    invoke_cli_app,
-    populate_argument_parser,
     subprocess as replace_docs_subprocess_mod,
 )
 
@@ -24,8 +25,7 @@ def test_arg_parser_populated() -> None:
 def test_check_is_deprecated() -> None:
     """Verify that `replace-docs` shows a deprecation warning."""
     deprecation_msg_regex = (
-        r'^`terraform_docs_replace` hook is DEPRECATED\.'
-        'For migration.*$'
+        r'^`terraform_docs_replace` hook is DEPRECATED\.' + 'For migration.*$'
     )
     with pytest.warns(UserWarning, match=deprecation_msg_regex):
         # not `pytest.deprecated_call()` due to this being a user warning
@@ -34,7 +34,7 @@ def test_check_is_deprecated() -> None:
 
 @pytest.mark.parametrize(
     ('parsed_cli_args', 'expected_cmds'),
-    (
+    [
         pytest.param(Namespace(filenames=[]), [], id='no-files'),
         pytest.param(
             Namespace(
@@ -53,8 +53,7 @@ def test_check_is_deprecated() -> None:
             ),
             [
                 'terraform-docs --sort-by-required md ./ > .//SENTINEL.md',
-                'terraform-docs --sort-by-required md ./thing '
-                '> ./thing/SENTINEL.md',
+                'terraform-docs --sort-by-required md ./thing > ./thing/SENTINEL.md',
             ],
             id='two-sorted-files',
         ),
@@ -63,17 +62,17 @@ def test_check_is_deprecated() -> None:
             [],
             id='invalid-files',
         ),
-    ),
+    ],
 )
 @pytest.mark.filterwarnings(
     'ignore:`terraform_docs_replace` hook is DEPRECATED.:UserWarning:'
     'pre_commit_terraform.terraform_docs_replace',
 )
 def test_control_flow_positive(
-        expected_cmds: list[str],
-        mocker: pytest_mock.MockerFixture,
-        monkeypatch: pytest.MonkeyPatch,
-        parsed_cli_args: Namespace,
+    expected_cmds: list[str],
+    mocker: pytest_mock.MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+    parsed_cli_args: Namespace,
 ) -> None:
     """Check that the subcommand's happy path works."""
     check_call_mock = mocker.Mock()
@@ -83,11 +82,9 @@ def test_control_flow_positive(
         check_call_mock,
     )
 
-    assert ReturnCode.OK == invoke_cli_app(parsed_cli_args)
+    assert invoke_cli_app(parsed_cli_args) == ReturnCode.OK
 
-    executed_commands = [
-        cmd for ((cmd, ), _shell) in check_call_mock.call_args_list
-    ]
+    executed_commands = [cmd for ((cmd,), _shell) in check_call_mock.call_args_list]
 
     assert len(expected_cmds) == check_call_mock.call_count
     assert expected_cmds == executed_commands
@@ -98,8 +95,8 @@ def test_control_flow_positive(
     'pre_commit_terraform.terraform_docs_replace',
 )
 def test_control_flow_negative(
-        mocker: pytest_mock.MockerFixture,
-        monkeypatch: pytest.MonkeyPatch,
+    mocker: pytest_mock.MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Check that the subcommand's error processing works."""
     parsed_cli_args = Namespace(
@@ -118,6 +115,6 @@ def test_control_flow_negative(
         check_call_mock,
     )
 
-    assert ReturnCode.ERROR == invoke_cli_app(parsed_cli_args)
-
-    check_call_mock.assert_called_once_with(expected_cmd, shell=True)
+    assert invoke_cli_app(parsed_cli_args) == ReturnCode.ERROR
+    # We call cli tools, of course we use shell=True
+    check_call_mock.assert_called_once_with(expected_cmd, shell=True)  # noqa: S604

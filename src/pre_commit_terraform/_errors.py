@@ -6,11 +6,11 @@ class PreCommitTerraformBaseError(Exception):
 
 
 class PreCommitTerraformRuntimeError(
-        PreCommitTerraformBaseError,
-        RuntimeError,
+    PreCommitTerraformBaseError,
+    RuntimeError,
 ):
     """An exception representing a runtime error condition."""
 
 
-class PreCommitTerraformExit(PreCommitTerraformBaseError, SystemExit):
+class PreCommitTerraformExit(PreCommitTerraformBaseError, SystemExit):  # noqa: N818 FIXME
     """An exception for terminating execution from deep app layers."""

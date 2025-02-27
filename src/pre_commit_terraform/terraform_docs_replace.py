@@ -1,31 +1,40 @@
+"""`terraform_docs_replace` hook. Deprecated."""
+
 import os
-import subprocess
+import subprocess  # noqa: S404. We invoke cli tools
 import warnings
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
+from argparse import Namespace
 from typing import cast as cast_to
 
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
 
-
 CLI_SUBCOMMAND_NAME: str = 'replace-docs'
 
 
 def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
+    """Populate the parser for the subcommand."""
     subcommand_parser.description = (
         'Run terraform-docs on a set of files. Follows the standard '
         'convention of pulling the documentation from main.tf in order to '
         'replace the entire README.md file each time.'
     )
     subcommand_parser.add_argument(
-        '--dest', dest='dest', default='README.md',
+        '--dest',
+        dest='dest',
+        default='README.md',
     )
     subcommand_parser.add_argument(
-        '--sort-inputs-by-required', dest='sort', action='store_true',
+        '--sort-inputs-by-required',
+        dest='sort',
+        action='store_true',
         help='[deprecated] use --sort-by-required instead',
     )
     subcommand_parser.add_argument(
-        '--sort-by-required', dest='sort', action='store_true',
+        '--sort-by-required',
+        dest='sort',
+        action='store_true',
     )
     subcommand_parser.add_argument(
         '--with-aggregate-type-defaults',
@@ -41,7 +50,13 @@ def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
 
 
 def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
-    warnings.warn(
+    """Run the entry-point of the CLI app.
+
+    Returns:
+        ReturnCodeType: The return code of the app.
+
+    """
+    warnings.warn(  # noqa: B028. that's user warning, no need to show stacktrace etc.
         '`terraform_docs_replace` hook is DEPRECATED.'
         'For migration instructions see '
         'https://github.com/antonbabenko/pre-commit-terraform/issues/248'
@@ -50,28 +65,32 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
     )
 
     dirs: list[str] = []
-    for filename in cast_to(list[str], parsed_cli_args.filenames):
-        if (os.path.realpath(filename) not in dirs and
-                (filename.endswith(".tf") or filename.endswith(".tfvars"))):
-            dirs.append(os.path.dirname(filename))
+    for filename in cast_to('list[str]', parsed_cli_args.filenames):
+        if os.path.realpath(filename) not in dirs and (
+            filename.endswith(('.tf', '.tfvars'))
+        ):
+            dirs.append(os.path.dirname(filename))  # noqa: PTH120. Legacy hook, no need to refactor
 
     retval = ReturnCode.OK
 
-    for dir in dirs:
+    for directory in dirs:
         try:
-            procArgs = []
-            procArgs.append('terraform-docs')
-            if cast_to(bool, parsed_cli_args.sort):
-                procArgs.append('--sort-by-required')
-            procArgs.append('md')
-            procArgs.append("./{dir}".format(dir=dir))
-            procArgs.append('>')
-            procArgs.append(
-                './{dir}/{dest}'.
-                format(dir=dir, dest=cast_to(bool, parsed_cli_args.dest)),
+            proc_args = []
+            proc_args.append('terraform-docs')
+            if cast_to('bool', parsed_cli_args.sort):
+                proc_args.append('--sort-by-required')
+            proc_args.extend(
+                (
+                    'md',
+                    f'./{directory}',
+                    '>',
+                    f"./{directory}/{cast_to('bool', parsed_cli_args.dest)}",
+                ),
             )
-            subprocess.check_call(" ".join(procArgs), shell=True)
-        except subprocess.CalledProcessError as e:
-            print(e)
+            # We call cli tools, of course we use shell=True
+            subprocess.check_call(' '.join(proc_args), shell=True)  # noqa: S602
+        # Legacy hook, no need to refactor
+        except subprocess.CalledProcessError as e:  # noqa: PERF203
+            print(e)  # noqa: T201
             retval = ReturnCode.ERROR
     return retval
