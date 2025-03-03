@@ -1,0 +1,9 @@
+ignored:
+- DL3007  # Using latest
+- DL3013  # Pin versions in pip
+- DL3027  # Do not use apt
+- DL3059  # Docker `RUN`s shouldn't be consolidated here
+- DL4006  # Not related to alpine
+- SC1091  # Useless check
+- SC2015  # Useless check
+- SC3037  # Not related to alpine
