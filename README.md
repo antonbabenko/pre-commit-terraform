@@ -129,6 +129,17 @@ docker pull ghcr.io/antonbabenko/pre-commit-terraform:$TAG
 
 All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
 
+> [!WARNING]
+> Pre-built Docker images contain the latest versions of tools available at the time of their build and remain unchanged afterward. Tags should be immutable whenever possible, and it is highly recommended to pin them using hash sums for security and reproducibility.
+>
+> This means that most Docker images will include known CVEs, and the longer an image exists, the more CVEs it may accumulate. This applies even to the latest `vX.Y.Z` tags.
+>
+> To address this, you can use the `nightly` tag, which rebuilds nightly with the latest versions of all dependencies and `pre-commit-terraform` hooks. However, using mutable tags introduces different security conserns.
+>
+> Note: Currently, we DO NOT test third-party tools or their dependencies for security vulnerabilities, corruption, or injection (including obfuscated content). If you have ideas for introducing image scans or other security improvements, please open an issue or submit a PR. Some ideas are already tracked in [#835](https://github.com/antonbabenko/pre-commit-terraform/issues/835).
+>
+> From a security perspective, the best approach is to manage the Docker image yourself and update its dependencies as needed. This allows you to remove unnecessary dependencies, reducing the number of potential CVEs and improving overall security.
+
 **Build from scratch**:
 
 > [!IMPORTANT]
@@ -1181,6 +1192,8 @@ Example:
 > See docs for the [iam_role](https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#iam_role) attribute and [--terragrunt-iam-role](https://terragrunt.gruntwork.io/docs/reference/cli-options/#terragrunt-iam-role) flag for more.
 
 ## Docker Usage
+
+
 
 ### File Permissions
 
