@@ -70,6 +70,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [terragrunt\_providers\_lock](#terragrunt_providers_lock)
   * [terragrunt\_validate\_inputs](#terragrunt_validate_inputs)
 * [Docker Usage](#docker-usage)
+  * [About Docker image security](#about-docker-image-security)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
 * [GitHub Actions](#github-actions)
@@ -129,20 +130,12 @@ docker pull ghcr.io/antonbabenko/pre-commit-terraform:$TAG
 
 All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
 
-> [!WARNING]
-> Pre-built Docker images contain the latest versions of tools available at the time of their build and remain unchanged afterward. Tags should be immutable whenever possible, and it is highly recommended to pin them using hash sums for security and reproducibility.
->
-> This means that most Docker images will include known CVEs, and the longer an image exists, the more CVEs it may accumulate. This applies even to the latest `vX.Y.Z` tags.
->
-> To address this, you can use the `nightly` tag, which rebuilds nightly with the latest versions of all dependencies and `pre-commit-terraform` hooks. However, using mutable tags introduces different security conserns.
->
-> Note: Currently, we DO NOT test third-party tools or their dependencies for security vulnerabilities, corruption, or injection (including obfuscated content). If you have ideas for introducing image scans or other security improvements, please open an issue or submit a PR. Some ideas are already tracked in [#835](https://github.com/antonbabenko/pre-commit-terraform/issues/835).
->
-> From a security perspective, the best approach is to manage the Docker image yourself and update its dependencies as needed. This allows you to remove unnecessary dependencies, reducing the number of potential CVEs and improving overall security.
+Check [About Docker image security](#about-docker-image-security) section to learn more about possible security issues and why you probably want to build and maintain your own image.
+
 
 **Build from scratch**:
 
-> [!IMPORTANT]
+> **IMPORTANT**  
 > To build image you need to have [`docker buildx`](https://docs.docker.com/build/install-buildx/) enabled as default builder.  
 > Otherwise - provide `TARGETOS` and `TARGETARCH` as additional `--build-arg`'s to `docker build`.
 
@@ -237,8 +230,8 @@ curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/late
 
 We highly recommend using [WSL/WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) with Ubuntu and following the Ubuntu installation guide. Or use Docker.
 
-> [!IMPORTANT]
-> We won't be able to help with issues that can't be reproduced in Linux/Mac.
+> **IMPORTANT**  
+> We won't be able to help with issues that can't be reproduced in Linux/Mac.  
 > So, try to find a working solution and send PR before open an issue.
 
 Otherwise, you can follow [this gist](https://gist.github.com/etiennejeanneaurevolve/1ed387dc73c5d4cb53ab313049587d09):
@@ -1193,7 +1186,16 @@ Example:
 
 ## Docker Usage
 
+### About Docker image security
 
+Pre-built Docker images contain the latest versions of tools available at the time of their build and remain unchanged afterward. Tags should be immutable whenever possible, and it is highly recommended to pin them using hash sums for security and reproducibility.
+
+This means that most Docker images will include known CVEs, and the longer an image exists, the more CVEs it may accumulate. This applies even to the latest `vX.Y.Z` tags.
+To address this, you can use the `nightly` tag, which rebuilds nightly with the latest versions of all dependencies and latest `pre-commit-terraform` hooks. However, using mutable tags introduces different security concerns.
+
+Note: Currently, we DO NOT test third-party tools or their dependencies for security vulnerabilities, corruption, or injection (including obfuscated content). If you have ideas for introducing image scans or other security improvements, please open an issue or submit a PR. Some ideas are already tracked in [#835](https://github.com/antonbabenko/pre-commit-terraform/issues/835).
+
+From a security perspective, the best approach is to manage the Docker image yourself and update its dependencies as needed. This allows you to remove unnecessary dependencies, reducing the number of potential CVEs and improving overall security.
 
 ### File Permissions
 
