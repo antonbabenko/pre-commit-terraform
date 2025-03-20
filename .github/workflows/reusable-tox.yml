@@ -419,3 +419,5 @@ jobs:
             steps.python-install.outputs.python-version
           }}
         token: ${{ secrets.codecov-token }}
+        # renovate: datasource=github-releases depName=codecov-cli lookupName=codecov/codecov-cli
+        version: v10.2.1
