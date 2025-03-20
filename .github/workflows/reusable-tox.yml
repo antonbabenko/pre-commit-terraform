@@ -420,4 +420,4 @@ jobs:
           }}
         token: ${{ secrets.codecov-token }}
         # renovate: datasource=github-releases depName=codecov-cli lookupName=codecov/codecov-cli
-        version: v10.2.1
+        version: v10.2.0
