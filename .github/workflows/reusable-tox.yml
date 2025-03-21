@@ -419,3 +419,6 @@ jobs:
             steps.python-install.outputs.python-version
           }}
         token: ${{ secrets.codecov-token }}
+        # There is a bug in action which provokes it to fail during upload
+        # Related issue: https://github.com/codecov/codecov-action/issues/1794
+        continue-on-error: true
