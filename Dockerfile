@@ -65,6 +65,8 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "TRIVY_VERSION=latest"          >> /.env \
     ; fi
 
+# Docker `RUN`s shouldn't be consolidated here
+# hadolint global ignore=DL3059
 RUN /install/opentofu.sh
 RUN /install/terraform.sh
 
@@ -81,6 +83,9 @@ RUN /install/trivy.sh
 
 
 # Checking binaries versions and write it to debug file
+
+# We do not use `echo` flags here, so it's false-positive
+# hadolint ignore=SC3037
 RUN . /.env && \
     F=tools_versions_info && \
     pre-commit --version >> $F && \
