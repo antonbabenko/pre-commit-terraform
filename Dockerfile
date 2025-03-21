@@ -84,8 +84,9 @@ RUN /install/trivy.sh
 
 # Checking binaries versions and write it to debug file
 
-# We do not use `echo` flags here, so it's false-positive
-# hadolint ignore=SC3037
+# SC3037 - We do not use `echo` flags here, so it's false-positive
+# DL4006 - Not Applicable for for /bin/sh in alpine images. Disable, as recommended by check itself
+# hadolint ignore=SC3037,DL4006
 RUN . /.env && \
     F=tools_versions_info && \
     pre-commit --version >> $F && \
