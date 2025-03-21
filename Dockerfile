@@ -85,8 +85,7 @@ RUN /install/trivy.sh
 # Checking binaries versions and write it to debug file
 
 # SC3037 - We do not use `echo` flags here, so it's false-positive
-# DL4006 - Not Applicable for for /bin/sh in alpine images. Disable, as recommended by check itself
-# hadolint ignore=SC3037,DL4006
+# hadolint ignore=SC3037
 RUN . /.env && \
     F=tools_versions_info && \
     pre-commit --version >> $F && \
@@ -104,7 +103,7 @@ RUN . /.env && \
     (if [ "$TFSEC_VERSION"          != "false" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F          ; fi) && \
     (if [ "$TFUPDATE_VERSION"       != "false" ]; then echo "tfupdate $(./tfupdate --version)" >> $F; else echo "tfupdate SKIPPED" >> $F       ; fi) && \
     (if [ "$TRIVY_VERSION"          != "false" ]; then echo "trivy $(./trivy --version)" >> $F;       else echo "trivy SKIPPED" >> $F          ; fi) && \
-    echo -e "\n\n" && cat $F && echo -e "\n\n"
+    printf "\n\n\n" && cat $F && printf "\n\n\n"
 
 
 
