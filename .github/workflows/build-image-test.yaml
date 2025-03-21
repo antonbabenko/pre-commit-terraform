@@ -41,11 +41,11 @@ jobs:
       uses: tj-actions/changed-files@dcc7a0cba800f454d79fff4b993e8c3555bcc0a8  # v45.0.7
       with:
         files: |
-          Dockerfile
           .dockerignore
-          tools/entrypoint.sh
           .github/workflows/build-image-test.yaml
-          tools/*.sh
+          Dockerfile
+          tools/entrypoint.sh
+          tools/install/*.sh
 
     - name: Set IMAGE environment variable
       if: steps.changed-files-specific.outputs.any_changed == 'true'
