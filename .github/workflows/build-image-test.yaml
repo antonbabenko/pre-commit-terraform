@@ -38,14 +38,14 @@ jobs:
 
     - name: Get changed Docker related files
       id: changed-files-specific
-      uses: tj-actions/changed-files@dcc7a0cba800f454d79fff4b993e8c3555bcc0a8  # v45.0.7
+      uses: tj-actions/changed-files@2f7c5bfce28377bc069a65ba478de0a74aa0ca32  # v46.0.1
       with:
         files: |
-          Dockerfile
           .dockerignore
-          tools/entrypoint.sh
           .github/workflows/build-image-test.yaml
-          tools/*.sh
+          Dockerfile
+          tools/entrypoint.sh
+          tools/install/*.sh
 
     - name: Set IMAGE environment variable
       if: steps.changed-files-specific.outputs.any_changed == 'true'
@@ -56,12 +56,12 @@ jobs:
         >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca  # v3.9.0
+      uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2  # v3.10.0
       if: steps.changed-files-specific.outputs.any_changed == 'true'
 
     - name: Build if Dockerfile changed
       if: steps.changed-files-specific.outputs.any_changed == 'true'
-      uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991  # v6.13.0
+      uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4  # v6.15.0
       with:
         context: .
         build-args: |
@@ -100,7 +100,7 @@ jobs:
 
     - name: Dive - check image for waste files
       if: steps.changed-files-specific.outputs.any_changed == 'true'
-      uses: MaxymVlasov/dive-action@94506fd846be3ec26406118c3878ccd2ad2b0150  # v1.3.0
+      uses: MaxymVlasov/dive-action@43dafd0015826beaca5110157c9262c5dc10672a  # v1.4.0
       with:
         image: ${{ env.IMAGE }}
         config-file: ${{ github.workspace }}/.github/.dive-ci.yaml
@@ -112,7 +112,7 @@ jobs:
       if: >-
         steps.changed-files-specific.outputs.any_changed == 'true'
         && matrix.os == 'ubuntu-latest'
-      uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991  # v6.13.0
+      uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4  # v6.15.0
       with:
         context: .
         build-args: |
