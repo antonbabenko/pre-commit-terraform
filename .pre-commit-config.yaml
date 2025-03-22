@@ -47,6 +47,21 @@ repos:
   hooks:
   - id: gitleaks
 
+# Dockerfile linter
+- repo: https://github.com/hadolint/hadolint
+  rev: v2.12.1-beta
+  hooks:
+  - id: hadolint
+    args:
+    - --ignore=DL3007  # Using latest
+    - --ignore=DL3013  # Pin versions in pip
+    - --ignore=DL3027  # Do not use apt
+    - --ignore=DL3059  # Docker `RUN`s shouldn't be consolidated here
+    - --ignore=DL4006  # Not related to alpine
+    - --ignore=SC1091  # Useless check
+    - --ignore=SC2015  # Useless check
+    - --ignore=SC3037  # Not related to alpine
+
 #
 # YAML Linters
 #
@@ -78,6 +93,32 @@ repos:
   - id: prettier
     # https://prettier.io/docs/en/options.html#parser
     files: .json5$
+
+
+# Bash Linter
+- repo: https://github.com/jumanjihouse/pre-commit-hooks
+  rev: 3.0.0
+  hooks:
+  - id: shfmt
+    args:
+    - -l
+    - -i
+    - '2'
+    - -ci
+    - -sr
+    - -w
+  - id: shellcheck
+
+#
+# Python Linters
+#
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.8.4
+  hooks:
+  - id: ruff
+    args:
+    - --fix
+  - id: ruff-format
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git
   rev: v1.15.0
@@ -133,31 +174,3 @@ repos:
     - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.9
     - --txt-report=.tox/.tmp/.test-results/mypy--py-3.9
     pass_filenames: false
-
-- repo: https://github.com/jumanjihouse/pre-commit-hooks
-  rev: 3.0.0
-  hooks:
-  - id: shfmt
-    args:
-    - -l
-    - -i
-    - '2'
-    - -ci
-    - -sr
-    - -w
-  - id: shellcheck
-
-# Dockerfile linter
-- repo: https://github.com/hadolint/hadolint
-  rev: v2.12.1-beta
-  hooks:
-  - id: hadolint
-    args:
-    - --ignore=DL3007  # Using latest
-    - --ignore=DL3013  # Pin versions in pip
-    - --ignore=DL3027  # Do not use apt
-    - --ignore=DL3059  # Docker `RUN`s shouldn't be consolidated here
-    - --ignore=DL4006  # Not related to alpine
-    - --ignore=SC1091  # Useless check
-    - --ignore=SC2015  # Useless check
-    - --ignore=SC3037  # Not related to alpine
