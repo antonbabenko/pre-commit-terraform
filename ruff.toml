@@ -33,3 +33,6 @@ parametrize-values-type = "tuple"
   "S101", # Use of `assert` detected
   "PLC2701", # We need import marked as internal files for testing
 ]
+
+"src/pre_commit_terraform/terraform_docs_replace.py" = ["ALL"] # Deprecated hook
+"tests/pytest/terraform_docs_replace_test.py" = ["ALL"] # Tests for deprecated hook
