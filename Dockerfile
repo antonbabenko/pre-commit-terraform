@@ -85,7 +85,7 @@ RUN /install/trivy.sh
 # Checking binaries versions and write it to debug file
 
 # SC2086 - We do not need to quote "$F" variable, because it's not contain spaces
-# DL4006 - Not Applicable for for /bin/sh in alpine images. Disable, as recommended by check itself
+# DL4006 - Not Applicable for /bin/sh in alpine images. Disable, as recommended by check itself
 # hadolint ignore=SC2086,DL4006
 RUN . /.env && \
     F=tools_versions_info && \
