@@ -181,7 +181,7 @@ jobs:
 
     - name: Cache pre-commit.com virtualenvs
       if: inputs.toxenv == 'pre-commit'
-      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
+      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf  # v4.2.2
       with:
         path: ~/.cache/pre-commit
         key: >-
@@ -239,7 +239,7 @@ jobs:
       shell: bash
     - name: Set up pip cache
       if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
+      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf  # v4.2.2
       with:
         path: ${{ steps.pip-cache-dir.outputs.dir }}
         key: >-
@@ -266,7 +266,7 @@ jobs:
     - name: Download all the dists
       if: >-
         contains(fromJSON('["metadata-validation", "pytest"]'), inputs.toxenv)
-      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16  # v4.1.8
+      uses: actions/download-artifact@b14cf4c92620c250e1c074ab0a5800e37df86765  # v4.2.0
       with:
         name: ${{ inputs.dists-artifact-name }}
         path: dist/
@@ -375,7 +375,7 @@ jobs:
       if: >-
         !cancelled()
         && steps.tox-run.outputs.cov-report-files != ''
-      uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3  # v5.3.1
+      uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574  # v5.4.0
       with:
         disable_search: true
         fail_ci_if_error: >-
@@ -399,7 +399,10 @@ jobs:
       if: >-
         !cancelled()
         && steps.tox-run.outputs.test-result-files != ''
-      uses: codecov/test-results-action@44ecb3a270cd942bdf0fa8f2ce14cb32493e810a  # v1.0.3
+      uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706  # v1.1.0
+      # FIXME There is a bug in action which provokes it to fail during upload
+      # Related issue: https://github.com/codecov/codecov-action/issues/1794
+      continue-on-error: true
       with:
         disable_search: true
         fail_ci_if_error: >-
