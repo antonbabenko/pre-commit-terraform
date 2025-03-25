@@ -7,13 +7,14 @@ quote-style = "single"
 [lint.flake8-quotes]
 inline-quotes = "single"
 
+[lint.pydocstyle]
+convention = "pep257"
+
 [lint]
 select = ["ALL"]
 preview = true
 ignore = [
   "CPY001", # Missing copyright notice at top of file
-  "D213", # multi-line-summary-second-line. Incompatible with multi-line-summary-first-line (D212)
-  "D203", # one-blank-line-before-class. Incompatible with no-blank-line-before-class (D211)
   "INP001", # We use namespace packages in this project
 ]
 
