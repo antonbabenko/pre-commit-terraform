@@ -4,12 +4,13 @@ import sys
 from typing import cast as cast_to
 
 from ._cli_parsing import initialize_argument_parser
-from ._errors import PreCommitTerraformBaseError
-from ._errors import PreCommitTerraformExit
-from ._errors import PreCommitTerraformRuntimeError
+from ._errors import (
+    PreCommitTerraformBaseError,
+    PreCommitTerraformExit,
+    PreCommitTerraformRuntimeError,
+)
 from ._structs import ReturnCode
-from ._types import CLIAppEntryPointCallableType
-from ._types import ReturnCodeType
+from ._types import CLIAppEntryPointCallableType, ReturnCodeType
 
 
 def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
@@ -37,7 +38,8 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
         raise
     except PreCommitTerraformRuntimeError as unhandled_exc:
         print(  # noqa: T201 FIXME
-            f'App execution took an unexpected turn: {unhandled_exc !s}. Exiting...',
+            f'App execution took an unexpected turn: {unhandled_exc !s}.'
+            'Exiting...',
             file=sys.stderr,
         )
         return ReturnCode.ERROR

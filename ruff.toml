@@ -1,6 +1,8 @@
 # Assume Python 3.9
 target-version = "py39"
 
+line-length = 79 # To decrease PR diff size
+
 [format]
 quote-style = "single"
 
@@ -19,7 +21,7 @@ ignore = [
 ]
 
 [lint.isort]
-force-single-line = true
+# force-single-line = true # To decrease PR diff size
 lines-after-imports = 2
 
 [lint.flake8-pytest-style]

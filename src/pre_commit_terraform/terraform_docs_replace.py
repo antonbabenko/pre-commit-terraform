@@ -3,8 +3,7 @@
 import os
 import subprocess  # noqa: S404. We invoke cli tools
 import warnings
-from argparse import ArgumentParser
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
 from typing import cast as cast_to
 
 from ._structs import ReturnCode

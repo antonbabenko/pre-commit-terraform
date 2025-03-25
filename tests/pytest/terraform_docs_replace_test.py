@@ -1,15 +1,16 @@
 """Tests for the `replace-docs` subcommand."""
 
-from argparse import ArgumentParser
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
 from subprocess import CalledProcessError  # noqa: S404. We invoke cli tools
 
 import pytest
 import pytest_mock
 
 from pre_commit_terraform._structs import ReturnCode
-from pre_commit_terraform.terraform_docs_replace import invoke_cli_app
-from pre_commit_terraform.terraform_docs_replace import populate_argument_parser
+from pre_commit_terraform.terraform_docs_replace import (
+    invoke_cli_app,
+    populate_argument_parser,
+)
 from pre_commit_terraform.terraform_docs_replace import (
     subprocess as replace_docs_subprocess_mod,
 )
@@ -53,7 +54,8 @@ def test_check_is_deprecated() -> None:
             ),
             [
                 'terraform-docs --sort-by-required md ./ > .//SENTINEL.md',
-                'terraform-docs --sort-by-required md ./thing > ./thing/SENTINEL.md',
+                'terraform-docs --sort-by-required md ./thing '
+                '> ./thing/SENTINEL.md',
             ],
             id='two-sorted-files',
         ),
@@ -84,7 +86,9 @@ def test_control_flow_positive(
 
     assert invoke_cli_app(parsed_cli_args) == ReturnCode.OK
 
-    executed_commands = [cmd for ((cmd,), _shell) in check_call_mock.call_args_list]
+    executed_commands = [
+        cmd for ((cmd,), _shell) in check_call_mock.call_args_list
+    ]
 
     assert len(expected_cmds) == check_call_mock.call_count
     assert expected_cmds == executed_commands

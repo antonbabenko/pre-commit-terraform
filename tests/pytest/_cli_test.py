@@ -1,15 +1,16 @@
 """Tests for the high-level CLI entry point."""
 
-from argparse import ArgumentParser
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
 
 import pytest
 
 from pre_commit_terraform import _cli_parsing as _cli_parsing_mod
 from pre_commit_terraform._cli import invoke_cli_app
-from pre_commit_terraform._errors import PreCommitTerraformBaseError
-from pre_commit_terraform._errors import PreCommitTerraformExit
-from pre_commit_terraform._errors import PreCommitTerraformRuntimeError
+from pre_commit_terraform._errors import (
+    PreCommitTerraformBaseError,
+    PreCommitTerraformExit,
+    PreCommitTerraformRuntimeError,
+)
 from pre_commit_terraform._structs import ReturnCode
 from pre_commit_terraform._types import ReturnCodeType
 
@@ -52,7 +53,9 @@ def test_known_interrupts(
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
         @staticmethod
-        def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:  # noqa: ARG004
+        def populate_argument_parser(
+            subcommand_parser: ArgumentParser,  # noqa: ARG004
+        ) -> None:
             return None
 
         @staticmethod
@@ -81,7 +84,9 @@ def test_app_exit(
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
         @staticmethod
-        def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:  # noqa: ARG004
+        def populate_argument_parser(
+            subcommand_parser: ArgumentParser,
+        ) -> None:
             return None
 
         @staticmethod
