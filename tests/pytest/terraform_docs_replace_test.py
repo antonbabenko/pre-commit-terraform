@@ -34,7 +34,7 @@ def test_check_is_deprecated() -> None:
 
 @pytest.mark.parametrize(
     ('parsed_cli_args', 'expected_cmds'),
-    [
+    (
         pytest.param(Namespace(filenames=[]), [], id='no-files'),
         pytest.param(
             Namespace(
@@ -62,7 +62,7 @@ def test_check_is_deprecated() -> None:
             [],
             id='invalid-files',
         ),
-    ],
+    ),
 )
 @pytest.mark.filterwarnings(
     'ignore:`terraform_docs_replace` hook is DEPRECATED.:UserWarning:'

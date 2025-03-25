@@ -22,7 +22,7 @@ pytestmark = pytest.mark.filterwarnings(
 
 @pytest.mark.parametrize(
     ('raised_error', 'expected_stderr'),
-    [
+    (
         pytest.param(
             PreCommitTerraformRuntimeError('sentinel'),
             'App execution took an unexpected turn: sentinel. Exiting...',
@@ -38,7 +38,7 @@ pytestmark = pytest.mark.filterwarnings(
             'User-initiated interrupt: sentinel. Exiting...',
             id='ctrl-c',
         ),
-    ],
+    ),
 )
 def test_known_interrupts(
     capsys: pytest.CaptureFixture[str],

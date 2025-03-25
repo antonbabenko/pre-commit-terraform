@@ -22,6 +22,9 @@ ignore = [
 force-single-line = true
 lines-after-imports = 2
 
+[lint.flake8-pytest-style]
+parametrize-values-type = "tuple"
+
 [lint.per-file-ignores]
 # Ignore in the `tests/` directory.
 "tests/**.py" = [
