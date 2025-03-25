@@ -65,6 +65,8 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "TRIVY_VERSION=latest"          >> /.env \
     ; fi
 
+# Docker `RUN`s shouldn't be consolidated here
+# hadolint global ignore=DL3059
 RUN /install/opentofu.sh
 RUN /install/terraform.sh
 
@@ -81,12 +83,15 @@ RUN /install/trivy.sh
 
 
 # Checking binaries versions and write it to debug file
+
+# SC2086 - We do not need to quote "$F" variable, because it's not contain spaces
+# DL4006 - Not Applicable for /bin/sh in alpine images. Disable, as recommended by check itself
+# hadolint ignore=SC2086,DL4006
 RUN . /.env && \
     F=tools_versions_info && \
     pre-commit --version >> $F && \
     (if [ "$OPENTOFU_VERSION"       != "false" ]; then ./tofu --version | head -n 1 >> $F;            else echo "opentofu SKIPPED" >> $F       ; fi) && \
     (if [ "$TERRAFORM_VERSION"      != "false" ]; then ./terraform --version | head -n 1 >> $F;       else echo "terraform SKIPPED" >> $F      ; fi) && \
-
     \
     (if [ "$CHECKOV_VERSION"        != "false" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F        ; fi) && \
     (if [ "$HCLEDIT_VERSION"        != "false" ]; then echo "hcledit $(./hcledit version)" >> $F;     else echo "hcledit SKIPPED" >> $F        ; fi) && \
@@ -98,7 +103,7 @@ RUN . /.env && \
     (if [ "$TFSEC_VERSION"          != "false" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F          ; fi) && \
     (if [ "$TFUPDATE_VERSION"       != "false" ]; then echo "tfupdate $(./tfupdate --version)" >> $F; else echo "tfupdate SKIPPED" >> $F       ; fi) && \
     (if [ "$TRIVY_VERSION"          != "false" ]; then echo "trivy $(./trivy --version)" >> $F;       else echo "trivy SKIPPED" >> $F          ; fi) && \
-    echo -e "\n\n" && cat $F && echo -e "\n\n"
+    printf "\n\n\n" && cat $F && printf "\n\n\n"
 
 
 
