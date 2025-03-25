@@ -1,5 +1,6 @@
-ARG TAG=3.12.0-alpine3.17@sha256:fc34b07ec97a4f288bc17083d288374a803dd59800399c76b977016c9fe5b8f2
-FROM python:${TAG} as builder
+FROM python:3.12.0-alpine3.17@sha256:fc34b07ec97a4f288bc17083d288374a803dd59800399c76b977016c9fe5b8f2 AS python_base
+
+FROM python_base AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -11,8 +12,8 @@ RUN apk add --no-cache \
     curl=~8 && \
     # Upgrade packages for be able get latest Checkov
     python3 -m pip install --no-cache-dir --upgrade \
-        pip \
-        setuptools
+        pip~=25.0 \
+        setuptools~=75.8
 
 COPY tools/install/ /install/
 
@@ -64,6 +65,8 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "TRIVY_VERSION=latest"          >> /.env \
     ; fi
 
+# Docker `RUN`s shouldn't be consolidated here
+# hadolint global ignore=DL3059
 RUN /install/opentofu.sh
 RUN /install/terraform.sh
 
@@ -80,11 +83,15 @@ RUN /install/trivy.sh
 
 
 # Checking binaries versions and write it to debug file
+
+# SC2086 - We do not need to quote "$F" variable, because it's not contain spaces
+# DL4006 - Not Applicable for /bin/sh in alpine images. Disable, as recommended by check itself
+# hadolint ignore=SC2086,DL4006
 RUN . /.env && \
     F=tools_versions_info && \
     pre-commit --version >> $F && \
-    (if [ "$OPENTOFU_VERSION"       != "false" ]; then echo "./tofu --version | head -n 1" >> $F;      else echo "opentofu SKIPPED" >> $F      ; fi) && \
-    (if [ "$TERRAFORM_VERSION"      != "false" ]; then echo "./terraform --version | head -n 1" >> $F; else echo "terraform SKIPPED" >> $F     ; fi) && \
+    (if [ "$OPENTOFU_VERSION"       != "false" ]; then ./tofu --version | head -n 1 >> $F;            else echo "opentofu SKIPPED" >> $F       ; fi) && \
+    (if [ "$TERRAFORM_VERSION"      != "false" ]; then ./terraform --version | head -n 1 >> $F;       else echo "terraform SKIPPED" >> $F      ; fi) && \
     \
     (if [ "$CHECKOV_VERSION"        != "false" ]; then echo "checkov $(checkov --version)" >> $F;     else echo "checkov SKIPPED" >> $F        ; fi) && \
     (if [ "$HCLEDIT_VERSION"        != "false" ]; then echo "hcledit $(./hcledit version)" >> $F;     else echo "hcledit SKIPPED" >> $F        ; fi) && \
@@ -96,11 +103,11 @@ RUN . /.env && \
     (if [ "$TFSEC_VERSION"          != "false" ]; then echo "tfsec $(./tfsec --version)" >> $F;       else echo "tfsec SKIPPED" >> $F          ; fi) && \
     (if [ "$TFUPDATE_VERSION"       != "false" ]; then echo "tfupdate $(./tfupdate --version)" >> $F; else echo "tfupdate SKIPPED" >> $F       ; fi) && \
     (if [ "$TRIVY_VERSION"          != "false" ]; then echo "trivy $(./trivy --version)" >> $F;       else echo "trivy SKIPPED" >> $F          ; fi) && \
-    echo -e "\n\n" && cat $F && echo -e "\n\n"
+    printf "\n\n\n" && cat $F && printf "\n\n\n"
 
 
 
-FROM python:${TAG}
+FROM python_base
 
 RUN apk add --no-cache \
     # pre-commit deps

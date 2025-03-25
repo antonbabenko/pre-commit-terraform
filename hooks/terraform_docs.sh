@@ -88,6 +88,7 @@ function terraform_docs {
   local add_to_existing=false
   local create_if_not_exist=false
   local use_standard_markers=true
+  local have_config_flag=false
 
   IFS=";" read -r -a configs <<< "$hook_config"
 
@@ -142,16 +143,24 @@ function terraform_docs {
     local tf_docs_formatter="md"
 
   else
-
-    local config_file=${args#*--config}
-    config_file=${config_file#*=}
-    config_file=${config_file% *}
+    have_config_flag=true
+    # Enable extended pattern matching operators
+    shopt -qp extglob || EXTGLOB_IS_NOT_SET=true && shopt -s extglob
+    # Trim any args before the `--config` arg value
+    local config_file=${args##*--config@(+([[:space:]])|=)}
+    # Trim any trailing spaces and args (if any)
+    config_file="${config_file%%+([[:space:]])?(--*)}"
+    # Trim `--config` arg and its value from original args as we will
+    # pass `--config` separately to allow whitespaces in its value
+    args=${args/--config@(+([[:space:]])|=)$config_file*([[:space:]])/}
+    # Restore state of `extglob` if we changed it
+    [[ $EXTGLOB_IS_NOT_SET ]] && shopt -u extglob
 
     # Prioritize `.terraform-docs.yml` `output.file` over
     # `--hook-config=--path-to-file=` if it set
     local config_output_file
     # Get latest non-commented `output.file` from `.terraform-docs.yml`
-    config_output_file=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+file:' | tail -n 1) || true
+    config_output_file=$(grep -A1000 -e '^output:$' "$config_file" 2> /dev/null | grep -E '^[[:space:]]+file:' | tail -n 1) || true
 
     if [[ $config_output_file ]]; then
       # Extract filename from `output.file` line
@@ -167,7 +176,7 @@ function terraform_docs {
 
     # Use `.terraform-docs.yml` `output.mode` if it set
     local config_output_mode
-    config_output_mode=$(grep -A1000 -e '^output:$' "$config_file" | grep -E '^[[:space:]]+mode:' | tail -n 1) || true
+    config_output_mode=$(grep -A1000 -e '^output:$' "$config_file" 2> /dev/null | grep -E '^[[:space:]]+mode:' | tail -n 1) || true
     if [[ $config_output_mode ]]; then
       # Extract mode from `output.mode` line
       output_mode=$(echo "$config_output_mode" | awk -F':' '{print $2}' | tr -d '[:space:]"' | tr -d "'")
@@ -231,8 +240,21 @@ function terraform_docs {
       have_marker=$(grep -o "$insertion_marker_begin" "$output_file") || unset have_marker
       [[ ! $have_marker ]] && popd > /dev/null && continue
     fi
-    # shellcheck disable=SC2086
-    terraform-docs --output-mode="$output_mode" --output-file="$output_file" $tf_docs_formatter $args ./ > /dev/null
+
+    # shellcheck disable=SC2206
+    # Need to pass $tf_docs_formatter and $args as separate arguments, not as single string
+    local tfdocs_cmd=(
+      terraform-docs
+      --output-mode="$output_mode"
+      --output-file="$output_file"
+      $tf_docs_formatter
+      $args
+    )
+    if [[ $have_config_flag == true ]]; then
+      "${tfdocs_cmd[@]}" "--config=$config_file" ./ > /dev/null
+    else
+      "${tfdocs_cmd[@]}" ./ > /dev/null
+    fi
 
     popd > /dev/null
   done

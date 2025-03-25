@@ -1,4 +1,3 @@
----
 # For most projects, this workflow file will not need changing; you simply need
 # to commit it to your repository.
 #
@@ -47,8 +46,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      # yamllint disable-line rule:line-length
-      uses: github/codeql-action/init@f6091c0113d1dcf9b98e269ee48e8a7e51b7bdd4  # v3.28.5
+      uses: github/codeql-action/init@6bb031afdd8eb862ea3fc1848194185e076637e5  # v3.28.11
       with:
         languages: ${{ matrix.language }}
         # If you wish to specify custom queries, you can do so here or in
@@ -60,8 +58,7 @@ jobs:
     # If this step fails, then you should remove it and run the build
     # manually (see below)
     - name: Autobuild
-      # yamllint disable-line rule:line-length
-      uses: github/codeql-action/autobuild@f6091c0113d1dcf9b98e269ee48e8a7e51b7bdd4  # v3.28.5
+      uses: github/codeql-action/autobuild@6bb031afdd8eb862ea3fc1848194185e076637e5  # v3.28.11
 
     # ℹ️ Command-line programs to run using the OS shell.
     # yamllint disable-line rule:line-length
@@ -76,7 +73,6 @@ jobs:
     #   ./location_of_script_within_repo/buildscript.sh
 
     - name: Perform CodeQL Analysis
-      # yamllint disable-line rule:line-length
-      uses: github/codeql-action/analyze@f6091c0113d1dcf9b98e269ee48e8a7e51b7bdd4  # v3.28.5
+      uses: github/codeql-action/analyze@6bb031afdd8eb862ea3fc1848194185e076637e5  # v3.28.11
       with:
         category: /language:${{matrix.language}}

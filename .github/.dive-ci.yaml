@@ -1,5 +1,3 @@
----
-
 rules:
   # If the efficiency is measured below X%, mark as failed.
   # Expressed as a ratio between 0-1.

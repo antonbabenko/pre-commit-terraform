@@ -1,5 +1,3 @@
----
-
 ci:
   autoupdate_schedule: quarterly
   skip:
@@ -45,12 +43,30 @@ repos:
 
   # Detect hardcoded secrets
 - repo: https://github.com/gitleaks/gitleaks
-  rev: v8.16.3
+  rev: v8.24.0
   hooks:
   - id: gitleaks
 
+# Dockerfile
+- repo: https://github.com/hadolint/hadolint
+  rev: v2.12.1-beta
+  hooks:
+  - id: hadolint
+
+# YAML
+- repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+  rev: 0.2.3
+  hooks:
+  - id: yamlfmt
+    args:
+    - --mapping=2
+    - --sequence=2
+    - --offset=0
+    - --width=75
+    - --implicit_start
+
 - repo: https://github.com/adrienverge/yamllint.git
-  rev: v1.35.1
+  rev: v1.36.2
   hooks:
   - id: yamllint
     types:
@@ -59,7 +75,7 @@ repos:
     args:
     - --strict
 
-# JSON5 Linter
+# JSON5
 - repo: https://github.com/pre-commit/mirrors-prettier
   rev: v3.1.0
   hooks:
@@ -67,8 +83,23 @@ repos:
     # https://prettier.io/docs/en/options.html#parser
     files: .json5$
 
+# Bash
+- repo: https://github.com/jumanjihouse/pre-commit-hooks
+  rev: 3.0.0
+  hooks:
+  - id: shfmt
+    args:
+    - -l
+    - -i
+    - '2'
+    - -ci
+    - -sr
+    - -w
+  - id: shellcheck
+
+# Python
 - repo: https://github.com/pre-commit/mirrors-mypy.git
-  rev: v1.14.1
+  rev: v1.15.0
   hooks:
   - id: mypy
     alias: mypy-py313
@@ -121,31 +152,3 @@ repos:
     - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.9
     - --txt-report=.tox/.tmp/.test-results/mypy--py-3.9
     pass_filenames: false
-
-- repo: https://github.com/jumanjihouse/pre-commit-hooks
-  rev: 3.0.0
-  hooks:
-  - id: shfmt
-    args:
-    - -l
-    - -i
-    - '2'
-    - -ci
-    - -sr
-    - -w
-  - id: shellcheck
-
-# Dockerfile linter
-- repo: https://github.com/hadolint/hadolint
-  rev: v2.12.1-beta
-  hooks:
-  - id: hadolint
-    args:
-    - --ignore=DL3007  # Using latest
-    - --ignore=DL3013  # Pin versions in pip
-    - --ignore=DL3027  # Do not use apt
-    - --ignore=DL3059  # Docker `RUN`s shouldn't be consolidated here
-    - --ignore=DL4006  # Not related to alpine
-    - --ignore=SC1091  # Useless check
-    - --ignore=SC2015  # Useless check
-    - --ignore=SC3037  # Not related to alpine

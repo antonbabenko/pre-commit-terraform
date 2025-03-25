@@ -1,13 +1,11 @@
----
-
 codecov:
   notify:
     after_n_builds: 21  # Number of test matrix+lint jobs uploading coverage
     wait_for_ci: false
 
   require_ci_to_pass: false
-
-  token: >-  # notsecret  # repo-scoped, upload-only, stability in fork PRs
+  # notsecret  # repo-scoped, upload-only, stability in fork PRs
+  token: >-
     7316089b-55fe-4646-b640-78d84b79d109
 
 comment:
@@ -50,5 +48,3 @@ github_checks:
   # Annotations are deprecated in Codecov because they are misleading.
   # Ref: https://github.com/codecov/codecov-action/issues/1710
   annotations: false
-
-...

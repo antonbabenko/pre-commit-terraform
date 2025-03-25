@@ -1,5 +1,3 @@
----
-
 schemaVersion: 2.0.0
 
 commandTests:
@@ -137,7 +135,6 @@ commandTests:
 
 fileExistenceTests:
 - name: terrascan init
-  # yamllint disable-line rule:line-length
   path: >-
     /root/.terrascan/pkg/policies/opa/rego/github/github_repository/privateRepoEnabled.rego
   shouldExist: true
