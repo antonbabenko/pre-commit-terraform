@@ -3,7 +3,6 @@
 from argparse import ArgumentParser, Namespace
 
 import pytest
-
 from pre_commit_terraform import _cli_parsing as _cli_parsing_mod
 from pre_commit_terraform._cli import invoke_cli_app
 from pre_commit_terraform._errors import (

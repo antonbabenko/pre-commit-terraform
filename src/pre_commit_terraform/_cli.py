@@ -22,6 +22,8 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     Returns:
         ReturnCodeType: The return code of the app.
 
+    Raises:
+        PreCommitTerraformExit: If the app is exiting with error.
     """
     root_cli_parser = initialize_argument_parser()
     parsed_cli_args = root_cli_parser.parse_args(cli_args)

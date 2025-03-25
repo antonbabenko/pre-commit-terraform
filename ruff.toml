@@ -3,6 +3,8 @@ target-version = "py39"
 
 line-length = 79 # To decrease PR diff size
 
+namespace-packages = ["src/pre_commit_terraform/", "tests/pytest/"]
+
 [format]
 quote-style = "single"
 
@@ -17,7 +19,6 @@ select = ["ALL"]
 preview = true
 ignore = [
   "CPY001", # Missing copyright notice at top of file
-  "INP001", # We use namespace packages in this project
 ]
 
 [lint.isort]
