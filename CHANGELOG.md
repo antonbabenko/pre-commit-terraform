@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.98.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.4...v1.98.0) (2025-03-25)
+
+
+### Features
+
+* **docker:** Support execution on repos under `git worktree` ([#845](https://github.com/antonbabenko/pre-commit-terraform/issues/845)) ([e64974e](https://github.com/antonbabenko/pre-commit-terraform/commit/e64974ed7745a3c35882b71be49fc89570cb006e))
+
 ## [1.97.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.3...v1.97.4) (2025-02-26)
 
 
