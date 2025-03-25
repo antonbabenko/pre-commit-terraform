@@ -6,7 +6,7 @@
 [![GHA Tests CI/CD Badge]](https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml)
 [![Codecov pytest Badge]](https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest)
 [![OpenSSF Scorecard Badge]](https://scorecard.dev/viewer/?uri=github.com/antonbabenko/pre-commit-terraform)
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9963/badge)](https://www.bestpractices.dev/projects/9963)
+[![OpenSSF Best Practices Badge]](https://www.bestpractices.dev/projects/9963)
 
 [![StandWithUkraine Banner]](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
@@ -30,6 +30,7 @@ and [contributing notes](/.github/CONTRIBUTING.md).
 [GHA Tests CI/CD Badge]: https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml/badge.svg?branch=master
 [Codecov Pytest Badge]: https://codecov.io/gh/antonbabenko/pre-commit-terraform/branch/master/graph/badge.svg?flag=pytest
 [OpenSSF Scorecard Badge]: https://api.scorecard.dev/projects/github.com/antonbabenko/pre-commit-terraform/badge
+[OpenSSF Best Practices Badge]: https://www.bestpractices.dev/projects/9963/badge
 [StandWithUkraine Banner]: https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg
 
 ## Sponsors
