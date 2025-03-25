@@ -10,6 +10,7 @@ from typing import cast as cast_to
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
 
+
 CLI_SUBCOMMAND_NAME: str = 'replace-docs'
 
 

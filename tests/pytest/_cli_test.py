@@ -13,6 +13,7 @@ from pre_commit_terraform._errors import PreCommitTerraformRuntimeError
 from pre_commit_terraform._structs import ReturnCode
 from pre_commit_terraform._types import ReturnCodeType
 
+
 pytestmark = pytest.mark.filterwarnings(
     'ignore:`terraform_docs_replace` hook is DEPRECATED.:UserWarning:'
     'pre_commit_terraform.terraform_docs_replace',

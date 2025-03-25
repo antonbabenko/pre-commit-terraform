@@ -20,6 +20,7 @@ ignore = [
 
 [lint.isort]
 force-single-line = true
+lines-after-imports = 2
 
 [lint.per-file-ignores]
 # Ignore in the `tests/` directory.

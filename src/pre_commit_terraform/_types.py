@@ -8,6 +8,7 @@ from typing import Union
 
 from ._structs import ReturnCode
 
+
 ReturnCodeType = Union[ReturnCode, int]  # Union instead of pipe for Python 3.9
 CLIAppEntryPointCallableType = Callable[[Namespace], ReturnCodeType]
 
