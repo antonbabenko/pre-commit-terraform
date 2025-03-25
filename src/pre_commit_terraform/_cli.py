@@ -40,7 +40,7 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
         raise
     except PreCommitTerraformRuntimeError as unhandled_exc:
         print(  # noqa: T201 FIXME
-            f'App execution took an unexpected turn: {unhandled_exc !s}.'
+            f'App execution took an unexpected turn: {unhandled_exc !s}. '
             'Exiting...',
             file=sys.stderr,
         )
