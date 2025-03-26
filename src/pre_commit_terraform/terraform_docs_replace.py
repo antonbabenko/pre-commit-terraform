@@ -71,12 +71,15 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
             procArgs.append('terraform-docs')
             if cast_to(bool, parsed_cli_args.sort):
                 procArgs.append('--sort-by-required')
-            procArgs.append('md')
-            procArgs.append('./{dir}'.format(dir=dir))
-            procArgs.append('>')
-            procArgs.append(
-                './{dir}/{dest}'.format(
-                    dir=dir, dest=cast_to(bool, parsed_cli_args.dest),
+            procArgs.extend(
+                (
+                    'md',
+                    './{dir}'.format(dir=dir),
+                    '>',
+                    './{dir}/{dest}'.format(
+                        dir=dir,
+                        dest=cast_to(bool, parsed_cli_args.dest),
+                    ),
                 ),
             )
             subprocess.check_call(' '.join(procArgs), shell=True)
