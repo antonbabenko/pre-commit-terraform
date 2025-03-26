@@ -24,7 +24,7 @@ def test_arg_parser_populated() -> None:
 def test_check_is_deprecated() -> None:
     """Verify that `replace-docs` shows a deprecation warning."""
     deprecation_msg_regex = (
-        r'^`terraform_docs_replace` hook is DEPRECATED\.' 'For migration.*$'
+        r'^`terraform_docs_replace` hook is DEPRECATED\.For migration.*$'
     )
     with pytest.warns(UserWarning, match=deprecation_msg_regex):
         # not `pytest.deprecated_call()` due to this being a user warning
