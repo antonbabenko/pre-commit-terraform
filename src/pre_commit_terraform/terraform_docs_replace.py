@@ -74,7 +74,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
             procArgs.extend(
                 (
                     'md',
-                    './{dir}'.format(dir=dir),
+                    f'./{dir}',
                     '>',
                     './{dir}/{dest}'.format(
                         dir=dir,
