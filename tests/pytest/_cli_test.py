@@ -91,8 +91,7 @@ def test_app_exit(
             self,
             parsed_cli_args: Namespace,  # noqa: ARG002
         ) -> ReturnCodeType:
-            err = 'sentinel'
-            raise PreCommitTerraformExit(err)
+            raise PreCommitTerraformExit(self.CLI_SUBCOMMAND_NAME)
 
     monkeypatch.setattr(
         _cli_parsing_mod,

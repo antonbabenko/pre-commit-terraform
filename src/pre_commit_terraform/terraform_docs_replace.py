@@ -53,12 +53,13 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         'https://github.com/antonbabenko/pre-commit-terraform/issues/248'
         '#issuecomment-1290829226',
         category=UserWarning,
+        stacklevel=1,  # It's should be 2, but tests are failing w/ values >1. As it's deprecated hook, it's safe to leave it as is w/o fixing it later.
     )
 
     dirs: list[str] = []
-    for filename in cast_to(list[str], parsed_cli_args.filenames):
+    for filename in cast_to('list[str]', parsed_cli_args.filenames):
         if os.path.realpath(filename) not in dirs and (
-            filename.endswith('.tf') or filename.endswith('.tfvars')
+            filename.endswith(('.tf', '.tfvars'))
         ):
             dirs.append(os.path.dirname(filename))
 
@@ -68,14 +69,17 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         try:
             procArgs = []
             procArgs.append('terraform-docs')
-            if cast_to(bool, parsed_cli_args.sort):
+            if cast_to('bool', parsed_cli_args.sort):
                 procArgs.append('--sort-by-required')
-            procArgs.append('md')
-            procArgs.append('./{dir}'.format(dir=dir))
-            procArgs.append('>')
-            procArgs.append(
-                './{dir}/{dest}'.format(
-                    dir=dir, dest=cast_to(bool, parsed_cli_args.dest)
+            procArgs.extend(
+                (
+                    'md',
+                    f'./{dir}',
+                    '>',
+                    './{dir}/{dest}'.format(
+                        dir=dir,
+                        dest=cast_to('bool', parsed_cli_args.dest),
+                    ),
                 ),
             )
             subprocess.check_call(' '.join(procArgs), shell=True)
