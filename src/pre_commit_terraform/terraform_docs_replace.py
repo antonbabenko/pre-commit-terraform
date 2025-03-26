@@ -76,7 +76,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
             procArgs.append('>')
             procArgs.append(
                 './{dir}/{dest}'.format(
-                    dir=dir, dest=cast_to(bool, parsed_cli_args.dest)
+                    dir=dir, dest=cast_to(bool, parsed_cli_args.dest),
                 ),
             )
             subprocess.check_call(' '.join(procArgs), shell=True)
