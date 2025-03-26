@@ -42,17 +42,19 @@ pytestmark = pytest.mark.filterwarnings(
     ),
 )
 def test_known_interrupts(
-        capsys: pytest.CaptureFixture[str],
-        expected_stderr: str,
-        monkeypatch: pytest.MonkeyPatch,
-        raised_error: BaseException,
+    capsys: pytest.CaptureFixture[str],
+    expected_stderr: str,
+    monkeypatch: pytest.MonkeyPatch,
+    raised_error: BaseException,
 ) -> None:
     """Check that known interrupts are turned into return code 1."""
+
     class CustomCmdStub:
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
         def populate_argument_parser(
-                self, subcommand_parser: ArgumentParser,
+            self,
+            subcommand_parser: ArgumentParser,
         ) -> None:
             return None
 
@@ -72,15 +74,17 @@ def test_known_interrupts(
 
 
 def test_app_exit(
-        capsys: pytest.CaptureFixture[str],
-        monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Check that an exit exception is re-raised."""
+
     class CustomCmdStub:
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
         def populate_argument_parser(
-                self, subcommand_parser: ArgumentParser,
+            self,
+            subcommand_parser: ArgumentParser,
         ) -> None:
             return None
 

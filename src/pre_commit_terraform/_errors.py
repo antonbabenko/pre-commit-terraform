@@ -6,8 +6,8 @@ class PreCommitTerraformBaseError(Exception):
 
 
 class PreCommitTerraformRuntimeError(
-        PreCommitTerraformBaseError,
-        RuntimeError,
+    PreCommitTerraformBaseError,
+    RuntimeError,
 ):
     """An exception representing a runtime error condition."""
 

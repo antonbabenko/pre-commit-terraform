@@ -18,7 +18,8 @@ class CLISubcommandModuleProtocol(Protocol):
     """This constant contains a CLI."""
 
     def populate_argument_parser(
-            self, subcommand_parser: ArgumentParser,
+        self,
+        subcommand_parser: ArgumentParser,
     ) -> None:
         """Run a module hook for populating the subcommand parser."""
 
