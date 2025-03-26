@@ -1,13 +1,13 @@
 """Tests for the high-level CLI entry point."""
 
 from argparse import ArgumentParser, Namespace
-import pytest
 
+import pytest
 from pre_commit_terraform import _cli_parsing as _cli_parsing_mod
 from pre_commit_terraform._cli import invoke_cli_app
 from pre_commit_terraform._errors import (
-    PreCommitTerraformExit,
     PreCommitTerraformBaseError,
+    PreCommitTerraformExit,
     PreCommitTerraformRuntimeError,
 )
 from pre_commit_terraform._structs import ReturnCode
@@ -67,7 +67,7 @@ def test_known_interrupts(
         [CustomCmdStub()],
     )
 
-    assert ReturnCode.ERROR == invoke_cli_app(['sentinel'])
+    assert invoke_cli_app(['sentinel']) == ReturnCode.ERROR
 
     captured_outputs = capsys.readouterr()
     assert captured_outputs.err == f'{expected_stderr !s}\n'
@@ -89,7 +89,7 @@ def test_app_exit(
             return None
 
         def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
-            raise PreCommitTerraformExit('sentinel')
+            raise PreCommitTerraformExit(self.CLI_SUBCOMMAND_NAME)
 
     monkeypatch.setattr(
         _cli_parsing_mod,

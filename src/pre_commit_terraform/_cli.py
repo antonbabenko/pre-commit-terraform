@@ -23,7 +23,7 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     parsed_cli_args = root_cli_parser.parse_args(cli_args)
     invoke_cli_app = cast_to(
         # FIXME: attempt typing per https://stackoverflow.com/a/75666611/595220
-        CLIAppEntryPointCallableType,
+        'CLIAppEntryPointCallableType',
         parsed_cli_args.invoke_cli_app,
     )
 
