@@ -67,7 +67,7 @@ def test_known_interrupts(
         [CustomCmdStub()],
     )
 
-    assert ReturnCode.ERROR == invoke_cli_app(['sentinel'])
+    assert invoke_cli_app(['sentinel']) == ReturnCode.ERROR
 
     captured_outputs = capsys.readouterr()
     assert captured_outputs.err == f'{expected_stderr !s}\n'

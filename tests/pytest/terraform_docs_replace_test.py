@@ -84,7 +84,7 @@ def test_control_flow_positive(
         check_call_mock,
     )
 
-    assert ReturnCode.OK == invoke_cli_app(parsed_cli_args)
+    assert invoke_cli_app(parsed_cli_args) == ReturnCode.OK
 
     executed_commands = [
         cmd for ((cmd,), _shell) in check_call_mock.call_args_list
@@ -119,6 +119,6 @@ def test_control_flow_negative(
         check_call_mock,
     )
 
-    assert ReturnCode.ERROR == invoke_cli_app(parsed_cli_args)
+    assert invoke_cli_app(parsed_cli_args) == ReturnCode.ERROR
 
     check_call_mock.assert_called_once_with(expected_cmd, shell=True)
