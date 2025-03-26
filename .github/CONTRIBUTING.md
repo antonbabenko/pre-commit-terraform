@@ -1,5 +1,6 @@
 # Notes for contributors
 
+* [Configure `git blame` to ignore formatting commits](#configure-git-blame-to-ignore-formatting-commits)
 * [Run and debug hooks locally](#run-and-debug-hooks-locally)
 * [Run hook performance test](#run-hook-performance-test)
   * [Run via BASH](#run-via-bash)
@@ -14,6 +15,10 @@
   * [Finish with the documentation](#finish-with-the-documentation)
 * [Contributing to Python code](#contributing-to-python-code)
 * [Run tests in your fork](#run-tests-in-your-fork)
+
+## Configure `git blame` to ignore formatting commits
+
+This project uses `.git-blame-ignore-revs` to exclude formatting-related commits from `git blame` history. To configure your local `git blame` to ignore these commits, refer to the [.git-blame-ignore-revs](/.git-blame-ignore-revs) file for details.
 
 ## Run and debug hooks locally
 
