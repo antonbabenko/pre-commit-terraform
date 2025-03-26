@@ -87,7 +87,7 @@ def test_app_exit(
         ) -> None:
             return None
 
-        def invoke_cli_app(  # noqa: PLR6301
+        def invoke_cli_app(
             self,
             parsed_cli_args: Namespace,  # noqa: ARG002
         ) -> ReturnCodeType:
