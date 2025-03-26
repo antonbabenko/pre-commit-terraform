@@ -53,7 +53,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         'https://github.com/antonbabenko/pre-commit-terraform/issues/248'
         '#issuecomment-1290829226',
         category=UserWarning,
-        stacklevel=2,
+        stacklevel=1,
     )
 
     dirs: list[str] = []
