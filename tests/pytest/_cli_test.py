@@ -89,8 +89,7 @@ def test_app_exit(
             return None
 
         def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
-            msg = 'sentinel'
-            raise PreCommitTerraformExit(msg)
+            raise PreCommitTerraformExit(self.CLI_SUBCOMMAND_NAME)
 
     monkeypatch.setattr(
         _cli_parsing_mod,
