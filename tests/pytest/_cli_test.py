@@ -1,13 +1,13 @@
 """Tests for the high-level CLI entry point."""
 
 from argparse import ArgumentParser, Namespace
-import pytest
 
+import pytest
 from pre_commit_terraform import _cli_parsing as _cli_parsing_mod
 from pre_commit_terraform._cli import invoke_cli_app
 from pre_commit_terraform._errors import (
-    PreCommitTerraformExit,
     PreCommitTerraformBaseError,
+    PreCommitTerraformExit,
     PreCommitTerraformRuntimeError,
 )
 from pre_commit_terraform._structs import ReturnCode

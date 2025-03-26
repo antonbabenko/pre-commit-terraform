@@ -3,13 +3,15 @@
 from argparse import ArgumentParser, Namespace
 from subprocess import CalledProcessError
 
-import pytest
 import pytest_mock
 
+import pytest
 from pre_commit_terraform._structs import ReturnCode
 from pre_commit_terraform.terraform_docs_replace import (
     invoke_cli_app,
     populate_argument_parser,
+)
+from pre_commit_terraform.terraform_docs_replace import (
     subprocess as replace_docs_subprocess_mod,
 )
 
