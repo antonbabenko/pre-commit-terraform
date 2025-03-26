@@ -24,8 +24,7 @@ def test_arg_parser_populated() -> None:
 def test_check_is_deprecated() -> None:
     """Verify that `replace-docs` shows a deprecation warning."""
     deprecation_msg_regex = (
-        r'^`terraform_docs_replace` hook is DEPRECATED\.'
-        'For migration.*$'
+        r'^`terraform_docs_replace` hook is DEPRECATED\.For migration.*$'
     )
     with pytest.warns(UserWarning, match=deprecation_msg_regex):
         # not `pytest.deprecated_call()` due to this being a user warning
@@ -70,10 +69,10 @@ def test_check_is_deprecated() -> None:
     'pre_commit_terraform.terraform_docs_replace',
 )
 def test_control_flow_positive(
-        expected_cmds: list[str],
-        mocker: pytest_mock.MockerFixture,
-        monkeypatch: pytest.MonkeyPatch,
-        parsed_cli_args: Namespace,
+    expected_cmds: list[str],
+    mocker: pytest_mock.MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+    parsed_cli_args: Namespace,
 ) -> None:
     """Check that the subcommand's happy path works."""
     check_call_mock = mocker.Mock()
@@ -86,7 +85,7 @@ def test_control_flow_positive(
     assert ReturnCode.OK == invoke_cli_app(parsed_cli_args)
 
     executed_commands = [
-        cmd for ((cmd, ), _shell) in check_call_mock.call_args_list
+        cmd for ((cmd,), _shell) in check_call_mock.call_args_list
     ]
 
     assert len(expected_cmds) == check_call_mock.call_count
@@ -98,8 +97,8 @@ def test_control_flow_positive(
     'pre_commit_terraform.terraform_docs_replace',
 )
 def test_control_flow_negative(
-        mocker: pytest_mock.MockerFixture,
-        monkeypatch: pytest.MonkeyPatch,
+    mocker: pytest_mock.MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Check that the subcommand's error processing works."""
     parsed_cli_args = Namespace(
