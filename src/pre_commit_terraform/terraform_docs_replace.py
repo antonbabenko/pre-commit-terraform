@@ -78,7 +78,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
                     '>',
                     './{dir}/{dest}'.format(
                         dir=dir,
-                        dest=cast_to('bool', parsed_cli_args.dest),
+                        dest=cast_to('str', parsed_cli_args.dest),
                     ),
                 ),
             )
