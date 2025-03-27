@@ -23,7 +23,6 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.mark.parametrize(
     ('raised_error', 'expected_stderr'),
     (
-        # pytest.param(PreCommitTerraformExit('sentinel'), 'App exiting: sentinel', id='app-exit'),
         pytest.param(
             PreCommitTerraformRuntimeError('sentinel'),
             'App execution took an unexpected turn: sentinel. Exiting...',
@@ -52,13 +51,13 @@ def test_known_interrupts(
     class CustomCmdStub:
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
-        def populate_argument_parser(
+        def populate_argument_parser(  # noqa: PLR6301
             self,
-            subcommand_parser: ArgumentParser,
+            subcommand_parser: ArgumentParser,  # noqa: ARG002
         ) -> None:
             return None
 
-        def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
+        def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:  # noqa: PLR6301, ARG002
             raise raised_error
 
     monkeypatch.setattr(
@@ -82,13 +81,16 @@ def test_app_exit(
     class CustomCmdStub:
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
-        def populate_argument_parser(
+        def populate_argument_parser(  # noqa: PLR6301
             self,
-            subcommand_parser: ArgumentParser,
+            subcommand_parser: ArgumentParser,  # noqa: ARG002
         ) -> None:
             return None
 
-        def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
+        def invoke_cli_app(
+            self,
+            parsed_cli_args: Namespace,  # noqa: ARG002
+        ) -> ReturnCodeType:
             raise PreCommitTerraformExit(self.CLI_SUBCOMMAND_NAME)
 
     monkeypatch.setattr(
@@ -97,7 +99,7 @@ def test_app_exit(
         [CustomCmdStub()],
     )
 
-    with pytest.raises(PreCommitTerraformExit, match='^sentinel$'):
+    with pytest.raises(PreCommitTerraformExit, match=r'^sentinel$'):
         invoke_cli_app(['sentinel'])
 
     captured_outputs = capsys.readouterr()

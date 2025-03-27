@@ -1,0 +1,39 @@
+# Assume Python 3.9
+target-version = "py39"
+
+line-length = 79 # To decrease PR diff size
+
+namespace-packages = ["src/pre_commit_terraform/", "tests/pytest/"]
+
+[format]
+quote-style = "single"
+
+[lint.flake8-quotes]
+inline-quotes = "single"
+
+[lint.pydocstyle]
+convention = "pep257"
+
+[lint]
+select = ["ALL"]
+preview = true
+ignore = [
+  "CPY001", # Missing copyright notice at top of file
+]
+
+[lint.isort]
+# force-single-line = true # To decrease PR diff size
+lines-after-imports = 2
+
+[lint.flake8-pytest-style]
+parametrize-values-type = "tuple"
+
+[lint.per-file-ignores]
+# Ignore in the `tests/` directory.
+"tests/**.py" = [
+  "S101", # Use of `assert` detected
+  "PLC2701", # We need import marked as internal files for testing
+]
+
+"src/pre_commit_terraform/terraform_docs_replace.py" = ["ALL"] # Deprecated hook
+"tests/pytest/terraform_docs_replace_test.py" = ["ALL"] # Tests for deprecated hook
