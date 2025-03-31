@@ -23,7 +23,6 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.mark.parametrize(
     ('raised_error', 'expected_stderr'),
     (
-        # pytest.param(PreCommitTerraformExit('sentinel'), 'App exiting: sentinel', id='app-exit'),
         pytest.param(
             PreCommitTerraformRuntimeError('sentinel'),
             'App execution took an unexpected turn: sentinel. Exiting...',
