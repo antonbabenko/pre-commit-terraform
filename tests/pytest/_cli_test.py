@@ -97,7 +97,7 @@ def test_app_exit(
         [CustomCmdStub()],
     )
 
-    with pytest.raises(PreCommitTerraformExit, match='^sentinel$'):
+    with pytest.raises(PreCommitTerraformExit, match=r'^sentinel$'):
         invoke_cli_app(['sentinel'])
 
     captured_outputs = capsys.readouterr()
