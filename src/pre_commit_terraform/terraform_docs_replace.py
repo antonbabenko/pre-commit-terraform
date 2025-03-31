@@ -74,11 +74,11 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
 
     for directory in dirs:
         try:
-            procArgs = []
-            procArgs.append('terraform-docs')
+            proc_args = []
+            proc_args.append('terraform-docs')
             if cast_to('bool', parsed_cli_args.sort):
-                procArgs.append('--sort-by-required')
-            procArgs.extend(
+                proc_args.append('--sort-by-required')
+            proc_args.extend(
                 (
                     'md',
                     f'./{directory}',
@@ -89,7 +89,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
                     ),
                 ),
             )
-            subprocess.check_call(' '.join(procArgs), shell=True)
+            subprocess.check_call(' '.join(proc_args), shell=True)
         except subprocess.CalledProcessError as e:
             print(e)
             retval = ReturnCode.ERROR
