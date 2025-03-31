@@ -12,6 +12,7 @@ CLI_SUBCOMMAND_NAME: str = 'replace-docs'
 
 
 def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
+    """Populate the parser for the subcommand."""
     subcommand_parser.description = (
         'Run terraform-docs on a set of files. Follows the standard '
         'convention of pulling the documentation from main.tf in order to '
@@ -47,6 +48,11 @@ def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
 
 
 def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
+    """Run the entry-point of the CLI app.
+
+    Returns:
+        ReturnCodeType: The return code of the app.
+    """
     warnings.warn(
         '`terraform_docs_replace` hook is DEPRECATED.'
         'For migration instructions see '
