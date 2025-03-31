@@ -65,7 +65,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
 
     retval = ReturnCode.OK
 
-    for dir in dirs:
+    for directory in dirs:
         try:
             procArgs = []
             procArgs.append('terraform-docs')
@@ -74,10 +74,10 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
             procArgs.extend(
                 (
                     'md',
-                    f'./{dir}',
+                    f'./{directory}',
                     '>',
                     './{dir}/{dest}'.format(
-                        dir=dir,
+                        dir=directory,
                         dest=cast_to('str', parsed_cli_args.dest),
                     ),
                 ),
