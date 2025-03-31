@@ -59,7 +59,8 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         'https://github.com/antonbabenko/pre-commit-terraform/issues/248'
         '#issuecomment-1290829226',
         category=UserWarning,
-        stacklevel=1,  # It's should be 2, but tests are failing w/ values >1. As it's deprecated hook, it's safe to leave it as is w/o fixing it later.
+        stacklevel=1,  # It's should be 2, but tests are failing w/ values >1.
+        # As it's deprecated hook, it's safe to leave it as is w/o fixing it.
     )
 
     dirs: list[str] = []
