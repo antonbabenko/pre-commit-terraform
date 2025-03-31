@@ -32,7 +32,11 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
 
 
 def initialize_argument_parser() -> ArgumentParser:
-    """Return the root argument parser with sub-commands."""
+    """Return the root argument parser with sub-commands.
+
+    Returns:
+        ReturnCodeType: The return code of the app.
+    """
     root_cli_parser = ArgumentParser(prog=f'python -m {__package__ !s}')
     attach_subcommand_parsers_to(root_cli_parser)
     return root_cli_parser

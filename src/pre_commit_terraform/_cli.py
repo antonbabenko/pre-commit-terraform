@@ -18,6 +18,9 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
 
     Includes initializing parsers of all the sub-apps and
     choosing what to execute.
+
+    Returns:
+        ReturnCodeType: The return code of the app.
     """
     root_cli_parser = initialize_argument_parser()
     parsed_cli_args = root_cli_parser.parse_args(cli_args)
