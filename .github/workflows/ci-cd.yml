@@ -105,7 +105,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.13 by default
-      uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
+      uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
       with:
         python-version: 3.13
     - name: Check out src from Git
@@ -274,7 +274,7 @@ jobs:
 
     steps:
     - name: Switch to using Python 3.13
-      uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
+      uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
       with:
         python-version: 3.13
 
