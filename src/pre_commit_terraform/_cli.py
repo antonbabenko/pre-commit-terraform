@@ -36,23 +36,24 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     try:
         return invoke_cli_app(parsed_cli_args)
     except PreCommitTerraformExit as exit_err:
-        print(f'App exiting: {exit_err !s}', file=sys.stderr)  # noqa: T201 FIXME
+        # T201 - FIXME here and below - we will replace 'print' with logging later
+        print(f'App exiting: {exit_err !s}', file=sys.stderr)  # noqa: T201
         raise
     except PreCommitTerraformRuntimeError as unhandled_exc:
-        print(  # noqa: T201 FIXME
+        print(  # noqa: T201
             f'App execution took an unexpected turn: {unhandled_exc !s}. '
             'Exiting...',
             file=sys.stderr,
         )
         return ReturnCode.ERROR
     except PreCommitTerraformBaseError as unhandled_exc:
-        print(  # noqa: T201 FIXME
+        print(  # noqa: T201
             f'A surprising exception happened: {unhandled_exc !s}. Exiting...',
             file=sys.stderr,
         )
         return ReturnCode.ERROR
     except KeyboardInterrupt as ctrl_c_exc:
-        print(  # noqa: T201 FIXME
+        print(  # noqa: T201
             f'User-initiated interrupt: {ctrl_c_exc !s}. Exiting...',
             file=sys.stderr,
         )
