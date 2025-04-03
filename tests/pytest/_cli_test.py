@@ -23,7 +23,6 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.mark.parametrize(
     ('raised_error', 'expected_stderr'),
     (
-        # pytest.param(PreCommitTerraformExit('sentinel'), 'App exiting: sentinel', id='app-exit'),
         pytest.param(
             PreCommitTerraformRuntimeError('sentinel'),
             'App execution took an unexpected turn: sentinel. Exiting...',
@@ -97,7 +96,7 @@ def test_app_exit(
         [CustomCmdStub()],
     )
 
-    with pytest.raises(PreCommitTerraformExit, match='^sentinel$'):
+    with pytest.raises(PreCommitTerraformExit, match=r'^sentinel$'):
         invoke_cli_app(['sentinel'])
 
     captured_outputs = capsys.readouterr()

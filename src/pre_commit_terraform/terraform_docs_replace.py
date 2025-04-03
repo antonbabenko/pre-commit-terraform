@@ -12,6 +12,7 @@ CLI_SUBCOMMAND_NAME: str = 'replace-docs'
 
 
 def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
+    """Populate the parser for the subcommand."""
     subcommand_parser.description = (
         'Run terraform-docs on a set of files. Follows the standard '
         'convention of pulling the documentation from main.tf in order to '
@@ -47,13 +48,19 @@ def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
 
 
 def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
+    """Run the entry-point of the CLI app.
+
+    Returns:
+        ReturnCodeType: The return code of the app.
+    """
     warnings.warn(
         '`terraform_docs_replace` hook is DEPRECATED.'
         'For migration instructions see '
         'https://github.com/antonbabenko/pre-commit-terraform/issues/248'
         '#issuecomment-1290829226',
         category=UserWarning,
-        stacklevel=1,  # It's should be 2, but tests are failing w/ values >1. As it's deprecated hook, it's safe to leave it as is w/o fixing it later.
+        stacklevel=1,  # It's should be 2, but tests are failing w/ values >1.
+        # As it's deprecated hook, it's safe to leave it as is w/o fixing it.
     )
 
     dirs: list[str] = []
@@ -65,24 +72,24 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
 
     retval = ReturnCode.OK
 
-    for dir in dirs:
+    for directory in dirs:
         try:
-            procArgs = []
-            procArgs.append('terraform-docs')
+            proc_args = []
+            proc_args.append('terraform-docs')
             if cast_to('bool', parsed_cli_args.sort):
-                procArgs.append('--sort-by-required')
-            procArgs.extend(
+                proc_args.append('--sort-by-required')
+            proc_args.extend(
                 (
                     'md',
-                    f'./{dir}',
+                    f'./{directory}',
                     '>',
                     './{dir}/{dest}'.format(
-                        dir=dir,
+                        dir=directory,
                         dest=cast_to('str', parsed_cli_args.dest),
                     ),
                 ),
             )
-            subprocess.check_call(' '.join(procArgs), shell=True)
+            subprocess.check_call(' '.join(proc_args), shell=True)
         except subprocess.CalledProcessError as e:
             print(e)
             retval = ReturnCode.ERROR
