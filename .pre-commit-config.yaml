@@ -105,7 +105,6 @@ repos:
     args:
     - --fix
   - id: ruff-format
-    exclude: /terraform_docs_replace(_test)?\.py$
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git
   rev: v1.15.0

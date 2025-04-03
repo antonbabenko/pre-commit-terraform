@@ -51,13 +51,13 @@ def test_known_interrupts(
     class CustomCmdStub:
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
-        def populate_argument_parser(  # noqa: PLR6301
+        def populate_argument_parser(
             self,
-            subcommand_parser: ArgumentParser,  # noqa: ARG002
+            subcommand_parser: ArgumentParser,
         ) -> None:
             return None
 
-        def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:  # noqa: PLR6301, ARG002
+        def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
             raise raised_error
 
     monkeypatch.setattr(
@@ -81,16 +81,13 @@ def test_app_exit(
     class CustomCmdStub:
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
-        def populate_argument_parser(  # noqa: PLR6301
+        def populate_argument_parser(
             self,
-            subcommand_parser: ArgumentParser,  # noqa: ARG002
+            subcommand_parser: ArgumentParser,
         ) -> None:
             return None
 
-        def invoke_cli_app(
-            self,
-            parsed_cli_args: Namespace,  # noqa: ARG002
-        ) -> ReturnCodeType:
+        def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
             raise PreCommitTerraformExit(self.CLI_SUBCOMMAND_NAME)
 
     monkeypatch.setattr(

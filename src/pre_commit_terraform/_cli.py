@@ -28,7 +28,7 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     root_cli_parser = initialize_argument_parser()
     parsed_cli_args = root_cli_parser.parse_args(cli_args)
     invoke_cli_app = cast_to(
-        # FIXME: attempt typing per https://stackoverflow.com/a/75666611/595220  # noqa: TD001, TD002, TD003, FIX001, E501
+        # FIXME: attempt typing per https://stackoverflow.com/a/75666611/595220  # noqa: TD001, TD002, TD003, FIX001, E501 All these suppressions caused by "FIXME" comment
         'CLIAppEntryPointCallableType',
         parsed_cli_args.invoke_cli_app,
     )

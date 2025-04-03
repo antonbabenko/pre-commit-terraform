@@ -18,7 +18,8 @@ convention = "pep257"
 select = ["ALL"]
 preview = true
 ignore = [
-  "CPY001", # Missing copyright notice at top of file
+  "CPY001", # Skip copyright notice requirement at top of files
+  "S404",   # Allow importing 'subprocess' module to call external tools needed by these hooks
 ]
 
 [lint.isort]
@@ -29,11 +30,10 @@ lines-after-imports = 2
 parametrize-values-type = "tuple"
 
 [lint.per-file-ignores]
-# Ignore in the `tests/` directory.
+# Exceptions for test files
 "tests/**.py" = [
-  "S101", # Use of `assert` detected
-  "PLC2701", # We need import marked as internal files for testing
+  "S101",    # Allow use of `assert` in test files
+  "PLC2701", # Allow importing internal files needed for testing
+  "PLR6301", # Allow 'self' parameter in method definitions (required for test stubs)
+  "ARG002",  # Allow unused arguments in instance methods (required for test stubs)
 ]
-
-"src/pre_commit_terraform/terraform_docs_replace.py" = ["ALL"] # Deprecated hook
-"tests/pytest/terraform_docs_replace_test.py" = ["ALL"] # Tests for deprecated hook
