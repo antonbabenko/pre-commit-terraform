@@ -8,7 +8,6 @@ import os
 import subprocess
 import warnings
 from argparse import ArgumentParser, Namespace
-from pathlib import Path
 from typing import cast as cast_to
 
 from ._structs import ReturnCode
@@ -75,7 +74,9 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         if os.path.realpath(filename) not in dirs and (
             filename.endswith(('.tf', '.tfvars'))
         ):
-            dirs.append(str(Path(filename).parent))
+            # PTH120 - It should use 'pathlib', but this hook is deprecated and
+            # we don't want to spent time on testing fixes for it
+            dirs.append(os.path.dirname(filename))  # noqa: PTH120
 
     retval = ReturnCode.OK
 
