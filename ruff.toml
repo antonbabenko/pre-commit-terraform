@@ -35,4 +35,6 @@ parametrize-values-type = "tuple"
   "PLC2701", # Allow importing internal files needed for testing
   "PLR6301", # Allow 'self' parameter in method definitions (required for test stubs)
   "ARG002",  # Allow unused arguments in instance methods (required for test stubs)
+  "S404",    # Allow importing 'subprocess' module to testing call external tools needed by these hooks
+
 ]

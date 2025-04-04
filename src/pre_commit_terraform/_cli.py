@@ -36,7 +36,8 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     try:
         return invoke_cli_app(parsed_cli_args)
     except PreCommitTerraformExit as exit_err:
-        # T201 - FIXME here and below - we will replace 'print' with logging later
+        # T201 - FIXME here and below - we will replace 'print' with
+        # logging later
         print(f'App exiting: {exit_err !s}', file=sys.stderr)  # noqa: T201
         raise
     except PreCommitTerraformRuntimeError as unhandled_exc:
