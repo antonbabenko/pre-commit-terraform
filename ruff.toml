@@ -19,7 +19,6 @@ select = ["ALL"]
 preview = true
 ignore = [
   "CPY001", # Skip copyright notice requirement at top of files
-  "S404",   # Allow importing 'subprocess' module to call external tools needed by these hooks
 ]
 
 [lint.isort]
