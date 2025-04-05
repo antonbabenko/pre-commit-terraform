@@ -1,0 +1,40 @@
+# Assume Python 3.9
+target-version = "py39"
+
+line-length = 79 # To decrease PR diff size
+
+namespace-packages = ["src/pre_commit_terraform/", "tests/pytest/"]
+
+[format]
+quote-style = "single"
+
+[lint.flake8-quotes]
+inline-quotes = "single"
+
+[lint.pydocstyle]
+convention = "pep257"
+
+[lint]
+select = ["ALL"]
+preview = true
+ignore = [
+  "CPY001", # Skip copyright notice requirement at top of files
+]
+
+[lint.isort]
+# force-single-line = true # To decrease PR diff size
+lines-after-imports = 2
+
+[lint.flake8-pytest-style]
+parametrize-values-type = "tuple"
+
+[lint.per-file-ignores]
+# Exceptions for test files
+"tests/**.py" = [
+  "S101",    # Allow use of `assert` in test files
+  "PLC2701", # Allow importing internal files needed for testing
+  "PLR6301", # Allow 'self' parameter in method definitions (required for test stubs)
+  "ARG002",  # Allow unused arguments in instance methods (required for test stubs)
+  "S404",    # Allow importing 'subprocess' module to testing call external tools needed by these hooks
+
+]

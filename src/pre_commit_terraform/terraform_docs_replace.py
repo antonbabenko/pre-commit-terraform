@@ -1,5 +1,15 @@
+"""Terraform Docs Replace Hook.
+
+This hook is deprecated and will be removed in the future.
+Please, use 'terraform_docs' hook instead.
+"""
+
 import os
-import subprocess
+
+# S404 - Allow importing 'subprocess' module to call external tools
+# needed by these hooks. FIXME - should be moved to separate module
+# when more hooks will be introduced
+import subprocess  # noqa: S404
 import warnings
 from argparse import ArgumentParser, Namespace
 from typing import cast as cast_to
