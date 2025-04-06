@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.98.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.98.0...v1.98.1) (2025-04-06)
+
+
+### Bug Fixes
+
+* **WSL:** Fix parallelism support for WSL systems with enabled systemd ([#872](https://github.com/antonbabenko/pre-commit-terraform/issues/872)) ([da2e9a8](https://github.com/antonbabenko/pre-commit-terraform/commit/da2e9a874ac61f94fe0a05e9d952ffb3c7c7639c))
+
 # [1.98.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.4...v1.98.0) (2025-03-25)
 
 
