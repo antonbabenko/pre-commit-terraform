@@ -206,7 +206,7 @@ function common::get_cpu_num {
 
   local cpu_quota cpu_period cpu_num
 
-  local wslinterop_path = "/proc/sys/fs/binfmt_misc/WSLInterop"
+  local wslinterop_path="/proc/sys/fs/binfmt_misc/WSLInterop"
 
   if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us &&
     ( # WSL has cfs_quota_us, but WSL should be checked as usual Linux host
