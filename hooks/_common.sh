@@ -206,8 +206,13 @@ function common::get_cpu_num {
 
   local cpu_quota cpu_period cpu_num
 
+  local wslinterop_path = "/proc/sys/fs/binfmt_misc/WSLInterop"
+
   if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us &&
-    ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then # WSL have cfs_quota_us, but WSL should be checked as usual Linux host
+    ( # WSL has cfs_quota_us, but WSL should be checked as usual Linux host
+      ! -f "${wslinterop_path}" &&
+      ! -f "${wslinterop_path}-late"
+    ) ]]; then
     # Inside K8s pod or DinD in K8s
     cpu_quota=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
     cpu_period=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us 2> /dev/null || echo "$cpu_quota")
