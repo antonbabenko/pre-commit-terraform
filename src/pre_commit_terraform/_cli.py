@@ -28,7 +28,7 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     root_cli_parser = initialize_argument_parser()
     parsed_cli_args = root_cli_parser.parse_args(cli_args)
     invoke_cli_app = cast_to(
-        # FIXME: attempt typing per https://stackoverflow.com/a/75666611/595220  # noqa: TD001, TD002, TD003, FIX001, E501 All these suppressions caused by "FIXME" comment
+        # FIXME: attempt typing per https://stackoverflow.com/a/75666611/595220  # noqa: TD001, TD002, FIX001, E501 All these suppressions caused by "FIXME" comment
         'CLIAppEntryPointCallableType',
         parsed_cli_args.invoke_cli_app,
     )
@@ -38,24 +38,24 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
     except PreCommitTerraformExit as exit_err:
         # T201 - FIXME here and below - we will replace 'print' with
         # logging later
-        print(f'App exiting: {exit_err !s}', file=sys.stderr)  # noqa: T201
+        print(f'App exiting: {exit_err!s}', file=sys.stderr)  # noqa: T201
         raise
     except PreCommitTerraformRuntimeError as unhandled_exc:
         print(  # noqa: T201
-            f'App execution took an unexpected turn: {unhandled_exc !s}. '
+            f'App execution took an unexpected turn: {unhandled_exc!s}. '
             'Exiting...',
             file=sys.stderr,
         )
         return ReturnCode.ERROR
     except PreCommitTerraformBaseError as unhandled_exc:
         print(  # noqa: T201
-            f'A surprising exception happened: {unhandled_exc !s}. Exiting...',
+            f'A surprising exception happened: {unhandled_exc!s}. Exiting...',
             file=sys.stderr,
         )
         return ReturnCode.ERROR
     except KeyboardInterrupt as ctrl_c_exc:
         print(  # noqa: T201
-            f'User-initiated interrupt: {ctrl_c_exc !s}. Exiting...',
+            f'User-initiated interrupt: {ctrl_c_exc!s}. Exiting...',
             file=sys.stderr,
         )
         return ReturnCode.ERROR

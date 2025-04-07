@@ -37,7 +37,7 @@ def initialize_argument_parser() -> ArgumentParser:
     Returns:
         ArgumentParser: The root parser with sub-commands attached.
     """
-    root_cli_parser = ArgumentParser(prog=f'python -m {__package__ !s}')
+    root_cli_parser = ArgumentParser(prog=f'python -m {__package__!s}')
     attach_subcommand_parsers_to(root_cli_parser)
     return root_cli_parser
 
