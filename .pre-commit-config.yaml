@@ -49,7 +49,7 @@ repos:
 
 # Dockerfile
 - repo: https://github.com/hadolint/hadolint
-  rev: v2.13.1-beta
+  rev: v2.13.0-beta
   hooks:
   - id: hadolint
 
