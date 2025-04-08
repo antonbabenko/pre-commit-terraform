@@ -69,7 +69,7 @@ def test_known_interrupts(
     assert invoke_cli_app(['sentinel']) == ReturnCode.ERROR
 
     captured_outputs = capsys.readouterr()
-    assert captured_outputs.err == f'{expected_stderr !s}\n'
+    assert captured_outputs.err == f'{expected_stderr!s}\n'
 
 
 def test_app_exit(
