@@ -1,101 +1,142 @@
-schemaVersion: '2.0.0'
+schemaVersion: 2.0.0
+
 commandTests:
-  - name: "git"
-    command: "git"
-    args: ["--version"]
-    expectedOutput: ["^git version 2\\.[0-9]+\\.[0-9]+\\n$"]
+- name: git
+  command: git
+  args:
+  - --version
+  expectedOutput:
+  - ^git version 2\.[0-9]+\.[0-9]+\n$
 
-  - name: "pre-commit"
-    command: "pre-commit"
-    args: ["-V"]
-    expectedOutput: ["^pre-commit ([0-9]+\\.){2}[0-9]+\\n$"]
+- name: pre-commit
+  command: pre-commit
+  args:
+  - -V
+  expectedOutput:
+  - ^pre-commit ([0-9]+\.){2}[0-9]+\n$
 
-  - name: "gcc"
-    command: "gcc"
-    args: ["--version"]
-    expectedOutput: ["^gcc \\(Alpine 12\\."]
+- name: gcc
+  command: gcc
+  args:
+  - --version
+  expectedOutput:
+  - ^gcc \(Alpine 12\.
 
-  - name: "checkov"
-    command: "checkov"
-    args: ["--version"]
-    expectedOutput: ["^([0-9]+\\.){2}[0-9]+\\n$"]
+- name: checkov
+  command: checkov
+  args:
+  - --version
+  expectedOutput:
+  - ^([0-9]+\.){2}[0-9]+\n$
 
-  - name: "infracost"
-    command: "infracost"
-    args: ["--version"]
-    expectedOutput: ["^Infracost v([0-9]+\\.){2}[0-9]+"]
+- name: infracost
+  command: infracost
+  args:
+  - --version
+  expectedOutput:
+  - ^Infracost v([0-9]+\.){2}[0-9]+
 
-  - name: "opentofu"
-    command: "tofu"
-    args: ["-version"]
-    expectedOutput: ["^OpenTofu v([0-9]+\\.){2}[0-9]+\\n"]
+- name: opentofu
+  command: tofu
+  args:
+  - --version
+  expectedOutput:
+  - ^OpenTofu v([0-9]+\.){2}[0-9]+\n
 
-  - name: "terraform"
-    command: "terraform"
-    args: ["-version"]
-    expectedOutput: ["^Terraform v([0-9]+\\.){2}[0-9]+\\n"]
+- name: terraform
+  command: terraform
+  args:
+  - --version
+  expectedOutput:
+  - ^Terraform v([0-9]+\.){2}[0-9]+\n
 
-  - name: "terraform-docs"
-    command: "terraform-docs"
-    args: ["--version"]
-    expectedOutput: ["^terraform-docs version v([0-9]+\\.){2}[0-9]+ [a-z0-9]+"]
+- name: terraform-docs
+  command: terraform-docs
+  args:
+  - --version
+  expectedOutput:
+  - ^terraform-docs version v([0-9]+\.){2}[0-9]+ [a-z0-9]+
 
-  - name: "terragrunt"
-    command: "terragrunt"
-    args: ["--version"]
-    expectedOutput: ["^terragrunt version v([0-9]+\\.){2}[0-9]+\\n$"]
+- name: terragrunt
+  command: terragrunt
+  args:
+  - --version
+  expectedOutput:
+  - ^terragrunt version v([0-9]+\.){2}[0-9]+\n$
 
-  - name: "terrascan"
-    command: "terrascan"
-    args: [ "version" ]
-    expectedOutput: [ "^version: v([0-9]+\\.){2}[0-9]+\\n$" ]
+- name: terrascan
+  command: terrascan
+  args:
+  - version
+  expectedOutput:
+  - >-
+    ^version: v([0-9]+\.){2}[0-9]+\n$
 
-  - name: "tflint"
-    command: "tflint"
-    args: [ "--version" ]
-    expectedOutput: [ "TFLint version ([0-9]+\\.){2}[0-9]+\\n" ]
+- name: tflint
+  command: tflint
+  args:
+  - --version
+  expectedOutput:
+  - TFLint version ([0-9]+\.){2}[0-9]+\n
 
-  - name: "tfsec"
-    command: "tfsec"
-    args: [ "--version" ]
-    expectedOutput: [ "([0-9]+\\.){2}[0-9]+\\n$" ]
+- name: tfsec
+  command: tfsec
+  args:
+  - --version
+  expectedOutput:
+  - ([0-9]+\.){2}[0-9]+\n$
 
-  - name: "trivy"
-    command: "trivy"
-    args: [ "--version" ]
-    expectedOutput: [ "Version: ([0-9]+\\.){2}[0-9]+\\n" ]
+- name: trivy
+  command: trivy
+  args:
+  - --version
+  expectedOutput:
+  - >-
+    Version: ([0-9]+\.){2}[0-9]+\n
 
-  - name: "tfupdate"
-    command: "tfupdate"
-    args: [ "--version" ]
-    expectedOutput: [ "([0-9]+\\.){2}[0-9]+\\n$" ]
+- name: tfupdate
+  command: tfupdate
+  args:
+  - --version
+  expectedOutput:
+  - ([0-9]+\.){2}[0-9]+\n$
 
-  - name: "hcledit"
-    command: "hcledit"
-    args: [ "version" ]
-    expectedOutput: [ "([0-9]+\\.){2}[0-9]+\\n$" ]
+- name: hcledit
+  command: hcledit
+  args:
+  - version
+  expectedOutput:
+  - ([0-9]+\.){2}[0-9]+\n$
 
-  - name: "entrypoint.sh"
-    envVars:
-      - key: "USERID"
-        value: "1000:1000"
-    command: "/entrypoint.sh"
-    args: [ "-V" ]
-    expectedError: ["^ERROR:  uid:gid 1000:1000 lacks permissions to //\\n$"]
-    exitCode: 1
+- name: entrypoint.sh
+  envVars:
+  - key: USERID
+    value: 1000:1000
+  command: /entrypoint.sh
+  args:
+  - -V
+  expectedError:
+  - >-
+    ^ERROR:  uid:gid 1000:1000 lacks permissions to //\n$
+  exitCode: 1
 
-  - name: "su-exec"
-    command: "su-exec"
-    expectedOutput: ["^Usage: su-exec user-spec command \\[args\\]\\n$"]
+- name: su-exec
+  command: su-exec
+  expectedOutput:
+  - >-
+    ^Usage: su-exec user-spec command \[args\]\n$
 
-  - name: "ssh"
-    command: "ssh"
-    args: [ "-V" ]
-    expectedError: ["^OpenSSH_9\\.[0-9]+"]
+- name: ssh
+  command: ssh
+  args:
+  - -V
+  expectedError:
+  - ^OpenSSH_9\.[0-9]+
 
 fileExistenceTests:
-  - name: 'terrascan init'
-    path: '/root/.terrascan/pkg/policies/opa/rego/github/github_repository/privateRepoEnabled.rego'
-    shouldExist: true
-    uid: 0
-    gid: 0
+- name: terrascan init
+  path: >-
+    /root/.terrascan/pkg/policies/opa/rego/github/github_repository/privateRepoEnabled.rego
+  shouldExist: true
+  uid: 0
+  gid: 0

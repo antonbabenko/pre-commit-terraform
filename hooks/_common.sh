@@ -52,7 +52,9 @@ function common::initialize {
 function common::parse_cmdline {
   # common global arrays.
   # Populated via `common::parse_cmdline` and can be used inside hooks' functions
-  ARGS=() HOOK_CONFIG=() FILES=()
+  ARGS=()
+  HOOK_CONFIG=()
+  FILES=()
   # Used inside `common::terraform_init` function
   TF_INIT_ARGS=()
   # Used inside `common::export_provided_env_vars` function
@@ -139,7 +141,7 @@ function common::parse_and_export_env_vars {
         # `$arg` will be checked in `if` conditional, `$ARGS` will be used in the next functions.
         # shellcheck disable=SC2016 # '${' should not be expanded
         arg=${arg/'${'$env_var_name'}'/$env_var_value}
-        ARGS[$arg_idx]=$arg
+        ARGS[arg_idx]=$arg
         # shellcheck disable=SC2016 # '${' should not be expanded
         common::colorify "green" 'After ${'"$env_var_name"'} expansion: '"'$arg'\n"
         continue
@@ -188,6 +190,11 @@ function common::is_hook_run_on_whole_repo {
 
 #######################################################################
 # Get the number of CPU logical cores available for pre-commit to use
+#
+# CPU quota should be calculated as `cpu.cfs_quota_us / cpu.cfs_period_us`
+# For K8s see: https://docs.kernel.org/scheduler/sched-bwc.html
+# For Docker see: https://docs.docker.com/engine/containers/resource_constraints/#configure-the-default-cfs-scheduler
+#
 # Arguments:
 #  parallelism_ci_cpu_cores (string) Used in edge cases when number of
 #    CPU cores can't be derived automatically
@@ -197,14 +204,17 @@ function common::is_hook_run_on_whole_repo {
 function common::get_cpu_num {
   local -r parallelism_ci_cpu_cores=$1
 
-  local millicpu
+  local cpu_quota cpu_period cpu_num
+
+  local -r wslinterop_path="/proc/sys/fs/binfmt_misc/WSLInterop"
 
   if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us &&
-    ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then # WSL have cfs_quota_us, but WSL should be checked as usual Linux host
+    (! -f "${wslinterop_path}" && ! -f "${wslinterop_path}-late" && ! -f "/run/WSL") ]]; then # WSL has cfs_quota_us, but WSL should be checked as usual Linux host
     # Inside K8s pod or DinD in K8s
-    millicpu=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+    cpu_quota=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+    cpu_period=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us 2> /dev/null || echo "$cpu_quota")
 
-    if [[ $millicpu -eq -1 ]]; then
+    if [[ $cpu_quota -eq -1 || $cpu_period -lt 1 ]]; then
       # K8s no limits or in DinD
       if [[ -n $parallelism_ci_cpu_cores ]]; then
         if [[ ! $parallelism_ci_cpu_cores =~ ^[[:digit:]]+$ ]]; then
@@ -233,21 +243,24 @@ function common::get_cpu_num {
       return
     fi
 
-    echo $((millicpu / 1000))
+    cpu_num=$((cpu_quota / cpu_period))
+    [[ $cpu_num -lt 1 ]] && echo 1 || echo $cpu_num
     return
   fi
 
   if [[ -f /sys/fs/cgroup/cpu.max ]]; then
     # Inside Linux (Docker?) container
-    millicpu=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
+    cpu_quota=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
+    cpu_period=$(cut -d' ' -f2 /sys/fs/cgroup/cpu.max)
 
-    if [[ $millicpu == max ]]; then
+    if [[ $cpu_quota == max || $cpu_period -lt 1 ]]; then
       # No limits
       nproc 2> /dev/null || echo 1
       return
     fi
 
-    echo $((millicpu / 1000))
+    cpu_num=$((cpu_quota / cpu_period))
+    [[ $cpu_num -lt 1 ]] && echo 1 || echo $cpu_num
     return
   fi
 

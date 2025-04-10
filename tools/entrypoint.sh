@@ -39,7 +39,7 @@ wdir="$(pwd)"
 if ! su-exec "$USERID" "$BASHPATH" -c "test -w $wdir && test -r $wdir"; then
   echo_error_and_exit "uid:gid $USERID lacks permissions to $wdir/"
 fi
-wdirgitindex="$wdir/.git/index"
+wdirgitindex="$(git rev-parse --git-dir 2>&1)/index" || echo_error_and_exit "${wdirgitindex%/index}"
 if ! su-exec "$USERID" "$BASHPATH" -c "test -w $wdirgitindex && test -r $wdirgitindex"; then
   echo_error_and_exit "uid:gid $USERID cannot write to $wdirgitindex"
 fi

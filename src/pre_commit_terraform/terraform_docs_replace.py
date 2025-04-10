@@ -1,17 +1,29 @@
+"""Terraform Docs Replace Hook.
+
+This hook is deprecated and will be removed in the future.
+Please, use 'terraform_docs' hook instead.
+"""
+
 import os
-import subprocess
+
+# S404 - Allow importing 'subprocess' module to call external tools
+# needed by these hooks. FIXME - should be moved to separate module
+# when more hooks will be introduced
+import subprocess  # noqa: S404
 import warnings
-from argparse import ArgumentParser
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
 from typing import Final
+from typing import cast as cast_to
 
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
+
 
 CLI_SUBCOMMAND_NAME: Final[str] = 'replace-docs'
 
 
 def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
+    """Populate the parser for the subcommand."""
     subcommand_parser.description = (
         'Run terraform-docs on a set of files. Follows the standard '
         'convention of pulling the documentation from main.tf in order to '
@@ -47,37 +59,56 @@ def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
 
 
 def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
+    """Run the entry-point of the CLI app.
+
+    Returns:
+        ReturnCodeType: The return code of the app.
+    """
     warnings.warn(
         '`terraform_docs_replace` hook is DEPRECATED.'
         'For migration instructions see '
         'https://github.com/antonbabenko/pre-commit-terraform/issues/248'
         '#issuecomment-1290829226',
         category=UserWarning,
+        stacklevel=1,  # It's should be 2, but tests are failing w/ values >1.
+        # As it's deprecated hook, it's safe to leave it as is w/o fixing it.
     )
 
-    dirs = []
-    for filename in parsed_cli_args.filenames:
+    dirs: list[str] = []
+    for filename in cast_to('list[str]', parsed_cli_args.filenames):
         if os.path.realpath(filename) not in dirs and (
-            filename.endswith('.tf') or filename.endswith('.tfvars')
+            filename.endswith(('.tf', '.tfvars'))
         ):
-            dirs.append(os.path.dirname(filename))
+            # PTH120 - It should use 'pathlib', but this hook is deprecated and
+            # we don't want to spent time on testing fixes for it
+            dirs.append(os.path.dirname(filename))  # noqa: PTH120
 
     retval = ReturnCode.OK
 
-    for dir in dirs:
+    for directory in dirs:
         try:
-            procArgs = []
-            procArgs.append('terraform-docs')
-            if parsed_cli_args.sort:
-                procArgs.append('--sort-by-required')
-            procArgs.append('md')
-            procArgs.append('./{dir}'.format(dir=dir))
-            procArgs.append('>')
-            procArgs.append(
-                './{dir}/{dest}'.format(dir=dir, dest=parsed_cli_args.dest),
+            proc_args = []
+            proc_args.append('terraform-docs')
+            if cast_to('bool', parsed_cli_args.sort):
+                proc_args.append('--sort-by-required')
+            proc_args.extend(
+                (
+                    'md',
+                    f'./{directory}',
+                    '>',
+                    './{dir}/{dest}'.format(
+                        dir=directory,
+                        dest=cast_to('str', parsed_cli_args.dest),
+                    ),
+                ),
             )
-            subprocess.check_call(' '.join(procArgs), shell=True)
-        except subprocess.CalledProcessError as e:
-            print(e)
+            # S602 - 'shell=True' is insecure, but this hook is deprecated and
+            # we don't want to spent time on testing fixes for it
+            subprocess.check_call(' '.join(proc_args), shell=True)  # noqa: S602
+        # PERF203 - try-except shouldn't be in a loop, but it's deprecated
+        # hook, so leave as is
+        except subprocess.CalledProcessError as e:  # noqa: PERF203
+            # T201 - Leave print statement as is, as this is deprecated hook
+            print(e)  # noqa: T201
             retval = ReturnCode.ERROR
     return retval

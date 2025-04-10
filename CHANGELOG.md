@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.98.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.98.0...v1.98.1) (2025-04-06)
+
+
+### Bug Fixes
+
+* **WSL:** Fix parallelism support for WSL systems with enabled systemd ([#872](https://github.com/antonbabenko/pre-commit-terraform/issues/872)) ([da2e9a8](https://github.com/antonbabenko/pre-commit-terraform/commit/da2e9a874ac61f94fe0a05e9d952ffb3c7c7639c))
+
+# [1.98.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.4...v1.98.0) (2025-03-25)
+
+
+### Features
+
+* **docker:** Support execution on repos under `git worktree` ([#845](https://github.com/antonbabenko/pre-commit-terraform/issues/845)) ([e64974e](https://github.com/antonbabenko/pre-commit-terraform/commit/e64974ed7745a3c35882b71be49fc89570cb006e))
+
+## [1.97.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.3...v1.97.4) (2025-02-26)
+
+
+### Bug Fixes
+
+* **docker image security:** Improve dependency pinning and disable ability to build image from different tag from what specified in Dockefile ([#830](https://github.com/antonbabenko/pre-commit-terraform/issues/830)) ([2c3aa85](https://github.com/antonbabenko/pre-commit-terraform/commit/2c3aa85a2ad4a2d903b2f54ae83ef56ac63146e0))
+
+## [1.97.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.2...v1.97.3) (2025-02-04)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Fix bug introduced in `v1.97.2` ([#801](https://github.com/antonbabenko/pre-commit-terraform/issues/801)) ([64b81f4](https://github.com/antonbabenko/pre-commit-terraform/commit/64b81f449344ed72d180d57ce0a801389c018584)), closes [#796](https://github.com/antonbabenko/pre-commit-terraform/issues/796)
+
+## [1.97.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.1...v1.97.2) (2025-02-03)
+
+
+### Bug Fixes
+
+* **`terraform_docs`:** Allow having whitespaces in path to `.terraform-docs.yaml` config file ([#796](https://github.com/antonbabenko/pre-commit-terraform/issues/796)) ([7d83911](https://github.com/antonbabenko/pre-commit-terraform/commit/7d839114a62b61f2658167356df7e5da1a42ef8f))
+
+## [1.97.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.0...v1.97.1) (2025-02-01)
+
+
+### Bug Fixes
+
+* Parallelism CPU calculation inside Kubernetes and Docker with limits ([#799](https://github.com/antonbabenko/pre-commit-terraform/issues/799)) ([58a89a1](https://github.com/antonbabenko/pre-commit-terraform/commit/58a89a1cc0760daa515f58da9bb8b167f01044bb))
+
+# [1.97.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.3...v1.97.0) (2025-01-16)
+
+
+### Features
+
+* **`terraform_docs`:** Add support for custom markers to better support other formats than Markdown ([#752](https://github.com/antonbabenko/pre-commit-terraform/issues/752)) ([cd090b6](https://github.com/antonbabenko/pre-commit-terraform/commit/cd090b69c19869924a468b5a81be63264b679171))
+
 ## [1.96.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.96.2...v1.96.3) (2024-12-24)
 
 
