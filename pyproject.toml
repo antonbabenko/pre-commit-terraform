@@ -37,7 +37,7 @@ classifiers = [
   'Programming Language :: Python :: Implementation :: CPython',
   'Programming Language :: Python :: Implementation :: PyPy',
 ]
-description = 'Pre-commit hooks for Terraform'
+description = 'Pre-commit hooks for Terraform, OpenTofu, Terragrunt and related tools'
 dependencies = []
 dynamic = [
   'urls',
