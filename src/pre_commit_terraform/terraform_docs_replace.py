@@ -12,13 +12,14 @@ import os
 import subprocess  # noqa: S404
 import warnings
 from argparse import ArgumentParser, Namespace
+from typing import Final
 from typing import cast as cast_to
 
 from ._structs import ReturnCode
 from ._types import ReturnCodeType
 
 
-CLI_SUBCOMMAND_NAME: str = 'replace-docs'
+CLI_SUBCOMMAND_NAME: Final[str] = 'replace-docs'
 
 
 def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
