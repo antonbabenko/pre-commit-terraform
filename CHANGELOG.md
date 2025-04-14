@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.99.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.98.1...v1.99.0) (2025-04-14)
+
+
+### Features
+
+* Add support for running hooks on `.tofu` files by default ([#875](https://github.com/antonbabenko/pre-commit-terraform/issues/875)) ([fe1f62f](https://github.com/antonbabenko/pre-commit-terraform/commit/fe1f62f3aecadbc22f8ab5e1f8cb02c2821cf5c2))
+
 ## [1.98.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.98.0...v1.98.1) (2025-04-06)
 
 
