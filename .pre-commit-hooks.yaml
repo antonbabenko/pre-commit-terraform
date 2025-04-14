@@ -123,7 +123,7 @@
     Static analysis of Terraform templates to spot potential security issues.
   require_serial: true
   entry: hooks/terraform_trivy.sh
-  files: \.(tf|tofu|tfvars)?$
+  files: \.(tf|tofu|tfvars)$
   language: script
 
 - id: checkov
