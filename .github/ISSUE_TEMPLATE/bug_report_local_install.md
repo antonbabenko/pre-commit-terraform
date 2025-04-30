@@ -78,17 +78,20 @@ Linux DESKTOP-C7315EF 5.4.72-microsoft-standard-WSL2 #1 SMP Wed Oct 28 23:40:43 
 bash << EOF
 bash --version | head -n 1                2>/dev/null || echo "bash SKIPPED"
 pre-commit --version                      2>/dev/null || echo "pre-commit SKIPPED"
+tofu --version | head -n 1                2>/dev/null || echo "opentofu SKIPPED"
 terraform --version | head -n 1           2>/dev/null || echo "terraform SKIPPED"
 python --version                          2>/dev/null || echo "python SKIPPED"
 python3 --version                         2>/dev/null || echo "python3 SKIPPED"
-echo -n "checkov " && checkov --version   2>/dev/null || echo "checkov SKIPPED"
+echo -n "checkov " && checkov --version   2>/dev/null || echo "SKIPPED"
+infracost --version                       2>/dev/null || echo "infracost SKIPPED"
 terraform-docs --version                  2>/dev/null || echo "terraform-docs SKIPPED"
 terragrunt --version                      2>/dev/null || echo "terragrunt SKIPPED"
-echo -n "terrascan " && terrascan version 2>/dev/null || echo "terrascan SKIPPED"
+echo -n "terrascan " && terrascan version 2>/dev/null || echo "SKIPPED"
 tflint --version                          2>/dev/null || echo "tflint SKIPPED"
-echo -n "tfsec " && tfsec --version       2>/dev/null || echo "tfsec SKIPPED"
-echo -n "tfupdate " && tfupdate --version 2>/dev/null || echo "tfupdate SKIPPED"
-echo -n "hcledit " && hcledit version     2>/dev/null || echo "hcledit SKIPPED"
+echo -n "tfsec " && tfsec --version       2>/dev/null || echo "SKIPPED"
+echo -n "trivy " && trivy --version       2>/dev/null || echo "SKIPPED"
+echo -n "tfupdate " && tfupdate --version 2>/dev/null || echo "SKIPPED"
+echo -n "hcledit " && hcledit version     2>/dev/null || echo "SKIPPED"
 EOF
 
 -->
@@ -102,7 +105,7 @@ INSERT_TOOLS_VERSIONS_HERE
 
 <details><summary>file content</summary>
 
-```bash
+```yaml
 INSERT_FILE_CONTENT_HERE
 ```
 

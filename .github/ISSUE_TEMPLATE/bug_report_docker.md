@@ -74,7 +74,7 @@ INSERT_OUTPUT_HERE
 
 <details><summary>file content</summary>
 
-```bash
+```yaml
 INSERT_FILE_CONTENT_HERE
 ```
 

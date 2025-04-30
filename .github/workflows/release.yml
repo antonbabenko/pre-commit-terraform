@@ -4,31 +4,46 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+    - master
     paths:
-      - '**/*.py'
-      - '**/*.sh'
-      - 'Dockerfile'
-      - '.pre-commit-hooks.yaml'
-      # Ignore paths
-      - '!tests/**'
+    - '**/*.py'
+    - '**/*.sh'
+    - Dockerfile
+    - .pre-commit-hooks.yaml
+    # Ignore paths
+    - '!tests/**'
+
+permissions:
+  contents: read
+
 jobs:
   release:
+    permissions:
+      # for cycjimmy/semantic-release-action to create a release
+      contents: write
+      # for cycjimmy/semantic-release-action to write comments to issues
+      issues: write
+      # for cycjimmy/semantic-release-action to write comments to PRs
+      pull-requests: write
+
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-        with:
-          persist-credentials: false
-          fetch-depth: 0
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
 
-      - name: Release
-        uses: cycjimmy/semantic-release-action@8e58d20d0f6c8773181f43eb74d6a05e3099571d # v3.4.2
-        with:
-          semantic_version: 18.0.0
-          extra_plugins: |
-            @semantic-release/changelog@6.0.0
-            @semantic-release/git@10.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+    - name: Release
+      uses: cycjimmy/semantic-release-action@0a51e81a6baff2acad3ee88f4121c589c73d0f0e  # v4.2.0
+      with:
+        semantic_version: 18.0.0
+        extra_plugins: |
+          @semantic-release/changelog@6.0.0
+          @semantic-release/git@10.0.0
+      env:
+        # Custom token for triggering Docker image build GH Workflow on release
+        # created by cycjimmy/semantic-release-action. Events created by
+        # workflows with default GITHUB_TOKEN not trigger other GH Workflow.
+        GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}

@@ -1,0 +1,543 @@
+name: ∞
+
+on:
+  merge_group:
+  push:
+    branches-ignore:
+    - dependabot/**  # Dependabot always creates PRs
+    - renovate/**  # Our Renovate setup always creates PRs
+    - gh-readonly-queue/**  # Temporary merge queue-related GH-made branches
+    - pre-commit-ci-update-config  # pre-commit.ci always creates a PR
+  pull_request:
+  workflow_call:  # a way to embed the main tests
+
+permissions:
+  contents: read
+
+concurrency:
+  group: >-
+    ${{
+        github.workflow
+    }}-${{
+        github.ref_type
+    }}-${{
+        github.event.pull_request.number || github.sha
+    }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 1  # Request colored output from CLI tools supporting it
+  MYPY_FORCE_COLOR: 1  # MyPy's color enforcement
+  PIP_DISABLE_PIP_VERSION_CHECK: 1  # Hide "there's a newer pip" message
+  PIP_NO_PYTHON_VERSION_WARNING: 1  # Hide "this Python is deprecated" message
+  PIP_NO_WARN_SCRIPT_LOCATION: 1  # Hide "script dir is not in $PATH" message
+  PRE_COMMIT_COLOR: always
+  PROJECT_NAME: pre-commit-terraform
+  PY_COLORS: 1  # Recognized by the `py` package, dependency of `pytest`
+  PYTHONIOENCODING: utf-8
+  PYTHONUTF8: 1
+  TOX_PARALLEL_NO_SPINNER: 1  # Disable tox's parallel run spinner animation
+  # Make tox-wrapped tools see color requests
+  TOX_TESTENV_PASSENV: >-
+    FORCE_COLOR
+    MYPY_FORCE_COLOR
+    NO_COLOR
+    PIP_DISABLE_PIP_VERSION_CHECK
+    PIP_NO_PYTHON_VERSION_WARNING
+    PIP_NO_WARN_SCRIPT_LOCATION
+    PRE_COMMIT_COLOR
+    PY_COLORS
+    PYTEST_THEME
+    PYTEST_THEME_MODE
+    PYTHONIOENCODING
+    PYTHONLEGACYWINDOWSSTDIO
+    PYTHONUTF8
+  UPSTREAM_REPOSITORY_ID: 69382485  # Repo ID of antonbabenko/pre-commit-terraform
+
+run-name: >-
+  ${{
+    github.event_name == 'workflow_dispatch'
+    && format('📦 Releasing v{0}...', github.event.inputs.release-version)
+    || ''
+  }}
+  ${{
+      github.event.pull_request.number && '🔀 PR' || ''
+  }}${{
+      !github.event.pull_request.number && '🌱 Commit' || ''
+  }}
+  ${{ github.event.pull_request.number || github.sha }}
+  triggered by: ${{ github.event_name }} of ${{
+    github.ref
+  }} ${{
+    github.ref_type
+  }}
+  (workflow run ID: ${{
+    github.run_id
+  }}; number: ${{
+    github.run_number
+  }}; attempt: ${{
+    github.run_attempt
+  }})
+
+jobs:
+  pre-setup:
+    name: ⚙️ Pre-set global build settings
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 1
+
+    defaults:
+      run:
+        shell: python
+
+    outputs:
+      # NOTE: These aren't env vars because the `${{ env }}` context is
+      # NOTE: inaccessible when passing inputs to reusable workflows.
+      dists-artifact-name: python-package-distributions
+      dist-version: ${{ steps.scm-version.outputs.dist-version }}
+      cache-key-files: >-
+        ${{ steps.calc-cache-key-files.outputs.files-hash-key }}
+      git-tag: ${{ steps.git-tag.outputs.tag }}
+      sdist-artifact-name: ${{ steps.artifact-name.outputs.sdist }}
+      wheel-artifact-name: ${{ steps.artifact-name.outputs.wheel }}
+      upstream-repository-id: ${{ env.UPSTREAM_REPOSITORY_ID }}
+
+    steps:
+    - name: Switch to using Python 3.13 by default
+      uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
+      with:
+        python-version: 3.13
+    - name: Check out src from Git
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      with:
+        fetch-depth: 0
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      id: calc-cache-key-py
+      run: |
+        from hashlib import sha512
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
+    - name: >-
+        Calculate dependency files' combined hash value
+        for use in the cache key
+      id: calc-cache-key-files
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(
+                "files-hash-key=${{
+                    hashFiles(
+                      'tox.ini',
+                      'pyproject.toml',
+                      '.pre-commit-config.yaml',
+                      'pytest.ini',
+                      'dependencies/**/*'
+                    )
+                }}",
+                file=outputs_file,
+            )
+    - name: Get pip cache dir
+      id: pip-cache-dir
+      run: >-
+        echo "dir=$(python -m pip cache dir)" >> "${GITHUB_OUTPUT}"
+      shell: bash
+    - name: Set up pip cache
+      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf  # v4.2.2
+      with:
+        path: ${{ steps.pip-cache-dir.outputs.dir }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          steps.calc-cache-key-files.outputs.files-hash-key }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{
+              steps.calc-cache-key-py.outputs.py-hash-key
+          }}-
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Drop Git tags from HEAD for non-release requests
+      run: >-
+        git tag --points-at HEAD
+        |
+        xargs git tag --delete
+      shell: bash
+    - name: Set up versioning prerequisites
+      run: >-
+        python -m
+        pip install
+        --user
+        setuptools-scm~=8.2
+      shell: bash
+    - name: Set the current dist version from Git
+      id: scm-version
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        import setuptools_scm
+
+        FILE_APPEND_MODE = 'a'
+
+        ver = setuptools_scm.get_version()
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'dist-version={ver}', file=outputs_file)
+            print(
+                f'dist-version-for-filenames={ver.replace("+", "-")}',
+                file=outputs_file,
+            )
+    - name: Set the target Git tag
+      id: git-tag
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(
+                "tag=v${{
+                    steps.scm-version.outputs.dist-version
+                }}",
+                file=outputs_file,
+            )
+    - name: Set the expected dist artifact names
+      id: artifact-name
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        whl_file_prj_base_name = '${{ env.PROJECT_NAME }}'.replace('-', '_')
+        sdist_file_prj_base_name = whl_file_prj_base_name.replace('.', '_')
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(
+                f"sdist={sdist_file_prj_base_name !s}-${{
+                    steps.scm-version.outputs.dist-version
+                }}.tar.gz",
+                file=outputs_file,
+            )
+            print(
+                f"wheel={whl_file_prj_base_name !s}-${{
+                    steps.scm-version.outputs.dist-version
+                }}-py3-none-any.whl",
+                file=outputs_file,
+            )
+
+  build:
+    name: 📦 ${{ needs.pre-setup.outputs.git-tag }}
+    needs:
+    - pre-setup
+    # Prevent run 'push' events for the branches in upstream repository as it
+    # already covered by 'pull_request' event
+    if: >-
+      github.repository_id != needs.pre-setup.outputs.upstream-repository-id
+      || github.event_name != 'push'
+      || github.ref_name == github.event.repository.default_branch
+
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 2
+
+    env:
+      TOXENV: cleanup-dists,build-dists
+
+    outputs:
+      dists-base64-hash: ${{ steps.dist-hashes.outputs.combined-hash }}
+
+    steps:
+    - name: Switch to using Python 3.13
+      uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
+      with:
+        python-version: 3.13
+
+    - name: Grab the source from Git
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      with:
+        fetch-depth: 0
+
+    - name: >-
+        Calculate Python interpreter version hash value
+        for use in the cache key
+      id: calc-cache-key-py
+      run: |
+        from hashlib import sha512
+        from os import environ
+        from pathlib import Path
+        from sys import version
+
+        FILE_APPEND_MODE = 'a'
+
+        hash = sha512(version.encode()).hexdigest()
+
+        with Path(environ['GITHUB_OUTPUT']).open(
+                mode=FILE_APPEND_MODE,
+        ) as outputs_file:
+            print(f'py-hash-key={hash}', file=outputs_file)
+      shell: python
+    - name: Get pip cache dir
+      id: pip-cache-dir
+      run: >-
+        echo "dir=$(python -m pip cache dir)" >> "${GITHUB_OUTPUT}"
+    - name: Set up pip cache
+      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf  # v4.2.2
+      with:
+        path: ${{ steps.pip-cache-dir.outputs.dir }}
+        key: >-
+          ${{ runner.os }}-pip-${{
+          steps.calc-cache-key-py.outputs.py-hash-key }}-${{
+          needs.pre-setup.outputs.cache-key-files }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{
+              steps.calc-cache-key-py.outputs.py-hash-key
+          }}-
+          ${{ runner.os }}-pip-
+
+    - name: Install tox
+      run: >-
+        python -Im pip install tox
+      shell: bash  # windows compat
+
+    - name: Pre-populate the tox env
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --notest
+
+    - name: Drop Git tags from HEAD for non-tag-create events
+      run: >-
+        git tag --points-at HEAD
+        |
+        xargs git tag --delete
+      shell: bash
+
+    - name: Set static timestamp for dist build reproducibility
+      # ... from the last Git commit since it's immutable
+      run: >-
+        echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)"
+        >> "${GITHUB_ENV}"
+    - name: Build dists
+      run: >-
+        python -m
+        tox
+        --parallel auto
+        --parallel-live
+        --skip-missing-interpreters false
+        --skip-pkg-install
+        --quiet
+    - name: Verify that the artifacts with expected names got created
+      run: >-
+        ls -1
+        'dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
+        'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
+    - name: Generate dist hashes to be used for provenance
+      id: dist-hashes
+      run: >-
+        echo "combined-hash=$(
+        sha256sum
+        '${{ needs.pre-setup.outputs.sdist-artifact-name }}'
+        '${{ needs.pre-setup.outputs.wheel-artifact-name }}'
+        | base64 -w0
+        )"
+        >> "${GITHUB_OUTPUT}"
+      working-directory: dist
+    - name: Store the distribution packages
+      uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1  # v4.6.1
+      with:
+        name: >-
+          ${{ needs.pre-setup.outputs.dists-artifact-name }}
+        # NOTE: Exact expected file names are specified here
+        # NOTE: as a safety measure — if anything weird ends
+        # NOTE: up being in this dir or not all dists will be
+        # NOTE: produced, this will fail the workflow.
+        path: |
+          dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}
+          dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}
+        retention-days: 30
+
+  lint:
+    name: 🧹 Linters${{ '' }}  # nest jobs under the same sidebar category
+    needs:
+    - build
+    - pre-setup  # transitive, for accessing settings
+    strategy:
+      matrix:
+        runner-vm-os:
+        - ubuntu-latest
+        python-version:
+        - 3.13
+        toxenv:
+        - pre-commit
+        - metadata-validation
+        environment-variables:
+        # `no-commit-to-branch` is skipped because it does not make sense
+        # in the CI, only locally.
+        # Ref: https://github.com/pre-commit/pre-commit-hooks/issues/1124
+        # only affects pre-commit, set for all for simplicity:
+        - >-
+          SKIP=
+          hadolint,
+          no-commit-to-branch,
+          shfmt,
+        tox-run-posargs:
+        - ''
+        xfail:
+        - false
+        check-name:
+        - ''
+      fail-fast: false
+    uses: ./.github/workflows/reusable-tox.yml
+    with:
+      cache-key-files: >-
+        ${{ needs.pre-setup.outputs.cache-key-files }}
+      check-name: >-
+        ${{ matrix.check-name }}
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      environment-variables: >-
+        ${{ matrix.environment-variables }}
+      python-version: >-
+        ${{ matrix.python-version }}
+      runner-vm-os: >-
+        ${{ matrix.runner-vm-os }}
+      source-tarball-name: >-
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      timeout-minutes: 3
+      toxenv: >-
+        ${{ matrix.toxenv }}
+      tox-run-posargs: >-
+        ${{ matrix.tox-run-posargs }}
+      upstream-repository-id: >-
+        ${{ needs.pre-setup.outputs.upstream-repository-id }}
+      xfail: ${{ fromJSON(matrix.xfail) }}
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  tests:
+    name: 🧪 Tests${{ '' }}  # nest jobs under the same sidebar category
+    needs:
+    - build
+    - pre-setup  # transitive, for accessing settings
+    strategy:
+      matrix:
+        python-version:
+        # NOTE: The latest and the lowest supported Pythons are prioritized
+        # NOTE: to improve the responsiveness. It's nice to see the most
+        # NOTE: important results first.
+        - 3.13
+        - 3.9
+        # str
+        - >-
+          3.10
+        - 3.12
+        - 3.11
+        runner-vm-os:
+        - ubuntu-24.04
+        - macos-14
+        - macos-13
+        - windows-2025
+        toxenv:
+        - pytest
+        xfail:
+        - false
+
+    uses: ./.github/workflows/reusable-tox.yml
+    with:
+      built-wheel-names: >-
+        ${{ needs.pre-setup.outputs.wheel-artifact-name }}
+      cache-key-files: >-
+        ${{ needs.pre-setup.outputs.cache-key-files }}
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      python-version: >-
+        ${{ matrix.python-version }}
+      runner-vm-os: >-
+        ${{ matrix.runner-vm-os }}
+      source-tarball-name: >-
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      timeout-minutes: 5
+      toxenv: >-
+        ${{ matrix.toxenv }}
+      tox-run-posargs: >-
+        --cov-report=xml:.tox/.tmp/.test-results/pytest-${{
+          matrix.python-version
+        }}/cobertura.xml
+        --junitxml=.tox/.tmp/.test-results/pytest-${{
+          matrix.python-version
+        }}/test.xml
+      tox-rerun-posargs: >-
+        -rA
+        -vvvvv
+        --lf
+        --no-cov
+        --no-fold-skipped
+      upstream-repository-id: >-
+        ${{ needs.pre-setup.outputs.upstream-repository-id }}
+      xfail: ${{ fromJSON(matrix.xfail) }}
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  check:  # This job does nothing and is only used for the branch protection
+
+    # Separate 'pull_request' check from other checks to avoid confusion in
+    # GitHub branch protection about which check is required when multiple
+    # events trigger this workflow.
+    name: >-
+      ${{ github.event_name == 'push' && 'check&ZeroWidthSpace;' || 'check' }}
+    if: always()
+
+    needs:
+    - lint
+    - tests
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 1
+
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe  # v1.2.2
+      with:
+        jobs: ${{ toJSON(needs) }}
+        # Needed to not fail on skipped 'push' events for the branches in
+        # upstream repository as they already covered by 'pull_request' event
+        allowed-skips: >-
+          ${{
+            (
+              github.repository_id != needs.pre-setup.outputs.upstream-repository-id
+              || github.event_name != 'push'
+              || github.ref_name == github.event.repository.default_branch
+            )
+            && 'lint, tests'
+            || ''
+          }}

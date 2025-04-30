@@ -1,4 +1,18 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["local>SpotOnInc/renovate-config"],
+  extends: [
+    "local>SpotOnInc/renovate-config",
+    // Automerge patch and minor upgrades if they pass tests. | https://docs.renovatebot.com/presets-default/#automergeminor
+    ":automergeMinor",
+    // Require all status checks to pass before any automerging. | https://docs.renovatebot.com/presets-default/#automergerequireallstatuschecks
+    ":automergeRequireAllStatusChecks",
+    // Automerge digest upgrades if they pass tests. | https://docs.renovatebot.com/presets-default/#automergedigest
+    ":automergeDigest",
+    // Raise a PR first before any automerging. | https://docs.renovatebot.com/presets-default/#automergepr
+    ":automergePr",
+  ],
+  // To make happy 'Validate PR title' GHA
+  commitMessageLowerCase: "never",
+  // Disable auto-rebase on every commit to avoid reaching Github limits on macos runners
+  rebaseWhen: "conflicted",
 }

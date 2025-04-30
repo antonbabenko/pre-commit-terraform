@@ -3,8 +3,8 @@
 set -eo pipefail
 
 # globals variables
-# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_DIR
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
@@ -44,14 +44,20 @@ function main {
 #   change_dir_in_unique_part (string/false) Modifier which creates
 #     possibilities to use non-common chdir strategies.
 #     Availability depends on hook.
+#   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
+#   tf_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
 function per_dir_hook_unique_part {
   local -r dir_path="$1"
   local -r change_dir_in_unique_part="$2"
-  shift 2
+  # shellcheck disable=SC2034 # Unused var.
+  local -r parallelism_disabled="$3"
+  # shellcheck disable=SC2034 # Unused var.
+  local -r tf_path="$4"
+  shift 4
   local -a -r args=("$@")
 
   if [ "$change_dir_in_unique_part" == "delegate_chdir" ]; then

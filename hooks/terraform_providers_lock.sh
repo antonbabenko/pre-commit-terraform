@@ -3,8 +3,8 @@
 set -eo pipefail
 
 # globals variables
-# shellcheck disable=SC2155 # No way to assign to readonly variable in separate lines
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_DIR
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
@@ -85,7 +85,9 @@ function lockfile_contains_all_needed_sha {
 #   change_dir_in_unique_part (string/false) Modifier which creates
 #     possibilities to use non-common chdir strategies.
 #     Availability depends on hook.
+#   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
+#   tf_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
@@ -93,7 +95,9 @@ function per_dir_hook_unique_part {
   local -r dir_path="$1"
   # shellcheck disable=SC2034 # Unused var.
   local -r change_dir_in_unique_part="$2"
-  shift 2
+  local -r parallelism_disabled="$3"
+  local -r tf_path="$4"
+  shift 4
   local -a -r args=("$@")
 
   local platforms_count=0
@@ -136,7 +140,7 @@ function per_dir_hook_unique_part {
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
 Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
 "
-    common::terraform_init 'terraform providers lock' "$dir_path" || {
+    common::terraform_init "$tf_path providers lock" "$dir_path" "$parallelism_disabled" "$tf_path" || {
       exit_code=$?
       return $exit_code
     }
@@ -151,7 +155,7 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
   #? Don't require `tf init` for providers, but required `tf init` for modules
   #? Mitigated by `function match_validate_errors` from terraform_validate hook
   # pass the arguments to hook
-  terraform providers lock "${args[@]}"
+  "$tf_path" providers lock "${args[@]}"
 
   # return exit code to common::per_dir_hook
   exit_code=$?
