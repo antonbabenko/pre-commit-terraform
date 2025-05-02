@@ -56,39 +56,38 @@ jobs:
     - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
       with:
         python-version: '3.13'
+
+    # Needed for pre-commit fix push to succeed
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.ref }}
+        # Needed to trigger pre-commit workflow on autofix commit. Guide:
+        # https://web.archive.org/web/20210731173012/https://github.community/t/required-check-is-expected-after-automated-push/187545/
+        ssh-key: ${{ secrets.GHA_AUTOFIX_COMMIT_KEY }}
+
     - name: Execute pre-commit
-      uses: pre-commit/action@9b88afc9cd57fd75b655d5c71bd38146d07135fe  # v2.0.3
+      uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd  # v3.0.1
       env:
-        SKIP: no-commit-to-branch,hadolint
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        extra_args: >-
-          --color=always
-          --show-diff-on-failure
-          --files ${{ steps.file_changes.outputs.files }}
-    # Run only skipped checks
-    - name: Execute pre-commit check that have no auto-fixes
-      if: always()
-      uses: pre-commit/action@9b88afc9cd57fd75b655d5c71bd38146d07135fe  # v2.0.3
-      env:
-        SKIP: >-
-          check-added-large-files,
-          check-merge-conflict,
-          check-vcs-permalinks,
-          forbid-new-submodules,
-          no-commit-to-branch,
-          end-of-file-fixer,
-          trailing-whitespace,
-          check-yaml,
-          check-merge-conflict,
-          check-executables-have-shebangs,
-          check-case-conflict,mixed-line-ending,
-          detect-aws-credentials,
-          detect-private-key,
-          shfmt,
-          shellcheck,
+        SKIP: no-commit-to-branch
       with:
         extra_args: >-
           --color=always
           --show-diff-on-failure
-          --files ${{ steps.file_changes.outputs.files }}
+          --files ${{ steps.file_changes.outputs.files}}
+
+    # Needed to trigger pre-commit workflow on autofix commit
+    - name: Push fixes
+      if: failure()
+      uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5  # v9.1.4
+      with:
+        # Determines the way the action fills missing author name and email.
+        # Three options are available:
+        # - github_actor -> UserName <UserName@users.noreply.github.com>
+        # - user_info -> Your Display Name <your-actual@email.com>
+        # - github_actions -> github-actions <email associated with the github logo>
+        # Default: github_actor
+        default_author: github_actor
+        # The message for the commit.
+        # Default: 'Commit from GitHub Actions (name of the workflow)'
+        message: '[pre-commit] Autofix violations'
