@@ -57,12 +57,12 @@ jobs:
       with:
         python-version: '3.13'
 
-    # Need to success pre-commit fix push
+    # Needed for pre-commit fix push to succeed
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.ref }}
-        # Need to trigger pre-commit workflow on autofix commit. Guide:
+        # Needed to trigger pre-commit workflow on autofix commit. Guide:
         # https://web.archive.org/web/20210731173012/https://github.community/t/required-check-is-expected-after-automated-push/187545/
         ssh-key: ${{ secrets.GHA_AUTOFIX_COMMIT_KEY }}
 
@@ -76,7 +76,7 @@ jobs:
           --show-diff-on-failure
           --files ${{ steps.file_changes.outputs.files}}
 
-    # Need to trigger pre-commit workflow on autofix commit.
+    # Needed to trigger pre-commit workflow on autofix commit
     - name: Push fixes
       if: failure()
       uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5  # v9.1.4
@@ -90,4 +90,4 @@ jobs:
         default_author: github_actor
         # The message for the commit.
         # Default: 'Commit from GitHub Actions (name of the workflow)'
-        message: '[pre-commit] Autofix violations'
+        message: '[pre-commit] Fix violations'
