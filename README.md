@@ -347,10 +347,10 @@ Config example:
 - id: terraform_tflint
   args:
   - --args=--config=${CONFIG_NAME}.${CONFIG_EXT}
-  - --args=--module
+  - --args=--call-module-type="all"
 ```
 
-If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --module`.
+If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --call-module-type="all"`.
 
 ### All hooks: Set env vars inside hook at runtime
 
