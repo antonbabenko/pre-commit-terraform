@@ -181,7 +181,7 @@ jobs:
 
     - name: Cache pre-commit.com virtualenvs
       if: inputs.toxenv == 'pre-commit'
-      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf  # v4.2.2
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
       with:
         path: ~/.cache/pre-commit
         key: >-
@@ -239,7 +239,7 @@ jobs:
       shell: bash
     - name: Set up pip cache
       if: fromJSON(steps.py-abi.outputs.is-stable-abi)
-      uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf  # v4.2.2
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
       with:
         path: ${{ steps.pip-cache-dir.outputs.dir }}
         key: >-
