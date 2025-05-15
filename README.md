@@ -2,9 +2,9 @@
 
 [![Latest Github tag]](https://github.com/antonbabenko/pre-commit-terraform/releases)
 ![Maintenance status](https://img.shields.io/maintenance/yes/2025.svg)
-[![Codetriage - Help Contribute to Open Source Badge]](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
+[![Codetriage - Help Contribute to Open Source Badge]](https://www.codetriage.com/antonbabenko/pre-commit-terraform)  
 [![GHA Tests CI/CD Badge]](https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml)
-[![Codecov pytest Badge]](https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest)
+[![Codecov pytest Badge]](https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest)  
 [![OpenSSF Scorecard Badge]](https://scorecard.dev/viewer/?uri=github.com/antonbabenko/pre-commit-terraform)
 [![OpenSSF Best Practices Badge]](https://www.bestpractices.dev/projects/9963)
 
