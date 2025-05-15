@@ -22,7 +22,9 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
         required=True,
     )
     for subcommand_module in SUBCOMMAND_MODULES:
-        subcommand_parser = subcommand_parsers.add_parser(subcommand_module.CLI_SUBCOMMAND_NAME)
+        subcommand_parser = subcommand_parsers.add_parser(
+            subcommand_module.CLI_SUBCOMMAND_NAME,
+        )
         subcommand_parser.set_defaults(
             invoke_cli_app=subcommand_module.invoke_cli_app,
         )
@@ -30,8 +32,12 @@ def attach_subcommand_parsers_to(root_cli_parser: ArgumentParser, /) -> None:
 
 
 def initialize_argument_parser() -> ArgumentParser:
-    """Return the root argument parser with sub-commands."""
-    root_cli_parser = ArgumentParser(prog=f'python -m {__package__ !s}')
+    """Return the root argument parser with sub-commands.
+
+    Returns:
+        ArgumentParser: The root parser with sub-commands attached.
+    """
+    root_cli_parser = ArgumentParser(prog=f'python -m {__package__!s}')
     attach_subcommand_parsers_to(root_cli_parser)
     return root_cli_parser
 

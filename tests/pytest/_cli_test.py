@@ -1,13 +1,13 @@
 """Tests for the high-level CLI entry point."""
 
 from argparse import ArgumentParser, Namespace
-import pytest
 
+import pytest
 from pre_commit_terraform import _cli_parsing as _cli_parsing_mod
 from pre_commit_terraform._cli import invoke_cli_app
 from pre_commit_terraform._errors import (
-    PreCommitTerraformExit,
     PreCommitTerraformBaseError,
+    PreCommitTerraformExit,
     PreCommitTerraformRuntimeError,
 )
 from pre_commit_terraform._structs import ReturnCode
@@ -23,7 +23,6 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.mark.parametrize(
     ('raised_error', 'expected_stderr'),
     (
-        # pytest.param(PreCommitTerraformExit('sentinel'), 'App exiting: sentinel', id='app-exit'),
         pytest.param(
             PreCommitTerraformRuntimeError('sentinel'),
             'App execution took an unexpected turn: sentinel. Exiting...',
@@ -42,17 +41,19 @@ pytestmark = pytest.mark.filterwarnings(
     ),
 )
 def test_known_interrupts(
-        capsys: pytest.CaptureFixture[str],
-        expected_stderr: str,
-        monkeypatch: pytest.MonkeyPatch,
-        raised_error: BaseException,
+    capsys: pytest.CaptureFixture[str],
+    expected_stderr: str,
+    monkeypatch: pytest.MonkeyPatch,
+    raised_error: BaseException,
 ) -> None:
     """Check that known interrupts are turned into return code 1."""
+
     class CustomCmdStub:
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
         def populate_argument_parser(
-                self, subcommand_parser: ArgumentParser,
+            self,
+            subcommand_parser: ArgumentParser,
         ) -> None:
             return None
 
@@ -65,27 +66,29 @@ def test_known_interrupts(
         [CustomCmdStub()],
     )
 
-    assert ReturnCode.ERROR == invoke_cli_app(['sentinel'])
+    assert invoke_cli_app(['sentinel']) == ReturnCode.ERROR
 
     captured_outputs = capsys.readouterr()
-    assert captured_outputs.err == f'{expected_stderr !s}\n'
+    assert captured_outputs.err == f'{expected_stderr!s}\n'
 
 
 def test_app_exit(
-        capsys: pytest.CaptureFixture[str],
-        monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Check that an exit exception is re-raised."""
+
     class CustomCmdStub:
         CLI_SUBCOMMAND_NAME = 'sentinel'
 
         def populate_argument_parser(
-                self, subcommand_parser: ArgumentParser,
+            self,
+            subcommand_parser: ArgumentParser,
         ) -> None:
             return None
 
         def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
-            raise PreCommitTerraformExit('sentinel')
+            raise PreCommitTerraformExit(self.CLI_SUBCOMMAND_NAME)
 
     monkeypatch.setattr(
         _cli_parsing_mod,
@@ -93,7 +96,7 @@ def test_app_exit(
         [CustomCmdStub()],
     )
 
-    with pytest.raises(PreCommitTerraformExit, match='^sentinel$'):
+    with pytest.raises(PreCommitTerraformExit, match=r'^sentinel$'):
         invoke_cli_app(['sentinel'])
 
     captured_outputs = capsys.readouterr()
