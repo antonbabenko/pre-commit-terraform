@@ -2,10 +2,11 @@
 
 [![Latest Github tag]](https://github.com/antonbabenko/pre-commit-terraform/releases)
 ![Maintenance status](https://img.shields.io/maintenance/yes/2025.svg)
-[![Codetriage - Help Contribute to Open Source Badge]](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
 [![GHA Tests CI/CD Badge]](https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml)
 [![Codecov pytest Badge]](https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest)
 [![OpenSSF Scorecard Badge]](https://scorecard.dev/viewer/?uri=github.com/antonbabenko/pre-commit-terraform)
+[![OpenSSF Best Practices Badge]](https://www.bestpractices.dev/projects/9963)
+[![Codetriage - Help Contribute to Open Source Badge]](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
 
 [![StandWithUkraine Banner]](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
@@ -29,6 +30,7 @@ and [contributing notes](/.github/CONTRIBUTING.md).
 [GHA Tests CI/CD Badge]: https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml/badge.svg?branch=master
 [Codecov Pytest Badge]: https://codecov.io/gh/antonbabenko/pre-commit-terraform/branch/master/graph/badge.svg?flag=pytest
 [OpenSSF Scorecard Badge]: https://api.scorecard.dev/projects/github.com/antonbabenko/pre-commit-terraform/badge
+[OpenSSF Best Practices Badge]: https://www.bestpractices.dev/projects/9963/badge
 [StandWithUkraine Banner]: https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg
 
 ## Sponsors
@@ -81,44 +83,6 @@ If you want to support the development of `pre-commit-terraform` and [many other
 ## How to install
 
 ### 1. Install dependencies
-<!-- (Do not remove html tags here) -->
-* [`pre-commit`](https://pre-commit.com/#install),
-  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
-  <sub><sup>[`git`](https://git-scm.com/downloads),
-  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
-  <sub><sup>Internet connection (on first run),
-  <sub><sup>x86_64 or arm64 compatible operating system,
-  <sub><sup>Some hardware where this OS will run,
-  <sub><sup>Electricity for hardware and internet connection,
-  <sub><sup>Some basic physical laws,
-  <sub><sup>Hope that it all will work.
-  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
-* [`checkov`][checkov repo] required for `terraform_checkov` hook
-* [`terraform-docs`][terraform-docs repo] 0.12.0+ required for `terraform_docs` hook
-* [`terragrunt`][terragrunt repo] required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
-* [`terrascan`][terrascan repo] required for `terrascan` hook
-* [`TFLint`][tflint repo] required for `terraform_tflint` hook
-* [`TFSec`][tfsec repo] required for `terraform_tfsec` hook
-* [`Trivy`][trivy repo] required for `terraform_trivy` hook
-* [`infracost`][infracost repo] required for `infracost_breakdown` hook
-* [`jq`][jq repo] required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook
-* [`tfupdate`][tfupdate repo] required for `tfupdate` hook
-* [`graphviz`](https://www.graphviz.org/download)  required for `terraform_graph` hook.
-* [`hcledit`][hcledit repo] required for `terraform_wrapper_module_for_each` hook
-
-
-#### 1.1 Custom Terraform binaries and OpenTofu support
-
-It is possible to set custom path to `terraform` binary.  
-This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
-
-How binary discovery works and how you can redefine it (first matched takes precedence):
-
-1. Check if per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>` is set
-2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
-3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
-4. Check if `terraform` binary can be found in the user's $PATH
-5. Check if `tofu` binary can be found in the user's $PATH
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -250,6 +214,48 @@ E.g. `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages
 
 </details>
 
+Full list of dependencies and where they are used:
+
+<!-- (Do not remove html tags here) -->
+* [`pre-commit`](https://pre-commit.com/#install),
+  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
+  <sub><sup>[`git`](https://git-scm.com/downloads),
+  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
+  <sub><sup>Internet connection (on first run),
+  <sub><sup>x86_64 or arm64 compatible operating system,
+  <sub><sup>Some hardware where this OS will run,
+  <sub><sup>Electricity for hardware and internet connection,
+  <sub><sup>Some basic physical laws,
+  <sub><sup>Hope that it all will work.
+  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
+* [`checkov`][checkov repo] required for `terraform_checkov` hook
+* [`terraform-docs`][terraform-docs repo] 0.12.0+ required for `terraform_docs` hook
+* [`terragrunt`][terragrunt repo] required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
+* [`terrascan`][terrascan repo] required for `terrascan` hook
+* [`TFLint`][tflint repo] required for `terraform_tflint` hook
+* [`TFSec`][tfsec repo] required for `terraform_tfsec` hook
+* [`Trivy`][trivy repo] required for `terraform_trivy` hook
+* [`infracost`][infracost repo] required for `infracost_breakdown` hook
+* [`jq`][jq repo] required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook
+* [`tfupdate`][tfupdate repo] required for `tfupdate` hook
+* [`graphviz`](https://www.graphviz.org/download)  required for `terraform_graph` hook.
+* [`hcledit`][hcledit repo] required for `terraform_wrapper_module_for_each` hook
+
+
+#### 1.1 Custom Terraform binaries and OpenTofu support
+
+It is possible to set custom path to `terraform` binary.  
+This makes it possible to use [OpenTofu](https://opentofu.org) binary (`tofu`) instead of `terraform`.
+
+How binary discovery works and how you can redefine it (first matched takes precedence):
+
+1. Check if per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>` is set
+2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+4. Check if `terraform` binary can be found in the user's `$PATH`
+5. Check if `tofu` binary can be found in the user's `$PATH`
+
+
 ### 2. Install the pre-commit hook globally
 
 > [!NOTE]
@@ -275,6 +281,14 @@ repos:
     - id: terraform_fmt
     - id: terraform_docs
 EOF
+```
+
+If this repository was initialized locally via `git init` or `git clone` _before_
+you installed the pre-commit hook globally ([step 2](#2-install-the-pre-commit-hook-globally)),
+you will need to run:
+
+```bash
+pre-commit install
 ```
 
 ### 4. Run
@@ -352,10 +366,10 @@ Config example:
 - id: terraform_tflint
   args:
   - --args=--config=${CONFIG_NAME}.${CONFIG_EXT}
-  - --args=--module
+  - --args=--call-module-type="all"
 ```
 
-If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --module`.
+If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --call-module-type="all"`.
 
 ### All hooks: Set env vars inside hook at runtime
 
