@@ -212,7 +212,7 @@ E.g. `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages
 
 </details>
 
-Full list of dependencies and where they are used:'
+Full list of dependencies and where they are used:
 
 <!-- (Do not remove html tags here) -->
 * [`pre-commit`](https://pre-commit.com/#install),
