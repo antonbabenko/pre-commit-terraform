@@ -281,7 +281,7 @@ EOF
 ```
 
 If this repository was initialized locally via `git init` or `git clone` _before_
-you installed the pre-commit hook globally ([step 2]((#2-install-the-pre-commit-hook-globally))),
+you installed the pre-commit hook globally ([step 2](#2-install-the-pre-commit-hook-globally)),
 you will need to run:
 
 ```bash
