@@ -1,6 +1,7 @@
 name: Build Dockerfile if changed and run smoke tests
 
 on:
+  merge_group:
   pull_request:
 
 permissions:
