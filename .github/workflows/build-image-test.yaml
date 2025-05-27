@@ -65,7 +65,7 @@ jobs:
         >> $GITHUB_ENV
 
     - name: Setup docker (missing on MacOS)
-      if: matrix.os == 'macos'
+      if: runner.os == 'macos'
       run: |
         brew install docker
         colima start
