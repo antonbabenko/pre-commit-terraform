@@ -34,7 +34,7 @@ jobs:
           os: macos-latest
           arch: amd64
 
-         - os-name: MacOS ARM
+       - os-name: MacOS ARM
           os: macos-latest
           arch: amd64
 
