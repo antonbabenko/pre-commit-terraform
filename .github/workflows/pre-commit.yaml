@@ -1,6 +1,7 @@
 name: Common issues check
 
 on:
+  merge_group:
   pull_request:
 
 permissions:
