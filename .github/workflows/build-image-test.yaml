@@ -60,11 +60,9 @@ jobs:
       if: steps.changed-files-specific.outputs.any_changed == 'true'
       # Lowercase the org/repo name to allow for workflow to run in forks,
       # which owners have uppercase letters in username
-      run: >-
+      run: |-
         repo=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
-        echo "IMAGE=ghcr.io/${repo}:${{ env.IMAGE_TAG }}"
-        }}"
-        >> $GITHUB_ENV
+        echo "IMAGE=ghcr.io/${repo}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
 
     - name: Setup docker (missing on MacOS)
       if: runner.os == 'macos'
