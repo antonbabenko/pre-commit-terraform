@@ -31,11 +31,11 @@ jobs:
           arch: arm64
 
         - os-name: MacOS x64
-          os: macos-latest
+          os: macos-13
           arch: amd64
 
         - os-name: MacOS ARM
-          os: macos-latest
+          os: macos-13
           arch: arm64
 
     name: ${{ matrix.os-name }}
