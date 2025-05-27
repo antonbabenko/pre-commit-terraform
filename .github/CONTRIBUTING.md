@@ -1,22 +1,24 @@
 # Notes for contributors
 
-1. Python hooks are supported now too. All you have to do is:
-    1. add a line to the `console_scripts` array in `entry_points` in `setup.py`
-    2. Put your python script in the `pre_commit_hooks` folder
-
-Enjoy the clean, valid, and documented code!
-
+* [Configure `git blame` to ignore formatting commits](#configure-git-blame-to-ignore-formatting-commits)
 * [Run and debug hooks locally](#run-and-debug-hooks-locally)
 * [Run hook performance test](#run-hook-performance-test)
   * [Run via BASH](#run-via-bash)
   * [Run via Docker](#run-via-docker)
   * [Check results](#check-results)
   * [Cleanup](#cleanup)
+* [Required tools and plugins to simplify review process](#required-tools-and-plugins-to-simplify-review-process)
 * [Add new hook](#add-new-hook)
   * [Before write code](#before-write-code)
   * [Prepare basic documentation](#prepare-basic-documentation)
   * [Add code](#add-code)
   * [Finish with the documentation](#finish-with-the-documentation)
+* [Contributing to Python code](#contributing-to-python-code)
+* [Run tests in your fork](#run-tests-in-your-fork)
+
+## Configure `git blame` to ignore formatting commits
+
+This project uses `.git-blame-ignore-revs` to exclude formatting-related commits from `git blame` history. To configure your local `git blame` to ignore these commits, refer to the [.git-blame-ignore-revs](/.git-blame-ignore-revs) file for details.
 
 ## Run and debug hooks locally
 
@@ -98,6 +100,13 @@ Results will be located at `./test/results` dir.
 sudo rm -rf tests/results
 ```
 
+## Required tools and plugins to simplify review process
+
+1. [editorconfig.org](https://editorconfig.org/) (preinstalled in some IDE)
+2. [pre-commit](https://pre-commit.com/#install)
+3. (Optional) If you use VS Code - feel free to install all recommended extensions
+
+
 ## Add new hook
 
 You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/252) as an example.
@@ -106,12 +115,17 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 1. Try to figure out future hook usage.
 2. Confirm the concept with [Anton Babenko](https://github.com/antonbabenko).
+3. Install [required tools and plugins](#required-tools-and-plugins-to-simplify-review-process)
+
 
 ### Prepare basic documentation
 
 1. Identify and describe dependencies in [Install dependencies](../README.md#1-install-dependencies) and [Available Hooks](../README.md#available-hooks) sections
 
 ### Add code
+
+> [!TIP]
+> Here is a screencast of [how to add new dependency in `tools/install/`](https://github.com/antonbabenko/pre-commit-terraform/assets/11096782/8fc461e9-f163-4592-9497-4a18fa89c0e8) - used in Dockerfile
 
 1. Based on prev. block, add hook dependencies installation to [Dockerfile](../Dockerfile).  
     Check that works:
@@ -139,5 +153,46 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 ### Finish with the documentation
 
-1. Add hook description to [Available Hooks](../README.md#available-hooks).
+1. Add the hook description to [Available Hooks](../README.md#available-hooks).
 2. Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
+
+## Contributing to Python code
+
+1. [Install `tox`](https://tox.wiki/en/stable/installation.html)
+2. To run tests, run:
+
+    ```bash
+    tox -qq
+    ```
+
+    The easiest way to find out what parts of the code base are left uncovered, is to copy-paste and run the `python3 ...` command that will open the HTML report, so you can inspect it visually.
+
+3. Before committing any changes (if you do not have `pre-commit` installed locally), run:
+
+    ```bash
+    tox r -qq -e pre-commit
+    ```
+
+    Make sure that all checks pass.
+
+4. (Optional): If you want to limit the checks to MyPy only, you can run:
+
+    ```bash
+    tox r -qq -e pre-commit -- mypy --all-files
+    ```
+
+    Then copy-paste and run the `python3 ...` commands to inspect the strictest MyPy coverage reports visually.
+
+5. (Optional): You can find all available `tox` environments by running:
+
+    ```bash
+    tox list
+    ```
+
+## Run tests in your fork
+
+Go to your fork's `Actions` tab and click the big green button.
+
+![Enable workflows](/assets/contributing/enable_actions_in_fork.png)
+
+Now you can verify that the tests pass before submitting your PR.

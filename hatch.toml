@@ -1,0 +1,23 @@
+[build.targets.sdist]
+include = [
+  '.codecov.yml',
+  '.coveragerc',
+  'src/',
+  'tests/',
+  'pytest.ini',
+  'tox.ini',
+]
+
+[build.targets.wheel]
+packages = [
+  'src/pre_commit_terraform/',
+]
+
+[metadata.hooks.vcs.urls]
+# FIXME: Uncomment 'Source Archive' as soon as
+# FIXME: https://github.com/ofek/hatch-vcs/issues/80 is fixed.
+# 'Source Archive' = 'https://github.com/antonbabenko/pre-commit-terraform/archive/{commit_hash}.tar.gz'
+'GitHub: repo' = 'https://github.com/antonbabenko/pre-commit-terraform'
+
+[version]
+source = 'vcs'

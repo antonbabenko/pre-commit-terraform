@@ -4,42 +4,47 @@
   entry: hooks/infracost_breakdown.sh
   language: script
   require_serial: true
-  files: \.(tf(vars)?|hcl)$
+  files: \.(tf|tofu|tfvars|hcl)$
   exclude: \.terraform/.*$
 
 - id: terraform_fmt
   name: Terraform fmt
-  description: Rewrites all Terraform configuration files to a canonical format.
+  description: >-
+    Rewrites all Terraform configuration files to a canonical format.
   entry: hooks/terraform_fmt.sh
   language: script
-  files: (\.tf|\.tfvars)$
+  files: \.(tf|tofu|tfvars)$
   exclude: \.terraform/.*$
 
 - id: terraform_docs
   name: Terraform docs
-  description: Inserts input and output documentation into README.md (using terraform-docs).
+  description: >-
+    Inserts input and output documentation into README.md
+    (using terraform-docs).
   require_serial: true
   entry: hooks/terraform_docs.sh
   language: script
-  files: (\.tf|\.terraform\.lock\.hcl)$
+  files: \.(tf|tofu|terraform\.lock\.hcl)$
   exclude: \.terraform/.*$
 
 - id: terraform_docs_without_aggregate_type_defaults
   name: Terraform docs (without aggregate type defaults)
-  description: Inserts input and output documentation into README.md (using terraform-docs). Identical to terraform_docs.
+  description: >-
+    Inserts input and output documentation into README.md
+    (using terraform-docs). Identical to terraform_docs.
   require_serial: true
   entry: hooks/terraform_docs.sh
   language: script
-  files: (\.tf)$
+  files: \.(tf|tofu)$
   exclude: \.terraform/.*$
 
 - id: terraform_docs_replace
   name: Terraform docs (overwrite README.md)
   description: Overwrite content of README.md with terraform-docs.
   require_serial: true
-  entry: terraform_docs_replace
+  entry: python -Im pre_commit_terraform replace-docs
   language: python
-  files: (\.tf)$
+  files: \.(tf|tofu)$
   exclude: \.terraform/.*$
 
 - id: terraform_validate
@@ -48,7 +53,7 @@
   require_serial: true
   entry: hooks/terraform_validate.sh
   language: script
-  files: (\.tf|\.tfvars)$
+  files: \.(tf|tofu|tfvars|terraform\.lock\.hcl)$
   exclude: \.terraform/.*$
 
 - id: terraform_providers_lock
@@ -66,12 +71,13 @@
   require_serial: true
   entry: hooks/terraform_tflint.sh
   language: script
-  files: (\.tf|\.tfvars)$
+  files: \.(tf|tofu|tfvars)$
   exclude: \.terraform/.*$
 
 - id: terragrunt_fmt
   name: Terragrunt fmt
-  description: Rewrites all Terragrunt configuration files to a canonical format.
+  description: >-
+    Rewrites all Terragrunt configuration files to a canonical format.
   entry: hooks/terragrunt_fmt.sh
   language: script
   files: (\.hcl)$
@@ -85,9 +91,18 @@
   files: (\.hcl)$
   exclude: \.terraform/.*$
 
+- id: terragrunt_validate_inputs
+  name: Terragrunt validate inputs
+  description: Validates Terragrunt unused and undefined inputs.
+  entry: hooks/terragrunt_validate_inputs.sh
+  language: script
+  files: (\.hcl)$
+  exclude: \.terraform/.*$
+
 - id: terragrunt_providers_lock
   name: Terragrunt providers lock
-  description: Updates provider signatures in dependency lock files using terragrunt.
+  description: >-
+    Updates provider signatures in dependency lock files using terragrunt.
   entry: hooks/terragrunt_providers_lock.sh
   language: script
   files: (terragrunt|\.terraform\.lock)\.hcl$
@@ -95,18 +110,20 @@
 
 - id: terraform_tfsec
   name: Terraform validate with tfsec (deprecated, use "terraform_trivy")
-  description: Static analysis of Terraform templates to spot potential security issues.
+  description: >-
+    Static analysis of Terraform templates to spot potential security issues.
   require_serial: true
   entry: hooks/terraform_tfsec.sh
-  files: \.tf(vars)?$
+  files: \.(tf|tofu|tfvars)$
   language: script
 
 - id: terraform_trivy
   name: Terraform validate with trivy
-  description: Static analysis of Terraform templates to spot potential security issues.
+  description: >-
+    Static analysis of Terraform templates to spot potential security issues.
   require_serial: true
   entry: hooks/terraform_trivy.sh
-  files: \.tf(vars)?$
+  files: \.(tf|tofu|tfvars)$
   language: script
 
 - id: checkov
@@ -116,7 +133,7 @@
   language: python
   pass_filenames: false
   always_run: false
-  files: \.tf$
+  files: \.(tf|tofu)$
   exclude: \.terraform/.*$
   require_serial: true
 
@@ -126,7 +143,7 @@
   entry: hooks/terraform_checkov.sh
   language: script
   always_run: false
-  files: \.tf$
+  files: \.(tf|tofu)$
   exclude: \.terraform/.*$
   require_serial: true
 
@@ -138,7 +155,7 @@
   pass_filenames: false
   always_run: false
   require_serial: true
-  files: \.tf$
+  files: \.(tf|tofu)$
   exclude: \.terraform/.*$
 
 - id: terrascan
@@ -146,7 +163,7 @@
   description: Runs terrascan on Terraform templates.
   language: script
   entry: hooks/terrascan.sh
-  files: \.tf$
+  files: \.(tf|tofu)$
   exclude: \.terraform/.*$
   require_serial: true
 
@@ -156,6 +173,6 @@
   language: script
   entry: hooks/tfupdate.sh
   args:
-    - --args=terraform
-  files: \.tf$
+  - --args=terraform
+  files: \.(tf|tofu)$
   require_serial: true

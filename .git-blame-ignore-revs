@@ -1,0 +1,70 @@
+# `git blame` master ignore list.
+#
+# This file contains a list of git hashes of revisions to be ignored
+# by `git blame`. These revisions are considered "unimportant" in
+# that they are unlikely to be what you are interested in when blaming.
+# They are typically expected to be formatting-only changes.
+#
+# It can be used for `git blame` using `--ignore-revs-file` or by
+# setting `blame.ignoreRevsFile` in the `git config`[1].
+#
+# Ignore these commits when reporting with blame. Calling
+#
+#   git blame --ignore-revs-file .git-blame-ignore-revs
+#
+# will tell `git blame` to ignore changes made by these revisions when
+# assigning blame, as if the change never happened.
+#
+# You can enable this as a default for your local repository by
+# running
+#
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# This will probably be automatically picked by your IDE
+# (VSCode+GitLens and JetBrains products are confirmed to do this).
+#
+# Important: if you are switching to a branch without this file,
+# `git blame` will fail with an error.
+#
+# GitHub also excludes the commits listed below from its "Blame"
+# views[2][3].
+#
+# [1]: https://git-scm.com/docs/git-blame#Documentation/git-blame.txt-blameignoreRevsFile
+# [2]: https://github.blog/changelog/2022-03-24-ignore-commits-in-the-blame-view-beta/
+# [3]: https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file#ignore-commits-in-the-blame-view
+#
+# Guidelines:
+# - Only large (generally automated) reformatting or renaming PRs
+#   should be added to this list. Do not put things here just because
+#   you feel they are trivial or unimportant. If in doubt, do not put
+#   it on this list.
+# - When adding a single revision, use inline comment to link relevant
+#   issue/PR. Alternatively, paste the commit title instead.
+#   Example:
+#     d4a8b7307acc2dc8a8833ccfa65426ad28b3ffc9  # https://github.com/sanitizers/octomachinery/issues/1
+# - When adding multiple revisions (like a bulk of work over many
+#   commits), organize them in blocks. Precede each such block with a
+#   comment starting with the word "START", followed by a link to the
+#   relevant issue or PR. Add a similar comment after the last block
+#   line but use the word "END", followed by the same link.
+#   Alternatively, add or augment the link with a text motivation and
+#   description of work performed in each commit.
+#   After each individual commit in the block, add an inline comment
+#   with the commit title line.
+#   Example:
+#     # START https://github.com/sanitizers/octomachinery/issues/1
+#     6f0bd2d8a1e6cd2e794cd39976e9756e0c85ac66  # Bulk-replace smile emojis with unicorns
+#     d53974df11dbc22cbea9dc7dcbc9896c25979a27  # Replace double with single quotes
+#     ... <rest of the list>
+#     # END https://github.com/sanitizers/octomachinery/issues/1
+# - Only put full 40-character hashes on this list (not short hashes
+#   or any other revision reference).
+# - Append to the bottom of the file, regardless of the chronological
+#   order of the revisions. Revisions within blocks should be in
+#   chronological order from oldest to newest.
+# - Because you must use a hash, you need to append to this list in a
+#   follow-up PR to the actual reformatting PR that you are trying to
+#   ignore. This approach helps avoid issues with arbitrary rebases
+#   and squashes while the pull request is in progress.
+
+23928fbf8511697c915c3231977ee254bd3fa0c2  # chore(linters): Apply ruff-format

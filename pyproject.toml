@@ -1,0 +1,64 @@
+[build-system]
+requires = [
+  'hatchling',
+  'hatch-vcs',  # setuptools-scm
+]
+build-backend = 'hatchling.build'
+
+[dependency-groups]
+building = [
+  'build',
+]
+linting = [
+  'pre-commit',
+]
+testing = [
+  'covdefaults',  # sets up `coveragepy` config boilerplate
+  'pytest >= 8',
+  'pytest-cov',  # integrates `coveragepy` into pytest runs
+  'pytest-mock',  # provides a `mocker` fixture
+  'pytest-xdist',  # paralellizes tests through subprocesses
+]
+upstreaming = [
+  'twine',
+]
+
+[project]
+name = 'pre-commit-terraform'
+classifiers = [
+  'License :: OSI Approved :: MIT License',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3 :: Only',
+  'Programming Language :: Python :: 3.9',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: 3.12',
+  'Programming Language :: Python :: 3.13',
+  'Programming Language :: Python :: Implementation :: CPython',
+  'Programming Language :: Python :: Implementation :: PyPy',
+]
+description = 'Pre-commit hooks for Terraform, OpenTofu, Terragrunt and related tools'
+dependencies = []
+dynamic = [
+  'urls',
+  'version',
+]
+requires-python = ">= 3.9"
+
+[[project.authors]]
+name = 'Anton Babenko'
+email = 'anton@antonbabenko.com'
+
+[[project.authors]]
+name = 'Contributors'
+
+[[project.maintainers]]
+name = 'Maksym Vlasov'
+
+[[project.maintainers]]
+name = 'George L. Yermulnik'
+email = 'yz@yz.kiev.ua'
+
+[project.readme]
+file = 'README.md'
+content-type = 'text/markdown'

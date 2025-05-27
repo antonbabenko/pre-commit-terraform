@@ -1,0 +1,50 @@
+codecov:
+  notify:
+    after_n_builds: 21  # Number of test matrix+lint jobs uploading coverage
+    wait_for_ci: false
+
+  require_ci_to_pass: false
+  # notsecret  # repo-scoped, upload-only, stability in fork PRs
+  token: >-
+    7316089b-55fe-4646-b640-78d84b79d109
+
+comment:
+  require_changes: true
+
+coverage:
+  range: 100..100
+  status:
+    patch:
+      default:
+        target: 100%
+      pytest:
+        target: 100%
+        flags:
+        - pytest
+      typing:
+        flags:
+        - MyPy
+    project:
+      default:
+        target: 95%
+      lib:
+        flags:
+        - pytest
+        paths:
+        - src/
+        target: 100%
+      tests:
+        flags:
+        - pytest
+        paths:
+        - tests/
+        target: 100%
+      typing:
+        flags:
+        - MyPy
+        target: 90%
+
+github_checks:
+  # Annotations are deprecated in Codecov because they are misleading.
+  # Ref: https://github.com/codecov/codecov-action/issues/1710
+  annotations: false
