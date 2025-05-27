@@ -61,7 +61,8 @@ jobs:
       # Lowercase the org/repo name to allow for workflow to run in forks,
       # which owners have uppercase letters in username
       run: >-
-        echo "IMAGE=ghcr.io/${{ github.repository | lower }}:${{ env.IMAGE_TAG
+        repo=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
+        echo "IMAGE=ghcr.io/${repo}:${{ env.IMAGE_TAG }}"
         }}"
         >> $GITHUB_ENV
 
