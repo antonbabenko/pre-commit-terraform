@@ -28,22 +28,22 @@ jobs:
         include:
         - os-name: Ubuntu x64
           os: ubuntu-latest
-          os-type: ubuntu
+          os-type: linux
           arch: amd64
 
         - os-name: Ubuntu ARM
           os: ubuntu-24.04-arm
-          os-type: ubuntu
+          os-type: linux
           arch: arm64
 
         - os-name: MacOS x64
           os: macos-13
-          os-type: macos
+          os-type: darwin
           arch: amd64
 
         - os-name: MacOS ARM
           os: macos-13
-          os-type: macos
+          os-type: darwin
           arch: arm64
 
     name: ${{ matrix.os-name }}
@@ -104,8 +104,8 @@ jobs:
         CST_REPO: github.com/GoogleContainerTools/container-structure-test
       run: >-
         curl -L "https://${{ env.CST_REPO }}/releases/download/v${{
-        env.CST_VERSION }}/container-structure-test-linux-${{ matrix.arch }}"
-        > container-structure-test
+        env.CST_VERSION }}/container-structure-test-${{
+        matrix.os-type }}-${{ matrix.arch }}" > container-structure-test
         && chmod +x container-structure-test
         && mkdir -p $HOME/bin/
         && mv container-structure-test $HOME/bin/
