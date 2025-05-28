@@ -17,6 +17,7 @@ jobs:
       pull-requests: write
 
     strategy:
+      fail-fast: false
       matrix:
         os-type:
         - ubuntu
