@@ -67,7 +67,7 @@ jobs:
         echo "IMAGE=ghcr.io/${repo}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
 
     - name: Setup Docker on macOS
-      if: matrix.os-type == 'macos'
+      if: matrix.os-type == 'darwin'
       uses: douglascamata/setup-docker-macos-action@v1.0.0
 
     - name: Set up Docker Buildx
