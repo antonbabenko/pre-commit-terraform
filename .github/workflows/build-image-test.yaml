@@ -19,12 +19,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os-type:
-        - ubuntu
-        - macos
-        arch:
-        - amd64
-        - arm64
         include:
         - os-name: Ubuntu x64
           os: ubuntu-latest
