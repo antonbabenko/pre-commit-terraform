@@ -18,24 +18,31 @@ jobs:
 
     strategy:
       matrix:
+        os-type:
+        - ubuntu
+        - macos
         arch:
         - amd64
         - arm64
         include:
         - os-name: Ubuntu x64
           os: ubuntu-latest
+          os-type: ubuntu
           arch: amd64
 
         - os-name: Ubuntu ARM
           os: ubuntu-24.04-arm
+          os-type: ubuntu
           arch: arm64
 
         - os-name: MacOS x64
           os: macos-13
+          os-type: macos
           arch: amd64
 
         - os-name: MacOS ARM
           os: macos-13
+          os-type: macos
           arch: arm64
 
     name: ${{ matrix.os-name }}
@@ -65,7 +72,7 @@ jobs:
         echo "IMAGE=ghcr.io/${repo}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
 
     - name: Setup Docker on macOS
-      if: runner.os == 'macOS'
+      if: matrix.os-type == 'macos'
       uses: douglascamata/setup-docker-macos-action@v1.0.0
 
     - name: Set up Docker Buildx
