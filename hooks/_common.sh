@@ -626,7 +626,6 @@ function common::terragrunt_version_ge_0.78 {
   terragrunt_version=$(terragrunt --version 2> /dev/null | grep -oE '[0-9]+\.[0-9]+')
   # If we can't parse version, default to newer command
   [[ ! $terragrunt_version ]] && return 0
-  fi
 
   local major minor
   IFS='.' read -r major minor <<< "$terragrunt_version"
