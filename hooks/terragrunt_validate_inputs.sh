@@ -14,14 +14,12 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: terragrunt validate color already suppressed via PRE_COMMIT_COLOR=never
 
-  readonly SUBCOMMAND
-  readonly RUN_ALL_SUBCOMMAND
   if common::terragrunt_version_ge_0.78; then
-    SUBCOMMAND=(hcl validate --inputs)
-    RUN_ALL_SUBCOMMAND=(run --all hcl validate --inputs)
+    local -ra SUBCOMMAND=(hcl validate --inputs)
+    local -ra RUN_ALL_SUBCOMMAND=(run --all hcl validate --inputs)
   else
-    SUBCOMMAND=(validate-inputs)
-    RUN_ALL_SUBCOMMAND=(run-all validate-inputs)
+    local -ra SUBCOMMAND=(validate-inputs)
+    local -ra RUN_ALL_SUBCOMMAND=(run-all validate-inputs)
   fi
 
   # shellcheck disable=SC2153 # False positive

@@ -14,11 +14,10 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: terragrunt validate color already suppressed via PRE_COMMIT_COLOR=never
 
-  readonly RUN_ALL_SUBCOMMAND
   if common::terragrunt_version_ge_0.78; then
-    RUN_ALL_SUBCOMMAND=(run --all validate)
+    local -ra RUN_ALL_SUBCOMMAND=(run --all validate)
   else
-    RUN_ALL_SUBCOMMAND=(run-all validate)
+    local -ra RUN_ALL_SUBCOMMAND=(run-all validate)
   fi
 
   # shellcheck disable=SC2153 # False positive
