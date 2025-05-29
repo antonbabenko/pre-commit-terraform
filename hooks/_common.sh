@@ -632,7 +632,7 @@ function common::terragrunt_version_above_0.78 {
   local major minor
   IFS='.' read -r major minor <<< "$terragrunt_version"
 
-  # `hcl format` support added in v0.78.0 (May 2025)
+  # New subcommands added in v0.78.0 (May 2025)
   if [[ $major -gt 0 ]] || [[ $major -eq 0 && $minor -ge 78 ]]; then
     return 0
   else
