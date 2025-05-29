@@ -46,7 +46,7 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terragrunt hclfmt "${args[@]}"
+  terragrunt hcl format "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
