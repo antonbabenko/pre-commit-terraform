@@ -14,6 +14,13 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: terragrunt providers lock color already suppressed via PRE_COMMIT_COLOR=never
 
+  readonly RUN_ALL_SUBCOMMAND
+  if common::terragrunt_version_ge_0.78; then
+    RUN_ALL_SUBCOMMAND=(run --all providers lock)
+  else
+    RUN_ALL_SUBCOMMAND=(run-all providers lock)
+  fi
+
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
@@ -63,7 +70,7 @@ function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terragrunt run-all providers lock "${args[@]}"
+  terragrunt "${RUN_ALL_SUBCOMMAND[@]}" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
