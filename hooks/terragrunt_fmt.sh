@@ -15,9 +15,9 @@ function main {
   # JFYI: `terragrunt hcl format` color already suppressed via PRE_COMMIT_COLOR=never
 
   if common::terragrunt_version_above_0.78; then
-    readonly SUBCOMMAND="hcl format"
+    readonly SUBCOMMAND=(hcl format)
   else
-    readonly SUBCOMMAND="hclfmt"
+    readonly SUBCOMMAND=(hclfmt)
   fi
 
   # shellcheck disable=SC2153 # False positive
@@ -52,7 +52,7 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terragrunt "$SUBCOMMAND" "${args[@]}"
+  terragrunt "${SUBCOMMAND[@]}" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
@@ -69,7 +69,7 @@ function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terragrunt "$SUBCOMMAND" "$(pwd)" "${args[@]}"
+  terragrunt "${SUBCOMMAND[@]}" "$(pwd)" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
