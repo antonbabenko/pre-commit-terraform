@@ -7,6 +7,35 @@ readonly SCRIPT_DIR
 # shellcheck source=_common.sh
 . "$SCRIPT_DIR/_common.sh"
 
+#######################################################################
+# Get the appropriate terragrunt format command based on version
+# Outputs:
+#   terragrunt format command (either "hclfmt" or "hcl format")
+#######################################################################
+function get_terragrunt_format_cmd {
+  local terragrunt_version
+  local major minor patch
+
+  # Get terragrunt version, extract the version number
+  terragrunt_version=$(terragrunt --version 2>/dev/null | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1 | sed 's/^v//')
+
+  if [[ -z "$terragrunt_version" ]]; then
+    # If version detection fails, default to newer command
+    echo "hcl format"
+    return
+  fi
+
+  # Parse version components
+  IFS='.' read -r major minor patch <<< "$terragrunt_version"
+
+  # Compare version: if < 0.78, use hclfmt, otherwise use hcl format
+  if [[ $major -eq 0 && $minor -lt 78 ]]; then
+    echo "hclfmt"
+  else
+    echo "hcl format"
+  fi
+}
+
 function main {
   common::initialize "$SCRIPT_DIR"
   common::parse_cmdline "$@"
@@ -45,8 +74,12 @@ function per_dir_hook_unique_part {
   shift 4
   local -a -r args=("$@")
 
+  # Get the appropriate terragrunt format command
+  local format_cmd
+  format_cmd=$(get_terragrunt_format_cmd)
+
   # pass the arguments to hook
-  terragrunt hcl format "${args[@]}"
+  terragrunt "$format_cmd" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
@@ -62,8 +95,12 @@ function per_dir_hook_unique_part {
 function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
+  # Get the appropriate terragrunt format command
+  local format_cmd
+  format_cmd=$(get_terragrunt_format_cmd)
+
   # pass the arguments to hook
-  terragrunt hcl format "$(pwd)" "${args[@]}"
+  terragrunt "$format_cmd" "$(pwd)" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
