@@ -632,7 +632,7 @@ function common::terragrunt_version_ge_0.78 {
   IFS='.' read -r major minor <<< "$terragrunt_version"
 
   # New subcommands added in v0.78.0 (May 2025)
-  if [[ $major -gt 0 ]] || [[ $major -eq 0 && $minor -ge 78 ]]; then
+  if [[ $major -gt 0 || ($major -eq 0 && $minor -ge 78) ]]; then
     return 0
   else
     return 1
