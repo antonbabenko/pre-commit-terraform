@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.99.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.0...v1.99.1) (2025-05-29)
+
+
+### Bug Fixes
+
+* **`terragrunt_*` hooks:** Use new subcommands for terragrunt v0.78.0+ instead of deprecated ones ([#901](https://github.com/antonbabenko/pre-commit-terraform/issues/901)) ([54468bb](https://github.com/antonbabenko/pre-commit-terraform/commit/54468bb79590e155b38b462be44937c4809aa84e))
+
 # [1.99.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.98.1...v1.99.0) (2025-04-14)
 
 
