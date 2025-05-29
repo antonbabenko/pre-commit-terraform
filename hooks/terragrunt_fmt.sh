@@ -14,11 +14,8 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: `terragrunt hcl format` color already suppressed via PRE_COMMIT_COLOR=never
 
-  if common::terragrunt_version_above_0.78; then
-    readonly SUBCOMMAND=(hcl format)
-  else
-    readonly SUBCOMMAND=(hclfmt)
-  fi
+  readonly SUBCOMMAND
+  common::terragrunt_version_ge_0.78 && SUBCOMMAND=(hcl format) || SUBCOMMAND=(hclfmt)
 
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
