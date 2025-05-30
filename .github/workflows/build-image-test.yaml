@@ -75,7 +75,7 @@ jobs:
       run: |
         docker context ls
         # Colima usually creates the socket at ~/.colima/default/docker.sock
-        DOCKER_SOCKET_PATH=$(docker context ls | awk '{print $3}' | grep colima)
+        DOCKER_SOCKET_PATH=$(docker context ls | awk '{print $4}' | grep colima)
         echo "DOCKER_HOST=$DOCKER_SOCKET_PATH" >> $GITHUB_ENV
         docker
         docker context ls
