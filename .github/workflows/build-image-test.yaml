@@ -17,17 +17,27 @@ jobs:
       pull-requests: write
 
     strategy:
+      fail-fast: false
       matrix:
-        arch:
-        - amd64
-        - arm64
         include:
         - os-name: Ubuntu x64
           os: ubuntu-latest
+          os-type: linux
           arch: amd64
 
         - os-name: Ubuntu ARM
           os: ubuntu-24.04-arm
+          os-type: linux
+          arch: arm64
+
+        - os-name: MacOS x64
+          os: macos-13
+          os-type: darwin
+          arch: amd64
+
+        - os-name: MacOS ARM
+          os: macos-13
+          os-type: darwin
           arch: arm64
 
     name: ${{ matrix.os-name }}
@@ -52,9 +62,24 @@ jobs:
       if: steps.changed-files-specific.outputs.any_changed == 'true'
       # Lowercase the org/repo name to allow for workflow to run in forks,
       # which owners have uppercase letters in username
-      run: >-
-        echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY@L}:${{ env.IMAGE_TAG }}"
-        >> $GITHUB_ENV
+      run: |-
+        repo=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
+        echo "IMAGE=ghcr.io/${repo}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
+
+    - name: Setup Docker on macOS
+      if: matrix.os-type == 'darwin'
+      uses: douglascamata/setup-docker-macos-action@v1.0.0
+
+    - name: Set DOCKER_HOST to point to Colima's socket
+      if: matrix.os-type == 'darwin'
+      run: |
+        docker context ls
+        # Colima usually creates the socket at ~/.colima/default/docker.sock
+        DOCKER_SOCKET_PATH=$(docker context ls | awk '{print $4}' | grep colima)
+        echo "DOCKER_HOST=$DOCKER_SOCKET_PATH" >> $GITHUB_ENV
+        docker info
+        docker context ls
+        echo "DOCKER_HOST=$DOCKER_SOCKET_PATH"
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2  # v3.10.0
@@ -75,6 +100,11 @@ jobs:
         secrets: |
           "github_token=${{ secrets.GITHUB_TOKEN }}"
 
+    - name: Doxker inpect (debug)
+      run: |
+        docker images
+        docker images -q | xargs docker inspect
+
     - name: Setup Container Structure Tests
       if: steps.changed-files-specific.outputs.any_changed == 'true'
       env:
@@ -84,8 +114,8 @@ jobs:
         CST_REPO: github.com/GoogleContainerTools/container-structure-test
       run: >-
         curl -L "https://${{ env.CST_REPO }}/releases/download/v${{
-        env.CST_VERSION }}/container-structure-test-linux-${{ matrix.arch }}"
-        > container-structure-test
+        env.CST_VERSION }}/container-structure-test-${{
+        matrix.os-type }}-${{ matrix.arch }}" > container-structure-test
         && chmod +x container-structure-test
         && mkdir -p $HOME/bin/
         && mv container-structure-test $HOME/bin/
