@@ -100,6 +100,11 @@ jobs:
         secrets: |
           "github_token=${{ secrets.GITHUB_TOKEN }}"
 
+    - name: Doxker inpect (debug)
+      run: |
+        docker images
+        docker images -q | xargs docker inspect
+
     - name: Setup Container Structure Tests
       if: steps.changed-files-specific.outputs.any_changed == 'true'
       env:
