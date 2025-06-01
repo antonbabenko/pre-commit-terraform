@@ -1,6 +1,7 @@
 """A runpy-style CLI entry-point module."""
 
-from sys import argv, exit as exit_with_return_code
+from sys import argv
+from sys import exit as exit_with_return_code
 
 from ._cli import invoke_cli_app
 

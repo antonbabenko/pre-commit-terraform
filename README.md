@@ -2,12 +2,24 @@
 
 [![Latest Github tag]](https://github.com/antonbabenko/pre-commit-terraform/releases)
 ![Maintenance status](https://img.shields.io/maintenance/yes/2025.svg)
-[![Codetriage - Help Contribute to Open Source Badge]](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
 [![GHA Tests CI/CD Badge]](https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml)
 [![Codecov pytest Badge]](https://app.codecov.io/gh/antonbabenko/pre-commit-terraform?flags[]=pytest)
 [![OpenSSF Scorecard Badge]](https://scorecard.dev/viewer/?uri=github.com/antonbabenko/pre-commit-terraform)
+[![OpenSSF Best Practices Badge]](https://www.bestpractices.dev/projects/9963)
+[![Codetriage - Help Contribute to Open Source Badge]](https://www.codetriage.com/antonbabenko/pre-commit-terraform)
 
 [![StandWithUkraine Banner]](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
+
+<!-- markdownlint-disable no-inline-html -->
+<p align="center"><img src="assets/pre-commit-terraform-banner.png" alt="pre-commit-terraform logo" width="700"/></p>
+
+[`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform) provides a collection of [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) for Terraform and related tools and is driven by the [pre-commit framework](https://pre-commit.com). It helps ensure that Terraform, OpenTofu, and Terragrunt configurations are kept in good shape by automatically running various checks and formatting code before committing changes to version control system. This helps maintain code quality and consistency across the project.
+
+It can be run:
+
+* Locally and in CI
+* As standalone Git hooks or as a Docker image
+* For the entire repository or just for change-related files (e.g., local git stash, last commit, or all changes in a Pull Request)
 
 Want to contribute?
 Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc)
@@ -18,19 +30,10 @@ and [contributing notes](/.github/CONTRIBUTING.md).
 [GHA Tests CI/CD Badge]: https://github.com/antonbabenko/pre-commit-terraform/actions/workflows/ci-cd.yml/badge.svg?branch=master
 [Codecov Pytest Badge]: https://codecov.io/gh/antonbabenko/pre-commit-terraform/branch/master/graph/badge.svg?flag=pytest
 [OpenSSF Scorecard Badge]: https://api.scorecard.dev/projects/github.com/antonbabenko/pre-commit-terraform/badge
+[OpenSSF Best Practices Badge]: https://www.bestpractices.dev/projects/9963/badge
 [StandWithUkraine Banner]: https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct.svg
 
 ## Sponsors
-
-<!-- markdownlint-disable no-inline-html -->
-
-<br />
-<a href="https://www.terramate.io/?utm_campaign=pre-commit-terraform&utm_source=sponsorship&utm_medium=social">
-    <img src="https://raw.githubusercontent.com/antonbabenko/pre-commit-terraform/master/assets/terramate.png"
-         alt="Terramate: Automate, Orchestrate and Observe Terraform" width="200" height="36" />
-</a>
-
-Terramate is an IaC collaboration, visibility and observability platform that empowers your team to manage Terraform and OpenTofu faster and more confidently than ever before.
 
 If you want to support the development of `pre-commit-terraform` and [many other open-source projects](https://github.com/antonbabenko/terraform-aws-devops), please become a [GitHub Sponsor](https://github.com/sponsors/antonbabenko)!
 
@@ -69,6 +72,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [terragrunt\_providers\_lock](#terragrunt_providers_lock)
   * [terragrunt\_validate\_inputs](#terragrunt_validate_inputs)
 * [Docker Usage](#docker-usage)
+  * [About Docker image security](#about-docker-image-security)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
 * [GitHub Actions](#github-actions)
@@ -79,43 +83,6 @@ If you want to support the development of `pre-commit-terraform` and [many other
 ## How to install
 
 ### 1. Install dependencies
-<!-- (Do not remove html tags here) -->
-* [`pre-commit`](https://pre-commit.com/#install),
-  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
-  <sub><sup>[`git`](https://git-scm.com/downloads),
-  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
-  <sub><sup>Internet connection (on first run),
-  <sub><sup>x86_64 or arm64 compatible operating system,
-  <sub><sup>Some hardware where this OS will run,
-  <sub><sup>Electricity for hardware and internet connection,
-  <sub><sup>Some basic physical laws,
-  <sub><sup>Hope that it all will work.
-  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
-* [`checkov`][checkov repo] required for `terraform_checkov` hook
-* [`terraform-docs`][terraform-docs repo] 0.12.0+ required for `terraform_docs` hook
-* [`terragrunt`][terragrunt repo] required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
-* [`terrascan`][terrascan repo] required for `terrascan` hook
-* [`TFLint`][tflint repo] required for `terraform_tflint` hook
-* [`TFSec`][tfsec repo] required for `terraform_tfsec` hook
-* [`Trivy`][trivy repo] required for `terraform_trivy` hook
-* [`infracost`][infracost repo] required for `infracost_breakdown` hook
-* [`jq`][jq repo] required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook
-* [`tfupdate`][tfupdate repo] required for `tfupdate` hook
-* [`hcledit`][hcledit repo] required for `terraform_wrapper_module_for_each` hook
-
-
-#### 1.1 Custom Terraform binaries and OpenTofu support
-
-It is possible to set custom path to `terraform` binary.  
-This makes it possible to use [OpenTofu](https://opentofu.org) binary `tofu` instead of `terraform`.
-
-How binary discovery works and how you can redefine it (first matched takes precedence):
-
-1. Check if per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>` is set
-2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
-3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
-4. Check if `terraform` binary can be found in the user's $PATH
-5. Check if `tofu` binary can be found in the user's $PATH
 
 <details><summary><b>Docker</b></summary><br>
 
@@ -128,9 +95,12 @@ docker pull ghcr.io/antonbabenko/pre-commit-terraform:$TAG
 
 All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
 
+Check [About Docker image security](#about-docker-image-security) section to learn more about possible security issues and why you probably want to build and maintain your own image.
+
+
 **Build from scratch**:
 
-> [!IMPORTANT]
+> **IMPORTANT**  
 > To build image you need to have [`docker buildx`](https://docs.docker.com/build/install-buildx/) enabled as default builder.  
 > Otherwise - provide `TARGETOS` and `TARGETARCH` as additional `--build-arg`'s to `docker build`.
 
@@ -225,8 +195,8 @@ curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/late
 
 We highly recommend using [WSL/WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) with Ubuntu and following the Ubuntu installation guide. Or use Docker.
 
-> [!IMPORTANT]
-> We won't be able to help with issues that can't be reproduced in Linux/Mac.
+> **IMPORTANT**  
+> We won't be able to help with issues that can't be reproduced in Linux/Mac.  
 > So, try to find a working solution and send PR before open an issue.
 
 Otherwise, you can follow [this gist](https://gist.github.com/etiennejeanneaurevolve/1ed387dc73c5d4cb53ab313049587d09):
@@ -241,6 +211,47 @@ For `checkov`, you may need to also set your `PYTHONPATH` environment variable w
 E.g. `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages`
 
 </details>
+
+Full list of dependencies and where they are used:
+
+<!-- (Do not remove html tags here) -->
+* [`pre-commit`](https://pre-commit.com/#install),
+  <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
+  <sub><sup>[`git`](https://git-scm.com/downloads),
+  <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
+  <sub><sup>Internet connection (on first run),
+  <sub><sup>x86_64 or arm64 compatible operating system,
+  <sub><sup>Some hardware where this OS will run,
+  <sub><sup>Electricity for hardware and internet connection,
+  <sub><sup>Some basic physical laws,
+  <sub><sup>Hope that it all will work.
+  </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
+* [`checkov`][checkov repo] required for `terraform_checkov` hook
+* [`terraform-docs`][terraform-docs repo] 0.12.0+ required for `terraform_docs` hook
+* [`terragrunt`][terragrunt repo] required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
+* [`terrascan`][terrascan repo] required for `terrascan` hook
+* [`TFLint`][tflint repo] required for `terraform_tflint` hook
+* [`TFSec`][tfsec repo] required for `terraform_tfsec` hook
+* [`Trivy`][trivy repo] required for `terraform_trivy` hook
+* [`infracost`][infracost repo] required for `infracost_breakdown` hook
+* [`jq`][jq repo] required for `terraform_validate` with `--retry-once-with-cleanup` flag, and for `infracost_breakdown` hook
+* [`tfupdate`][tfupdate repo] required for `tfupdate` hook
+* [`hcledit`][hcledit repo] required for `terraform_wrapper_module_for_each` hook
+
+
+#### 1.1 Custom Terraform binaries and OpenTofu support
+
+It is possible to set custom path to `terraform` binary.  
+This makes it possible to use [OpenTofu](https://opentofu.org) binary (`tofu`) instead of `terraform`.
+
+How binary discovery works and how you can redefine it (first matched takes precedence):
+
+1. Check if per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>` is set
+2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+4. Check if `terraform` binary can be found in the user's `$PATH`
+5. Check if `tofu` binary can be found in the user's `$PATH`
+
 
 ### 2. Install the pre-commit hook globally
 
@@ -267,6 +278,14 @@ repos:
     - id: terraform_fmt
     - id: terraform_docs
 EOF
+```
+
+If this repository was initialized locally via `git init` or `git clone` _before_
+you installed the pre-commit hook globally ([step 2](#2-install-the-pre-commit-hook-globally)),
+you will need to run:
+
+```bash
+pre-commit install
 ```
 
 ### 4. Run
@@ -342,10 +361,10 @@ Config example:
 - id: terraform_tflint
   args:
   - --args=--config=${CONFIG_NAME}.${CONFIG_EXT}
-  - --args=--module
+  - --args=--call-module-type="all"
 ```
 
-If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --module`.
+If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --call-module-type="all"`.
 
 ### All hooks: Set env vars inside hook at runtime
 
@@ -1180,6 +1199,17 @@ Example:
 > See docs for the [iam_role](https://terragrunt.gruntwork.io/docs/reference/config-blocks-and-attributes/#iam_role) attribute and [--terragrunt-iam-role](https://terragrunt.gruntwork.io/docs/reference/cli-options/#terragrunt-iam-role) flag for more.
 
 ## Docker Usage
+
+### About Docker image security
+
+Pre-built Docker images contain the latest versions of tools available at the time of their build and remain unchanged afterward. Tags should be immutable whenever possible, and it is highly recommended to pin them using hash sums for security and reproducibility.
+
+This means that most Docker images will include known CVEs, and the longer an image exists, the more CVEs it may accumulate. This applies even to the latest `vX.Y.Z` tags.
+To address this, you can use the `nightly` tag, which rebuilds nightly with the latest versions of all dependencies and latest `pre-commit-terraform` hooks. However, using mutable tags introduces different security concerns.
+
+Note: Currently, we DO NOT test third-party tools or their dependencies for security vulnerabilities, corruption, or injection (including obfuscated content). If you have ideas for introducing image scans or other security improvements, please open an issue or submit a PR. Some ideas are already tracked in [#835](https://github.com/antonbabenko/pre-commit-terraform/issues/835).
+
+From a security perspective, the best approach is to manage the Docker image yourself and update its dependencies as needed. This allows you to remove unnecessary dependencies, reducing the number of potential CVEs and improving overall security.
 
 ### File Permissions
 

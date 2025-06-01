@@ -206,8 +206,10 @@ function common::get_cpu_num {
 
   local cpu_quota cpu_period cpu_num
 
+  local -r wslinterop_path="/proc/sys/fs/binfmt_misc/WSLInterop"
+
   if [[ -f /sys/fs/cgroup/cpu/cpu.cfs_quota_us &&
-    ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then # WSL have cfs_quota_us, but WSL should be checked as usual Linux host
+    (! -f "${wslinterop_path}" && ! -f "${wslinterop_path}-late" && ! -f "/run/WSL") ]]; then # WSL has cfs_quota_us, but WSL should be checked as usual Linux host
     # Inside K8s pod or DinD in K8s
     cpu_quota=$(< /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
     cpu_period=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us 2> /dev/null || echo "$cpu_quota")
@@ -603,4 +605,35 @@ function common::export_provided_env_vars {
     # shellcheck disable=SC2086
     export $var_name="$var_value"
   done
+}
+
+#######################################################################
+# Check if the installed Terragrunt version is >=0.78.0 or not
+#
+# This function helps to determine which terragrunt subcomand to use
+# based on Terragrunt version
+#
+# Returns:
+#   - 0 if version >= 0.78.0
+#   - 1 if version < 0.78.0
+#    Defaults to 0 if version cannot be determined
+#######################################################################
+# TODO: Drop after May 2027. Two years to upgrade is more than enough.
+function common::terragrunt_version_ge_0.78 {
+  local terragrunt_version
+
+  # Extract version number (e.g., "terragrunt version v0.80.4" -> "0.80")
+  terragrunt_version=$(terragrunt --version 2> /dev/null | grep -oE '[0-9]+\.[0-9]+')
+  # If we can't parse version, default to newer command
+  [[ ! $terragrunt_version ]] && return 0
+
+  local major minor
+  IFS='.' read -r major minor <<< "$terragrunt_version"
+
+  # New subcommands added in v0.78.0 (May 2025)
+  if [[ $major -gt 0 || ($major -eq 0 && $minor -ge 78) ]]; then
+    return 0
+  else
+    return 1
+  fi
 }

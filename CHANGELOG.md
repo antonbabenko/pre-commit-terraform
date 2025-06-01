@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.99.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.0...v1.99.1) (2025-05-29)
+
+
+### Bug Fixes
+
+* **`terragrunt_*` hooks:** Use new subcommands for terragrunt v0.78.0+ instead of deprecated ones ([#901](https://github.com/antonbabenko/pre-commit-terraform/issues/901)) ([54468bb](https://github.com/antonbabenko/pre-commit-terraform/commit/54468bb79590e155b38b462be44937c4809aa84e))
+
+# [1.99.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.98.1...v1.99.0) (2025-04-14)
+
+
+### Features
+
+* Add support for running hooks on `.tofu` files by default ([#875](https://github.com/antonbabenko/pre-commit-terraform/issues/875)) ([fe1f62f](https://github.com/antonbabenko/pre-commit-terraform/commit/fe1f62f3aecadbc22f8ab5e1f8cb02c2821cf5c2))
+
+## [1.98.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.98.0...v1.98.1) (2025-04-06)
+
+
+### Bug Fixes
+
+* **WSL:** Fix parallelism support for WSL systems with enabled systemd ([#872](https://github.com/antonbabenko/pre-commit-terraform/issues/872)) ([da2e9a8](https://github.com/antonbabenko/pre-commit-terraform/commit/da2e9a874ac61f94fe0a05e9d952ffb3c7c7639c))
+
+# [1.98.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.4...v1.98.0) (2025-03-25)
+
+
+### Features
+
+* **docker:** Support execution on repos under `git worktree` ([#845](https://github.com/antonbabenko/pre-commit-terraform/issues/845)) ([e64974e](https://github.com/antonbabenko/pre-commit-terraform/commit/e64974ed7745a3c35882b71be49fc89570cb006e))
+
+## [1.97.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.3...v1.97.4) (2025-02-26)
+
+
+### Bug Fixes
+
+* **docker image security:** Improve dependency pinning and disable ability to build image from different tag from what specified in Dockefile ([#830](https://github.com/antonbabenko/pre-commit-terraform/issues/830)) ([2c3aa85](https://github.com/antonbabenko/pre-commit-terraform/commit/2c3aa85a2ad4a2d903b2f54ae83ef56ac63146e0))
+
 ## [1.97.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.97.2...v1.97.3) (2025-02-04)
 
 

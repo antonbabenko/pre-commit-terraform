@@ -3,13 +3,15 @@
 from argparse import ArgumentParser, Namespace
 from subprocess import CalledProcessError
 
-import pytest
 import pytest_mock
 
+import pytest
 from pre_commit_terraform._structs import ReturnCode
 from pre_commit_terraform.terraform_docs_replace import (
     invoke_cli_app,
     populate_argument_parser,
+)
+from pre_commit_terraform.terraform_docs_replace import (
     subprocess as replace_docs_subprocess_mod,
 )
 
@@ -24,8 +26,7 @@ def test_arg_parser_populated() -> None:
 def test_check_is_deprecated() -> None:
     """Verify that `replace-docs` shows a deprecation warning."""
     deprecation_msg_regex = (
-        r'^`terraform_docs_replace` hook is DEPRECATED\.'
-        'For migration.*$'
+        r'^`terraform_docs_replace` hook is DEPRECATED\.For migration.*$'
     )
     with pytest.warns(UserWarning, match=deprecation_msg_regex):
         # not `pytest.deprecated_call()` due to this being a user warning
@@ -70,10 +71,10 @@ def test_check_is_deprecated() -> None:
     'pre_commit_terraform.terraform_docs_replace',
 )
 def test_control_flow_positive(
-        expected_cmds: list[str],
-        mocker: pytest_mock.MockerFixture,
-        monkeypatch: pytest.MonkeyPatch,
-        parsed_cli_args: Namespace,
+    expected_cmds: list[str],
+    mocker: pytest_mock.MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+    parsed_cli_args: Namespace,
 ) -> None:
     """Check that the subcommand's happy path works."""
     check_call_mock = mocker.Mock()
@@ -83,10 +84,10 @@ def test_control_flow_positive(
         check_call_mock,
     )
 
-    assert ReturnCode.OK == invoke_cli_app(parsed_cli_args)
+    assert invoke_cli_app(parsed_cli_args) == ReturnCode.OK
 
     executed_commands = [
-        cmd for ((cmd, ), _shell) in check_call_mock.call_args_list
+        cmd for ((cmd,), _shell) in check_call_mock.call_args_list
     ]
 
     assert len(expected_cmds) == check_call_mock.call_count
@@ -98,8 +99,8 @@ def test_control_flow_positive(
     'pre_commit_terraform.terraform_docs_replace',
 )
 def test_control_flow_negative(
-        mocker: pytest_mock.MockerFixture,
-        monkeypatch: pytest.MonkeyPatch,
+    mocker: pytest_mock.MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Check that the subcommand's error processing works."""
     parsed_cli_args = Namespace(
@@ -118,6 +119,7 @@ def test_control_flow_negative(
         check_call_mock,
     )
 
-    assert ReturnCode.ERROR == invoke_cli_app(parsed_cli_args)
-
-    check_call_mock.assert_called_once_with(expected_cmd, shell=True)
+    assert invoke_cli_app(parsed_cli_args) == ReturnCode.ERROR
+    # S604 - 'shell=True' is insecure, but this hook is deprecated and we don't
+    # want to spent time on testing fixes for it
+    check_call_mock.assert_called_once_with(expected_cmd, shell=True)  # noqa: S604

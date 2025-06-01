@@ -12,7 +12,13 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
-  # JFYI: terragrunt hclfmt color already suppressed via PRE_COMMIT_COLOR=never
+  # JFYI: `terragrunt hcl format` color already suppressed via PRE_COMMIT_COLOR=never
+
+  if common::terragrunt_version_ge_0.78; then
+    local -ra SUBCOMMAND=(hcl format)
+  else
+    local -ra SUBCOMMAND=(hclfmt)
+  fi
 
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
@@ -46,7 +52,7 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terragrunt hclfmt "${args[@]}"
+  terragrunt "${SUBCOMMAND[@]}" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
@@ -63,7 +69,7 @@ function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terragrunt hclfmt "$(pwd)" "${args[@]}"
+  terragrunt "${SUBCOMMAND[@]}" "$(pwd)" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

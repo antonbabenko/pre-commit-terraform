@@ -1,4 +1,4 @@
-name: ⏳
+name: 🕔
 
 on:
   pull_request:
@@ -35,6 +35,6 @@ run-name: >-
 
 jobs:
   main-ci-cd-pipeline:
-    name: 🧪 Main CI/CD pipeline
+    name: ∞ Main CI/CD pipeline
     uses: ./.github/workflows/ci-cd.yml
     secrets: inherit
