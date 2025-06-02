@@ -275,18 +275,24 @@ jobs:
 
     - name: >-
         Pre-populate tox envs: $TOXENV
-      run: >-
-        python -Im
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        ${{
-          inputs.built-wheel-names != ''
-          && format('--installpkg dist/{0}', inputs.built-wheel-names)
-          || ''
-        }}
-        --notest
+      shell: bash
+      env:
+        INPUT_BUILT_WHEEL_NAMES: ${{ inputs.built-wheel-names }}
+      run: |-
+        tox_common_args=(
+          --parallel auto
+          --parallel-live
+          --skip-missing-interpreters false
+        )
+        if [ -n "$INPUT_BUILT_WHEEL_NAMES" ]; then
+          python -Im tox "${tox_common_args[@]}" \
+            --installpkg "dist/$INPUT_BUILT_WHEEL_NAMES" \
+            --notest
+        else
+          python -Im tox "${tox_common_args[@]}" \
+            --notest
+        fi
+
     - name: Initialize pre-commit envs if needed
       if: inputs.toxenv == 'pre-commit'
       run: >-
@@ -303,19 +309,24 @@ jobs:
     - name: >-
         Run tox envs: $TOXENV
       id: tox-run
-      run: >-
-        python -Im
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        --skip-pkg-install
-        --quiet
-        ${{
-          inputs.tox-run-posargs != ''
-          && format('-- {0}', inputs.tox-run-posargs)
-          || ''
-        }}
+      shell: bash
+      env:
+        INPUT_TOX_RUN_POSARGS: ${{ inputs.tox-run-posargs }}
+      run: |-
+        tox_common_args=(
+          --parallel auto
+          --parallel-live
+          --skip-missing-interpreters false
+          --skip-pkg-install
+          --quiet
+        )
+        if [ -n "$INPUT_TOX_RUN_POSARGS" ]; then
+          python -Im tox "${tox_common_args[@]}" \
+            -- "$INPUT_TOX_RUN_POSARGS"
+        else
+          python -Im tox "${tox_common_args[@]}"
+        fi
+
     # Generate nice SVG image of passed/failed tests in GHA Job Summary
     - name: Produce markdown test summary from JUnit
       if: >-
