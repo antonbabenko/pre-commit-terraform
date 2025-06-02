@@ -22,11 +22,12 @@ jobs:
 
     - name: Get changed files
       id: file_changes
+      env:
+        BASE_REF: ${{ github.base_ref }}
+        SHA: ${{ github.sha }}
       run: |
-        export DIFF=$(git diff --name-only origin/${{ github.base_ref }} ${{
-          github.sha
-        }})
-        echo "Diff between ${{ github.base_ref }} and ${{ github.sha }}"
+        export DIFF=$(git diff --name-only origin/$BASE_REF $SHA)
+        echo "Diff between $BASE_REF and $SHA"
         echo "files=$( echo "$DIFF" | xargs echo )" >> $GITHUB_OUTPUT
 
     - name: Install shfmt
