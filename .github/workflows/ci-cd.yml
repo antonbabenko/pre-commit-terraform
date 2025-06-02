@@ -388,7 +388,7 @@ jobs:
         retention-days: 30
 
   lint:
-    name: 🧹 Linters${{ '' }}  # nest jobs under the same sidebar category
+    name: 🧹 Linters${{ '' }}  # Group jobs in sidebar # zizmor: ignore[obfuscation]
     needs:
     - build
     - pre-setup  # transitive, for accessing settings
@@ -446,7 +446,7 @@ jobs:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   tests:
-    name: 🧪 Tests${{ '' }}  # nest jobs under the same sidebar category
+    name: 🧪 Tests${{ '' }}  # Group jobs in sidebar # zizmor: ignore[obfuscation]
     needs:
     - build
     - pre-setup  # transitive, for accessing settings
