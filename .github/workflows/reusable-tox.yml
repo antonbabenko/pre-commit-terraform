@@ -274,7 +274,7 @@ jobs:
         path: dist/
 
     - name: >-
-        Pre-populate tox envs: ${{ env.TOXENV }}
+        Pre-populate tox envs: `${{ env.TOXENV }}`
       shell: bash
       env:
         INPUT_BUILT_WHEEL_NAMES: ${{ inputs.built-wheel-names }}
@@ -284,7 +284,7 @@ jobs:
           --parallel-live
           --skip-missing-interpreters false
         )
-        if [ -n "$INPUT_BUILT_WHEEL_NAMES" ]; then
+        if [[ $INPUT_BUILT_WHEEL_NAMES ]]; then
           python -Im tox "${tox_common_args[@]}" \
             --installpkg "dist/$INPUT_BUILT_WHEEL_NAMES" \
             --notest
@@ -307,7 +307,7 @@ jobs:
     # But only for 'pytest' env in 'tox'.
     # For details: ../../tox.ini '[testenv:pytest]' 'commands_post'
     - name: >-
-        Run tox envs: ${{ env.TOXENV }}
+        Run tox envs: `${{ env.TOXENV }}`
       id: tox-run
       shell: bash
       env:
@@ -365,7 +365,7 @@ jobs:
         && steps.tox-run.outputs.test-result-files == ''
         && steps.tox-run.outputs.codecov-flags != 'MyPy'
       run: >-
-        cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+        cat code-coverage-results.md >> "$GITHUB_STEP_SUMMARY"
     - name: Re-run the failing tests with maximum verbosity
       if: >-
         !cancelled()
