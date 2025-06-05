@@ -47,6 +47,12 @@ repos:
   hooks:
   - id: gitleaks
 
+# Github Action static analysis tool
+- repo: https://github.com/woodruffw/zizmor-pre-commit
+  rev: v1.9.0
+  hooks:
+  - id: zizmor
+
 # Dockerfile
 - repo: https://github.com/hadolint/hadolint
   rev: c3dc18df7a501f02a560a2cc7ba3c69a85ca01d3  # frozen: v2.13.1-beta
