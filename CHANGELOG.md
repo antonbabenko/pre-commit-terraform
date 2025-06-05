@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.99.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.1...v1.99.2) (2025-06-05)
+
+
+### Bug Fixes
+
+* make infracost_breakdown.sh compatible with bash 3.2 (macOS) ([#903](https://github.com/antonbabenko/pre-commit-terraform/issues/903)) ([dcb4c36](https://github.com/antonbabenko/pre-commit-terraform/commit/dcb4c3640b9c32db2d1cef5d9d109b56f743a783))
+
 ## [1.99.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.0...v1.99.1) (2025-05-29)
 
 
