@@ -49,7 +49,7 @@ repos:
 
 # Github Action static analysis tool
 - repo: https://github.com/woodruffw/zizmor-pre-commit
-  rev: v1.9.0
+  rev: d2c1833a059c66713cd52c032617766134679a0f  # frozen: v1.9.0
   hooks:
   - id: zizmor
 
@@ -105,7 +105,7 @@ repos:
 
 # Python
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: d19233b89771be2d89273f163f5edc5a39bbc34a  # frozen: v0.11.12
+  rev: 9aeda5d1f4bbd212c557da1ea78eca9e8c829e19  # frozen: v0.11.13
   hooks:
   - id: ruff
     args:
