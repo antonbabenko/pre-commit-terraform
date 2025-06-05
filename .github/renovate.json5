@@ -15,4 +15,7 @@
   commitMessageLowerCase: "never",
   // Disable auto-rebase on every commit to avoid reaching Github limits on macos runners
   rebaseWhen: "conflicted",
+  "pre-commit": {
+    enabled: false, // Use pre-commit.ci freeze instead
+  },
 }
