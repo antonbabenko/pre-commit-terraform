@@ -221,7 +221,7 @@ jobs:
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print(
-                f"tag=v{environ['DIST_VERSION']}",
+                f"tag=v{environ['DIST_VERSION'].removeprefix('v')}",
                 file=outputs_file,
             )
     - name: Set the expected dist artifact names
