@@ -10,6 +10,9 @@ on:
     - pre-commit-ci-update-config  # pre-commit.ci always creates a PR
   pull_request:
   workflow_call:  # a way to embed the main tests
+    secrets:
+      CODECOV_TOKEN:
+        required: true
 
 permissions:
   contents: read
