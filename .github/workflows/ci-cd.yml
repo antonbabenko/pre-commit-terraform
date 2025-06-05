@@ -10,6 +10,9 @@ on:
     - pre-commit-ci-update-config  # pre-commit.ci always creates a PR
   pull_request:
   workflow_call:  # a way to embed the main tests
+    secrets:
+      CODECOV_TOKEN:
+        required: true
 
 permissions:
   contents: read
@@ -112,6 +115,7 @@ jobs:
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       with:
         fetch-depth: 0
+        persist-credentials: false
     - name: >-
         Calculate Python interpreter version hash value
         for use in the cache key
@@ -208,6 +212,8 @@ jobs:
             )
     - name: Set the target Git tag
       id: git-tag
+      env:
+        DIST_VERSION: ${{ steps.scm-version.outputs.dist-version }}
       run: |
         from os import environ
         from pathlib import Path
@@ -218,13 +224,13 @@ jobs:
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print(
-                "tag=v${{
-                    steps.scm-version.outputs.dist-version
-                }}",
+                f"tag=v{environ['DIST_VERSION'].removeprefix('v')}",
                 file=outputs_file,
             )
     - name: Set the expected dist artifact names
       id: artifact-name
+      env:
+        DIST_VERSION: ${{ steps.scm-version.outputs.dist-version }}
       run: |
         from os import environ
         from pathlib import Path
@@ -238,15 +244,11 @@ jobs:
                 mode=FILE_APPEND_MODE,
         ) as outputs_file:
             print(
-                f"sdist={sdist_file_prj_base_name !s}-${{
-                    steps.scm-version.outputs.dist-version
-                }}.tar.gz",
+                f"sdist={sdist_file_prj_base_name !s}-{environ['DIST_VERSION']}.tar.gz",
                 file=outputs_file,
             )
             print(
-                f"wheel={whl_file_prj_base_name !s}-${{
-                    steps.scm-version.outputs.dist-version
-                }}-py3-none-any.whl",
+                f"wheel={whl_file_prj_base_name !s}-{environ['DIST_VERSION']}-py3-none-any.whl",
                 file=outputs_file,
             )
 
@@ -268,7 +270,8 @@ jobs:
 
     env:
       TOXENV: cleanup-dists,build-dists
-
+      SDIST_ARTIFACT_NAME: ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      WHEEL_ARTIFACT_NAME: ${{ needs.pre-setup.outputs.wheel-artifact-name }}
     outputs:
       dists-base64-hash: ${{ steps.dist-hashes.outputs.combined-hash }}
 
@@ -282,6 +285,7 @@ jobs:
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       with:
         fetch-depth: 0
+        persist-credentials: false
 
     - name: >-
         Calculate Python interpreter version hash value
@@ -357,19 +361,13 @@ jobs:
         --quiet
     - name: Verify that the artifacts with expected names got created
       run: >-
-        ls -1
-        'dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}'
-        'dist/${{ needs.pre-setup.outputs.wheel-artifact-name }}'
+        ls -1 "dist/${SDIST_ARTIFACT_NAME}" "dist/${WHEEL_ARTIFACT_NAME}"
     - name: Generate dist hashes to be used for provenance
       id: dist-hashes
       run: >-
         echo "combined-hash=$(
-        sha256sum
-        '${{ needs.pre-setup.outputs.sdist-artifact-name }}'
-        '${{ needs.pre-setup.outputs.wheel-artifact-name }}'
-        | base64 -w0
-        )"
-        >> "${GITHUB_OUTPUT}"
+        sha256sum "$SDIST_ARTIFACT_NAME" "$WHEEL_ARTIFACT_NAME" | base64 -w0
+        )" >> $GITHUB_OUTPUT
       working-directory: dist
     - name: Store the distribution packages
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -386,7 +384,7 @@ jobs:
         retention-days: 30
 
   lint:
-    name: 🧹 Linters${{ '' }}  # nest jobs under the same sidebar category
+    name: 🧹 Linters${{ '' }}  # Group jobs in sidebar # zizmor: ignore[obfuscation]
     needs:
     - build
     - pre-setup  # transitive, for accessing settings
@@ -444,7 +442,7 @@ jobs:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   tests:
-    name: 🧪 Tests${{ '' }}  # nest jobs under the same sidebar category
+    name: 🧪 Tests${{ '' }}  # Group jobs in sidebar # zizmor: ignore[obfuscation]
     needs:
     - build
     - pre-setup  # transitive, for accessing settings
