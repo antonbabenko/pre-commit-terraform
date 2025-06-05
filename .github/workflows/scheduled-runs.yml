@@ -37,4 +37,5 @@ jobs:
   main-ci-cd-pipeline:
     name: ∞ Main CI/CD pipeline
     uses: ./.github/workflows/ci-cd.yml
-    secrets: inherit
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

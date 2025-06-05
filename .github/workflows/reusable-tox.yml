@@ -150,9 +150,10 @@ jobs:
     steps:
     - name: Export requested job-global environment variables
       if: inputs.environment-variables != ''
+      env:
+        INPUT_ENV_VARS: ${{ inputs.environment-variables }}
       run: >-
-        echo '${{ inputs.environment-variables }}'
-        >> "${GITHUB_ENV}"
+        echo "$INPUT_ENV_VARS" >> $GITHUB_ENV
 
     - name: >-
         Switch to using Python v${{ inputs.python-version }}
@@ -170,6 +171,7 @@ jobs:
         contains(fromJSON('["pre-commit", "spellcheck-docs"]'), inputs.toxenv)
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       with:
+        persist-credentials: false
         ref: ${{ github.event.inputs.release-committish }}
     - name: Retrieve the project source from an sdist inside the GHA artifact
       if: >-
@@ -273,18 +275,24 @@ jobs:
 
     - name: >-
         Pre-populate tox envs: `${{ env.TOXENV }}`
-      run: >-
-        python -Im
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        ${{
-          inputs.built-wheel-names != ''
-          && format('--installpkg dist/{0}', inputs.built-wheel-names)
-          || ''
-        }}
-        --notest
+      shell: bash
+      env:
+        INPUT_BUILT_WHEEL_NAMES: ${{ inputs.built-wheel-names }}
+      run: |-
+        tox_common_args=(
+          --parallel auto
+          --parallel-live
+          --skip-missing-interpreters false
+        )
+        if [[ $INPUT_BUILT_WHEEL_NAMES ]]; then
+          python -Im tox "${tox_common_args[@]}" \
+            --installpkg "dist/$INPUT_BUILT_WHEEL_NAMES" \
+            --notest
+        else
+          python -Im tox "${tox_common_args[@]}" \
+            --notest
+        fi
+
     - name: Initialize pre-commit envs if needed
       if: inputs.toxenv == 'pre-commit'
       run: >-
@@ -301,19 +309,24 @@ jobs:
     - name: >-
         Run tox envs: `${{ env.TOXENV }}`
       id: tox-run
-      run: >-
-        python -Im
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        --skip-pkg-install
-        --quiet
-        ${{
-          inputs.tox-run-posargs != ''
-          && format('-- {0}', inputs.tox-run-posargs)
-          || ''
-        }}
+      shell: bash
+      env:
+        INPUT_TOX_RUN_POSARGS: ${{ inputs.tox-run-posargs }}
+      run: |-
+        tox_common_args=(
+          --parallel auto
+          --parallel-live
+          --skip-missing-interpreters false
+          --skip-pkg-install
+          --quiet
+        )
+        if [ -n "$INPUT_TOX_RUN_POSARGS" ]; then
+          python -Im tox "${tox_common_args[@]}" \
+            -- "$INPUT_TOX_RUN_POSARGS"
+        else
+          python -Im tox "${tox_common_args[@]}"
+        fi
+
     # Generate nice SVG image of passed/failed tests in GHA Job Summary
     - name: Produce markdown test summary from JUnit
       if: >-
@@ -352,13 +365,15 @@ jobs:
         && steps.tox-run.outputs.test-result-files == ''
         && steps.tox-run.outputs.codecov-flags != 'MyPy'
       run: >-
-        cat code-coverage-results.md >> "${GITHUB_STEP_SUMMARY}"
+        cat code-coverage-results.md >> "$GITHUB_STEP_SUMMARY"
     - name: Re-run the failing tests with maximum verbosity
       if: >-
         !cancelled()
         && failure()
         && inputs.tox-rerun-posargs != ''
       # `exit 1` makes sure that the job remains red with flaky runs
+      env:
+        INPUT_TOX_RERUN_POSARGS: ${{ inputs.tox-rerun-posargs }}
       run: >-
         python -Im
         tox
@@ -368,7 +383,7 @@ jobs:
         -vvvvv
         --skip-pkg-install
         --
-        ${{ inputs.tox-rerun-posargs }}
+        $INPUT_TOX_RERUN_POSARGS
         && exit 1
       shell: bash
     - name: Send coverage data to Codecov
