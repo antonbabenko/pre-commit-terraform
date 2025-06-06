@@ -207,7 +207,7 @@ function terraform_docs {
     #
     if $create_if_not_exist && [[ ! -f "$output_file" ]]; then
       dir_have_tf_files="$(
-        find . -maxdepth 1 -type f | sed 's|.*\.||' | sort -u | grep -oE '^tf$|^tofu$|^tfvars$' ||
+        find . -maxdepth 1 \( -name '*.tf' -o -name '*.tofu' -o -name '*.tfvars' \) ||
           exit 0
       )"
 

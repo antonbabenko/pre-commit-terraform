@@ -312,7 +312,7 @@ EOF
 
     # Read content of all terraform files
     # shellcheck disable=SC2207
-    all_tf_content=$(find "${full_module_dir}" -regex '.*\.(tf|tofu)' -maxdepth 1 -type f -exec cat {} +)
+    all_tf_content=$(find "${full_module_dir}" \( -name '*.tf' -o -name '*.tofu' \) -maxdepth 1 -type f -exec cat {} +)
 
     if [[ ! $all_tf_content ]]; then
       common::colorify "yellow" "Skipping ${full_module_dir} because there are no .tf or .tofu files."
