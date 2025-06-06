@@ -58,7 +58,7 @@ def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
     )
 
 
-def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
+def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:  # noqa: WPS231
     """Run the entry-point of the CLI app.
 
     Returns:
@@ -86,7 +86,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
     retval = ReturnCode.OK
 
     for directory in dirs:
-        try:
+        try:  # noqa: WPS229 - ignore as it's deprecated hook
             proc_args = []
             proc_args.append('terraform-docs')
             if cast_to('bool', parsed_cli_args.sort):
@@ -107,7 +107,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
             subprocess.check_call(' '.join(proc_args), shell=True)  # noqa: S602
         # PERF203 - try-except shouldn't be in a loop, but it's deprecated
         # hook, so leave as is
-        except subprocess.CalledProcessError as e:  # noqa: PERF203
+        except subprocess.CalledProcessError as e:  # noqa: PERF203,WPS111
             # T201 - Leave print statement as is, as this is deprecated hook
             print(e)  # noqa: T201,WPS421
             retval = ReturnCode.ERROR
