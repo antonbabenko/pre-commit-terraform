@@ -17,6 +17,7 @@ convention = "pep257"
 [lint]
 select = ["ALL"]
 preview = true
+external = ["WPS"]  # Do not remove noqa for wemake-python-style (WPS) checks
 ignore = [
   "CPY001", # Skip copyright notice requirement at top of files
 ]

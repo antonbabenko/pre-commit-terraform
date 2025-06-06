@@ -33,28 +33,28 @@ def invoke_cli_app(cli_args: list[str]) -> ReturnCodeType:
         parsed_cli_args.invoke_cli_app,
     )
 
-    try:
+    try:  # noqa: WPS225 - too many `except` cases
         return invoke_cli_app(parsed_cli_args)
     except PreCommitTerraformExit as exit_err:
-        # T201 - FIXME here and below - we will replace 'print' with
-        # logging later
-        print(f'App exiting: {exit_err!s}', file=sys.stderr)  # noqa: T201
+        # T201,WPS421 - FIXME here and below - we will replace 'print'
+        # with logging later
+        print(f'App exiting: {exit_err!s}', file=sys.stderr)  # noqa: T201,WPS421
         raise
     except PreCommitTerraformRuntimeError as unhandled_exc:
-        print(  # noqa: T201
+        print(  # noqa: T201,WPS421
             f'App execution took an unexpected turn: {unhandled_exc!s}. '
             'Exiting...',
             file=sys.stderr,
         )
         return ReturnCode.ERROR
     except PreCommitTerraformBaseError as unhandled_exc:
-        print(  # noqa: T201
+        print(  # noqa: T201,WPS421
             f'A surprising exception happened: {unhandled_exc!s}. Exiting...',
             file=sys.stderr,
         )
         return ReturnCode.ERROR
     except KeyboardInterrupt as ctrl_c_exc:
-        print(  # noqa: T201
+        print(  # noqa: T201,WPS421
             f'User-initiated interrupt: {ctrl_c_exc!s}. Exiting...',
             file=sys.stderr,
         )
