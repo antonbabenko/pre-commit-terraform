@@ -109,6 +109,6 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:
         # hook, so leave as is
         except subprocess.CalledProcessError as e:  # noqa: PERF203
             # T201 - Leave print statement as is, as this is deprecated hook
-            print(e)  # noqa: T201
+            print(e)  # noqa: T201,WPS421
             retval = ReturnCode.ERROR
     return retval
