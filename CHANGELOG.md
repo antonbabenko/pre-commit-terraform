@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.99.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.2...v1.99.3) (2025-06-06)
+
+
+### Bug Fixes
+
+* **`terraform_docs`, `terraform_wrapper_module_for_each`:** Improve `.tofu` files support ([#904](https://github.com/antonbabenko/pre-commit-terraform/issues/904)) ([4f85212](https://github.com/antonbabenko/pre-commit-terraform/commit/4f852124da4d95fc9671138771e959b6c6adf1ee))
+
 ## [1.99.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.1...v1.99.2) (2025-06-05)
 
 
