@@ -29,6 +29,7 @@ if [[ $VERSION == latest ]]; then
 else
   pip3 install --no-cache-dir "${TOOL}==${VERSION}"
 fi
+pip3 check
 
 apk del gcc libffi-dev musl-dev
 # no longer required once checkov version depends on rustworkx >0.14.0
