@@ -107,8 +107,8 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:  # noqa: WPS23
             subprocess.check_call(' '.join(proc_args), shell=True)  # noqa: S602
         # PERF203 - try-except shouldn't be in a loop, but it's deprecated
         # hook, so leave as is
-        except subprocess.CalledProcessError as e:  # noqa: PERF203,WPS111
+        except subprocess.CalledProcessError as err:  # noqa: PERF203
             # T201 - Leave print statement as is, as this is deprecated hook
-            print(e)  # noqa: T201,WPS421
+            print(err)  # noqa: T201,WPS421
             retval = ReturnCode.ERROR
     return retval
