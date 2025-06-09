@@ -53,6 +53,9 @@ extend-ignore =
   # WPS300: "Forbid imports relative to the current folder" -- we use relative imports
   WPS300,
 
+# WPS410: "Forbid some module-level variables" -- __all__ is a legitimate use case
+allowed-module-metadata=__all__
+
 # https://wemake-python-styleguide.readthedocs.io/en/latest/pages/usage/formatter.html
 #format = wemake
 
