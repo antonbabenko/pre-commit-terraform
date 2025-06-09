@@ -50,6 +50,8 @@ extend-ignore =
   # attribute docstrings. Ref:
   # https://github.com/wemake-services/wemake-python-styleguide/issues/3056
   WPS462,
+  # WPS300: "Forbid imports relative to the current folder" -- we use relative imports
+  WPS300,
 
 # https://wemake-python-styleguide.readthedocs.io/en/latest/pages/usage/formatter.html
 #format = wemake
@@ -68,6 +70,14 @@ per-file-ignores =
   # each should be preceded with an explanation of each of the error codes
   # If other ignores are added for a specific file in the section following this,
   # these will need to be added to that line as well.
+
+  tests/pytest/_cli_test.py:
+    # WPS431: "Forbid nested classes" -- this is a legitimate use case for tests
+    WPS431,
+    # WPS226: "Forbid the overuse of string literals" -- this is a legitimate use case for tests
+    WPS226,
+  # We will not spend time on fixing complexity in deprecated hook
+  src/pre_commit_terraform/terraform_docs_replace.py: WPS232
 
 # Count the number of occurrences of each error/warning code and print a report:
 statistics = true
