@@ -81,8 +81,6 @@ per-file-ignores =
     WPS226,
     # WPS115: "Require snake_case for naming class attributes" -- testing legitimate case, ignored in main code
     WPS115,
-    # WPS324: "Enforce consistent return statements" - there just 1 return statement in these test, so it's can't be inconsistent
-    WPS324,
   # We will not spend time on fixing complexity in deprecated hook
   src/pre_commit_terraform/terraform_docs_replace.py: WPS232
 
