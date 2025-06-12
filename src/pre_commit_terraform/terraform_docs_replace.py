@@ -58,6 +58,8 @@ def populate_argument_parser(subcommand_parser: ArgumentParser) -> None:
     )
 
 
+# WPS231 - Found function with too much cognitive complexity
+# We will not spend time on fixing complexity in deprecated hook
 def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:  # noqa: WPS231
     """Run the entry-point of the CLI app.
 
