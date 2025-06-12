@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.99.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.3...v1.99.4) (2025-06-12)
+
+
+### Bug Fixes
+
+* **docker:** Drop Mac arm64 build-time hack, needed for `checkov`<3.2.395 ([#907](https://github.com/antonbabenko/pre-commit-terraform/issues/907)) ([3c9ef3d](https://github.com/antonbabenko/pre-commit-terraform/commit/3c9ef3d744011e44642726714521a45e66203eb3))
+
 ## [1.99.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.2...v1.99.3) (2025-06-06)
 
 
