@@ -15,6 +15,7 @@ class CLISubcommandModuleProtocol(Protocol):
     """A protocol for the subcommand-implementing module shape."""
 
     # WPS115: "Require snake_case for naming class attributes".
+    # This protocol describes module shapes and not regular classes.
     # It's a valid use case as then it's used as constants:
     # "CLI_SUBCOMMAND_NAME: Final[str] = 'hook-name'"" on top level
     CLI_SUBCOMMAND_NAME: str  # noqa: WPS115
