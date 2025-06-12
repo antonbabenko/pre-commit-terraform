@@ -18,3 +18,4 @@ if [[ $VERSION == latest ]]; then
 else
   pip3 install --no-cache-dir "${TOOL}==${VERSION}"
 fi
+pip3 check
