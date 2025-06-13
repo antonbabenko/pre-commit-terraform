@@ -9,8 +9,10 @@ class ReturnCode(IntEnum):
     To be used in check callable implementations.
     """
 
-    OK = 0
-    ERROR = 1
+    # WPS115: "Require snake_case for naming class attributes". According to
+    # "Correct" example in docs - it's valid use case => false-positive
+    OK = 0  # noqa: WPS115
+    ERROR = 1  # noqa: WPS115
 
 
 __all__ = ('ReturnCode',)

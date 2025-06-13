@@ -112,6 +112,11 @@ repos:
     - --fix
   - id: ruff-format
 
+- repo: https://github.com/wemake-services/wemake-python-styleguide
+  rev: 6d4ca2bdc16b3098422a2770728136fc0751b817  # frozen: 1.1.0
+  hooks:
+  - id: wemake-python-styleguide
+
 - repo: https://github.com/pre-commit/mirrors-mypy.git
   rev: 7010b10a09f65cd60a23c207349b539aa36dbec1  # frozen: v1.16.0
   hooks:

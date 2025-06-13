@@ -55,7 +55,7 @@ def test_known_interrupts(
             self,
             subcommand_parser: ArgumentParser,
         ) -> None:
-            return None
+            pass  # noqa: WPS420. This is a stub, docstring not needed so "pass" required.
 
         def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
             raise raised_error
@@ -85,7 +85,7 @@ def test_app_exit(
             self,
             subcommand_parser: ArgumentParser,
         ) -> None:
-            return None
+            pass  # noqa: WPS420. This is a stub, docstring not needed so "pass" required.
 
         def invoke_cli_app(self, parsed_cli_args: Namespace) -> ReturnCodeType:
             raise PreCommitTerraformExit(self.CLI_SUBCOMMAND_NAME)
