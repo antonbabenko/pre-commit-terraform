@@ -54,7 +54,7 @@ extend-ignore =
   WPS300,
 
 # https://wemake-python-styleguide.readthedocs.io/en/latest/pages/usage/formatter.html
-#format = wemake
+format = wemake
 
 # Let's not overcomplicate the code:
 max-complexity = 10
