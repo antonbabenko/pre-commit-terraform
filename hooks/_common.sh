@@ -176,9 +176,9 @@ function common::is_hook_run_on_whole_repo {
   local all_files_that_can_be_checked
 
   if [ -z "$excluded_files" ]; then
-    all_files_that_can_be_checked=$(git ls-files | sort | grep -e "$included_files" | tr '\n' ' ')
+    all_files_that_can_be_checked=$(git ls-files | sort | grep -E "$included_files" | tr '\n' ' ')
   else
-    all_files_that_can_be_checked=$(git ls-files | sort | grep -e "$included_files" | grep -v -e "$excluded_files" | tr '\n' ' ')
+    all_files_that_can_be_checked=$(git ls-files | sort | grep -E "$included_files" | grep -v -E "$excluded_files" | tr '\n' ' ')
   fi
 
   if [ "$files_to_check" == "$all_files_that_can_be_checked" ]; then

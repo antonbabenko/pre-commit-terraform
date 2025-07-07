@@ -187,7 +187,7 @@ function terraform_docs {
     config_file_no_color="$config_file$(date +%s).yml"
 
     if [ "$PRE_COMMIT_COLOR" = "never" ] &&
-      [[ $(grep -e '^formatter:' "$config_file") == *"pretty"* ]] &&
+      [[ $(grep -E '^formatter:' "$config_file") == *"pretty"* ]] &&
       [[ $(grep '  color: ' "$config_file") != *"false"* ]]; then
 
       cp "$config_file" "$config_file_no_color"
