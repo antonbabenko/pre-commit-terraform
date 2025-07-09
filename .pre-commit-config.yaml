@@ -43,13 +43,13 @@ repos:
 
   # Detect hardcoded secrets
 - repo: https://github.com/gitleaks/gitleaks
-  rev: a248f9279b38aeff5bbd4c85cc6f15b64d27e794  # frozen: v8.27.0
+  rev: 47218a628da59ef6b24197d15f4b0248ca87f4f0  # frozen: v8.27.2
   hooks:
   - id: gitleaks
 
 # Github Action static analysis tool
 - repo: https://github.com/woodruffw/zizmor-pre-commit
-  rev: d2c1833a059c66713cd52c032617766134679a0f  # frozen: v1.9.0
+  rev: 69fa534d69454f44ddd4451b5e2da7a1c48e525b  # frozen: v1.11.0
   hooks:
   - id: zizmor
 
@@ -105,7 +105,7 @@ repos:
 
 # Python
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 9aeda5d1f4bbd212c557da1ea78eca9e8c829e19  # frozen: v0.11.13
+  rev: 0b19ef1fd6ad680ed7752d6daba883ce1265a6de  # frozen: v0.12.2
   hooks:
   - id: ruff
     args:
@@ -113,12 +113,12 @@ repos:
   - id: ruff-format
 
 - repo: https://github.com/wemake-services/wemake-python-styleguide
-  rev: 6d4ca2bdc16b3098422a2770728136fc0751b817  # frozen: 1.1.0
+  rev: 89eca4e53c6a95aebebd9cc86b717fb11a915de9  # frozen: 1.2.0
   hooks:
   - id: wemake-python-styleguide
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git
-  rev: 7010b10a09f65cd60a23c207349b539aa36dbec1  # frozen: v1.16.0
+  rev: 0f86793af5ef5f6dc63c8d04a3cabfa3ea8f9c6a  # frozen: v1.16.1
   hooks:
   - id: mypy
     alias: mypy-py313
