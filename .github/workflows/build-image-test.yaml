@@ -94,11 +94,13 @@ jobs:
 
     - name: Run structure tests
       if: steps.changed-files-specific.outputs.any_changed == 'true'
+      env:
+        IMAGE_NAME: ${{ env.IMAGE }}
       run: >-
         container-structure-test test
         --config ${{ github.workspace
         }}/.github/.container-structure-test-config.yaml
-        --image ${{ env.IMAGE }}
+        --image "${IMAGE_NAME}"
 
     - name: Dive - check image for waste files
       if: steps.changed-files-specific.outputs.any_changed == 'true'
