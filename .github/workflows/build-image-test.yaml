@@ -104,7 +104,7 @@ jobs:
 
     - name: Dive - check image for waste files
       if: steps.changed-files-specific.outputs.any_changed == 'true'
-      uses: MaxymVlasov/dive-action@43dafd0015826beaca5110157c9262c5dc10672a  # v1.4.0
+      uses: MaxymVlasov/dive-action@b08c8287e603d028c986d7044e83fa76bcca6a65  # v1.5.0
       with:
         image: ${{ env.IMAGE }}
         config-file: ${{ github.workspace }}/.github/.dive-ci.yaml
