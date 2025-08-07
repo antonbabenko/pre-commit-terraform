@@ -116,11 +116,11 @@ RUN apk add --no-cache \
     bash=~5 \
     # pre-commit-hooks deps: https://github.com/pre-commit/pre-commit-hooks
     musl-dev=~1 \
-    gcc=~12 \
+    gcc=~14 \
     # entrypoint wrapper deps
     su-exec=~0.2 \
     # ssh-client for external private module in ssh
-    openssh-client=~9
+    openssh-client=~10
 
 # Copy tools
 COPY --from=builder \
