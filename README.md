@@ -303,7 +303,7 @@ Or, using Docker ([available tags](https://github.com/antonbabenko/pre-commit-te
 
 ```bash
 TAG=latest
-docker run -e "USERID=$(id -u):$(id -g)" -v "$(pwd):/lint" -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run -e "USERID=$(id -u):$(id -g)" -v "$(pwd):/lint" -w "/lint" "ghcr.io/antonbabenko/pre-commit-terraform:$TAG" run -a
 ```
 
 Execute this command to list the versions of the tools in Docker:
