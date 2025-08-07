@@ -23,6 +23,7 @@ jobs:
       with:
         image-ref: ghcr.io/antonbabenko/pre-commit-terraform:latest
         exit-code: '1'
+        severity: CRITICAL
         ignore-unfixed: true
 
   nightly-scan:
@@ -37,4 +38,5 @@ jobs:
       with:
         image-ref: ghcr.io/antonbabenko/pre-commit-terraform:nightly
         exit-code: '1'
+        severity: CRITICAL
         ignore-unfixed: true
