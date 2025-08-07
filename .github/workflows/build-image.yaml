@@ -2,7 +2,9 @@ name: Publish container image
 
 on:
   workflow_dispatch:
-  pull_request:
+  release:
+    types:
+    - created
   schedule:
   - cron: 00 00 * * *
 
