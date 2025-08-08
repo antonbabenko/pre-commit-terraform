@@ -58,7 +58,7 @@ jobs:
         >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2  # v3.10.0
+      uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3.11.1
       if: steps.changed-files-specific.outputs.any_changed == 'true'
 
     - name: Build if Dockerfile changed
@@ -94,15 +94,17 @@ jobs:
 
     - name: Run structure tests
       if: steps.changed-files-specific.outputs.any_changed == 'true'
+      env:
+        IMAGE_NAME: ${{ env.IMAGE }}
       run: >-
         container-structure-test test
         --config ${{ github.workspace
         }}/.github/.container-structure-test-config.yaml
-        --image ${{ env.IMAGE }}
+        --image "${IMAGE_NAME}"
 
     - name: Dive - check image for waste files
       if: steps.changed-files-specific.outputs.any_changed == 'true'
-      uses: MaxymVlasov/dive-action@43dafd0015826beaca5110157c9262c5dc10672a  # v1.4.0
+      uses: MaxymVlasov/dive-action@b08c8287e603d028c986d7044e83fa76bcca6a65  # v1.5.0
       with:
         image: ${{ env.IMAGE }}
         config-file: ${{ github.workspace }}/.github/.dive-ci.yaml

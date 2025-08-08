@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.99.5](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.4...v1.99.5) (2025-07-08)
+
+
+### Bug Fixes
+
+* Regression from (at least) v1.99.0 which incorrectly handle `pre-commit run -a`, that causes multiply hooks runs. `terraform_trivy` from its introduction could always be `Passed` for `pre-commit run -a` ([#909](https://github.com/antonbabenko/pre-commit-terraform/issues/909)) ([a5bd84e](https://github.com/antonbabenko/pre-commit-terraform/commit/a5bd84e94dc228794a017da7f3e21f02745b8c06)), closes [#908](https://github.com/antonbabenko/pre-commit-terraform/issues/908) [/github.com/pre-commit-terraform/#908](https://github.com//github.com/pre-commit-terraform//issues/908)
+
 ## [1.99.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.3...v1.99.4) (2025-06-12)
 
 

@@ -65,7 +65,7 @@ function run_hook_on_whole_repo {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  trivy conf "$(pwd)" "${args[@]}"
+  trivy conf "$(pwd)" --exit-code=1 "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

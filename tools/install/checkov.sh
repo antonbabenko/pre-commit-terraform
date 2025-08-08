@@ -9,7 +9,7 @@ readonly SCRIPT_DIR
 #
 
 apk add --no-cache \
-  gcc=~12 \
+  gcc=~14 \
   libffi-dev=~3 \
   musl-dev=~1
 
