@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.100.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.5...v1.100.0) (2025-08-08)
+
+
+### Features
+
+* **`terraform_fmt`:** Add support for `.tftest.hcl` and `.tfmock.hcl` formatting ([#911](https://github.com/antonbabenko/pre-commit-terraform/issues/911)) ([7433e13](https://github.com/antonbabenko/pre-commit-terraform/commit/7433e138f8b346687d4ff6357d7b48be709d8130)), closes [/github.com/hashicorp/terraform/blob/0c63fb2b097edcd5cb1a91322765a414206fbea2/internal/command/fmt.go#L30-L35](https://github.com//github.com/hashicorp/terraform/blob/0c63fb2b097edcd5cb1a91322765a414206fbea2/internal/command/fmt.go/issues/L30-L35)
+
 ## [1.99.5](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.4...v1.99.5) (2025-07-08)
 
 
