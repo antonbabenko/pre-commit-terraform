@@ -1,4 +1,4 @@
-FROM python:3.12.0-alpine3.17@sha256:fc34b07ec97a4f288bc17083d288374a803dd59800399c76b977016c9fe5b8f2 AS python_base
+FROM python:3.12-alpine@sha256:9b8808206f4a956130546a32cbdd8633bc973b19db2923b7298e6f90cc26db08 AS python_base
 
 FROM python_base AS builder
 ARG TARGETOS
@@ -116,11 +116,11 @@ RUN apk add --no-cache \
     bash=~5 \
     # pre-commit-hooks deps: https://github.com/pre-commit/pre-commit-hooks
     musl-dev=~1 \
-    gcc=~12 \
+    gcc=~14 \
     # entrypoint wrapper deps
     su-exec=~0.2 \
     # ssh-client for external private module in ssh
-    openssh-client=~9
+    openssh-client=~10
 
 # Copy tools
 COPY --from=builder \
