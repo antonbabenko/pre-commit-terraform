@@ -135,11 +135,6 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/pyth
 # Copy terrascan policies
 COPY --from=builder /root/ /root/
 
-# Copy hook scripts for Docker-based hooks
-COPY hooks/ /usr/local/bin/hooks/
-COPY lib_getopt /usr/local/bin/
-COPY src/pre_commit_terraform/ /usr/local/lib/python3.12/site-packages/pre_commit_terraform/
-
 # Install hooks extra deps
 RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
         apk add --no-cache perl=~5 \
@@ -152,11 +147,6 @@ RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = 
     git config --global --add safe.directory /lint
 
 COPY tools/entrypoint.sh /entrypoint.sh
-
-# Copy hook scripts for docker_image language support
-COPY hooks/ /usr/bin/hooks/
-COPY lib_getopt /usr/bin/lib_getopt
-RUN chmod +x /usr/bin/hooks/*.sh
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
