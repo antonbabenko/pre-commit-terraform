@@ -1,0 +1,46 @@
+# Example .pre-commit-config.yaml for using Docker-based hooks
+# This configuration uses Docker containers instead of requiring local tool installation
+
+repos:
+- repo: https://github.com/actuarysailor/pre-commit-terraform
+  rev: v1.96.1  # Use a stable release version
+  hooks:
+  # Option 1: Use Docker-based hooks (no local tool installation required)
+  # These require the pre-commit-terraform-tools Docker image
+  - id: terraform_fmt_docker
+  - id: terraform_validate_docker
+  - id: terraform_docs_docker
+  - id: terraform_checkov_docker
+  - id: terraform_trivy_docker
+  - id: terraform_tflint_docker
+  - id: infracost_breakdown_docker  # Requires INFRACOST_API_KEY
+
+  # Option 2: Use traditional script-based hooks (requires local tools)
+  # Uncomment these if you have terraform, tflint, etc. installed locally
+  # - id: terraform_fmt
+  # - id: terraform_validate
+  # - id: terraform_docs
+  # - id: terraform_tflint
+  # - id: terraform_checkov
+
+# You can also mix both approaches:
+# Use Docker hooks for tools you don't have installed locally,
+# and script hooks for tools you do have locally
+
+# Docker hooks advantages:
+# ✅ No need to install tools locally (terraform, tflint, checkov, etc.)
+# ✅ Consistent tool versions across team members
+# ✅ Isolated environment prevents dependency conflicts
+# ✅ Works on any system with Docker installed
+
+# Docker hooks considerations:
+# ⚠️  Requires Docker to be installed and accessible
+# ⚠️  Slightly slower due to container startup overhead
+# ⚠️  May require proper Docker permissions setup
+# ⚠️  Need to ensure Docker image is available (pull or build)
+
+# Build the tools image locally with:
+# docker build -f Dockerfile.tools -t ghcr.io/actuarysailor/pre-commit-terraform-tools:latest .
+
+# Or use the pre-built image once published:
+# docker pull ghcr.io/actuarysailor/pre-commit-terraform-tools:latest

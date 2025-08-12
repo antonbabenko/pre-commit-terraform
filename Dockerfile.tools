@@ -1,3 +1,5 @@
+
+# Dockerfile.tools - Standalone Docker image for individual tool execution
 FROM python:3.12-alpine@sha256:9b8808206f4a956130546a32cbdd8633bc973b19db2923b7298e6f90cc26db08 AS python_base
 
 FROM python_base AS builder
@@ -163,4 +165,13 @@ ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 ENV INFRACOST_API_KEY=${INFRACOST_API_KEY:-}
 ENV INFRACOST_SKIP_UPDATE_CHECK=${INFRACOST_SKIP_UPDATE_CHECK:-false}
 
-ENTRYPOINT [ "/entrypoint.sh" ]
+# Override entrypoint to allow direct tool execution
+ENTRYPOINT []
+CMD ["bash"]
+
+# Copy hook scripts to make advanced functionality available
+COPY hooks/ /usr/local/bin/hooks/
+COPY lib_getopt /usr/local/bin/
+
+# Make hooks executable
+RUN chmod +x /usr/local/bin/hooks/*.sh

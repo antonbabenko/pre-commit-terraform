@@ -178,3 +178,85 @@
   - --args=terraform
   files: \.(tf|tofu)$
   require_serial: true
+
+# Docker-based versions of hooks (non-breaking additions)
+- id: terraform_fmt_docker
+  name: Terraform fmt (Docker)
+  description: >-
+    Rewrites all Terraform configuration files to a canonical format using Docker.
+  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  language: docker_image
+  args: [terraform, fmt]
+  files: \.(tf|tofu|tfvars|tftest\.hcl|tfmock\.hcl)$
+  exclude: \.terraform/.*$
+
+- id: terraform_validate_docker
+  name: Terraform validate (Docker)
+  description: Validates all Terraform configuration files using Docker.
+  require_serial: true
+  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  language: docker_image
+  args: [terraform, validate]
+  pass_filenames: false
+  files: \.(tf|tofu|tfvars|terraform\.lock\.hcl)$
+  exclude: \.terraform/.*$
+
+- id: terraform_tflint_docker
+  name: Terraform validate with tflint (Docker)
+  description: Validates all Terraform configuration files with TFLint using
+    Docker.
+  require_serial: true
+  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  language: docker_image
+  args: [tflint, --chdir=.]
+  pass_filenames: false
+  files: \.(tf|tofu|tfvars)$
+  exclude: \.terraform/.*$
+
+- id: terraform_docs_docker
+  name: Terraform docs (Docker)
+  description: >-
+    Inserts input and output documentation into README.md using Docker.
+  require_serial: true
+  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  language: docker_image
+  args: [terraform-docs, markdown, table, ., --output-file, README.md]
+  pass_filenames: false
+  files: \.(tf|tofu|terraform\.lock\.hcl)$
+  exclude: \.terraform/.*$
+
+- id: terraform_checkov_docker
+  name: Checkov (Docker)
+  description: Runs checkov on Terraform templates using Docker.
+  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  language: docker_image
+  args: [checkov, -d, .]
+  pass_filenames: false
+  always_run: false
+  files: \.(tf|tofu)$
+  exclude: \.terraform/.*$
+  require_serial: true
+
+- id: terraform_trivy_docker
+  name: Terraform validate with trivy (Docker)
+  description: >-
+    Static analysis of Terraform templates to spot potential security issues
+    using Docker.
+  require_serial: true
+  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  language: docker_image
+  args: [trivy, config, .]
+  pass_filenames: false
+  files: \.(tf|tofu|tfvars)$
+  exclude: \.terraform/.*$
+
+- id: infracost_breakdown_docker
+  name: Infracost breakdown (Docker)
+  description: Check terraform infrastructure cost using Docker.
+  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  language: docker_image
+  args: [infracost, breakdown, --path, .]
+  pass_filenames: false
+  require_serial: true
+  files: \.(tf|tofu|tfvars|hcl)$
+  exclude: \.terraform/.*$

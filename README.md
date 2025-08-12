@@ -49,6 +49,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [3. Add configs and hooks](#3-add-configs-and-hooks)
   * [4. Run](#4-run)
 * [Available Hooks](#available-hooks)
+  * [Docker-based hooks (no local tool installation required)](#docker-based-hooks-no-local-tool-installation-required)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [Known limitations](#known-limitations)
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
@@ -339,6 +340,41 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `tfupdate`                                             | [tfupdate][tfupdate repo] Update version constraints of Terraform core, providers, and modules. [Hook notes](#tfupdate)                                                                                                          | `tfupdate`                                                                           |
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
+
+### Docker-based hooks (no local tool installation required)
+
+For users who prefer not to install tools locally, Docker-based versions are available for most hooks. These hooks use a Docker image with all tools pre-installed and provide the same functionality as their script-based counterparts.
+
+| Docker Hook ID                    | Equivalent Script Hook | Description                                                     |
+| --------------------------------- | ---------------------- | --------------------------------------------------------------- |
+| `terraform_fmt_docker`            | `terraform_fmt`        | Reformat Terraform files using Docker                          |
+| `terraform_validate_docker`       | `terraform_validate`   | Validate Terraform configuration using Docker                  |
+| `terraform_docs_docker`           | `terraform_docs`       | Generate documentation using Docker                            |
+| `terraform_tflint_docker`         | `terraform_tflint`     | Lint Terraform files with TFLint using Docker                 |
+| `terraform_checkov_docker`        | `terraform_checkov`    | Security analysis with Checkov using Docker                   |
+| `terraform_trivy_docker`          | `terraform_trivy`      | Security analysis with Trivy using Docker                     |
+| `infracost_breakdown_docker`      | `infracost_breakdown`  | Infrastructure cost analysis using Docker                     |
+
+**Benefits of Docker hooks:**
+
+* No need to install individual tools on your local machine
+* Consistent tool versions across all environments
+* Faster CI/CD execution (tools are pre-installed in the image)
+* Simplified dependency management
+
+**Example usage:**
+
+```yaml
+repos:
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.96.1
+  hooks:
+    - id: terraform_fmt_docker
+    - id: terraform_validate_docker
+    - id: terraform_docs_docker
+```
+
+See `.pre-commit-config-docker-example.yaml` for a complete example configuration.
 
 ## Hooks usage notes and examples
 
@@ -1293,7 +1329,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
