@@ -2,16 +2,15 @@ name: Publish container image
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+    - .github/workflows/build-image.yaml
+    - Dockerfile*
   release:
     types:
     - created
   schedule:
-  - cron: 00 00 * * 0
-
-permissions:
-  contents: read
-  # for docker/build-push-action to publish docker image
-  packages: write
+  - cron: 00 00 * * *
 
 env:
   REGISTRY: ghcr.io
@@ -19,7 +18,13 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     strategy:
+      fail-fast: false
       matrix:
         include:
         - dockerfile: Dockerfile
@@ -51,9 +56,9 @@ jobs:
           type=ref,event=branch
           type=ref,event=pr
           type=sha
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=raw,value={{github.ref_name}},enable={{github.ref_type == 'tag'}}
-          type=raw,value=nightly,enable={{github.event_name == 'schedule'}}
+          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+          type=raw,value=${{ github.ref_name }},enable=${{ github.ref_type == 'tag' }}
+          type=raw,value=nightly,enable=${{ github.event_name == 'schedule' }}
 
     - name: Build and Push release
       uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83  # v6.18.0
