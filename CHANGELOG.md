@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1](https://github.com/actuarysailor/pre-commit-terraform/compare/v1.0.0...v1.0.1) (2025-08-12)
+
+
+### Bug Fixes
+
+* Build Docker image workflow ([#4](https://github.com/actuarysailor/pre-commit-terraform/issues/4)) ([3e91a9c](https://github.com/actuarysailor/pre-commit-terraform/commit/3e91a9cbe2c1025edcdde4fce5d6f4304d1858e0))
+
 # 1.0.0 (2025-08-12)
 
 
