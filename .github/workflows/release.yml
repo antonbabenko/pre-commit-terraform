@@ -7,6 +7,7 @@ on:
     - main
     - master
     paths:
+    - .github/workflows/release.yml
     - '**/*.py'
     - '**/*.sh'
     - Dockerfile*
@@ -41,4 +42,8 @@ jobs:
         extra_plugins: |
           @semantic-release/changelog@6.0.0
           @semantic-release/git@10.0.0
-      # No custom env needed; uses default GITHUB_TOKEN
+      env:
+        # Custom token for triggering Docker image build GH Workflow on release
+        # created by cycjimmy/semantic-release-action. Events created by
+        # workflows with default GITHUB_TOKEN not trigger other GH Workflow.
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
