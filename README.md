@@ -374,7 +374,7 @@ repos:
     - id: terraform_docs_docker
 ```
 
-See `.pre-commit-config-docker-example.yaml` for a complete example configuration.
+See `examples/.pre-commit-config-docker.yaml` for a complete example configuration.
 
 ## Hooks usage notes and examples
 
