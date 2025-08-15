@@ -25,7 +25,9 @@ COPY tools/install/ /install/
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 RUN touch /.env && \
     if [ "$PRE_COMMIT_VERSION" = "false" ]; then \
-        echo "Vital software can't be skipped" && exit 1; \
+        echo "ERROR: PRE_COMMIT_VERSION cannot be 'false' - pre-commit is required" >&2 && exit 1; \
+    elif [ -z "$PRE_COMMIT_VERSION" ]; then \
+        echo "ERROR: PRE_COMMIT_VERSION is required" >&2 && exit 1; \
     fi
 RUN /install/pre-commit.sh
 
