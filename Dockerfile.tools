@@ -147,10 +147,10 @@ COPY lib_getopt /usr/local/bin/
 COPY src/pre_commit_terraform/ /usr/local/lib/python3.12/site-packages/pre_commit_terraform/
 
 # Install hooks extra deps
-RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
+RUN if ! grep -q '^terraform-docs: SKIPPED$' /usr/bin/tools_versions_info; then \
         apk add --no-cache perl=~5 \
     ; fi && \
-    if [ "$(grep -o '^infracost SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
+    if ! grep -q '^infracost: SKIPPED$' /usr/bin/tools_versions_info; then \
         apk add --no-cache jq=~1 \
     ; fi && \
     # Fix git runtime fatal:
