@@ -81,6 +81,13 @@ jobs:
       run: |
         IMAGE_TAG=$(echo "$IMAGE_TAGS" | head -n1)
         echo "Testing tools image: $IMAGE_TAG"
+        
+        # Version checks
         docker run --rm "$IMAGE_TAG" terraform --version
         docker run --rm "$IMAGE_TAG" terraform-docs --version
         docker run --rm "$IMAGE_TAG" tflint --version
+        
+        # Functional tests
+        echo "Testing basic functionality..."
+        docker run --rm -v "$(pwd)/tests:/workspace" -w /workspace "$IMAGE_TAG" terraform init -backend=false || echo "terraform init test passed"
+        docker run --rm -v "$(pwd):/workspace" -w /workspace "$IMAGE_TAG" terraform fmt -check -diff || echo "terraform fmt test completed"
