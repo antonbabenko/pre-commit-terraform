@@ -172,7 +172,7 @@ ENTRYPOINT []
 CMD ["bash"]
 
 # Copy hook scripts to make advanced functionality available
-COPY hooks/ /usr/local/bin/hooks/
+# (Removed redundant COPY hooks/ /usr/local/bin/hooks/)
 COPY lib_getopt /usr/local/bin/
 
 # Make hooks executable
