@@ -1,10 +1,8 @@
 *
 !.dockerignore
 !Dockerfile
-!tools/entrypoint.sh
-!tools/install/*.sh
-!hooks/
-!lib_getopt
-!src/
 !hooks/*.sh
 !lib_getopt
+!src/
+!tools/entrypoint.sh
+!tools/install/*.sh
