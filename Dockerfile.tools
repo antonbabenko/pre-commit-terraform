@@ -161,7 +161,8 @@ COPY tools/entrypoint.sh /entrypoint.sh
 COPY hooks/ /usr/bin/hooks/
 COPY lib_getopt /usr/bin/lib_getopt
 RUN chmod +x /usr/bin/hooks/*.sh
-
+# (Removed redundant COPY hooks/ /usr/bin/hooks/)
+COPY lib_getopt /usr/bin/lib_getopt
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
 ENV INFRACOST_API_KEY=${INFRACOST_API_KEY:-}
