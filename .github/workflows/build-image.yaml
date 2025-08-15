@@ -89,5 +89,15 @@ jobs:
 
         # Functional tests
         echo "Testing basic functionality..."
-        docker run --rm -v "$(pwd)/tests:/workspace" -w /workspace "$IMAGE_TAG" terraform init -backend=false || echo "terraform init test passed"
-        docker run --rm -v "$(pwd):/workspace" -w /workspace "$IMAGE_TAG" terraform fmt -check -diff || echo "terraform fmt test completed"
+        docker run --rm \
+          -v "$(pwd)/tests:/workspace" \
+          -w /workspace \
+          "$IMAGE_TAG" \
+          terraform init -backend=false \
+          || echo "terraform init test passed"
+        docker run --rm \
+          -v "$(pwd):/workspace" \
+          -w /workspace \
+          "$IMAGE_TAG" \
+          terraform fmt -check -diff \
+          || echo "terraform fmt test completed"

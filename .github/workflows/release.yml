@@ -12,8 +12,7 @@ on:
     - '**/*.sh'
     - Dockerfile*
     - .pre-commit-hooks.yaml
-    paths-ignore:
-    - tests/**
+    - '!tests/**'
 
 
 jobs:
