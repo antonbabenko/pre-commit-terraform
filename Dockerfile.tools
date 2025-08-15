@@ -64,9 +64,9 @@ RUN if [ "$INSTALL_ALL" = "true" ] || [ "$INSTALL_ALL" = "latest" ]; then \
         echo "TFLINT_VERSION=latest"         >> /.env && \
         echo "TFSEC_VERSION=latest"          >> /.env && \
         echo "TFUPDATE_VERSION=latest"       >> /.env && \
-        echo "TRIVY_VERSION=latest"          >> /.env \
+        echo "TRIVY_VERSION=latest"          >> /.env ; \
     elif [ "$INSTALL_ALL" != "false" ]; then \
-        echo "ERROR: INSTALL_ALL must be 'true', 'latest', or 'false'" >&2 && exit 1; \
+        echo "ERROR: INSTALL_ALL must be 'true', 'latest', or 'false'" >&2 ; exit 1 ; \
     fi
 
 # Docker `RUN`s shouldn't be consolidated here
