@@ -367,7 +367,7 @@ For users who prefer not to install tools locally, Docker-based versions are ava
 ```yaml
 repos:
 - repo: https://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.96.1
+  rev: <VERSION_WITH_DOCKER_HOOKS> 
   hooks:
     - id: terraform_fmt_docker
     - id: terraform_validate_docker
