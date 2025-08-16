@@ -189,6 +189,7 @@
   args: [terraform, fmt]
   files: \.(tf|tofu|tfvars|tftest\.hcl|tfmock\.hcl)$
   exclude: \.terraform/.*$
+  default: false
 
 - id: terraform_validate_docker
   name: Terraform validate (Docker)
@@ -200,6 +201,7 @@
   pass_filenames: false
   files: \.(tf|tofu|tfvars|terraform\.lock\.hcl)$
   exclude: \.terraform/.*$
+  default: false
 
 - id: terraform_tflint_docker
   name: Terraform validate with tflint (Docker)
@@ -212,6 +214,7 @@
   pass_filenames: false
   files: \.(tf|tofu|tfvars)$
   exclude: \.terraform/.*$
+  default: false
 
 - id: terraform_docs_docker
   name: Terraform docs (Docker)
@@ -224,6 +227,7 @@
   pass_filenames: false
   files: \.(tf|tofu|terraform\.lock\.hcl)$
   exclude: \.terraform/.*$
+  default: false
 
 - id: terraform_checkov_docker
   name: Checkov (Docker)
@@ -236,6 +240,7 @@
   files: \.(tf|tofu)$
   exclude: \.terraform/.*$
   require_serial: true
+  default: false
 
 - id: terraform_trivy_docker
   name: Terraform validate with trivy (Docker)
@@ -249,6 +254,7 @@
   pass_filenames: false
   files: \.(tf|tofu|tfvars)$
   exclude: \.terraform/.*$
+  default: false
 
 - id: infracost_breakdown_docker
   name: Infracost breakdown (Docker)
@@ -260,3 +266,4 @@
   require_serial: true
   files: \.(tf|tofu|tfvars|hcl)$
   exclude: \.terraform/.*$
+  default: false
