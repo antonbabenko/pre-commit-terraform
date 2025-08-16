@@ -173,7 +173,6 @@ ENTRYPOINT []
 CMD ["bash"]
 
 # Copy hook scripts to make advanced functionality available
-# (Removed redundant COPY hooks/ /usr/local/bin/hooks/)
 
 # Make hooks executable
 RUN chmod +x /usr/local/bin/hooks/*.sh
