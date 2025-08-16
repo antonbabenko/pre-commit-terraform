@@ -13,7 +13,7 @@ ci:
   - infracost_breakdown_docker
 
 repos:
-- repo: https://github.com/actuarysailor/pre-commit-terraform
+- repo: https://github.com/antonbabenko/pre-commit-terraform
   rev: v1.96.1  # Use a stable release version
   hooks:
   # Option 1: Use Docker-based hooks (no local tool installation required)
@@ -51,7 +51,7 @@ repos:
 # ⚠️  Need to ensure Docker image is available (pull or build)
 
 # Build the tools image locally with:
-# docker build -f Dockerfile.tools -t ghcr.io/actuarysailor/pre-commit-terraform-tools:latest .
+# docker build -f Dockerfile.tools -t ghcr.io/antonbabenko/pre-commit-terraform-tools:latest .
 
 # Or use the pre-built image once published:
-# docker pull ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+# docker pull ghcr.io/antonbabenko/pre-commit-terraform-tools:latest

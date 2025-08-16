@@ -186,7 +186,7 @@
     Rewrites all Terraform configuration files to a canonical format using Docker.
     NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
     if running on pre-commit.ci or other environments without Docker.
-  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest
   language: docker_image
   args: [terraform, fmt]
   files: \.(tf|tofu|tfvars|tftest\.hcl|tfmock\.hcl)$
@@ -201,7 +201,7 @@
     NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
     if running on pre-commit.ci or other environments without Docker.
   require_serial: true
-  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest
   language: docker_image
   args:
   - /usr/bin/hooks/terraform_validate.sh
@@ -220,7 +220,7 @@
     NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
     if running on pre-commit.ci or other environments without Docker.
   require_serial: true
-  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest
   language: docker_image
   args: [tflint, --chdir=.]
   pass_filenames: false
@@ -234,7 +234,7 @@
     NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
     if running on pre-commit.ci or other environments without Docker.
   require_serial: true
-  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest
   language: docker_image
   args: [terraform-docs, markdown, table, ., --output-file, README.md]
   pass_filenames: false
@@ -247,7 +247,7 @@
     Runs checkov on Terraform templates using Docker.
     NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
     if running on pre-commit.ci or other environments without Docker.
-  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest
   language: docker_image
   args: [checkov, -d, .]
   pass_filenames: false
@@ -264,7 +264,7 @@
     NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
     if running on pre-commit.ci or other environments without Docker.
   require_serial: true
-  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest
   language: docker_image
   args: [trivy, config, .]
   pass_filenames: false
@@ -277,7 +277,7 @@
     Check terraform infrastructure cost using Docker.
     NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
     if running on pre-commit.ci or other environments without Docker.
-  entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
+  entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest
   language: docker_image
   args: [infracost, breakdown, --path, .]
   pass_filenames: false
