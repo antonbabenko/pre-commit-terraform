@@ -4,17 +4,16 @@ on:
   workflow_dispatch:
   push:
     branches:
+    - main
     - master
     paths:
+    - .github/workflows/release.yml
     - '**/*.py'
     - '**/*.sh'
-    - Dockerfile
+    - Dockerfile*
     - .pre-commit-hooks.yaml
-    # Ignore paths
     - '!tests/**'
 
-permissions:
-  contents: read
 
 jobs:
   release:
@@ -46,4 +45,4 @@ jobs:
         # Custom token for triggering Docker image build GH Workflow on release
         # created by cycjimmy/semantic-release-action. Events created by
         # workflows with default GITHUB_TOKEN not trigger other GH Workflow.
-        GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -49,6 +49,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [3. Add configs and hooks](#3-add-configs-and-hooks)
   * [4. Run](#4-run)
 * [Available Hooks](#available-hooks)
+  * [Docker-based hooks (no local tool installation required)](#docker-based-hooks-no-local-tool-installation-required)
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [Known limitations](#known-limitations)
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
@@ -93,7 +94,7 @@ TAG=latest
 docker pull ghcr.io/antonbabenko/pre-commit-terraform:$TAG
 ```
 
-All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
+All tags are [available on GitHub Container Registry](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
 
 Check [About Docker image security](#about-docker-image-security) section to learn more about possible security issues and why you probably want to build and maintain your own image.
 
@@ -340,6 +341,65 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 
 Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blob/master/.pre-commit-hooks.yaml) to know arguments used for each hook.
 
+### Docker-based hooks (no local tool installation required)
+
+For users who prefer not to install tools locally, Docker-based versions are available for most hooks. These hooks use a Docker image with all tools pre-installed and provide the same functionality as their script-based counterparts.
+Note: These hooks are defined with pre-commit `language: docker_image` and reference the Docker image via the `entry` field in `.pre-commit-hooks.yaml`.
+These hooks run inside the tools image defined by the hook itself (no image configuration needed in your `.pre-commit-config.yaml`). The image is published at `ghcr.io/antonbabenko/pre-commit-terraform-tools` and can be pinned by tag (e.g., `entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest`) or by digest (e.g., `entry: ghcr.io/antonbabenko/pre-commit-terraform-tools@sha256:...`).
+Tip: `ghcr.io/antonbabenko/pre-commit-terraform` is the container image for running pre-commit itself, whereas `...-tools` is the image used by the Docker-based hooks.
+
+
+| Docker Hook ID                    | Equivalent Script Hook | Description                                                     |
+| --------------------------------- | ---------------------- | --------------------------------------------------------------- |
+| `terraform_fmt_docker`            | `terraform_fmt`        | Reformat Terraform files using Docker                          |
+| `terraform_validate_docker`       | `terraform_validate`   | Validate Terraform configuration using Docker                  |
+| `terraform_docs_docker`           | `terraform_docs`       | Generate documentation using Docker                            |
+| `terraform_tflint_docker`         | `terraform_tflint`     | Lint Terraform files with TFLint using Docker                 |
+| `terraform_checkov_docker`        | `terraform_checkov`    | Security analysis with Checkov using Docker                   |
+| `terraform_trivy_docker`          | `terraform_trivy`      | Security analysis with Trivy using Docker                     |
+| `infracost_breakdown_docker`      | `infracost_breakdown`  | Infrastructure cost analysis using Docker                     |
+
+> **Note:**
+> By default, `terraform_docs_docker` is configured with `pass_filenames: false` and an explicit `.` target. This documents only the root module, which is the most common use case. If you want to generate documentation for multiple modules in a monorepo, you can customize the `args` in your own `.pre-commit-config.yaml` (for example, add `--recursive` to the arguments).
+
+
+**Benefits of Docker hooks:**
+
+* No need to install individual tools on your local machine
+* Consistent tool versions across all environments
+* Faster CI/CD execution (tools are pre-installed in the image)
+* Simplified dependency management
+
+**Requirements and limitations:**
+
+* Docker must be installed and accessible.
+* pre-commit.ci runners do not support Docker; skip these hooks there for now.
+  * Note: pre-commit (the framework) supports Docker hooks; pre-commit.ci may add Docker support in the future.
+* You can still use Docker-based hooks in CI/CD (e.g., GitHub Actions, GitLab CI) by running `pre-commit run --all-files` (or `pre-commit run -a`) on runners where Docker is available. This enforces the same checks in CI as locally, even if pre-commit.ci doesn’t support Docker yet.
+
+**Skipping Docker hooks on pre-commit.ci:**
+
+If you use pre-commit.ci, add this to your `.pre-commit-config.yaml`:
+
+```yaml
+ci:
+  skip: [terraform_fmt_docker, terraform_validate_docker, terraform_tflint_docker, terraform_docs_docker, terraform_checkov_docker, terraform_trivy_docker, infracost_breakdown_docker]
+```
+
+**Example usage:**
+
+```yaml
+repos:
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: <VERSION_WITH_DOCKER_HOOKS>
+  hooks:
+    - id: terraform_fmt_docker
+    - id: terraform_validate_docker
+    - id: terraform_docs_docker
+```
+
+See `examples/.pre-commit-config-docker.yaml` for a complete example configuration.
+
 ## Hooks usage notes and examples
 
 ### Known limitations
@@ -374,8 +434,9 @@ You can specify environment variables that will be passed to the hook at runtime
 
 > [!IMPORTANT]
 > Variable values are exported _verbatim_:
-> - No interpolation or expansion are applied
-> - The enclosing double quotes are removed if they are provided
+>
+> * No interpolation or expansion is applied
+> * The enclosing double quotes are removed if they are provided
 
 Config example:
 
@@ -487,7 +548,7 @@ Note that `terraform_checkov` runs recursively during `-d .` usage. That means, 
         - --args=--skip-check CKV2_AWS_8
     ```
 
-    Check all available arguments [here](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
+    Check all available arguments in the [Checkov CLI Command Reference](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
 
     For deprecated hook you need to specify each argument separately:
 
@@ -1219,7 +1280,7 @@ The [recommended command](#4-run) to run the Docker container is:
 
 ```bash
 TAG=latest
-docker run -e "USERID=$(id -u):$(id -g)" -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run --rm -e "USERID=$(id -u):$(id -g)" -v "$(pwd):/lint" -w "/lint" "ghcr.io/antonbabenko/pre-commit-terraform:$TAG" run -a
 ```
 
 which uses your current session's user ID and group ID to set the variable in the run command.  Without this setting, you may find files and directories owned by `root` in your local repository.
@@ -1293,7 +1354,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
