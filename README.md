@@ -344,8 +344,9 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 ### Docker-based hooks (no local tool installation required)
 
 For users who prefer not to install tools locally, Docker-based versions are available for most hooks. These hooks use a Docker image with all tools pre-installed and provide the same functionality as their script-based counterparts.
-Note: These hooks are defined with pre-commit language: docker_image and reference the Docker image via the entry parameter in .pre-commit-hooks.yaml.
-These hooks run inside the tools image defined by the hook itself (no image configuration needed in your .pre-commit-config.yaml). The image is published at ghcr.io/antonbabenko/pre-commit-terraform-tools with a tag or digest pinned in .pre-commit-hooks.yaml.
+Note: These hooks are defined with pre-commit `language: docker_image` and reference the Docker image via the `entry` field in `.pre-commit-hooks.yaml`.
+These hooks run inside the tools image defined by the hook itself (no image configuration needed in your `.pre-commit-config.yaml`). The image is published at `ghcr.io/antonbabenko/pre-commit-terraform-tools` and can be pinned by tag (e.g., `entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest`) or by digest (e.g., `entry: ghcr.io/antonbabenko/pre-commit-terraform-tools@sha256:...`).
+Tip: `ghcr.io/antonbabenko/pre-commit-terraform` is the container image for running pre-commit itself, whereas `...-tools` is the image used by the Docker-based hooks.
 
 
 | Docker Hook ID                    | Equivalent Script Hook | Description                                                     |
@@ -372,8 +373,8 @@ These hooks run inside the tools image defined by the hook itself (no image conf
 **Requirements and limitations:**
 
 * Docker must be installed and accessible.
-* For pre-commit.ci: its agents do not have Docker; skip these hooks for now.
-  * Note: pre-commit supports Docker hooks; pre-commit.ci may add Docker support in the future.
+* pre-commit.ci runners do not support Docker; skip these hooks there for now.
+  * Note: pre-commit (the framework) supports Docker hooks; pre-commit.ci may add Docker support in the future.
 * You can still use Docker-based hooks in CI/CD (e.g., GitHub Actions, GitLab CI) by running `pre-commit run --all-files` (or `pre-commit run -a`) on runners where Docker is available. This enforces the same checks in CI as locally, even if pre-commit.ci doesn’t support Docker yet.
 
 **Skipping Docker hooks on pre-commit.ci:**
