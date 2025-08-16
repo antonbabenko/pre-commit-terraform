@@ -355,6 +355,10 @@ For users who prefer not to install tools locally, Docker-based versions are ava
 | `terraform_trivy_docker`          | `terraform_trivy`      | Security analysis with Trivy using Docker                     |
 | `infracost_breakdown_docker`      | `infracost_breakdown`  | Infrastructure cost analysis using Docker                     |
 
+> **Note:**
+> By default, `terraform_docs_docker` is configured with `pass_filenames: false` and an explicit `.` target. This documents only the root module, which is the most common use case. If you want to generate documentation for multiple modules in a monorepo, you can customize the `args` in your own `.pre-commit-config.yaml` (for example, add `--recursive` to the arguments).
+
+
 **Benefits of Docker hooks:**
 
 * No need to install individual tools on your local machine
@@ -364,10 +368,10 @@ For users who prefer not to install tools locally, Docker-based versions are ava
 
 **Requirements and limitations:**
 
-* Docker must be installed and accessible
-* For pre-commit.ci users: At this time, skip these hooks because pre-commit.ci agents do not have Docker available.
-  * _Note: pre-commit has a Docker setup for hooks, so Docker support may be added in the future._
-* **You can still use Docker-based hooks in CI/CD pipelines** (such as GitHub Actions, GitLab CI, etc.) by running `pre-commit run --all-files` (or `pre-commit run -a`) on a self-hosted or GitHub-hosted runner where Docker is available. This allows you to enforce the same checks in CI as locally, even if pre-commit.ci does not support Docker yet.
+* Docker must be installed and accessible.
+* For pre-commit.ci: its agents do not have Docker; skip these hooks for now.
+  * Note: pre-commit supports Docker hooks, so pre-commit.ci may add Docker support in the future.
+* You can still use Docker-based hooks in CI/CD (e.g., GitHub Actions, GitLab CI) by running `pre-commit run --all-files` (or `pre-commit run -a`) on runners where Docker is available. This enforces the same checks in CI as locally, even if pre-commit.ci doesn’t support Docker yet.
 
 **Skipping Docker hooks on pre-commit.ci:**
 
@@ -1272,7 +1276,7 @@ The [recommended command](#4-run) to run the Docker container is:
 
 ```bash
 TAG=latest
-docker run -e "USERID=$(id -u):$(id -g)" -v "$(pwd):/lint" -w "/lint" ghcr.io/antonbabenko/pre-commit-terraform:latest run -a
+docker run -e "USERID=$(id -u):$(id -g)" -v "$(pwd):/lint" -w "/lint" ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 ```
 
 which uses your current session's user ID and group ID to set the variable in the run command.  Without this setting, you may find files and directories owned by `root` in your local repository.
