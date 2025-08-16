@@ -196,12 +196,19 @@
   name: Terraform validate (Docker)
   description: >-
     Validates all Terraform configuration files using Docker.
+    Automatically runs 'terraform init' and retries validation if provider/module
+    errors are detected.
     NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
     if running on pre-commit.ci or other environments without Docker.
   require_serial: true
   entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
   language: docker_image
-  args: [terraform, validate]
+  args:
+  - /usr/bin/hooks/terraform_validate.sh
+  - --hook-config=--retry-once-with-cleanup=true
+  - --hook-config=--parallelism-ci-cpu-cores=2
+  - --
+  - .
   pass_filenames: false
   files: \.(tf|tofu|tfvars|terraform\.lock\.hcl)$
   exclude: \.terraform/.*$
