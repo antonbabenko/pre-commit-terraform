@@ -2,13 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.101.1](https://github.com/actuarysailor/pre-commit-terraform/compare/v1.101.0...v1.101.1) (2025-08-16)
-
-
-### Bug Fixes
-
-* Disable docker hooks on pre-commit.ci ([#5](https://github.com/actuarysailor/pre-commit-terraform/issues/5)) ([dd977d1](https://github.com/actuarysailor/pre-commit-terraform/commit/dd977d17ffb5f5d5f6cd57036d08a945ff4f719c))
-
 # [1.100.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.99.5...v1.100.0) (2025-08-08)
 
 
