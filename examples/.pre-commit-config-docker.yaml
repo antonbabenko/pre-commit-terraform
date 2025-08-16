@@ -1,6 +1,12 @@
 # Example .pre-commit-config.yaml for using Docker-based hooks
 # This configuration uses Docker containers instead of requiring local tool installation
 
+# Skip Docker hooks on pre-commit.ci (which doesn't support Docker)
+ci:
+  skip: [terraform_fmt_docker, terraform_validate_docker, terraform_tflint_docker,
+    terraform_docs_docker, terraform_checkov_docker, terraform_trivy_docker,
+    infracost_breakdown_docker]
+
 repos:
 - repo: https://github.com/actuarysailor/pre-commit-terraform
   rev: v1.96.1  # Use a stable release version

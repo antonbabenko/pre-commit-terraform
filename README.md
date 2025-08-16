@@ -94,7 +94,7 @@ TAG=latest
 docker pull ghcr.io/antonbabenko/pre-commit-terraform:$TAG
 ```
 
-All available tags [here](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
+All available tags are [available on GitHub Container Registry](https://github.com/antonbabenko/pre-commit-terraform/pkgs/container/pre-commit-terraform/versions).
 
 Check [About Docker image security](#about-docker-image-security) section to learn more about possible security issues and why you probably want to build and maintain your own image.
 
@@ -362,6 +362,22 @@ For users who prefer not to install tools locally, Docker-based versions are ava
 * Faster CI/CD execution (tools are pre-installed in the image)
 * Simplified dependency management
 
+**Requirements and limitations:**
+
+* Docker must be installed and accessible
+* For pre-commit.ci users: At this time, these hooks must be skipped as pre-commit.ci agents do not have Docker available.
+  * _Note: pre-commit has a Docker setup for hooks, so Docker support may be added in the future._
+* **You can still use Docker-based hooks in CI/CD pipelines** (such as GitHub Actions, GitLab CI, etc.) by running `pre-commit run --all-files` (or `pre-commit run -a`) on a self-hosted or GitHub-hosted runner where Docker is available. This allows you to enforce the same checks in CI as locally, even if pre-commit.ci does not support Docker yet.
+
+**Skipping Docker hooks on pre-commit.ci:**
+
+If you use pre-commit.ci, add this to your `.pre-commit-config.yaml`:
+
+```yaml
+ci:
+  skip: [terraform_fmt_docker, terraform_validate_docker, terraform_tflint_docker, terraform_docs_docker, terraform_checkov_docker, terraform_trivy_docker, infracost_breakdown_docker]
+```
+
 **Example usage:**
 
 ```yaml
@@ -410,8 +426,9 @@ You can specify environment variables that will be passed to the hook at runtime
 
 > [!IMPORTANT]
 > Variable values are exported _verbatim_:
-> - No interpolation or expansion are applied
-> - The enclosing double quotes are removed if they are provided
+>
+> * No interpolation or expansion are applied
+> * The enclosing double quotes are removed if they are provided
 
 Config example:
 
@@ -523,7 +540,7 @@ Note that `terraform_checkov` runs recursively during `-d .` usage. That means, 
         - --args=--skip-check CKV2_AWS_8
     ```
 
-    Check all available arguments [here](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
+    Check all available arguments in the [Checkov CLI Command Reference](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
 
     For deprecated hook you need to specify each argument separately:
 

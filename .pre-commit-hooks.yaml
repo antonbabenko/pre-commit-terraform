@@ -184,16 +184,20 @@
   name: Terraform fmt (Docker)
   description: >-
     Rewrites all Terraform configuration files to a canonical format using Docker.
+    NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
+    if running on pre-commit.ci or other environments without Docker.
   entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
   language: docker_image
   args: [terraform, fmt]
   files: \.(tf|tofu|tfvars|tftest\.hcl|tfmock\.hcl)$
   exclude: \.terraform/.*$
-  default: false
 
 - id: terraform_validate_docker
   name: Terraform validate (Docker)
-  description: Validates all Terraform configuration files using Docker.
+  description: >-
+    Validates all Terraform configuration files using Docker.
+    NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
+    if running on pre-commit.ci or other environments without Docker.
   require_serial: true
   entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
   language: docker_image
@@ -201,12 +205,13 @@
   pass_filenames: false
   files: \.(tf|tofu|tfvars|terraform\.lock\.hcl)$
   exclude: \.terraform/.*$
-  default: false
 
 - id: terraform_tflint_docker
   name: Terraform validate with tflint (Docker)
-  description: Validates all Terraform configuration files with TFLint using
-    Docker.
+  description: >-
+    Validates all Terraform configuration files with TFLint using Docker.
+    NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
+    if running on pre-commit.ci or other environments without Docker.
   require_serial: true
   entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
   language: docker_image
@@ -214,12 +219,13 @@
   pass_filenames: false
   files: \.(tf|tofu|tfvars)$
   exclude: \.terraform/.*$
-  default: false
 
 - id: terraform_docs_docker
   name: Terraform docs (Docker)
   description: >-
     Inserts input and output documentation into README.md using Docker.
+    NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
+    if running on pre-commit.ci or other environments without Docker.
   require_serial: true
   entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
   language: docker_image
@@ -227,11 +233,13 @@
   pass_filenames: false
   files: \.(tf|tofu|terraform\.lock\.hcl)$
   exclude: \.terraform/.*$
-  default: false
 
 - id: terraform_checkov_docker
   name: Checkov (Docker)
-  description: Runs checkov on Terraform templates using Docker.
+  description: >-
+    Runs checkov on Terraform templates using Docker.
+    NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
+    if running on pre-commit.ci or other environments without Docker.
   entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
   language: docker_image
   args: [checkov, -d, .]
@@ -240,13 +248,14 @@
   files: \.(tf|tofu)$
   exclude: \.terraform/.*$
   require_serial: true
-  default: false
 
 - id: terraform_trivy_docker
   name: Terraform validate with trivy (Docker)
   description: >-
     Static analysis of Terraform templates to spot potential security issues
     using Docker.
+    NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
+    if running on pre-commit.ci or other environments without Docker.
   require_serial: true
   entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
   language: docker_image
@@ -254,11 +263,13 @@
   pass_filenames: false
   files: \.(tf|tofu|tfvars)$
   exclude: \.terraform/.*$
-  default: false
 
 - id: infracost_breakdown_docker
   name: Infracost breakdown (Docker)
-  description: Check terraform infrastructure cost using Docker.
+  description: >-
+    Check terraform infrastructure cost using Docker.
+    NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
+    if running on pre-commit.ci or other environments without Docker.
   entry: ghcr.io/actuarysailor/pre-commit-terraform-tools:latest
   language: docker_image
   args: [infracost, breakdown, --path, .]
@@ -266,4 +277,3 @@
   require_serial: true
   files: \.(tf|tofu|tfvars|hcl)$
   exclude: \.terraform/.*$
-  default: false
