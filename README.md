@@ -344,6 +344,8 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 ### Docker-based hooks (no local tool installation required)
 
 For users who prefer not to install tools locally, Docker-based versions are available for most hooks. These hooks use a Docker image with all tools pre-installed and provide the same functionality as their script-based counterparts.
+These hooks run inside the tools image defined by the hook itself (no image configuration needed in your .pre-commit-config.yaml). The image is published at ghcr.io/antonbabenko/pre-commit-terraform-tools with a tag or digest pinned in .pre-commit-hooks.yaml.
+
 
 | Docker Hook ID                    | Equivalent Script Hook | Description                                                     |
 | --------------------------------- | ---------------------- | --------------------------------------------------------------- |
