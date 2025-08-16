@@ -344,6 +344,7 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 ### Docker-based hooks (no local tool installation required)
 
 For users who prefer not to install tools locally, Docker-based versions are available for most hooks. These hooks use a Docker image with all tools pre-installed and provide the same functionality as their script-based counterparts.
+Note: These hooks are defined with pre-commit language: docker_image and reference the Docker image via the entry parameter in .pre-commit-hooks.yaml.
 These hooks run inside the tools image defined by the hook itself (no image configuration needed in your .pre-commit-config.yaml). The image is published at ghcr.io/antonbabenko/pre-commit-terraform-tools with a tag or digest pinned in .pre-commit-hooks.yaml.
 
 
@@ -372,7 +373,7 @@ These hooks run inside the tools image defined by the hook itself (no image conf
 
 * Docker must be installed and accessible.
 * For pre-commit.ci: its agents do not have Docker; skip these hooks for now.
-  * Note: pre-commit supports Docker hooks, so pre-commit.ci may add Docker support in the future.
+  * Note: pre-commit supports Docker hooks; pre-commit.ci may add Docker support in the future.
 * You can still use Docker-based hooks in CI/CD (e.g., GitHub Actions, GitLab CI) by running `pre-commit run --all-files` (or `pre-commit run -a`) on runners where Docker is available. This enforces the same checks in CI as locally, even if pre-commit.ci doesn’t support Docker yet.
 
 **Skipping Docker hooks on pre-commit.ci:**
@@ -1278,7 +1279,7 @@ The [recommended command](#4-run) to run the Docker container is:
 
 ```bash
 TAG=latest
-docker run -e "USERID=$(id -u):$(id -g)" -v "$(pwd):/lint" -w "/lint" ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+docker run --rm -e "USERID=$(id -u):$(id -g)" -v "$(pwd):/lint" -w "/lint" "ghcr.io/antonbabenko/pre-commit-terraform:$TAG" run -a
 ```
 
 which uses your current session's user ID and group ID to set the variable in the run command.  Without this setting, you may find files and directories owned by `root` in your local repository.
