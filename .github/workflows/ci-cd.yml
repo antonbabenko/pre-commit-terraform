@@ -189,7 +189,8 @@ jobs:
         python -m
         pip install
         --user
-        setuptools-scm~=8.2
+        setuptools-scm
+        --constraint=dependencies/lock-files/dist-build-constraints.txt
       shell: bash
     - name: Set the current dist version from Git
       id: scm-version
