@@ -343,10 +343,14 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 
 ### Docker-based hooks (no local tool installation required)
 
-For users who prefer not to install tools locally, Docker-based versions are available for most hooks. These hooks use a Docker image with all tools pre-installed and provide the same functionality as their script-based counterparts.
-Note: These hooks are defined with pre-commit `language: docker_image` and reference the Docker image via the `entry` field in `.pre-commit-hooks.yaml`.
-These hooks run inside the tools image defined by the hook itself (no image configuration needed in your `.pre-commit-config.yaml`). The image is published at `ghcr.io/antonbabenko/pre-commit-terraform-tools` and can be pinned by tag (e.g., `entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest`) or by digest (e.g., `entry: ghcr.io/antonbabenko/pre-commit-terraform-tools@sha256:...`).
-Tip: `ghcr.io/antonbabenko/pre-commit-terraform` is the container image for running pre-commit itself, whereas `...-tools` is the image used by the Docker-based hooks.
+For users who prefer not to install tools locally, Docker-based versions are
+available for most hooks. These hooks use a Docker image with all tools
+pre-installed and provide the same functionality as their script-based
+counterparts.
+
+> [!NOTE]
+> These hooks run inside the Docker image defined by the hook itself. By default, it set to
+`entry: ghcr.io/antonbabenko/pre-commit-terraform:latest` which is **NOT WHAT WE WANT**. Better to figure out how to pin it # TODO
 
 
 | Docker Hook ID                    | Equivalent Script Hook | Description                                                     |
@@ -358,9 +362,6 @@ Tip: `ghcr.io/antonbabenko/pre-commit-terraform` is the container image for runn
 | `terraform_checkov_docker`        | `terraform_checkov`    | Security analysis with Checkov using Docker                   |
 | `terraform_trivy_docker`          | `terraform_trivy`      | Security analysis with Trivy using Docker                     |
 | `infracost_breakdown_docker`      | `infracost_breakdown`  | Infrastructure cost analysis using Docker                     |
-
-> **Note:**
-> By default, `terraform_docs_docker` is configured with `pass_filenames: false` and an explicit `.` target. This documents only the root module, which is the most common use case. If you want to generate documentation for multiple modules in a monorepo, you can customize the `args` in your own `.pre-commit-config.yaml` (for example, add `--recursive` to the arguments).
 
 
 **Benefits of Docker hooks:**
@@ -1354,7 +1355,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
