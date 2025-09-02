@@ -18,6 +18,17 @@
   files: \.(tf|tofu|tfvars|tftest\.hcl|tfmock\.hcl)$
   exclude: \.terraform/.*$
 
+- id: terraform_fmt_docker
+  name: Terraform fmt
+  description: >-
+    Rewrites all Terraform configuration files to a canonical format using Docker.
+  # TODO: There will be ghcr.io/antonbabenko/pre-commit-terraform:latest.
+  # TODO: pre-commit-terraform:latest is build locally from this branch
+  entry: --entrypoint terraform_fmt.sh pre-commit-terraform:latest
+  language: docker_image
+  files: \.(tf|tofu|tfvars|tftest\.hcl|tfmock\.hcl)$
+  exclude: \.terraform/.*$
+
 - id: terraform_docs
   name: Terraform docs
   description: >-
@@ -180,18 +191,6 @@
   require_serial: true
 
 # Docker-based versions of hooks (non-breaking additions)
-- id: terraform_fmt_docker
-  name: Terraform fmt (Docker)
-  description: >-
-    Rewrites all Terraform configuration files to a canonical format using Docker.
-    NOTE: Requires Docker to be available. Use 'skip' in .pre-commit-config.yaml
-    if running on pre-commit.ci or other environments without Docker.
-  entry: ghcr.io/antonbabenko/pre-commit-terraform-tools:latest
-  language: docker_image
-  args: [terraform, fmt]
-  files: \.(tf|tofu|tfvars|tftest\.hcl|tfmock\.hcl)$
-  exclude: \.terraform/.*$
-
 - id: terraform_validate_docker
   name: Terraform validate (Docker)
   description: >-
