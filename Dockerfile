@@ -23,7 +23,7 @@ COPY tools/install/ /install/
 ARG PRE_COMMIT_VERSION=${PRE_COMMIT_VERSION:-latest}
 RUN touch /.env && \
     if [ "$PRE_COMMIT_VERSION" = "false" ]; then \
-        echo "Vital software can't be skipped" && exit 1; \
+        echo "ERROR: PRE_COMMIT_VERSION cannot be 'false' - pre-commit is required" >&2 && exit 1; \
     fi
 RUN /install/pre-commit.sh
 
@@ -136,10 +136,10 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/pyth
 COPY --from=builder /root/ /root/
 
 # Install hooks extra deps
-RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
+RUN if ! grep -q '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info; then \
         apk add --no-cache perl=~5 \
     ; fi && \
-    if [ "$(grep -o '^infracost SKIPPED$' /usr/bin/tools_versions_info)" = "" ]; then \
+    if ! grep -q '^infracost SKIPPED$' /usr/bin/tools_versions_info; then \
         apk add --no-cache jq=~1 \
     ; fi && \
     # Fix git runtime fatal:
@@ -147,6 +147,11 @@ RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = 
     git config --global --add safe.directory /lint
 
 COPY tools/entrypoint.sh /entrypoint.sh
+
+# Copy hook scripts for Docker-based hooks
+COPY hooks/ /usr/local/bin/
+COPY lib_getopt /usr/local/
+COPY src/pre_commit_terraform/ /usr/local/lib/python3.12/site-packages/pre_commit_terraform/
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 

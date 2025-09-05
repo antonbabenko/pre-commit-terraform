@@ -2,22 +2,35 @@ name: Publish container image
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+    - .github/workflows/build-image.yaml
+    - Dockerfile*
   release:
     types:
     - created
   schedule:
   - cron: 00 00 * * *
 
-permissions:
-  contents: read
+env:
+  REGISTRY: ghcr.io
 
 jobs:
   docker:
-    permissions:
-      # for docker/build-push-action to publish docker image
-      packages: write
-
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - dockerfile: Dockerfile
+          image_name: ${{ github.repository }}
+        - dockerfile: Dockerfile.tools
+          image_name: ${{ github.repository }}-tools
     steps:
     - name: Checkout code
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -26,60 +39,120 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3.11.1
+
     - name: Login to GitHub Container Registry
       uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1  # v3.5.0
       with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Set tag for image
-      env:
-        REF_TYPE: ${{ github.ref_type }}
-        REF_NAME: ${{ github.ref_name }}
-      run: >-
-        echo IMAGE_TAG=$(
-        [ $REF_TYPE == 'tag' ]
-        && echo $REF_NAME
-        || echo 'latest'
-        ) >> $GITHUB_ENV
 
-    - name: Set IMAGE_REPO environment variable
-      # Lowercase the org/repo name to allow for workflow to run in forks,
-      # which owners have uppercase letters in username
-      run: >-
-        echo "IMAGE_REPO=ghcr.io/${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3.11.1
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f
+      with:
+        images: ${{ env.REGISTRY }}/${{ matrix.image_name }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha
+          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+          type=raw,value=${{ github.ref_name }},enable=${{ github.ref_type == 'tag' }}
+          type=raw,value=nightly,enable=${{ github.event_name == 'schedule' }}
 
     - name: Build and Push release
-      if: github.event_name != 'schedule'
       uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83  # v6.18.0
       with:
         context: .
+        file: ${{ matrix.dockerfile }}
         build-args: |
           INSTALL_ALL=true
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: |
-          ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG }}
-          ${{ env.IMAGE_REPO }}:latest
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         # Fix multi-platform: https://github.com/docker/buildx/issues/1533
         provenance: false
-        secrets: |
-          "github_token=${{ secrets.GITHUB_TOKEN }}"
 
-    - name: Build and Push nightly
-      if: github.event_name == 'schedule'
-      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83  # v6.18.0
-      with:
-        context: .
-        build-args: |
-          INSTALL_ALL=true
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: |
-          ${{ env.IMAGE_REPO }}:nightly
-        # Fix multi-platform: https://github.com/docker/buildx/issues/1533
-        provenance: false
-        secrets: |
-          "github_token=${{ secrets.GITHUB_TOKEN }}"
+    - name: Test tools image
+      if: matrix.dockerfile == 'Dockerfile.tools' && github.event_name != 'schedule'
+      env:
+        IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+      run: |
+        set -euo pipefail
+        IMAGE_TAG=$(echo "$IMAGE_TAGS" | head -n1)
+        echo "Testing tools image: $IMAGE_TAG"
+
+        # Version checks
+        docker run --rm "$IMAGE_TAG" terraform --version
+        docker run --rm "$IMAGE_TAG" terraform-docs --version
+        docker run --rm "$IMAGE_TAG" tflint --version
+
+        # Optional extra versions (quick smoke)
+        docker run --rm "$IMAGE_TAG" checkov --version || true
+        docker run --rm "$IMAGE_TAG" trivy --version || true
+
+        # Create a minimal, self-contained Terraform module for functional tests
+        TMP_DIR="$(mktemp -d)"
+        trap 'rm -rf "$TMP_DIR"' EXIT
+        cat > "$TMP_DIR/main.tf" << 'EOF'
+        terraform {
+          required_version = ">= 1.3.0"
+        }
+        variable "example_var" {
+          description = "An example variable"
+          type        = string
+          default     = "test"
+        }
+        output "example_output" {
+          description = "An example output"
+          value       = var.example_var
+        }
+        EOF
+        echo "# Test Module" > "$TMP_DIR/README.md"
+
+        echo "Testing terraform fmt..."
+
+        docker run --rm \
+          -v "$TMP_DIR:/workspace" \
+          -w /workspace \
+          "$IMAGE_TAG" \
+          terraform fmt -check -diff
+
+        echo "Testing terraform init/validate..."
+
+        docker run --rm \
+          -v "$TMP_DIR:/workspace" \
+          -w /workspace \
+          "$IMAGE_TAG" \
+          terraform init -backend=false
+
+        docker run --rm \
+          -v "$TMP_DIR:/workspace" \
+          -w /workspace \
+          "$IMAGE_TAG" \
+          terraform validate
+
+        echo "Testing terraform-docs..."
+
+        docker run --rm \
+          -v "$TMP_DIR:/workspace" \
+          -w /workspace \
+          "$IMAGE_TAG" \
+          terraform-docs markdown table . --output-file README.md
+
+        echo "Testing tflint..."
+
+        docker run --rm \
+          -v "$TMP_DIR:/workspace" \
+          -w /workspace \
+          "$IMAGE_TAG" \
+          tflint --init
+
+        docker run --rm \
+          -v "$TMP_DIR:/workspace" \
+          -w /workspace \
+          "$IMAGE_TAG" \
+          tflint
+
+        echo "All functional tests passed!"
