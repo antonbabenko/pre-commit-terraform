@@ -47,7 +47,7 @@ jobs:
       run: >-
         curl -L "$(
         curl -s https://api.github.com/repos/hadolint/hadolint/releases/latest
-        | grep -o -E -m 1 "https://.+?/hadolint-Linux-x86_64"
+        | grep -o -E -i -m 1 "https://.+?/hadolint-linux-x86_64"
         )"
         > hadolint
         && chmod +x hadolint && sudo mv hadolint /usr/bin/

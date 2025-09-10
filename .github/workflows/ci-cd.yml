@@ -189,7 +189,8 @@ jobs:
         python -m
         pip install
         --user
-        setuptools-scm~=8.2
+        setuptools-scm
+        --constraint=dependencies/lock-files/dist-build-constraints.txt
       shell: bash
     - name: Set the current dist version from Git
       id: scm-version
@@ -504,6 +505,13 @@ jobs:
       xfail: ${{ fromJSON(matrix.xfail) }}
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  lint-github-actions:
+    name: Lint GitHub Actions
+    permissions:
+      security-events: write
+    # yamllint disable-line rule:line-length
+    uses: zizmorcore/workflow/.github/workflows/reusable-zizmor.yml@3bb5e95068d0f44b6d2f3f7e91379bed1d2f96a8
 
   check:  # This job does nothing and is only used for the branch protection
 
