@@ -15,7 +15,7 @@
   language: script
   # Supported extensions by Terraform specified in
   # https://github.com/hashicorp/terraform/blob/0c63fb2b097edcd5cb1a91322765a414206fbea2/internal/command/fmt.go#L30-L35
-  files: \.(tf|tofu|tfvars|tftest\.hcl|tfmock\.hcl)$
+  files: \.(tf|tofu|tfvars|(tftest|tofutest|tfmock|tfquery)\.hcl)$
   exclude: \.terraform/.*$
 
 - id: terraform_docs
