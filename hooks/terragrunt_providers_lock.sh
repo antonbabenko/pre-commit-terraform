@@ -15,7 +15,7 @@ function main {
   # JFYI: terragrunt providers lock color already suppressed via PRE_COMMIT_COLOR=never
 
   if common::terragrunt_version_ge_0.78; then
-    local -ra RUN_ALL_SUBCOMMAND=(run --all providers lock)
+    local -ra RUN_ALL_SUBCOMMAND=(run --all -- providers lock)
   else
     local -ra RUN_ALL_SUBCOMMAND=(run-all providers lock)
   fi

@@ -15,7 +15,7 @@ function main {
   # JFYI: terragrunt validate color already suppressed via PRE_COMMIT_COLOR=never
 
   if common::terragrunt_version_ge_0.78; then
-    local -ra RUN_ALL_SUBCOMMAND=(run --all validate)
+    local -ra RUN_ALL_SUBCOMMAND=(run --all -- validate)
   else
     local -ra RUN_ALL_SUBCOMMAND=(run-all validate)
   fi
