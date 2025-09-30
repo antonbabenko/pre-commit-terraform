@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.101.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.100.1...v1.101.0) (2025-09-30)
+
+
+### Features
+
+* **`terraform_fmt`:** Add support for `.tofutest.hcl` and `.tfquery.hcl` files ([#935](https://github.com/antonbabenko/pre-commit-terraform/issues/935)) ([ba7cf0e](https://github.com/antonbabenko/pre-commit-terraform/commit/ba7cf0ea2afc8a288d3d94bfe9e74cee7cfb16a7)), closes [/github.com/hashicorp/terraform/blob/eae5ac13dd47eafd2d338b21db7311bbfa861b68/internal/command/fmt.go#L56](https://github.com//github.com/hashicorp/terraform/blob/eae5ac13dd47eafd2d338b21db7311bbfa861b68/internal/command/fmt.go/issues/L56)
+
 ## [1.100.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.100.0...v1.100.1) (2025-09-27)
 
 
