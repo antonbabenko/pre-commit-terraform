@@ -321,7 +321,7 @@ EOF
 
     # Get names of module variables in all terraform files
     # shellcheck disable=SC2207
-    module_vars=($(echo "$all_tf_content" | hcledit block list | { grep "^variable\." | cut -d'.' -f 2 | sort || true; }))
+    module_vars=($(echo "$all_tf_content" | hcledit block list | { grep "^variable\." | cut -d'.' -f 2 | LC_ALL=C sort || true; }))
 
     # Get names of module outputs in all terraform files
     # shellcheck disable=SC2207
