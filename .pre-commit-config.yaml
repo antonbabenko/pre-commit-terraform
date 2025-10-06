@@ -7,7 +7,7 @@ ci:
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
+  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
   hooks:
   # Git style
   - id: check-added-large-files
@@ -43,19 +43,19 @@ repos:
 
   # Detect hardcoded secrets
 - repo: https://github.com/gitleaks/gitleaks
-  rev: 47218a628da59ef6b24197d15f4b0248ca87f4f0  # frozen: v8.27.2
+  rev: 39fdb480a06768cc41a84ef86959c07ff33091c4  # frozen: v8.28.0
   hooks:
   - id: gitleaks
 
 # Github Action static analysis tool
 - repo: https://github.com/woodruffw/zizmor-pre-commit
-  rev: 69fa534d69454f44ddd4451b5e2da7a1c48e525b  # frozen: v1.11.0
+  rev: 3c10df247c55cf21f75003105b879f145096bd4a  # frozen: v1.14.2
   hooks:
   - id: zizmor
 
 # Dockerfile
 - repo: https://github.com/hadolint/hadolint
-  rev: c3dc18df7a501f02a560a2cc7ba3c69a85ca01d3  # frozen: v2.13.1-beta
+  rev: 4e697ba704fd23b2409b947a319c19c3ee54d24f  # frozen: v2.14.0
   hooks:
   - id: hadolint
 
@@ -105,7 +105,7 @@ repos:
 
 # Python
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 0b19ef1fd6ad680ed7752d6daba883ce1265a6de  # frozen: v0.12.2
+  rev: 9c89adb347f6b973f4905a4be0051eb2ecf85dea  # frozen: v0.13.3
   hooks:
   - id: ruff
     args:
@@ -113,12 +113,12 @@ repos:
   - id: ruff-format
 
 - repo: https://github.com/wemake-services/wemake-python-styleguide
-  rev: 89eca4e53c6a95aebebd9cc86b717fb11a915de9  # frozen: 1.2.0
+  rev: be985eceeba226ba83c955f7a31317ff4e9dfd9a  # frozen: 1.4.0
   hooks:
   - id: wemake-python-styleguide
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git
-  rev: 0f86793af5ef5f6dc63c8d04a3cabfa3ea8f9c6a  # frozen: v1.16.1
+  rev: 9f70dc58c23dfcca1b97af99eaeee3140a807c7e  # frozen: v1.18.2
   hooks:
   - id: mypy
     alias: mypy-py313
