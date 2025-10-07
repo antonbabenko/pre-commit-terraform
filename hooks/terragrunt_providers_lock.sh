@@ -53,9 +53,9 @@ function per_dir_hook_unique_part {
 
   # pass the arguments to hook
   if common::terragrunt_version_ge_0.78; then
-    local -ra RUN_ALL_SUBCOMMAND=(run --all -- providers lock)
-  else
     terragrunt run -- providers "${args[@]}"
+  else
+    terragrunt providers lock "${args[@]}"
   fi
 
   # return exit code to common::per_dir_hook
