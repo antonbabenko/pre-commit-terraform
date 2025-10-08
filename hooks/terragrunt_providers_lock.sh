@@ -51,7 +51,7 @@ function per_dir_hook_unique_part {
   shift 4
   local -a -r args=("$@")
 
-  # pass the arguments to hook  
+  # pass the arguments to hook
   if common::terragrunt_version_ge_0.78; then
     terragrunt run -- providers lock "${args[@]}"
   else
