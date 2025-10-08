@@ -53,7 +53,7 @@ function per_dir_hook_unique_part {
 
   # pass the arguments to hook
   if common::terragrunt_version_ge_0.78; then
-    terragrunt run -- providers "${args[@]}"
+    terragrunt run -- providers lock "${args[@]}"
   else
     terragrunt providers lock "${args[@]}"
   fi
