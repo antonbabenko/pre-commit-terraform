@@ -15,8 +15,10 @@ function main {
   # JFYI: terragrunt providers lock color already suppressed via PRE_COMMIT_COLOR=never
 
   if common::terragrunt_version_ge_0.78; then
+    local -ra SUBCOMMAND=(run -- providers lock)
     local -ra RUN_ALL_SUBCOMMAND=(run --all -- providers lock)
   else
+    local -ra SUBCOMMAND=(providers lock)
     local -ra RUN_ALL_SUBCOMMAND=(run-all providers lock)
   fi
 
@@ -52,11 +54,7 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  if common::terragrunt_version_ge_0.78; then
-    terragrunt run -- providers lock "${args[@]}"
-  else
-    terragrunt providers lock "${args[@]}"
-  fi
+  terragrunt "${SUBCOMMAND[@]}" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
