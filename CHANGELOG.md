@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.101.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.101.0...v1.101.1) (2025-10-09)
+
+
+### Bug Fixes
+
+* **`terragrunt_providers_lock`, `terragrunt_validate`:** Properly handle arguments passed from terragrunt to TF ([#939](https://github.com/antonbabenko/pre-commit-terraform/issues/939)) ([bae0525](https://github.com/antonbabenko/pre-commit-terraform/commit/bae0525b6bb6e4c3bcefc8d69f977905801257e1))
+
 # [1.101.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.100.1...v1.101.0) (2025-09-30)
 
 
