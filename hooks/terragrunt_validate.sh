@@ -15,8 +15,10 @@ function main {
   # JFYI: terragrunt validate color already suppressed via PRE_COMMIT_COLOR=never
 
   if common::terragrunt_version_ge_0.78; then
+    local -ra SUBCOMMAND=(run -- validate)
     local -ra RUN_ALL_SUBCOMMAND=(run --all -- validate)
   else
+    local -ra SUBCOMMAND=(validate)
     local -ra RUN_ALL_SUBCOMMAND=(run-all validate)
   fi
 
@@ -52,7 +54,7 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  terragrunt validate "${args[@]}"
+  terragrunt "${SUBCOMMAND[@]}" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
