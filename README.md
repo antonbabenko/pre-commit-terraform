@@ -1123,7 +1123,7 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
     See the `terrascan run -h` command line help for available options.
 
-    to pass the config file path, use:
+    To pass the config file path, use the `__GIT_WORKING_DIR__` placeholder. It will be replaced with the Git working directory (repo root) at run time. For example:
 
     ```yaml
     - id: terrascan
