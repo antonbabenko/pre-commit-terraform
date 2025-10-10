@@ -1123,6 +1123,14 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
     See the `terrascan run -h` command line help for available options.
 
+    to pass the config file path, use:
+
+    ```yaml
+    - id: terrascan
+      args:
+        - --args=--config-path=__GIT_WORKING_DIR__/.terrascan.toml
+    ```
+
 2. Use the `--args=--verbose` parameter to see the rule ID in the scanning output. Useful to skip validations.
 3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
 4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
