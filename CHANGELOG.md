@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.102.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.101.1...v1.102.0) (2025-10-14)
+
+
+### Features
+
+* **terrascan:** Add support for `__GIT_WORKING_DIR__` in hooks arguments ([#943](https://github.com/antonbabenko/pre-commit-terraform/issues/943)) ([c4ef91e](https://github.com/antonbabenko/pre-commit-terraform/commit/c4ef91ef002a49e689756d4ae70f6b261bf9ae2f))
+
 ## [1.101.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.101.0...v1.101.1) (2025-10-09)
 
 
