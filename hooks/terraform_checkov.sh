@@ -18,6 +18,7 @@ function main {
     export ANSI_COLORS_DISABLED=true
   fi
 
+  # shellcheck disable=SC2153 # ARGS is set in common::parse_cmdline
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 

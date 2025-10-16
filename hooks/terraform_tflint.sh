@@ -19,6 +19,7 @@ function main {
   # Run `tflint --init` for check that plugins installed.
   # It should run once on whole repo.
   {
+    # shellcheck disable=SC2153 # ARGS is set in common::parse_cmdline
     TFLINT_INIT=$(tflint --init "${ARGS[@]}" 2>&1) 2> /dev/null &&
       common::colorify "green" "Command 'tflint --init' successfully done:" &&
       echo -e "${TFLINT_INIT}\n\n\n"

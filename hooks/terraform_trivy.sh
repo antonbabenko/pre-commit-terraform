@@ -13,6 +13,7 @@ function main {
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
 
+  # shellcheck disable=SC2153 # ARGS is set in common::parse_cmdline
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
