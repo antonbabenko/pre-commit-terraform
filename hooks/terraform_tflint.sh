@@ -13,10 +13,7 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
-  # Support for setting PATH to repo root.
-  for i in "${!ARGS[@]}"; do
-    ARGS[i]=${ARGS[i]/__GIT_WORKING_DIR__/$(pwd)\/}
-  done
+
   # JFYI: tflint color already suppressed via PRE_COMMIT_COLOR=never
 
   # Run `tflint --init` for check that plugins installed.
