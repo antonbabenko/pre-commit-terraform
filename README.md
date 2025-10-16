@@ -52,7 +52,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [Known limitations](#known-limitations)
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
-  * [All hooks: Usage of `__GIT_WORKING_DIR__` placeholder in `--args`](#all-hooks-usage-of---git-working-dir---placeholder-in---args)
+  * [All hooks: Usage of `__GIT_WORKING_DIR__` placeholder in `--args`](#all-hooks-usage-of-__git_working_dir__-placeholder-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
   * [All hooks: Log levels](#all-hooks-log-levels)
