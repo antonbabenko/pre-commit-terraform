@@ -369,6 +369,9 @@ If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` b
 
 ### All hooks: Usage of `__GIT_WORKING_DIR__` placeholder in `--args`
 
+
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+
 You can use `__GIT_WORKING_DIR__` placeholder in `--args`. It will be replaced
 by the Git working directory (repo root) at run time.
 
