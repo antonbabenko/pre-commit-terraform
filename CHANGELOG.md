@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.103.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.102.0...v1.103.0) (2025-10-17)
+
+
+### Features
+
+* Add support of `__GIT_WORKING_DIR__` placeholder for all hooks ([#945](https://github.com/antonbabenko/pre-commit-terraform/issues/945)) ([9830420](https://github.com/antonbabenko/pre-commit-terraform/commit/983042000161a50588a6a66302ffe6f86b2eb103)), closes [#944](https://github.com/antonbabenko/pre-commit-terraform/issues/944)
+
 # [1.102.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.101.1...v1.102.0) (2025-10-14)
 
 
