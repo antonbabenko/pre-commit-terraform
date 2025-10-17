@@ -83,7 +83,9 @@ function common::parse_cmdline {
         # into a proper array, where each element is a standalone array slice
         # with quoted elements being treated as a standalone slice of array as well.
         while read -r -d '' ARG; do
-          ARGS+=("$ARG")
+          # Also replace any occurrence of `__GIT_WORKING_DIR__` with
+          # actual path to Git working dir (repo root)
+          ARGS+=("${ARG//__GIT_WORKING_DIR__/$PWD}")
         done < <(echo "$1" | xargs printf '%s\0')
         shift
         ;;

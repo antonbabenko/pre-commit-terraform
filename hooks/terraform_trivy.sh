@@ -12,11 +12,8 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
-  # Support for setting PATH to repo root.
-  for i in "${!ARGS[@]}"; do
-    ARGS[i]=${ARGS[i]/__GIT_WORKING_DIR__/$(pwd)\/}
-  done
 
+  # shellcheck disable=SC2153 # ARGS is set in common::parse_cmdline
   common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 

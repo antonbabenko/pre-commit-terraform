@@ -52,6 +52,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
 * [Hooks usage notes and examples](#hooks-usage-notes-and-examples)
   * [Known limitations](#known-limitations)
   * [All hooks: Usage of environment variables in `--args`](#all-hooks-usage-of-environment-variables-in---args)
+  * [All hooks: Usage of `__GIT_WORKING_DIR__` placeholder in `--args`](#all-hooks-usage-of-__git_working_dir__-placeholder-in---args)
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
   * [All hooks: Log levels](#all-hooks-log-levels)
@@ -366,6 +367,24 @@ Config example:
 
 If for config above set up `export CONFIG_NAME=.tflint; export CONFIG_EXT=hcl` before `pre-commit run`, args will be expanded to `--config=.tflint.hcl --call-module-type="all"`.
 
+### All hooks: Usage of `__GIT_WORKING_DIR__` placeholder in `--args`
+
+
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+
+You can use `__GIT_WORKING_DIR__` placeholder in `--args`. It will be replaced
+by the Git working directory (repo root) at run time.
+
+For instance, if you have multiple directories and want to run
+`terraform_tflint` in all of them while sharing a single config file — use the
+`__GIT_WORKING_DIR__` placeholder in the file path. For example:
+
+```yaml
+- id: terraform_tflint
+  args:
+    - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
+```
+
 ### All hooks: Set env vars inside hook at runtime
 
 > All, except deprecated hooks: `checkov`, `terraform_docs_replace`
@@ -478,34 +497,26 @@ If you don't see code above in your `pre-commit-config.yaml` or logs - you don't
 
 Note that `terraform_checkov` runs recursively during `-d .` usage. That means, for example, if you change `.tf` file in repo root, all existing `.tf` files in the repo will be checked.
 
-1. You can specify custom arguments. E.g.:
+You can specify custom arguments. E.g.:
 
-    ```yaml
-    - id: terraform_checkov
-      args:
-        - --args=--quiet
-        - --args=--skip-check CKV2_AWS_8
-    ```
+```yaml
+- id: terraform_checkov
+  args:
+    - --args=--quiet
+    - --args=--skip-check CKV2_AWS_8
+```
 
-    Check all available arguments [here](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
+Check all available arguments [here](https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html).
 
-    For deprecated hook you need to specify each argument separately:
+For deprecated hook you need to specify each argument separately:
 
-    ```yaml
-    - id: checkov
-      args: [
-        "-d", ".",
-        "--skip-check", "CKV2_AWS_8",
-      ]
-    ```
-
-2. When you have multiple directories and want to run `terraform_checkov` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_checkov` hooks with the Git working directory (repo root) at run time. For example:
-
-    ```yaml
-    - id: terraform_checkov
-      args:
-        - --args=--config-file __GIT_WORKING_DIR__/.checkov.yml
-    ```
+```yaml
+- id: checkov
+  args: [
+    "-d", ".",
+    "--skip-check", "CKV2_AWS_8",
+  ]
+```
 
 ### infracost_breakdown
 
@@ -702,15 +713,15 @@ To replicate functionality in `terraform_docs` hook:
 
 ### terraform_fmt
 
-1. `terraform_fmt` supports custom arguments so you can pass [supported flags](https://www.terraform.io/docs/cli/commands/fmt.html#usage). Eg:
+`terraform_fmt` supports custom arguments so you can pass [supported flags](https://www.terraform.io/docs/cli/commands/fmt.html#usage). Eg:
 
-    ```yaml
-     - id: terraform_fmt
-       args:
-         - --args=-no-color
-         - --args=-diff
-         - --args=-write=false
-    ```
+```yaml
+ - id: terraform_fmt
+   args:
+     - --args=-no-color
+     - --args=-diff
+     - --args=-write=false
+```
 
 ### terraform_providers_lock
 
@@ -834,22 +845,13 @@ To replicate functionality in `terraform_docs` hook:
         - --args=--enable-rule=terraform_documented_variables
     ```
 
-2. When you have multiple directories and want to run `tflint` in all of them and share a single config file, it is impractical to hard-code the path to the `.tflint.hcl` file. The solution is to use the `__GIT_WORKING_DIR__` placeholder which will be replaced by `terraform_tflint` hooks with the Git working directory (repo root) at run time. For example:
-
-    ```yaml
-    - id: terraform_tflint
-      args:
-        - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
-    ```
-
-3. By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delegate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
+2. By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delegate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
 
     ```yaml
     - id: terraform_tflint
       args:
         - --hook-config=--delegate-chdir
     ```
-
 
 ### terraform_tfsec (deprecated)
 
@@ -894,22 +896,6 @@ To replicate functionality in `terraform_docs` hook:
            -e aws-s3-enable-bucket-logging,aws-s3-specify-public-access-block
     ```
 
-4. When you have multiple directories and want to run `tfsec` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_tfsec` hooks with Git working directory (repo root) at run time. For example:
-
-    ```yaml
-    - id: terraform_tfsec
-      args:
-        - --args=--config-file=__GIT_WORKING_DIR__/.tfsec.json
-    ```
-
-    Otherwise, will be used files that located in sub-folders:
-
-    ```yaml
-    - id: terraform_tfsec
-      args:
-        - --args=--config-file=.tfsec.json
-    ```
-
 ### terraform_trivy
 
 1. `terraform_trivy` will consume modified files that pre-commit
@@ -949,14 +935,6 @@ To replicate functionality in `terraform_docs` hook:
        args:
          - --args=--format=json
          - --args=--skip-dirs="**/.terraform"
-    ```
-
-4. When you have multiple directories and want to run `trivy` in all of them and share a single config file - use the `__GIT_WORKING_DIR__` placeholder. It will be replaced by `terraform_trivy` hooks with Git working directory (repo root) at run time. For example:
-
-    ```yaml
-    - id: terraform_trivy
-      args:
-        - --args=--ignorefile=__GIT_WORKING_DIR__/.trivyignore
     ```
 
 ### terraform_validate
@@ -1122,14 +1100,6 @@ If the generated name is incorrect, set them by providing the `module-repo-short
     ```
 
     See the `terrascan run -h` command line help for available options.
-
-    To pass the config file path, use the `__GIT_WORKING_DIR__` placeholder. It will be replaced with the Git working directory (repo root) at run time. For example:
-
-    ```yaml
-    - id: terrascan
-      args:
-        - --args=--config-path=__GIT_WORKING_DIR__/.terrascan.toml
-    ```
 
 2. Use the `--args=--verbose` parameter to see the rule ID in the scanning output. Useful to skip validations.
 3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
