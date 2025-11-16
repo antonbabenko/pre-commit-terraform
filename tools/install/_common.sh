@@ -60,11 +60,16 @@ function common::install_from_gh_release {
 
   # Download tool
   local -r RELEASES="https://api.github.com/repos/${GH_ORG}/${TOOL}/releases"
+  local CURL_OPTS=()
+
+  [[ $GITHUB_TOKEN ]] && CURL_OPTS+=('-H' "Authorization: Bearer $GITHUB_TOKEN")
+
+  local -r CURL_CMD=("curl" "${CURL_OPTS[@]}")
 
   if [[ $VERSION == latest ]]; then
-    curl -L "$(curl -s "${RELEASES}/latest" | grep -o -E -i -m 1 "$GH_RELEASE_REGEX_LATEST")" > "$PKG"
+    "${CURL_CMD[@]}" -L "$("${CURL_CMD[@]}" -s "${RELEASES}/latest" | grep -o -E -i -m 1 "$GH_RELEASE_REGEX_LATEST")" > "$PKG"
   else
-    curl -L "$(curl -s "$RELEASES" | grep -o -E -i -m 1 "$GH_RELEASE_REGEX_SPECIFIC_VERSION")" > "$PKG"
+    "${CURL_CMD[@]}" -L "$("${CURL_CMD[@]}" -s "$RELEASES" | grep -o -E -i -m 1 "$GH_RELEASE_REGEX_SPECIFIC_VERSION")" > "$PKG"
   fi
 
   # Make tool ready to use

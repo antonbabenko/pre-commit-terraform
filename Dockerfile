@@ -65,6 +65,8 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "TRIVY_VERSION=latest"          >> /.env \
     ; fi
 
+ARG GITHUB_TOKEN=${GITHUB_TOKEN:-""}
+
 # Docker `RUN`s shouldn't be consolidated here
 # hadolint global ignore=DL3059
 RUN /install/opentofu.sh
