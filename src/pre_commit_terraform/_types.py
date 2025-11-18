@@ -2,12 +2,12 @@
 
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable
-from typing import Protocol, Union
+from typing import Protocol
 
 from ._structs import ReturnCode
 
 
-ReturnCodeType = Union[ReturnCode, int]  # Union instead of pipe for Python 3.9
+ReturnCodeType = ReturnCode | int
 CLIAppEntryPointCallableType = Callable[[Namespace], ReturnCodeType]
 
 
