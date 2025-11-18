@@ -462,7 +462,7 @@ jobs:
         - 3.11
         runner-vm-os:
         - ubuntu-24.04
-        - macos-14
+        - macos-15
         - macos-15-intel
         - windows-2025
         toxenv:
