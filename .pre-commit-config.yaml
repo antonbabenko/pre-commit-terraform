@@ -121,53 +121,53 @@ repos:
   rev: 9f70dc58c23dfcca1b97af99eaeee3140a807c7e  # frozen: v1.18.2
   hooks:
   - id: mypy
-    alias: mypy-py313
-    name: MyPy, for Python 3.13
+    alias: mypy-py314
+    name: MyPy, for Python 3.14
     additional_dependencies:
     - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
     - pytest
     - pytest-mock
     args:
-    - --python-version=3.13
-    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.13
-    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.13
-    - --html-report=.tox/.tmp/.test-results/mypy--py-3.13
-    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.13
-    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.13
-    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.13
-    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.13
+    - --python-version=3.14
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.14
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.14
     pass_filenames: false
   - id: mypy
-    alias: mypy-py311
-    name: MyPy, for Python 3.11
+    alias: mypy-py312
+    name: MyPy, for Python 3.12
     additional_dependencies:
     - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
     - pytest
     - pytest-mock
     args:
-    - --python-version=3.11
-    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.11
-    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.11
-    - --html-report=.tox/.tmp/.test-results/mypy--py-3.11
-    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.11
-    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.11
-    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.11
-    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.11
+    - --python-version=3.12
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.12
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.12
     pass_filenames: false
   - id: mypy
-    alias: mypy-py39
-    name: MyPy, for Python 3.9
+    alias: mypy-py310
+    name: MyPy, for Python 3.10
     additional_dependencies:
     - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
     - pytest
     - pytest-mock
     args:
-    - --python-version=3.9
-    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.9
-    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.9
-    - --html-report=.tox/.tmp/.test-results/mypy--py-3.9
-    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.9
-    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.9
-    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.9
-    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.9
+    - --python-version=3.10
+    - --any-exprs-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --cobertura-xml-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --html-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --linecount-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --linecoverage-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --lineprecision-report=.tox/.tmp/.test-results/mypy--py-3.10
+    - --txt-report=.tox/.tmp/.test-results/mypy--py-3.10
     pass_filenames: false

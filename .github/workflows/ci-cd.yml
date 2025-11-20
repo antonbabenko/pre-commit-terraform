@@ -453,17 +453,17 @@ jobs:
         # NOTE: The latest and the lowest supported Pythons are prioritized
         # NOTE: to improve the responsiveness. It's nice to see the most
         # NOTE: important results first.
-        - 3.13
-        - 3.9
+        - 3.14
         # str
         - >-
           3.10
+        - 3.13
         - 3.12
         - 3.11
         runner-vm-os:
         - ubuntu-24.04
-        - macos-14
-        - macos-13
+        - macos-15
+        - macos-15-intel
         - windows-2025
         toxenv:
         - pytest
