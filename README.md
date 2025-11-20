@@ -136,6 +136,12 @@ docker build -t pre-commit-terraform \
 
 Set `-e PRE_COMMIT_COLOR=never` to disable the color output in `pre-commit`.
 
+> **NOTE**
+> The build install scripts are calling the GitHub API to resolve the release URL. If you need to authenticate those calls, you can pass a GitHub token (the `GITHUB_TOKEN` environment variable is expected to be set with an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)):
+> ```bash
+> docker build -t pre-commit-terraform --build-arg GITHUB_TOKEN .
+> ```
+
 </details>
 
 
