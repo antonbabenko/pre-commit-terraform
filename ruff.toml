@@ -1,6 +1,3 @@
-# Assume Python 3.9
-target-version = "py39"
-
 line-length = 79 # To decrease PR diff size
 
 namespace-packages = ["src/pre_commit_terraform/", "tests/pytest/"]
