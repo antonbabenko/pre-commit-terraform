@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.104.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.103.0...v1.104.0) (2025-11-20)
+
+
+### Features
+
+* **docker:** Allow authenticated calls to GitHub API ([#947](https://github.com/antonbabenko/pre-commit-terraform/issues/947)) ([6deaf20](https://github.com/antonbabenko/pre-commit-terraform/commit/6deaf20ea403ad4d220a0c80330390a5bc53f72f))
+
 # [1.103.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.102.0...v1.103.0) (2025-10-17)
 
 
