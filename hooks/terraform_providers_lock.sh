@@ -157,8 +157,14 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
   # pass the arguments to hook
   "$tf_path" providers lock "${args[@]}"
 
-  # return exit code to common::per_dir_hook
   exit_code=$?
+  if [[ $exit_code != 0 ]]; then
+    common::colorify "red" "$dir_path run failed. Detailed error above.
+Most common issue is that you didn't run requiring 'terraform init' before running this hook. It can be run by 'terraform_validate' hook - https://github.com/antonbabenko/pre-commit-terraform#terraform_validate
+"
+  fi
+
+  # return exit code to common::per_dir_hook
   return $exit_code
 }
 
