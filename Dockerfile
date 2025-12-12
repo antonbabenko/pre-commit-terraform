@@ -1,4 +1,4 @@
-FROM python:3.12-alpine@sha256:02a73ead8397e904cea6d17e18516f1df3590e05dc8823bd5b1c7f849227d272 AS python_base
+FROM python:3.14-alpine@sha256:2a77c2640cc80f5506babd027c883abc55f04d44173fd52eeacea9d3b978e811 AS python_base
 
 FROM python_base AS builder
 ARG TARGETOS
