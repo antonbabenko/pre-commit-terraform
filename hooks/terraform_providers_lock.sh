@@ -154,7 +154,8 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
       exit 0
     fi
 
-    common::colorify "yellow" "$dir_path/.terraform.lock.hcl missing some of required platforms (${platforms_names[*]})."
+    common::colorify "yellow" "\n$dir_path/.terraform.lock.hcl missing some of required platforms.
+      All required platforms: ${platforms_names[*]}."
   fi
 
   #? Don't require `tf init` for providers, but required `tf init` for modules
