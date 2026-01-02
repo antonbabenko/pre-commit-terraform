@@ -101,9 +101,11 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   local platforms_count=0
+  local platforms_names=()
   for arg in "${args[@]}"; do
     if grep -Eq '^-platform=' <<< "$arg"; then
       platforms_count=$((platforms_count + 1))
+      platforms_names+=("${arg#*=}")
     fi
   done
 
@@ -146,10 +148,14 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
     }
   fi
 
-  if [ "$mode" == "only-check-is-current-lockfile-cross-platform" ] &&
-    lockfile_contains_all_needed_sha "$platforms_count"; then
+  if [ "$mode" == "only-check-is-current-lockfile-cross-platform" ]; then
 
-    exit 0
+    if lockfile_contains_all_needed_sha "$platforms_count"; then
+      exit 0
+    fi
+
+    common::colorify "yellow" "\n$dir_path/.terraform.lock.hcl missing some of required platforms.
+      All required platforms: ${platforms_names[*]}."
   fi
 
   #? Don't require `tf init` for providers, but required `tf init` for modules
@@ -157,8 +163,14 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
   # pass the arguments to hook
   "$tf_path" providers lock "${args[@]}"
 
-  # return exit code to common::per_dir_hook
   exit_code=$?
+  if [[ $exit_code -ne 0 ]]; then
+    common::colorify "red" "$dir_path run failed. Detailed error above.
+Most common issue is that required 'terraform init' command was likely not run before running this hook. It might be run for you automatically by 'terraform_validate' hook - see https://github.com/antonbabenko/pre-commit-terraform#terraform_validate for more details
+"
+  fi
+
+  # return exit code to common::per_dir_hook
   return $exit_code
 }
 
