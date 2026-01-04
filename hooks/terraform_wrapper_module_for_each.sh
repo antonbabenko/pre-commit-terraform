@@ -113,9 +113,9 @@ module "wrapper" {
 
 ```hcl
 terraform {
-  source = "tfr:///terraform-aws-modules/s3-bucket/aws//wrappers"
+  source = "tfr:///MODULE_REPO_ORG/MODULE_REPO_SHORTNAME/MODULE_REPO_PROVIDER//WRAPPER_PATH"
   # Alternative source:
-  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-s3-bucket.git//wrappers?ref=master"
+  # source = "git::git@github.com:MODULE_REPO_ORG/terraform-MODULE_REPO_PROVIDER-MODULE_REPO_SHORTNAME.git//WRAPPER_PATH?ref=master"
 }
 
 inputs = {
