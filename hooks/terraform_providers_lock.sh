@@ -176,7 +176,8 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
       fi
 
       common::colorify "red" "$dir_path/.terraform.lock.hcl missing some of required platforms.
-        All required platforms: ${platforms_names[*]}"
+All required platforms: ${platforms_names[*]}
+"
 
       exit 1
       ;;
@@ -186,7 +187,8 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
       fi
 
       common::colorify "yellow" "$dir_path/.terraform.lock.hcl missing some of required platforms.
-        All required platforms: ${platforms_names[*]}\n"
+All required platforms: ${platforms_names[*]}
+"
 
       ;;
   esac
