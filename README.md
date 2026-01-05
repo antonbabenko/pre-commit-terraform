@@ -768,7 +768,7 @@ To replicate functionality in `terraform_docs` hook:
 1. The hook can work in a few different modes:
 
     1. <details><summary><code>--mode=check-lockfile-is-cross-platform</code> (standalone)</summary>
-        Checks that lockfile has the same amount of platform (`h1:`) checksums as specified in hook configuration. It **does not** check are these checksums are valid or that they are belongs to needed platforms.
+        Checks that lockfile has the same number of platform checksums (`h1:`) as requested by the hook configuration. It **does not** check whether these checksums are valid or that they match target platforms.
 
         ```yaml
         - id: terraform_providers_lock
@@ -780,7 +780,7 @@ To replicate functionality in `terraform_docs` hook:
 
     2. <details><summary><code>--mode=regenerate-lockfile-if-some-platform-missed</code> (standalone)</summary>
 
-        Checks that lockfile has all required SHAs for all providers already added to lockfile, and if any missed - try to add them (but could fail if `terraform init` wasn't run previously)
+        Checks that lockfile has checksums (`h1:`) for all requested platforms for all providers tracked by the lockfile, and if any are missed - tries to add them (but could fail if `terraform init` wasn't run previously).
 
 
         ```yaml
@@ -793,10 +793,10 @@ To replicate functionality in `terraform_docs` hook:
 
     3. <details><summary><code>--mode=regenerate-lockfile-if-some-platform-missed</code> with <code>terraform_validate</code> hook</summary>
 
-        Make up-to-date lockfile by adding/removing providers and only then check that lockfile has all required SHAs. If any missed - adds them.
+        Regenerates lockfile for all required providers and checks that the lockfile tracks all required platform checksums (`h1:`) afterwards. If any are missed - adds them; superfluous providers are removed.
 
         > **Important**
-        > Next [`terraform_validate`](#terraform_validate) hook flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
+        > The following [`terraform_validate`](#terraform_validate) hook's flag requires additional dependency to be installed: [`jq`](https://github.com/jqlang/jq). Also, it could run another slow and time consuming command - `terraform init`
 
         ```yaml
         - id: terraform_validate
@@ -810,9 +810,9 @@ To replicate functionality in `terraform_docs` hook:
 
     </details>
 
-    4. <details><summary><code>always-regenerate-lockfile</code> - only with terraform_validate hook.</summary>
+    4. <details><summary><code>always-regenerate-lockfile</code> - meant to be used only along with <code>terraform_validate</code> hook</summary>
 
-        Regenerate lockfile from scratch. Can be useful for upgrading providers in lockfile to latest versions
+        Regenerates lockfile from the scratch. May be useful for upgrading providers in the lockfile to the latest versions.
 
         ```yaml
         - id: terraform_validate

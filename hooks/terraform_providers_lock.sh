@@ -155,7 +155,7 @@ function per_dir_hook_unique_part {
   done
 
   # Available options:
-  #   check-lockfile-is-cross-platform (will be default)
+  #   check-lockfile-is-cross-platform (will be default in v2.0)
   #   regenerate-lockfile-if-some-platform-missed
   #   always-regenerate-lockfile
   # TODO: Remove in 2.0
@@ -186,8 +186,8 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
       exit 0
     fi
 
-    common::colorify "yellow" "\n$dir_path/.terraform.lock.hcl missing some of required platforms.
-      All required platforms: ${platforms_names[*]}."
+    common::colorify "yellow" "$dir_path/.terraform.lock.hcl missing some of required platforms.
+      All required platforms: ${platforms_names[*]}.\n"
   fi
 
   #? Don't require `tf init` for providers, but required `tf init` for modules
