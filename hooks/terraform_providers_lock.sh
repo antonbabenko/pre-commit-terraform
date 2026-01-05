@@ -123,7 +123,7 @@ function per_dir_hook_unique_part {
     key=${config[0]}
     value=${config[1]}
 
-    case $key in
+    case "$key" in
       --mode)
         if [ "$mode" ]; then
           common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--mode" flag'
