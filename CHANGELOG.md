@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.104.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.104.0...v1.104.1) (2026-01-04)
+
+
+### Bug Fixes
+
+* **`terraform_wrapper_module_for_each`:** Generate right usage example for S3 ([#952](https://github.com/antonbabenko/pre-commit-terraform/issues/952)) ([3117fe2](https://github.com/antonbabenko/pre-commit-terraform/commit/3117fe2efa4aa0f0a4c1e9c0670c4183c7d90d24))
+
 # [1.104.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.103.0...v1.104.0) (2025-11-20)
 
 
