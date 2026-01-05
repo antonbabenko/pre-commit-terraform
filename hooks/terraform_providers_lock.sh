@@ -135,7 +135,8 @@ function per_dir_hook_unique_part {
   done
 
   # Available options:
-  #   only-check-is-current-lockfile-cross-platform (will be default)
+  #   check-lockfile-is-cross-platform (will be default)
+  #   regenerate-lockfile-if-some-platform-missed
   #   always-regenerate-lockfile
   # TODO: Remove in 2.0
   if [ ! "$mode" ]; then
@@ -146,9 +147,25 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
       exit_code=$?
       return $exit_code
     }
+  elif [ "$mode" == "only-check-is-current-lockfile-cross-platform" ]; then
+    common::colorify "yellow" "DEPRECATION NOTICE: Flag '--mode=only-check-is-current-lockfile-cross-platform' was renamed
+  to '--mode=regenerate-lockfile-if-some-platform-missed' to better reflect its behavior. Please update your configuration.
+"
+    mode="regenerate-lockfile-if-some-platform-missed"
   fi
 
-  if [ "$mode" == "only-check-is-current-lockfile-cross-platform" ]; then
+  if [ "$mode" == "check-lockfile-is-cross-platform" ]; then
+
+    if lockfile_contains_all_needed_sha "$platforms_count"; then
+      exit 0
+    fi
+
+    common::colorify "red" "\n$dir_path/.terraform.lock.hcl missing some of required platforms.
+      All required platforms: ${platforms_names[*]}."
+    exit 1
+  fi
+
+  if [ "$mode" == "regenerate-lockfile-if-some-platform-missed" ]; then
 
     if lockfile_contains_all_needed_sha "$platforms_count"; then
       exit 0

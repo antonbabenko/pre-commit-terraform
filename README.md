@@ -759,26 +759,44 @@ To replicate functionality in `terraform_docs` hook:
 >   - --hook-config=--mode=always-regenerate-lockfile
 > ```
 >
-> Why? When v2.x will be introduced - the default mode will be changed, probably, to `only-check-is-current-lockfile-cross-platform`.
+> Why? When v2.x will be introduced - the default mode will be changed, probably, to `check-lockfile-is-cross-platform`.
 >
 > You can check available modes for hook below.
 > </details>
 
 
-1. The hook can work in a few different modes: `only-check-is-current-lockfile-cross-platform` with and without [terraform_validate hook](#terraform_validate) and `always-regenerate-lockfile` - only with terraform_validate hook.
+1. The hook can work in a few different modes:
 
-    * `only-check-is-current-lockfile-cross-platform` without terraform_validate - only checks that lockfile has all required SHAs for all providers already added to lockfile.
+    1. <details><summary><code>--mode=check-lockfile-is-cross-platform</code> (standalone)</summary>
+        Checks that lockfile has the same amount of platform (`h1:`) checksums as specified in hook configuration. It **does not** check are these checksums are valid or that they are belongs to needed platforms.
 
         ```yaml
         - id: terraform_providers_lock
           args:
-          - --hook-config=--mode=only-check-is-current-lockfile-cross-platform
+          - --hook-config=--mode=check-lockfile-is-cross-platform
         ```
 
-    * `only-check-is-current-lockfile-cross-platform` with [terraform_validate hook](#terraform_validate) - make up-to-date lockfile by adding/removing providers and only then check that lockfile has all required SHAs.
+    </details>
+
+    2. <details><summary><code>--mode=regenerate-lockfile-if-some-platform-missed</code> (standalone)</summary>
+
+        Checks that lockfile has all required SHAs for all providers already added to lockfile, and if any missed - try to add them (but could fail if `terraform init` wasn't run previously)
+
+
+        ```yaml
+        - id: terraform_providers_lock
+          args:
+          - --hook-config=--mode=regenerate-lockfile-if-some-platform-missed
+        ```
+
+    </details>
+
+    3. <details><summary><code>--mode=regenerate-lockfile-if-some-platform-missed</code> with <code>terraform_validate</code> hook</summary>
+
+        Make up-to-date lockfile by adding/removing providers and only then check that lockfile has all required SHAs. If any missed - adds them.
 
         > **Important**
-        > Next `terraform_validate` flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
+        > Next [`terraform_validate`](#terraform_validate) hook flag requires additional dependency to be installed: `jq`. Also, it could run another slow and time consuming command - `terraform init`
 
         ```yaml
         - id: terraform_validate
@@ -787,10 +805,14 @@ To replicate functionality in `terraform_docs` hook:
 
         - id: terraform_providers_lock
           args:
-          - --hook-config=--mode=only-check-is-current-lockfile-cross-platform
+          - --hook-config=--mode=regenerate-lockfile-if-some-platform-missed
         ```
 
-    * `always-regenerate-lockfile` only with [terraform_validate hook](#terraform_validate) - regenerate lockfile from scratch. Can be useful for upgrading providers in lockfile to latest versions
+    </details>
+
+    4. <details><summary><code>always-regenerate-lockfile</code> - only with terraform_validate hook.</summary>
+
+        Regenerate lockfile from scratch. Can be useful for upgrading providers in lockfile to latest versions
 
         ```yaml
         - id: terraform_validate
@@ -802,6 +824,8 @@ To replicate functionality in `terraform_docs` hook:
           args:
           - --hook-config=--mode=always-regenerate-lockfile
         ```
+
+    </details>
 
 2. `terraform_providers_lock` supports custom arguments:
 
