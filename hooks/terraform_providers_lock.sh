@@ -130,6 +130,26 @@ function per_dir_hook_unique_part {
           exit 1
         fi
         mode=$value
+
+        case $mode in
+          check-lockfile-is-cross-platform) ;;
+          regenerate-lockfile-if-some-platform-missed) ;;
+          always-regenerate-lockfile) ;;
+
+          only-check-is-current-lockfile-cross-platform)
+            common::colorify "yellow" "DEPRECATION NOTICE: Flag '--mode=only-check-is-current-lockfile-cross-platform' was renamed
+  to '--mode=regenerate-lockfile-if-some-platform-missed' to better reflect its behavior. Please update your configuration.
+"
+            mode="regenerate-lockfile-if-some-platform-missed"
+            ;;
+          *)
+            common::colorify "red" "Invalid hook config. Supported --mode values are:
+  - check-lockfile-is-cross-platform
+  - regenerate-lockfile-if-some-platform-missed
+  - always-regenerate-lockfile"
+            exit 1
+            ;;
+        esac
         ;;
     esac
   done
@@ -147,11 +167,6 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
       exit_code=$?
       return $exit_code
     }
-  elif [ "$mode" == "only-check-is-current-lockfile-cross-platform" ]; then
-    common::colorify "yellow" "DEPRECATION NOTICE: Flag '--mode=only-check-is-current-lockfile-cross-platform' was renamed
-  to '--mode=regenerate-lockfile-if-some-platform-missed' to better reflect its behavior. Please update your configuration.
-"
-    mode="regenerate-lockfile-if-some-platform-missed"
   fi
 
   if [ "$mode" == "check-lockfile-is-cross-platform" ]; then
