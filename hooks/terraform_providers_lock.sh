@@ -169,26 +169,27 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
     }
   fi
 
-  if [ "$mode" == "check-lockfile-is-cross-platform" ]; then
+  case "$mode" in
+    "check-lockfile-is-cross-platform")
+      if lockfile_contains_all_needed_sha "$platforms_count"; then
+        exit 0
+      fi
 
-    if lockfile_contains_all_needed_sha "$platforms_count"; then
-      exit 0
-    fi
+      common::colorify "red" "$dir_path/.terraform.lock.hcl missing some of required platforms.
+        All required platforms: ${platforms_names[*]}"
 
-    common::colorify "red" "\n$dir_path/.terraform.lock.hcl missing some of required platforms.
-      All required platforms: ${platforms_names[*]}."
-    exit 1
-  fi
+      exit 1
+      ;;
+    "regenerate-lockfile-if-some-platform-missed")
+      if lockfile_contains_all_needed_sha "$platforms_count"; then
+        exit 0
+      fi
 
-  if [ "$mode" == "regenerate-lockfile-if-some-platform-missed" ]; then
+      common::colorify "yellow" "$dir_path/.terraform.lock.hcl missing some of required platforms.
+        All required platforms: ${platforms_names[*]}\n"
 
-    if lockfile_contains_all_needed_sha "$platforms_count"; then
-      exit 0
-    fi
-
-    common::colorify "yellow" "$dir_path/.terraform.lock.hcl missing some of required platforms.
-      All required platforms: ${platforms_names[*]}.\n"
-  fi
+      ;;
+  esac
 
   #? Don't require `tf init` for providers, but required `tf init` for modules
   #? Mitigated by `function match_validate_errors` from terraform_validate hook
