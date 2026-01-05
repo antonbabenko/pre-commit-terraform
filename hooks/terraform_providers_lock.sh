@@ -126,19 +126,19 @@ function per_dir_hook_unique_part {
     case "$key" in
       --mode)
         if [ "$mode" ]; then
-          common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--mode" flag'
+          common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--mode" flag.'
           exit 1
         fi
         mode=$value
 
-        case $mode in
+        case "$mode" in
           check-lockfile-is-cross-platform) ;;
           regenerate-lockfile-if-some-platform-missed) ;;
           always-regenerate-lockfile) ;;
 
           only-check-is-current-lockfile-cross-platform)
-            common::colorify "yellow" "DEPRECATION NOTICE: Flag '--mode=only-check-is-current-lockfile-cross-platform' was renamed
-  to '--mode=regenerate-lockfile-if-some-platform-missed' to better reflect its behavior. Please update your configuration.
+            common::colorify "yellow" "DEPRECATION NOTICE: Flag '--mode=only-check-is-current-lockfile-cross-platform' was renamed to '--mode=regenerate-lockfile-if-some-platform-missed' to better reflect its behavior.
+Please update your configuration.
 "
             mode="regenerate-lockfile-if-some-platform-missed"
             ;;
@@ -201,7 +201,7 @@ All required platforms: ${platforms_names[*]}
   exit_code=$?
   if [[ $exit_code -ne 0 ]]; then
     common::colorify "red" "$dir_path run failed. Detailed error above.
-Most common issue is that required 'terraform init' command was likely not run before running this hook. It might be run for you automatically by 'terraform_validate' hook - see https://github.com/antonbabenko/pre-commit-terraform#terraform_validate for more details
+Most common issue is that required 'terraform init' command was likely not run before running this hook. It might be run for you automatically by 'terraform_validate' hook - see https://github.com/antonbabenko/pre-commit-terraform#terraform_validate for more details.
 "
   fi
 
