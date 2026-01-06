@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.105.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.104.1...v1.105.0) (2026-01-06)
+
+
+### Features
+
+* **`terraform_providers_lock`:** Fix logical issue in hook modes: Add `check-lockfile-is-cross-platform` and `regenerate-lockfile-if-some-platform-missed` modes. Last one is same as `only-check-is-current-lockfile-cross-platform`, which now is deprecated. Check README for more details ([#950](https://github.com/antonbabenko/pre-commit-terraform/issues/950)) ([95a52e3](https://github.com/antonbabenko/pre-commit-terraform/commit/95a52e363965dde1ce1fc33e2e848980145b4575))
+
 ## [1.104.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.104.0...v1.104.1) (2026-01-04)
 
 
