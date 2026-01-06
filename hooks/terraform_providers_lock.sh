@@ -101,9 +101,11 @@ function per_dir_hook_unique_part {
   local -a -r args=("$@")
 
   local platforms_count=0
+  local platforms_names=()
   for arg in "${args[@]}"; do
     if grep -Eq '^-platform=' <<< "$arg"; then
       platforms_count=$((platforms_count + 1))
+      platforms_names+=("${arg#*=}")
     fi
   done
 
@@ -121,44 +123,84 @@ function per_dir_hook_unique_part {
     key=${config[0]}
     value=${config[1]}
 
-    case $key in
+    case "$key" in
       --mode)
         if [ "$mode" ]; then
-          common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--mode" flag'
+          common::colorify "yellow" 'Invalid hook config. Make sure that you specify not more than one "--mode" flag.'
           exit 1
         fi
         mode=$value
+
+        case "$mode" in
+          check-lockfile-is-cross-platform) ;;
+          regenerate-lockfile-if-some-platform-missed) ;;
+          always-regenerate-lockfile) ;;
+
+          only-check-is-current-lockfile-cross-platform)
+            common::colorify "yellow" "DEPRECATION NOTICE: Flag '--mode=only-check-is-current-lockfile-cross-platform' was renamed to '--mode=regenerate-lockfile-if-some-platform-missed' to better reflect its behavior.
+Please update your configuration."
+            mode="regenerate-lockfile-if-some-platform-missed"
+            ;;
+          *)
+            common::colorify "red" "Invalid hook config. Supported --mode values are:
+  - check-lockfile-is-cross-platform
+  - regenerate-lockfile-if-some-platform-missed
+  - always-regenerate-lockfile"
+            exit 1
+            ;;
+        esac
         ;;
     esac
   done
 
   # Available options:
-  #   only-check-is-current-lockfile-cross-platform (will be default)
+  #   check-lockfile-is-cross-platform (will be default in v2.0)
+  #   regenerate-lockfile-if-some-platform-missed
   #   always-regenerate-lockfile
   # TODO: Remove in 2.0
   if [ ! "$mode" ]; then
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
-Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
-"
+Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock"
     common::terraform_init "$tf_path providers lock" "$dir_path" "$parallelism_disabled" "$tf_path" || {
       exit_code=$?
       return $exit_code
     }
   fi
 
-  if [ "$mode" == "only-check-is-current-lockfile-cross-platform" ] &&
-    lockfile_contains_all_needed_sha "$platforms_count"; then
+  case "$mode" in
+    "check-lockfile-is-cross-platform")
+      if lockfile_contains_all_needed_sha "$platforms_count"; then
+        exit 0
+      fi
 
-    exit 0
-  fi
+      common::colorify "red" "$dir_path/.terraform.lock.hcl missing some of required platforms.
+All required platforms: ${platforms_names[*]}"
+
+      exit 1
+      ;;
+    "regenerate-lockfile-if-some-platform-missed")
+      if lockfile_contains_all_needed_sha "$platforms_count"; then
+        exit 0
+      fi
+
+      common::colorify "yellow" "$dir_path/.terraform.lock.hcl missing some of required platforms.
+All required platforms: ${platforms_names[*]}"
+
+      ;;
+  esac
 
   #? Don't require `tf init` for providers, but required `tf init` for modules
   #? Mitigated by `function match_validate_errors` from terraform_validate hook
   # pass the arguments to hook
   "$tf_path" providers lock "${args[@]}"
 
-  # return exit code to common::per_dir_hook
   exit_code=$?
+  if [[ $exit_code -ne 0 ]]; then
+    common::colorify "red" "$dir_path run failed. Detailed error above.
+Most common issue is that required 'terraform init' command was likely not run before running this hook. It might be run for you automatically by 'terraform_validate' hook - see https://github.com/antonbabenko/pre-commit-terraform#terraform_validate for more details."
+  fi
+
+  # return exit code to common::per_dir_hook
   return $exit_code
 }
 
