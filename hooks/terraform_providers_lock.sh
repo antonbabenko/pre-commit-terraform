@@ -138,8 +138,7 @@ function per_dir_hook_unique_part {
 
           only-check-is-current-lockfile-cross-platform)
             common::colorify "yellow" "DEPRECATION NOTICE: Flag '--mode=only-check-is-current-lockfile-cross-platform' was renamed to '--mode=regenerate-lockfile-if-some-platform-missed' to better reflect its behavior.
-Please update your configuration.
-"
+Please update your configuration."
             mode="regenerate-lockfile-if-some-platform-missed"
             ;;
           *)
@@ -161,8 +160,7 @@ Please update your configuration.
   # TODO: Remove in 2.0
   if [ ! "$mode" ]; then
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
-Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock
-"
+Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock"
     common::terraform_init "$tf_path providers lock" "$dir_path" "$parallelism_disabled" "$tf_path" || {
       exit_code=$?
       return $exit_code
@@ -176,8 +174,7 @@ Check migration instructions at https://github.com/antonbabenko/pre-commit-terra
       fi
 
       common::colorify "red" "$dir_path/.terraform.lock.hcl missing some of required platforms.
-All required platforms: ${platforms_names[*]}
-"
+All required platforms: ${platforms_names[*]}"
 
       exit 1
       ;;
@@ -187,8 +184,7 @@ All required platforms: ${platforms_names[*]}
       fi
 
       common::colorify "yellow" "$dir_path/.terraform.lock.hcl missing some of required platforms.
-All required platforms: ${platforms_names[*]}
-"
+All required platforms: ${platforms_names[*]}"
 
       ;;
   esac
@@ -201,8 +197,7 @@ All required platforms: ${platforms_names[*]}
   exit_code=$?
   if [[ $exit_code -ne 0 ]]; then
     common::colorify "red" "$dir_path run failed. Detailed error above.
-Most common issue is that required 'terraform init' command was likely not run before running this hook. It might be run for you automatically by 'terraform_validate' hook - see https://github.com/antonbabenko/pre-commit-terraform#terraform_validate for more details.
-"
+Most common issue is that required 'terraform init' command was likely not run before running this hook. It might be run for you automatically by 'terraform_validate' hook - see https://github.com/antonbabenko/pre-commit-terraform#terraform_validate for more details."
   fi
 
   # return exit code to common::per_dir_hook
