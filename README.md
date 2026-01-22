@@ -973,7 +973,7 @@ To replicate functionality in `terraform_docs` hook:
 > If you use both:
 >
 > 1. Global Provider Cache. [Terraform docs](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache), [OpenTofu docs](https://opentofu.org/docs/cli/config/config-file/#provider-plugin-cache)
-> 2.`tofu` < v1.10 or any `terraform` version
+> 2. `tofu` < v1.10 or any `terraform` version
 >
 > We recommend to do one of:
 >
