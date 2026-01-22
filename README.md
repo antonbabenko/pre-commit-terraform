@@ -970,7 +970,15 @@ To replicate functionality in `terraform_docs` hook:
 ### terraform_validate
 
 > [!IMPORTANT]
-> If you use [`TF_PLUGIN_CACHE_DIR`](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache), we recommend enabling `--hook-config=--retry-once-with-cleanup=true` or disabling parallelism (`--hook-config=--parallelism-limit=1`) to avoid [race conditions when `terraform init` writes to it](https://github.com/hashicorp/terraform/issues/31964).
+> If you use both:
+>
+> 1. Global Provider Cache. [Terraform docs](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache), [OpenTofu docs](https://opentofu.org/docs/cli/config/config-file/#provider-plugin-cache)
+> 2.`tofu` < v1.10 or any `terraform` version
+>
+> We recommend to do one of:
+>
+> * Disable parallelism (`--hook-config=--parallelism-limit=1`) as it can cause [race conditions when `terraform init` writes to it](https://github.com/hashicorp/terraform/issues/31964).
+> * Install [OpenTofu v1.10+](https://opentofu.org/blog/help-us-test-opentofu-1-10-0-alpha2/#global-provider-cache-locking) even if you use Terraform - it will be used just for `t init` operations.
 
 1. `terraform_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
 
