@@ -645,9 +645,9 @@ function common::tofu_version_ge_1.10 {
   # New functional added in v1.10.0 (June 2025)
   if [[ $major -gt 1 || ($major -eq 1 && $minor -ge 10) ]]; then
     return 0
-  else
-    return 1
   fi
+
+  return 1
 }
 
 #######################################################################
