@@ -558,16 +558,17 @@ function common::terraform_init {
       # The global provider cache is safe for concurrent use by multiple processes for OpenTofu v1.10+
       # More details - https://github.com/opentofu/opentofu/pull/1878
       # For that reason, we switch to `tofu init` when possible
+      local tf_init_path=$tf_path
       if [[ "$($tf_path -version | head -1 | grep -o '^Terraform')" == "Terraform" ]] &&
         common::tofu_version_ge_1.10; then
-        tf_path=$(command -v tofu)
-        common::colorify "green" "Using OpenTofu binary ($tf_path) for Terraform init operations, as it supports concurrent provider initialization."
+        tf_init_path=$(command -v tofu)
+        common::colorify "green" "Using OpenTofu binary ($tf_init_path) for Terraform init operations, as it supports concurrent provider initialization."
       fi
 
       # Locking just doesn't work, and the below works quicker instead. Details:
       # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
       for i in {1..10}; do
-        init_output=$("$tf_path" init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
+        init_output=$("$tf_init_path" init -backend=false "${TF_INIT_ARGS[@]}" 2>&1)
         exit_code=$?
 
         if [ $exit_code -eq 0 ]; then
