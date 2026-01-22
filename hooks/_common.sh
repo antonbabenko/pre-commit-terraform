@@ -559,7 +559,7 @@ function common::terraform_init {
       # More details - https://github.com/opentofu/opentofu/pull/1878
       # For that reason, we switch to `tofu init` when possible
       local tf_init_path=$tf_path
-      if [[ "$($tf_path -version | head -1 | grep -o '^Terraform')" == "Terraform" ]] &&
+      if [[ "$($tf_path --version | head -1 | grep -o '^Terraform')" == "Terraform" ]] &&
         common::tofu_version_ge_1.10; then
         tf_init_path=$(command -v tofu)
         common::colorify "green" "Using OpenTofu binary ($tf_init_path) for Terraform init operations, as it supports concurrent provider initialization."
@@ -622,8 +622,8 @@ function common::export_provided_env_vars {
 #######################################################################
 # Check if the installed Tofu version is >=1.10.0 or not
 #
-# This function helps to determine if tofu version allow to use
-# parallelism based on Tofu version
+# This function determines whether the tofu version allows using
+# parallelism.
 #
 # Returns:
 #   - 0 if version >= 1.10.0
@@ -641,8 +641,7 @@ function common::tofu_version_ge_1.10 {
 
   local major minor
   IFS='.' read -r major minor <<< "$tofu_version"
-
-  # New functional added in v1.10.0 (June 2025)
+  # New functionality was added in v1.10.0 (June 2025)
   if [[ $major -gt 1 || ($major -eq 1 && $minor -ge 10) ]]; then
     return 0
   fi
