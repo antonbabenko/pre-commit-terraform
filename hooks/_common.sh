@@ -558,11 +558,13 @@ function common::terraform_init {
       # The global provider cache is safe for concurrent use by multiple processes for OpenTofu v1.10+
       # More details - https://github.com/opentofu/opentofu/pull/1878
       # For that reason, we switch to `tofu init` when possible
+      echo "Using Terraform binary path: $tf_path"
       if [[ "$($tf_path -version | head -1 | grep '^Terraform')" == "Terraform" ]] &&
         common::tofu_version_ge_1.10; then
         tf_path=$(command -v tofu)
         common::colorify "green" "Using OpenTofu binary ($tf_path) for Terraform init operations, as it supports concurrent provider initialization."
       fi
+      echo "Running 'terraform init' with plugin cache dir: $TF_PLUGIN_CACHE_DIR"
 
       # Locking just doesn't work, and the below works quicker instead. Details:
       # https://github.com/hashicorp/terraform/issues/31964#issuecomment-1939869453
@@ -635,6 +637,7 @@ function common::tofu_version_ge_1.10 {
 
   # Extract version number (e.g., "tofu version v1.10.4" -> "1.10")
   tofu_version=$(tofu --version 2> /dev/null | grep -oE '[0-9]+\.[0-9]+')
+  echo "Detected OpenTofu version: $tofu_version"
   # If we can't parse version, default to older command
   [[ ! $tofu_version ]] && return 1
 
