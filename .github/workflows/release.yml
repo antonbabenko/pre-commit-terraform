@@ -36,7 +36,7 @@ jobs:
         fetch-depth: 0
 
     - name: Release
-      uses: cycjimmy/semantic-release-action@16ca923e6ccbb50770c415a0ccd43709a8c5f7a4  # v4.2.2
+      uses: cycjimmy/semantic-release-action@ba330626c4750c19d8299de843f05c7aa5574f62  # v5.0.2
       with:
         semantic_version: 18.0.0
         extra_plugins: |
