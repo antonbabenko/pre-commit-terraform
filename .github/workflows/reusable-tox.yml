@@ -390,7 +390,7 @@ jobs:
       if: >-
         !cancelled()
         && steps.tox-run.outputs.cov-report-files != ''
-      uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24  # v5.4.3
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de  # v5.5.2
       with:
         disable_search: true
         fail_ci_if_error: >-
