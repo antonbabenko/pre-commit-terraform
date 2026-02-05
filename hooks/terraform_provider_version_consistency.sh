@@ -21,7 +21,7 @@ function main {
   for c in "${configs[@]}"; do
     IFS="=" read -r -a config <<< "$c"
     key="${config[0]## }"
-    value=${config[1]}
+    local value=${config[1]}
 
     case $key in
       --version-file-pattern)
