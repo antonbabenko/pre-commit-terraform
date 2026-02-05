@@ -67,6 +67,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [terraform\_tfsec (deprecated)](#terraform_tfsec-deprecated)
   * [terraform\_trivy](#terraform_trivy)
   * [terraform\_validate](#terraform_validate)
+  * [terraform\_provider\_version\_consistency](#terraform_provider_version_consistency)
   * [terraform\_wrapper\_module\_for\_each](#terraform_wrapper_module_for_each)
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
@@ -337,6 +338,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_tfsec`                                      | [TFSec][tfsec repo] static analysis of terraform templates to spot potential security issues. **DEPRECATED**, use `terraform_trivy`. [Hook notes](#terraform_tfsec-deprecated)                                                   | `tfsec`                                                                              |
 | `terraform_trivy`                                      | [Trivy][trivy repo] static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_trivy)                                                                                                     | `trivy`                                                                              |
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                   | `jq`, only for `--retry-once-with-cleanup` flag                                      |
+| `terraform_provider_version_consistency`               | Checks that provider version constraints are consistent across all `versions.tf` files. [Hook notes](#terraform_provider_version_consistency)                                                                                    | -                                                                                    |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt][terragrunt repo] configuration files (`*.hcl`) to a canonical format.                                                                                                                                  | `terragrunt`                                                                         |
 | `terragrunt_validate`                                  | Validates all [Terragrunt][terragrunt repo] configuration files (`*.hcl`)                                                                                                                                                        | `terragrunt`                                                                         |
 | `terragrunt_validate_inputs`                           | Validates [Terragrunt][terragrunt repo] unused and undefined inputs (`*.hcl`)                                                                                                                                                    |                                                                                      |
@@ -1085,8 +1087,52 @@ To replicate functionality in `terraform_docs` hook:
      - repo: https://github.com/pre-commit/pre-commit-hooks
    ```
 
-    > **Tip**  
+    > **Tip**
     > The latter method will leave an "aliased-providers.tf.json" file in your repo. You will either want to automate a way to clean this up or add it to your `.gitignore` or both.
+
+### terraform_provider_version_consistency
+
+`terraform_provider_version_consistency` checks that provider version constraints are consistent across all `versions.tf` files in the repository. This is useful for multi-module repositories where each module has its own `versions.tf` file and you want to ensure they all use the same provider versions.
+
+The hook:
+
+- Finds all `versions.tf` files (excluding `.terraform/` directories)
+- Extracts provider version constraints (`version = "..."` lines)
+- Fails if different version constraints are found across files
+- Reports which files have inconsistent versions
+
+Example configuration:
+
+```yaml
+- id: terraform_provider_version_consistency
+```
+
+Example output when versions are inconsistent:
+
+```text
+Inconsistent provider versions found across 6 files:
+
+--- ./examples/complete/versions.tf
+  version = ">= 6.31"
+--- ./versions.tf
+  version = "= 6.30"
+
+Found 2 different version constraints:
+  version = "= 6.30"
+  version = ">= 6.31"
+```
+
+You can customize the hook behavior using `--hook-config`:
+
+1. `--version-file-pattern=...` - Pattern for version files (default: `versions.tf`)
+2. `--exclude-pattern=...` - Pattern to exclude from search (default: `.terraform/`)
+
+```yaml
+- id: terraform_provider_version_consistency
+  args:
+    - --hook-config=--version-file-pattern=versions.tf
+    - --hook-config=--exclude-pattern=.terraform/
+```
 
 ### terraform_wrapper_module_for_each
 

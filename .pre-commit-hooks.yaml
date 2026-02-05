@@ -178,3 +178,15 @@
   - --args=terraform
   files: \.(tf|tofu)$
   require_serial: true
+
+- id: terraform_provider_version_consistency
+  name: Terraform provider version consistency
+  description: >-
+    Checks that provider version constraints are consistent across all
+    versions.tf files in the repository.
+  entry: hooks/terraform_provider_version_consistency.sh
+  language: script
+  pass_filenames: false
+  files: versions\.tf$
+  exclude: \.terraform/.*$
+  require_serial: true
