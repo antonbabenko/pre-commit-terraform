@@ -25,10 +25,14 @@ function main {
 
     case $key in
       --version-file-pattern)
-        version_file_pattern="$value"
+        if [[ -n "$value" ]]; then
+          version_file_pattern="$value"
+        fi
         ;;
       --exclude-pattern)
-        exclude_pattern="$value"
+        if [[ -n "$value" ]]; then
+          exclude_pattern="$value"
+        fi
         ;;
     esac
   done
