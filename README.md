@@ -1173,7 +1173,7 @@ No need to pass `--recursive .` as it is added automatically.
 
 Hook produces same results as [`terraform_providers_lock`](#terraform_providers_lock), but for terragrunt root modules.
 
-It invokes `terragrunt providers lock` under the hood and terragrunt [does its' own magic](https://terragrunt.gruntwork.io/docs/features/lock-file-handling/) for handling lock files.
+It invokes `terragrunt providers lock` under the hood and terragrunt [does its' own magic](https://terragrunt.gruntwork.io/docs/reference/lock-files/) for handling lock files.
 
 
 ```yaml
