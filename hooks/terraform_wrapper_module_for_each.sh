@@ -394,9 +394,15 @@ EOF
 
       echo "$CONTENT_VARIABLES_TF" > "${output_dir}/variables.tf"
 
-      # If the root module has a versions.tf, use that; otherwise, create it
+      # If the root module has a versions.tf, use that; otherwise, create it.
+      # Strip `provider_meta` blocks so wrappers don't duplicate the module's
+      # user-agent tag on every provider call (see #954).
       if [[ -f "${full_module_dir}/versions.tf" ]]; then
-        cp "${full_module_dir}/versions.tf" "${output_dir}/versions.tf"
+        awk '
+          /^[[:space:]]*provider_meta[[:space:]]+"[^"]+"[[:space:]]*\{[[:space:]]*$/ { in_block = 1; next }
+          in_block && /^[[:space:]]*\}[[:space:]]*$/ { in_block = 0; next }
+          !in_block { print }
+        ' "${full_module_dir}/versions.tf" > "${output_dir}/versions.tf"
       else
         echo "$CONTENT_VERSIONS_TF" > "${output_dir}/versions.tf"
       fi
