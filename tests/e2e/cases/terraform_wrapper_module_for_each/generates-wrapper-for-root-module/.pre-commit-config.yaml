@@ -1,0 +1,12 @@
+repos:
+- repo: local
+  hooks:
+  - id: terraform_wrapper_module_for_each
+    name: terraform_wrapper_module_for_each
+    language: script
+    entry: __PCT_REPO__/hooks/terraform_wrapper_module_for_each.sh
+    files: \.(tf|tofu)$
+    args:
+    - --args=--module-repo-org=terraform-aws-modules
+    - --args=--module-repo-shortname=s3-bucket
+    - --args=--module-repo-provider=aws
