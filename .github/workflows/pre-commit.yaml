@@ -13,7 +13,7 @@ jobs:
       contents: write  # for pre-commit/action to push back fixes to PR branch
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
         persist-credentials: false
     - run: >-
@@ -47,12 +47,13 @@ jobs:
       run: >-
         curl -L "$(
         curl -s https://api.github.com/repos/hadolint/hadolint/releases/latest
+        | jq -r .
         | grep -o -E -i -m 1 "https://.+?/hadolint-linux-x86_64"
         )"
         > hadolint
         && chmod +x hadolint && sudo mv hadolint /usr/bin/
     # Needed for pre-commit fix push to succeed
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
         fetch-depth: 0
         persist-credentials: false
@@ -61,7 +62,7 @@ jobs:
         # https://web.archive.org/web/20210731173012/https://github.community/t/required-check-is-expected-after-automated-push/187545/
         ssh-key: ${{ secrets.GHA_AUTOFIX_COMMIT_KEY }}
     # Skip terraform_tflint which interferes to commit pre-commit auto-fixes
-    - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+    - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
       with:
         python-version: '3.13'
 
@@ -78,7 +79,7 @@ jobs:
     # Needed to trigger pre-commit workflow on autofix commit
     - name: Push fixes
       if: failure()
-      uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5  # v9.1.4
+      uses: EndBug/add-and-commit@290ea2c423ad77ca9c62ae0f5b224379612c0321  # v10.0.0
       with:
         # Determines the way the action fills missing author name and email.
         # Three options are available:
