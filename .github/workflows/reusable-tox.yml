@@ -414,7 +414,7 @@ jobs:
       if: >-
         !cancelled()
         && steps.tox-run.outputs.test-result-files != ''
-      uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f  # v1.1.1
+      uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3  # v1.2.1
       # FIXME There is a bug in action which provokes it to fail during upload
       # Related issue: https://github.com/codecov/codecov-action/issues/1794
       continue-on-error: true
