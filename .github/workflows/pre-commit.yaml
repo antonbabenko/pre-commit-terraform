@@ -47,6 +47,7 @@ jobs:
       run: >-
         curl -L "$(
         curl -s https://api.github.com/repos/hadolint/hadolint/releases/latest
+        | jq -r .
         | grep -o -E -i -m 1 "https://.+?/hadolint-linux-x86_64"
         )"
         > hadolint
