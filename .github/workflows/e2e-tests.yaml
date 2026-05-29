@@ -27,9 +27,12 @@ jobs:
 
     # The published image bundles every tool the hooks need (terraform,
     # hcledit, pre-commit, git, ...). Hook and test code come from the checkout
-    # below, so the image tag only needs to provide tooling, not be in sync.
+    # below, so the image only needs to provide tooling, not be in sync.
+    # Pinned by digest for reproducibility/supply-chain; bump via Renovate.
     env:
-      IMAGE: ghcr.io/antonbabenko/pre-commit-terraform:latest
+      # renovate: datasource=docker depName=ghcr.io/antonbabenko/pre-commit-terraform
+      # yamllint disable-line rule:line-length
+      IMAGE: ghcr.io/antonbabenko/pre-commit-terraform:latest@sha256:4ef4b8323b27fc263535ad88c9d2f20488fcb3b520258e5e7f0553ed5f6692b5
 
     steps:
     - name: Check out src from Git
