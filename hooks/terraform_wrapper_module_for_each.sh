@@ -398,9 +398,9 @@ EOF
       if [[ -f "${full_module_dir}/versions.tf" ]]; then
         cp "${full_module_dir}/versions.tf" "${output_dir}/versions.tf"
         # Don't propagate redundant `provider_meta` attributes
-        # AWS specific
+        # AWS-provider specific
         hcledit attribute rm "terraform.provider_meta.${module_repo_provider}.user_agent" -f "${output_dir}/versions.tf" -u
-        # GCP specific
+        # GCP-provider specific
         hcledit attribute rm "terraform.provider_meta.${module_repo_provider}.module_name" -f "${output_dir}/versions.tf" -u
       else
         echo "$CONTENT_VERSIONS_TF" > "${output_dir}/versions.tf"
