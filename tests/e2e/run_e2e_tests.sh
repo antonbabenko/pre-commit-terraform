@@ -59,12 +59,10 @@ function run_case {
   work="$(mktemp -d)"
   config="$(mktemp)"
   log="$(mktemp)"
-  # shellcheck disable=SC2064 # expand paths now, on purpose
-  trap "rm -rf '$work' '$config' '$log' '$log.diff'" RETURN
 
   # Materialize the input working tree as a git repo (hooks and pre-commit
   # both expect one; the wrapper hook calls `git rev-parse --show-toplevel`).
-  cp -R "$case_dir/input/." "$work/"
+  cp -R "$case_dir/input/." "$work"
   git -C "$work" init -q
   git -C "$work" add -A
   git -C "$work" \
@@ -79,44 +77,46 @@ function run_case {
   (
     cd "$work"
     pre-commit run --config "$config" --all-files
-  ) > "$log" 2>&1 || actual_rc=$?
+  ) &> "$log" || actual_rc=$?
 
   local expected_rc=0
   [[ -f "$case_dir/expected_returncode" ]] &&
-    expected_rc="$(cat "$case_dir/expected_returncode")"
+    expected_rc="$(< "$case_dir/expected_returncode")"
 
   # Drop the throwaway git dir so the tree compare only sees fixture output.
   # `git diff --no-index` is used instead of `diff -r` because the project
   # image ships BusyBox `diff`, which lacks `--exclude` and `-u`.
   rm -rf "$work/.git"
 
-  local ok=true reason=''
+  local ok="true" reason=''
   if [[ $actual_rc -ne $expected_rc ]]; then
-    ok=false
+    ok="false"
     reason="exit code ${actual_rc}, expected ${expected_rc}"
   elif ! git --no-pager diff --no-index --exit-code \
-    "$case_dir/expected" "$work" > "$log.diff" 2>&1; then
-    ok=false
+    "$case_dir/expected" "$work" &> "$log.diff"; then
+    ok="false"
     reason='output differs from expected/'
   fi
 
-  if [[ $ok == true ]]; then
+  local rc=0
+  if [[ $ok == "true" ]]; then
     summary+=("${C_GREEN}PASS${C_RESET} ${test_id}")
     passed+=1
-    return 0
+  else
+    summary+=("${C_RED}FAIL${C_RESET} ${test_id} (${reason})")
+    failed+=1
+    echo "${C_RED}--- FAIL: ${test_id} (${reason}) ---${C_RESET}"
+    echo "pre-commit output:"
+    sed 's/^/  /' "$log"
+    if [[ -s "$log.diff" ]]; then
+      echo "diff (expected vs actual):"
+      sed 's/^/  /' "$log.diff"
+    fi
+    rc=1
   fi
 
-  summary+=("${C_RED}FAIL${C_RESET} ${test_id} (${reason})")
-  failed+=1
-  echo "${C_RED}--- FAIL: ${test_id} (${reason}) ---${C_RESET}"
-  echo "pre-commit output:"
-  sed 's/^/  /' "$log"
-  if [[ -s "$log.diff" ]]; then
-    echo "diff (expected vs actual):"
-    sed 's/^/  /' "$log.diff"
-  fi
-  rm -f "$log.diff"
-  return 1
+  rm -rf "$work" "$config" "$log" "$log.diff"
+  return "$rc"
 }
 
 function main {
@@ -132,10 +132,7 @@ function main {
 
   echo
   echo '==== e2e summary ===='
-  local line
-  for line in "${summary[@]}"; do
-    echo "  $line"
-  done
+  printf '  %s\n' "${summary[@]}"
   echo "  ${passed} passed, ${failed} failed, ${skipped} skipped"
 
   [[ $failed -eq 0 ]]
