@@ -95,7 +95,7 @@ function run_case {
   elif ! git --no-pager diff --no-index --exit-code \
     "$case_dir/expected" "$work" &> "$log.diff"; then
     ok="false"
-    reason='output differs from expected/'
+    reason='output differs from expected'
   fi
 
   local rc=0
