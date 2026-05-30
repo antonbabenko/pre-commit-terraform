@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.106.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.105.0...v1.106.0) (2026-05-30)
+
+
+### Features
+
+* **`terraform_wrapper_module_for_each`:** Strip `provider_meta` blocks from `versions.tf` ([#967](https://github.com/antonbabenko/pre-commit-terraform/issues/967)) ([7710871](https://github.com/antonbabenko/pre-commit-terraform/commit/7710871ebfdf617cc95df236e1cfb626f350230f))
+
 # [1.105.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.104.1...v1.105.0) (2026-01-06)
 
 
