@@ -115,6 +115,16 @@ function per_dir_hook_unique_part {
     esac
   done
 
+  # When plugin cache is enabled and parallelism is active, always run
+  # terraform init first to avoid race conditions with concurrent access.
+  # https://github.com/hashicorp/terraform/issues/31964
+  if [[ -n $TF_PLUGIN_CACHE_DIR && $parallelism_disabled != true ]]; then
+    common::terraform_init "$tf_path validate" "$dir_path" "$parallelism_disabled" "$tf_path" || {
+      exit_code=$?
+      return $exit_code
+    }
+  fi
+
   # First try `terraform validate` with the hope that all deps are
   # pre-installed. That is needed for cases when `.terraform/modules`
   # or `.terraform/providers` missed AND that is expected.
