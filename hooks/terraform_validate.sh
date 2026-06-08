@@ -57,6 +57,7 @@ function match_validate_errors {
       "Could not load plugin") return 1 ;;
       "Missing required provider") return 1 ;;
       *"there is no package for"*"cached in .terraform/providers") return 1 ;;
+      *"could not retrieve the list of available versions for provider"*) return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
 
@@ -66,9 +67,11 @@ function match_validate_errors {
 #######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
 # on each provided dir path. Run wrapped tool with specified arguments
-# 1. Check if `.terraform` dir exists and if not - run `terraform init`
-# 2. Run `terraform validate`
-# 3. If at least 1 check failed - change the exit code to non-zero
+# 1. Run `terraform validate`
+# 2. If validate fails, run `terraform init` and retry
+# 3. If plugin cache parallelism causes a race condition, the error is
+#    caught by match_validate_errors and retried automatically
+# 4. If at least 1 check failed - change the exit code to non-zero
 # Arguments:
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
@@ -115,10 +118,11 @@ function per_dir_hook_unique_part {
     esac
   done
 
-  # When plugin cache is enabled and parallelism is active, always run
-  # terraform init first to avoid race conditions with concurrent access.
+  # When plugin cache is enabled and parallelism is active, run
+  # terraform init before validate to avoid race conditions with
+  # concurrent cache access. Only needed when .terraform doesn't exist.
   # https://github.com/hashicorp/terraform/issues/31964
-  if [[ -n $TF_PLUGIN_CACHE_DIR && $parallelism_disabled != true ]]; then
+  if [[ ! -d $dir_path/.terraform && $TF_PLUGIN_CACHE_DIR && $parallelism_disabled != true ]]; then
     common::terraform_init "$tf_path validate" "$dir_path" "$parallelism_disabled" "$tf_path" || {
       exit_code=$?
       return $exit_code
