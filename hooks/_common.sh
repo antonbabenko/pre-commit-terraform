@@ -117,6 +117,38 @@ function common::parse_cmdline {
 }
 
 #######################################################################
+# Scrub GIT_* environment variables that get inherited from `git commit`
+# and corrupt child `git clone` operations spawned by `tofu init` /
+# `terraform init` when fetching modules.
+#
+# Without this, a `git commit` from a git worktree fails at tree-build:
+#   error: invalid object 100644 <oid> for '<path>'
+#   error: Error building trees
+#
+# Root cause: the child `git clone` inherits `GIT_INDEX_FILE` (pointing
+# at the worktree's index) from the parent `git commit` env. Most
+# clone-side env vars (`GIT_DIR`, `GIT_WORK_TREE`, `GIT_OBJECT_DIRECTORY`)
+# are overridden by `git clone`'s own target-dir setup; only
+# `GIT_INDEX_FILE` is not, so the clone writes the cloned module's blob
+# OIDs into the parent worktree's index. The next `git commit` then
+# cannot resolve those OIDs in the parent's object DB.
+#
+# pre-commit framework deliberately does NOT scrub GIT_* for user hooks
+# (only its own internal git calls) per the maintainer's stance in
+# pre-commit/pre-commit#1849: "they need the same code as in our
+# no_git_env helper if they are dealing with doing git writes". The
+# `no_git_env` helper (pre_commit/git.py:20-38) explicitly documents
+# `GIT_INDEX_FILE: Causes 'error invalid object ...' during commit`
+# and `GIT_DIR: Causes git clone to clone wrong thing` — we scrub both
+# (and the two other documented offenders) defensively even though
+# `GIT_INDEX_FILE` is the proximate cause of the bug class observed in
+# pre-commit-terraform hooks.
+#######################################################################
+function common::scrub_git_env {
+  unset GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE GIT_OBJECT_DIRECTORY
+}
+
+#######################################################################
 # Expand environment variables definition into their values in '--args'.
 # Support expansion only for ${ENV_VAR} vars, not $ENV_VAR.
 # Globals (modify):
