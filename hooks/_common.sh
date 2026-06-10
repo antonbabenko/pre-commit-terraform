@@ -117,32 +117,46 @@ function common::parse_cmdline {
 }
 
 #######################################################################
-# Scrub GIT_* environment variables that get inherited from `git commit`
-# and corrupt child `git clone` operations spawned by `tofu init` /
-# `terraform init` when fetching modules.
+# Scrub four dangerous GIT_* env vars before child git operations.
 #
-# Without this, a `git commit` from a git worktree fails at tree-build:
+# Without this, `git commit` from a linked git worktree fails at
+# tree-build when a hook runs `tofu init` / `terraform init` (which
+# spawns `git clone` for each module source):
+#
 #   error: invalid object 100644 <oid> for '<path>'
 #   error: Error building trees
 #
-# Root cause: the child `git clone` inherits `GIT_INDEX_FILE` (pointing
-# at the worktree's index) from the parent `git commit` env. Most
-# clone-side env vars (`GIT_DIR`, `GIT_WORK_TREE`, `GIT_OBJECT_DIRECTORY`)
-# are overridden by `git clone`'s own target-dir setup; only
-# `GIT_INDEX_FILE` is not, so the clone writes the cloned module's blob
-# OIDs into the parent worktree's index. The next `git commit` then
-# cannot resolve those OIDs in the parent's object DB.
+# Root cause: the child `git clone` inherits GIT_INDEX_FILE from the
+# parent `git commit` env (pointing at the worktree's index), then
+# writes the cloned module's blob OIDs into the parent worktree's
+# index. The subsequent commit cannot resolve those OIDs.
 #
-# pre-commit framework deliberately does NOT scrub GIT_* for user hooks
-# (only its own internal git calls) per the maintainer's stance in
-# pre-commit/pre-commit#1849: "they need the same code as in our
-# no_git_env helper if they are dealing with doing git writes". The
-# `no_git_env` helper (pre_commit/git.py:20-38) explicitly documents
-# `GIT_INDEX_FILE: Causes 'error invalid object ...' during commit`
-# and `GIT_DIR: Causes git clone to clone wrong thing` — we scrub both
-# (and the two other documented offenders) defensively even though
-# `GIT_INDEX_FILE` is the proximate cause of the bug class observed in
-# pre-commit-terraform hooks.
+# Targeted denylist, NOT a mirror of pre-commit's `no_git_env`:
+# `no_git_env` (pre_commit/git.py) uses an ALLOWLIST that scrubs all
+# GIT_* except ~11 known-safe vars (GIT_EXEC_PATH, GIT_SSH,
+# GIT_SSH_COMMAND, GIT_ASKPASS, GIT_SSL_CAINFO, GIT_SSL_NO_VERIFY,
+# GIT_CONFIG_KEY_*, GIT_CONFIG_VALUE_*, GIT_CONFIG_COUNT,
+# GIT_HTTP_PROXY_AUTHMETHOD, GIT_ALLOW_PROTOCOL). It runs only on
+# pre-commit's INTERNAL git calls, not on user hook subprocesses
+# (per pre-commit/pre-commit#1849).
+#
+# We unset only the four vars that pre-commit's own docstring (git.py
+# lines 20-38) names as dangerous when leaked into child git:
+#
+#   GIT_INDEX_FILE        proximate cause; "Causes 'error invalid
+#                         object ...' during commit" in git.py.
+#   GIT_DIR               "Causes git clone to clone wrong thing".
+#   GIT_WORK_TREE         defensive; paired with GIT_DIR.
+#   GIT_OBJECT_DIRECTORY  defensive; prevents child writes into the
+#                         parent object DB via non-clone git calls.
+#
+# Denylist over allowlist mirror because:
+#   1. Bash equivalent of the Python whitelist scan is ~15-20 lines
+#      versus a one-line `unset`.
+#   2. The observed bug is fully fixed by scrubbing GIT_INDEX_FILE
+#      alone; the other three are belt-and-braces.
+#   3. Narrower scrub minimizes risk of breaking hook authors who
+#      rely on inheritance of vars an aggressive allowlist might drop.
 #######################################################################
 function common::scrub_git_env {
   unset GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE GIT_OBJECT_DIRECTORY
