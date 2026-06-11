@@ -13,7 +13,7 @@ Detect before writing any commit, PR, or issue:
 
 - **Model**: stated in system prompt as "You are powered by the model named X" — use X. Never hardcode.
 - **Agent**: identity declared in system prompt (e.g. "Your designated identity is Sisyphus") — use that. Never use "Claude".
-- **CLI**: check env vars — `OPENCODE=1` → `opencode`; `CLAUDE_CODE_SSE_PORT` set → `claude`; neither → omit CLI part.
+- **CLI**: check env vars — `OPENCODE=1` → `opencode`; `CLAUDECODE` set → `claude`; neither → omit CLI part.
 
 ## Commits
 
