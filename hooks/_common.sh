@@ -117,11 +117,11 @@ function common::parse_cmdline {
 }
 
 #######################################################################
-# Scrub four dangerous GIT_* env vars before child git operations.
+# Scrub some GIT_* env vars before child Git operations.
 #
-# Without this, `git commit` from a linked git worktree fails at
+# Without this, `git commit` from a linked Git worktree fails at
 # tree-build when a hook runs `tofu init` / `terraform init` (which
-# spawns `git clone` for each module source):
+# spawns `git clone` for each Git-sourced module):
 #
 #   error: invalid object 100644 <oid> for '<path>'
 #   error: Error building trees
@@ -131,35 +131,27 @@ function common::parse_cmdline {
 # writes the cloned module's blob OIDs into the parent worktree's
 # index. The subsequent commit cannot resolve those OIDs.
 #
-# Targeted denylist, NOT a mirror of pre-commit's `no_git_env`:
-# `no_git_env` (pre_commit/git.py) uses an ALLOWLIST that scrubs all
-# GIT_* except ~11 known-safe vars (GIT_EXEC_PATH, GIT_SSH,
-# GIT_SSH_COMMAND, GIT_ASKPASS, GIT_SSL_CAINFO, GIT_SSL_NO_VERIFY,
-# GIT_CONFIG_KEY_*, GIT_CONFIG_VALUE_*, GIT_CONFIG_COUNT,
-# GIT_HTTP_PROXY_AUTHMETHOD, GIT_ALLOW_PROTOCOL). It runs only on
-# pre-commit's INTERNAL git calls, not on user hook subprocesses
-# (per pre-commit/pre-commit#1849).
+# pre-commit scrubs GIT_* only for its own internal Git calls, not
+# for hook subprocesses - hook authors are expected to handle it
+# themselves: https://github.com/pre-commit/pre-commit/issues/1849
 #
-# We unset only the four vars that pre-commit's own docstring (git.py
-# lines 20-38) names as dangerous when leaked into child git:
+# This is a targeted denylist, NOT a mirror of pre-commit's
+# allowlist-based `no_git_env` helper
+# (https://github.com/pre-commit/pre-commit/blob/main/pre_commit/git.py),
+# which drops all GIT_* except known-safe vars (GIT_ASKPASS,
+# GIT_CONFIG_*, GIT_SSH, GIT_SSH_COMMAND, GIT_SSL_*, etc.). We unset
+# only the vars that leak the parent repository's location into child
+# Git processes (see "Environment Variables" in `man 1 git`,
+# https://git-scm.com/docs/git#_environment_variables):
 #
-#   GIT_INDEX_FILE        proximate cause; "Causes 'error invalid
-#                         object ...' during commit" in git.py.
-#   GIT_DIR               "Causes git clone to clone wrong thing".
-#   GIT_WORK_TREE         defensive; paired with GIT_DIR.
-#   GIT_OBJECT_DIRECTORY  defensive; prevents child writes into the
-#                         parent object DB via non-clone git calls.
-#
-# Denylist over allowlist mirror because:
-#   1. Bash equivalent of the Python whitelist scan is ~15-20 lines
-#      versus a one-line `unset`.
-#   2. The observed bug is fully fixed by scrubbing GIT_INDEX_FILE
-#      alone; the other three are belt-and-braces.
-#   3. Narrower scrub minimizes risk of breaking hook authors who
-#      rely on inheritance of vars an aggressive allowlist might drop.
+#   GIT_DIR               makes child Git operate on the parent repo
+#   GIT_INDEX_FILE        proximate cause of the failure above
+#   GIT_OBJECT_DIRECTORY  redirects child object writes into the
+#                         parent object database
+#   GIT_WORK_TREE         pairs with GIT_DIR
 #######################################################################
 function common::scrub_git_env {
-  unset GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE GIT_OBJECT_DIRECTORY
+  unset GIT_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_WORK_TREE
 }
 
 #######################################################################
