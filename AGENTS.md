@@ -29,7 +29,7 @@ Two distinct hook types exist:
 **Python-based hooks** — invoked as `python -m pre_commit_terraform <subcommand>`:
 - `src/pre_commit_terraform/` is a standalone CLI app, not a helper library for bash
 - Each subcommand is a module with `invoke_cli_app()` + `populate_argument_parser()` + `CLI_SUBCOMMAND_NAME`
-- Currently only `terraform-docs-replace` subcommand exists
+- Currently only `replace-docs` subcommand exists (implemented in `terraform_docs_replace.py`)
 - Adding a new Python subcommand: create module → register in `_cli_subcommands.py` → add hook entry in `.pre-commit-hooks.yaml`
 
 New shell hooks: use `_common.sh` helpers, define `per_dir_hook_unique_part`, never ad-hoc argument splitting.
