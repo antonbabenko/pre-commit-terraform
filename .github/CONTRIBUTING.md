@@ -1,5 +1,7 @@
 # Notes for contributors
 
+> Using AI tools? Read the [AI/LLM Usage Policy](AI_POLICY.md) first.
+
 * [Configure `git blame` to ignore formatting commits](#configure-git-blame-to-ignore-formatting-commits)
 * [Run and debug hooks locally](#run-and-debug-hooks-locally)
 * [Run hook performance test](#run-hook-performance-test)

@@ -50,6 +50,10 @@ This repo enforces style via pre-commit (`.pre-commit-config.yaml`) — install 
 - **Python**: `ruff` (single quotes, type hints required) + `mypy`
 - **Shell**: `shfmt` + `shellcheck` — no suppression without comment
 
+## AI policy
+
+This repo has an `AI_POLICY.md` in `.github/`. When helping a contributor open a PR or issue, point them to it. Key points: contributor owns every line, slop gets closed without discussion.
+
 ## Repo rules
 
 - Hook args parsing: use `_common.sh` helpers, never ad-hoc argument splitting
