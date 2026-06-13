@@ -59,6 +59,8 @@ function match_validate_errors {
       *"there is no package for"*"cached in .terraform/providers") return 1 ;;
       *"could not retrieve the list of available versions for provider"*) return 1 ;;
       *"unexpected value returned by API"*) return 1 ;;
+      *"plugin is cached but contents have changed"*) return 1 ;;
+      *"the plugin cache directory is invalid"*) return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
 
@@ -157,7 +159,7 @@ function per_dir_hook_unique_part {
 
       common::colorify "yellow" "Re-validating: $dir_path"
 
-      common::terraform_init "$tf_path validate" "$dir_path" "$parallelism_disabled" "$tf_path" || {
+      common::terraform_init "$tf_path validate" "$dir_path" "true" "$tf_path" || {
         exit_code=$?
         return $exit_code
       }
