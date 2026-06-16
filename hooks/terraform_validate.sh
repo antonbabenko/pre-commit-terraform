@@ -72,8 +72,9 @@ function match_validate_errors {
 # on each provided dir path. Run wrapped tool with specified arguments
 # 1. Run `terraform validate`
 # 2. If validate fails, run `terraform init` and retry
-# 3. If plugin cache parallelism causes a race condition, the error is
-#    caught by match_validate_errors and retried automatically
+# 3. If --retry-once-with-cleanup is enabled and plugin cache parallelism
+#    causes a race condition, the error is caught by match_validate_errors
+#    and retried with cleanup
 # Arguments:
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
