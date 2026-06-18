@@ -136,7 +136,16 @@ function common::parse_cmdline {
 #   GIT_WORK_TREE         pairs with GIT_DIR
 #######################################################################
 function common::scrub_git_env {
-  unset GIT_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_WORK_TREE
+  local -r git_env_vars=(
+    GIT_DIR
+    GIT_INDEX_FILE
+    GIT_OBJECT_DIRECTORY
+    GIT_WORK_TREE
+  )
+  local env_var
+  for env_var in "${git_env_vars[@]}"; do
+    unset "$env_var" 2> /dev/null || true
+  done
 }
 
 #######################################################################
