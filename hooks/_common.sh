@@ -117,8 +117,9 @@ function common::parse_cmdline {
 }
 
 #######################################################################
-# Scrub GIT_* vars that leak the parent repo location into child Git
-# processes (see https://git-scm.com/docs/git#_environment_variables).
+# Scrub GIT_* vars inherited from a linked Git worktree that would
+# leak the parent repo location into child Git processes
+# (see https://git-scm.com/docs/git#_environment_variables).
 #
 # pre-commit scrubs GIT_* only for its own internal Git calls, not for
 # hook subprocesses - hook authors must handle it themselves:
