@@ -117,32 +117,16 @@ function common::parse_cmdline {
 }
 
 #######################################################################
-# Scrub some GIT_* env vars before child Git operations.
+# Scrub GIT_* vars that leak the parent repo location into child Git
+# processes (see https://git-scm.com/docs/git#_environment_variables).
 #
-# Without this, `git commit` from a linked Git worktree fails at
-# tree-build when a hook runs `tofu init` / `terraform init` (which
-# spawns `git clone` for each Git-sourced module):
-#
-#   error: invalid object 100644 <oid> for '<path>'
-#   error: Error building trees
-#
-# Root cause: the child `git clone` inherits GIT_INDEX_FILE from the
-# parent `git commit` env (pointing at the worktree's index), then
-# writes the cloned module's blob OIDs into the parent worktree's
-# index. The subsequent commit cannot resolve those OIDs.
-#
-# pre-commit scrubs GIT_* only for its own internal Git calls, not
-# for hook subprocesses - hook authors are expected to handle it
-# themselves: https://github.com/pre-commit/pre-commit/issues/1849
+# pre-commit scrubs GIT_* only for its own internal Git calls, not for
+# hook subprocesses - hook authors must handle it themselves:
+# https://github.com/pre-commit/pre-commit/issues/1849
 #
 # This is a targeted denylist, NOT a mirror of pre-commit's
-# allowlist-based `no_git_env` helper
-# (https://github.com/pre-commit/pre-commit/blob/main/pre_commit/git.py),
-# which drops all GIT_* except known-safe vars (GIT_ASKPASS,
-# GIT_CONFIG_*, GIT_SSH, GIT_SSH_COMMAND, GIT_SSL_*, etc.). We unset
-# only the vars that leak the parent repository's location into child
-# Git processes (see "Environment Variables" in `man 1 git`,
-# https://git-scm.com/docs/git#_environment_variables):
+# allowlist-based no_git_env helper. We unset only the vars that leak
+# the parent repository's location into child Git processes:
 #
 #   GIT_DIR               makes child Git operate on the parent repo
 #   GIT_INDEX_FILE        proximate cause of the failure above
