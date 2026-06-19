@@ -58,6 +58,10 @@ function match_validate_errors {
       "Could not load plugin") return 1 ;;
       "Missing required provider") return 1 ;;
       *"there is no package for"*"cached in .terraform/providers") return 1 ;;
+      *"could not retrieve the list of available versions for provider"*) return 1 ;;
+      *"unexpected value returned by API"*) return 1 ;;
+      *"plugin is cached but contents have changed"*) return 1 ;;
+      *"the plugin cache directory is invalid"*) return 1 ;;
     esac
   done < <(jq -rc '.diagnostics[]' <<< "$validate_output")
 
