@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.107.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.106.0...v1.107.0) (2026-06-18)
+
+
+### Features
+
+* **`terraform_validate`:** Add support for running hook in `git worktree` ([#993](https://github.com/antonbabenko/pre-commit-terraform/issues/993)) ([3fba9d7](https://github.com/antonbabenko/pre-commit-terraform/commit/3fba9d705c35817270dd85f295f85d8debbee525))
+
 # [1.106.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.105.0...v1.106.0) (2026-05-30)
 
 
