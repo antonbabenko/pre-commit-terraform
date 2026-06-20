@@ -158,7 +158,7 @@ function per_dir_hook_unique_part {
 
       common::colorify "yellow" "Re-validating: $dir_path"
 
-      common::terraform_init "$tf_path validate" "$dir_path" "true" "$tf_path" || {
+      common::terraform_init "$tf_path validate" "$dir_path" "$parallelism_disabled" "$tf_path" || {
         exit_code=$?
         return $exit_code
       }
