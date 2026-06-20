@@ -55,7 +55,7 @@ function match_validate_errors {
       "Module source has changed") return 1 ;;
       "Module version requirements have changed") return 1 ;;
       "Module not installed") return 1 ;;
-      "Could not load plugin") return 1 ;;
+      *"terraform init"*) return 1 ;;
       "Missing required provider") return 1 ;;
       *"there is no package for"*"cached in .terraform/providers") return 1 ;;
       *"Could not retrieve the list of available versions for provider"*) return 1 ;;
