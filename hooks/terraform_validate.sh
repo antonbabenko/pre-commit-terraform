@@ -73,6 +73,7 @@ function match_validate_errors {
 # 3. If --retry-once-with-cleanup is enabled and plugin cache parallelism
 #    causes a race condition, the error is caught by match_validate_errors
 #    and retried with cleanup
+# 4. If after s.3 at least 1 check failed - change the exit code to non-zero
 # Arguments:
 #   dir_path (string) PATH to dir relative to git repo root.
 #     Can be used in error logging
