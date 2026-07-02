@@ -117,6 +117,35 @@ function common::parse_cmdline {
 }
 
 #######################################################################
+# Scrub GIT_* vars inherited from a linked Git worktree that would
+# leak the parent repo location into child Git processes
+# (see https://git-scm.com/docs/git#_environment_variables).
+#
+# pre-commit scrubs GIT_* only for its own internal Git calls, not for
+# hook subprocesses - hook authors must handle it themselves:
+# https://github.com/pre-commit/pre-commit/issues/1849
+#
+# This is a targeted denylist, NOT a mirror of pre-commit's
+# allowlist-based no_git_env helper. We unset only the vars that leak
+# the parent repository's location into child Git processes:
+#
+#   GIT_DIR               makes child Git operate on the parent repo
+#   GIT_INDEX_FILE        proximate cause of the failure above
+#   GIT_OBJECT_DIRECTORY  redirects child object writes into the
+#                         parent object database
+#   GIT_WORK_TREE         pairs with GIT_DIR
+#######################################################################
+function common::scrub_git_env {
+  local -ra git_env_vars=(
+    GIT_DIR
+    GIT_INDEX_FILE
+    GIT_OBJECT_DIRECTORY
+    GIT_WORK_TREE
+  )
+  unset -v "${git_env_vars[@]}" || true
+}
+
+#######################################################################
 # Expand environment variables definition into their values in '--args'.
 # Support expansion only for ${ENV_VAR} vars, not $ENV_VAR.
 # Globals (modify):
