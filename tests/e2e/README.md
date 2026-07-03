@@ -2,7 +2,7 @@
 
 Behavioral tests that run the hooks the same way a user would — through
 `pre-commit` against real fixture files — and compare the result against a
-committed "golden" output. See [issue #823][issue-823].
+committed "golden" output. For details see [issue #823](https://github.com/antonbabenko/pre-commit-terraform/issues/823).
 
 ## Layout
 
