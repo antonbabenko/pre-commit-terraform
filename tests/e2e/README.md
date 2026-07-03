@@ -51,7 +51,7 @@ curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/late
   && tar -xzf hcledit.tar.gz hcledit && rm hcledit.tar.gz && sudo mv hcledit /usr/bin/
 ```
 
-See the repo [README "How to install"](../../README.md#how-to-install) for the
+See the repo [README "How to install"](/README.md#how-to-install) for the
 full tool list and other install methods.
 
 Or skip local installs entirely and use the project image, which bundles every
