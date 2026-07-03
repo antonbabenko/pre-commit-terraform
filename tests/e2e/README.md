@@ -84,5 +84,3 @@ docker run --rm -v "$PWD:/lint" -w /lint --entrypoint bash pct:e2e \
 
 The runner auto-discovers any `cases/<hook_id>/<case_name>/` dir — no runner
 changes are needed to cover a new hook.
-
-[issue-823]: https://github.com/antonbabenko/pre-commit-terraform/issues/823
