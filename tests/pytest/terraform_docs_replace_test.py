@@ -54,8 +54,10 @@ def test_check_is_deprecated() -> None:
             ),
             [
                 'terraform-docs --sort-by-required md ./ > .//SENTINEL.md',
-                'terraform-docs --sort-by-required md ./thing '
-                '> ./thing/SENTINEL.md',
+                (
+                    'terraform-docs --sort-by-required md ./thing '
+                    '> ./thing/SENTINEL.md'
+                ),
             ],
             id='two-sorted-files',
         ),

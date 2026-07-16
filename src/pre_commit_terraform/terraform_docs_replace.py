@@ -89,8 +89,7 @@ def invoke_cli_app(parsed_cli_args: Namespace) -> ReturnCodeType:  # noqa: WPS23
 
     for directory in dirs:
         try:  # noqa: WPS229 - ignore as it's deprecated hook
-            proc_args = []
-            proc_args.append('terraform-docs')
+            proc_args = ['terraform-docs']
             if cast_to('bool', parsed_cli_args.sort):
                 proc_args.append('--sort-by-required')
             proc_args.extend(
