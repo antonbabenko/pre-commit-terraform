@@ -1,4 +1,5 @@
 ci:
+  autoupdate_commit_msg: 'chore(pre-commit.ci): Autoupdate pre-commit checks'
   autoupdate_schedule: quarterly
   skip:
   - shfmt
