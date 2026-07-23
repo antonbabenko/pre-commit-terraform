@@ -208,9 +208,12 @@ We highly recommend using [WSL/WSL2](https://docs.microsoft.com/en-us/windows/ws
 
 Otherwise, you can follow [this gist](https://gist.github.com/etiennejeanneaurevolve/1ed387dc73c5d4cb53ab313049587d09):
 
-1. Install [`git`](https://git-scm.com/downloads) and [`gitbash`](https://gitforwindows.org/)
-2. Install [Python 3](https://www.python.org/downloads/)
-3. Install all prerequisites needed (see above)
+1. <sup><sub><sup><a id="1inde-1"></a>[🔗](#1inde-1)</sup></sub></sup>
+    Install [`git`](https://git-scm.com/downloads) and [`gitbash`](https://gitforwindows.org/)
+2. <sup><sub><sup><a id="1inde-2"></a>[🔗](#1inde-2)</sup></sub></sup>
+    Install [Python 3](https://www.python.org/downloads/)
+3. <sup><sub><sup><a id="1inde-3"></a>[🔗](#1inde-3)</sup></sub></sup>
+    Install all prerequisites needed (see above)
 
 Ensure your PATH environment variable looks for `bash.exe` in `C:\Program Files\Git\bin` (the one present in `C:\Windows\System32\bash.exe` does not work with `pre-commit.exe`)
 
@@ -253,11 +256,16 @@ This makes it possible to use [OpenTofu](https://opentofu.org) binary (`tofu`) i
 
 How binary discovery works and how you can redefine it (first matched takes precedence):
 
-1. Check if per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>` is set
-2. Check if `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
-3. Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
-4. Check if `terraform` binary can be found in the user's `$PATH`
-5. Check if `tofu` binary can be found in the user's `$PATH`
+1. <sup><sub><sup><a id="11cutebianopsu-1"></a>[🔗](#11cutebianopsu-1)</sup></sub></sup>
+    Check if per hook configuration `--hook-config=--tf-path=<path_to_binary_or_binary_name>` is set
+2. <sup><sub><sup><a id="11cutebianopsu-2"></a>[🔗](#11cutebianopsu-2)</sup></sub></sup>
+    Check if `PCT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+3. <sup><sub><sup><a id="11cutebianopsu-3"></a>[🔗](#11cutebianopsu-3)</sup></sub></sup>
+    Check if `TERRAGRUNT_TFPATH=<path_to_binary_or_binary_name>` environment variable is set
+4. <sup><sub><sup><a id="11cutebianopsu-4"></a>[🔗](#11cutebianopsu-4)</sup></sub></sup>
+    Check if `terraform` binary can be found in the user's `$PATH`
+5. <sup><sub><sup><a id="11cutebianopsu-5"></a>[🔗](#11cutebianopsu-5)</sup></sub></sup>
+    Check if `tofu` binary can be found in the user's `$PATH`
 
 
 ### 2. Install the pre-commit hook globally
@@ -530,7 +538,8 @@ For deprecated hook you need to specify each argument separately:
 
 Unlike most other hooks, this hook triggers once if there are any changed files in the repository.
 
-1. `infracost_breakdown` supports all `infracost breakdown` arguments (run `infracost breakdown --help` to see them). The following example only shows costs:
+1. <sup><sub><sup><a id="inbr-1"></a>[🔗](#inbr-1)</sup></sub></sup>
+    `infracost_breakdown` supports all `infracost breakdown` arguments (run `infracost breakdown --help` to see them). The following example only shows costs:
 
     ```yaml
     - id: infracost_breakdown
@@ -556,7 +565,8 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 
     </details>
 
-2. Note that spaces are not allowed in `--args`, so you need to split it, like this:
+2. <sup><sub><sup><a id="inbr-2"></a>[🔗](#inbr-2)</sup></sub></sup>
+    Note that spaces are not allowed in `--args`, so you need to split it, like this:
 
     ```yaml
     - id: infracost_breakdown
@@ -566,7 +576,8 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --args=--terraform-var-file="../terraform.tfvars"
     ```
 
-3. (Optionally) Define `cost constraints` the hook should evaluate successfully in order to pass:
+3. <sup><sub><sup><a id="inbr-3"></a>[🔗](#inbr-3)</sup></sub></sup>
+    (Optionally) Define `cost constraints` the hook should evaluate successfully in order to pass:
 
     ```yaml
     - id: infracost_breakdown
@@ -612,13 +623,15 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         * `.projects[].diff.totalMonthlyCost` - show the difference in monthly cost for the existing infra and tf plan
         * `.diffTotalHourlyCost` (for Infracost version 0.9.12 or newer) or `[.projects[].diff.totalMonthlyCost | select (.!=null) | tonumber] | add` (for Infracost older than 0.9.12)
 
-4. **Docker usage**. In `docker build` or `docker run` command:
+4. <sup><sub><sup><a id="inbr-4"></a>[🔗](#inbr-4)</sup></sub></sup>
+    **Docker usage**. In `docker build` or `docker run` command:
     * You need to provide [Infracost API key](https://www.infracost.io/docs/integrations/environment_variables/#infracost_api_key) via `-e INFRACOST_API_KEY=<your token>`. By default, it is saved in `~/.config/infracost/credentials.yml`
     * Set `-e INFRACOST_SKIP_UPDATE_CHECK=true` to [skip the Infracost update check](https://www.infracost.io/docs/integrations/environment_variables/#infracost_skip_update_check) if you use this hook as part of your CI/CD pipeline.
 
 ### terraform_docs
 
-1. `terraform_docs` and `terraform_docs_without_aggregate_type_defaults` will insert/update documentation generated by [terraform-docs][terraform-docs repo] framed by markers:
+1. <sup><sub><sup><a id="tedo-1"></a>[🔗](#tedo-1)</sup></sub></sup>
+    `terraform_docs` and `terraform_docs_without_aggregate_type_defaults` will insert/update documentation generated by [terraform-docs][terraform-docs repo] framed by markers:
 
     ```txt
     <!-- BEGIN_TF_DOCS -->
@@ -628,9 +641,11 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 
     if they are present in `README.md`.
 
-2. It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`.
+2. <sup><sub><sup><a id="tedo-2"></a>[🔗](#tedo-2)</sup></sub></sup>
+    It is possible to pass additional arguments to shell scripts when using `terraform_docs` and `terraform_docs_without_aggregate_type_defaults`.
 
-3. It is possible to automatically:
+3. <sup><sub><sup><a id="tedo-3"></a>[🔗](#tedo-3)</sup></sub></sup>
+    It is possible to automatically:
     * create a documentation file
     * extend existing documentation file by appending markers to the end of the file (see item 1 above)
     * use different filename for the documentation (default is `README.md`)
@@ -662,7 +677,8 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
                                                         # For Asciidoc this could be "--hook-config=--custom-marker-end=\= "
     ```
 
-4. If you want to use a terraform-docs config file, you must supply the path to the file, relative to the git repo root path:
+4. <sup><sub><sup><a id="tedo-4"></a>[🔗](#tedo-4)</sup></sub></sup>
+    If you want to use a terraform-docs config file, you must supply the path to the file, relative to the git repo root path:
 
     ```yaml
     - id: terraform_docs
@@ -673,7 +689,8 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
     > **Warning**  
     > Avoid use `recursive.enabled: true` in config file, that can cause unexpected behavior.
 
-5. You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_docs` hook:
+5. <sup><sub><sup><a id="tedo-5"></a>[🔗](#tedo-5)</sup></sub></sup>
+    You can provide [any configuration available in `terraform-docs`](https://terraform-docs.io/user-guide/configuration/) as an argument to `terraform_docs` hook:
 
     ```yaml
     - id: terraform_docs
@@ -681,7 +698,8 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
         - --args=--output-mode=replace
     ```
 
-6. If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
+6. <sup><sub><sup><a id="tedo-6"></a>[🔗](#tedo-6)</sup></sub></sup>
+    If you need some exotic settings, it can be done too. I.e. this one generates HCL files:
 
     ```yaml
     - id: terraform_docs
@@ -697,7 +715,8 @@ Unlike most other hooks, this hook triggers once if there are any changed files 
 
 To replicate functionality in `terraform_docs` hook:
 
-1. Create `.terraform-docs.yml` in the repo root with the following content:
+1. <sup><sub><sup><a id="tedorede-1"></a>[🔗](#tedorede-1)</sup></sub></sup>
+    Create `.terraform-docs.yml` in the repo root with the following content:
 
     ```yaml
     formatter: "markdown"
@@ -709,7 +728,8 @@ To replicate functionality in `terraform_docs` hook:
         {{/** End of file fixer */}}
     ```
 
-2. Replace `terraform_docs_replace` hook config in `.pre-commit-config.yaml` with:
+2. <sup><sub><sup><a id="tedorede-2"></a>[🔗](#tedorede-2)</sup></sub></sup>
+    Replace `terraform_docs_replace` hook config in `.pre-commit-config.yaml` with:
 
     ```yaml
     - id: terraform_docs
@@ -765,9 +785,11 @@ To replicate functionality in `terraform_docs` hook:
 > </details>
 
 
-1. The hook can work in a few different modes:
+1. <sup><sub><sup><a id="teprlo-1"></a>[🔗](#teprlo-1)</sup></sub></sup>
+    The hook can work in a few different modes:
 
-    1. <details><summary><code>--mode=check-lockfile-is-cross-platform</code> (standalone)</summary>
+    1. <sup><sub><sup><a id="teprlo-1-1"></a>[🔗](#teprlo-1-1)</sup></sub></sup>
+        <details><summary><code>--mode=check-lockfile-is-cross-platform</code> (standalone)</summary>
         Checks that lockfile has the same number of platform checksums (`h1:`) as requested by the hook configuration. It **does not** check whether these checksums are valid or that they match target platforms.
 
         ```yaml
@@ -778,7 +800,8 @@ To replicate functionality in `terraform_docs` hook:
 
     </details>
 
-    2. <details><summary><code>--mode=regenerate-lockfile-if-some-platform-missed</code> (standalone)</summary>
+    2. <sup><sub><sup><a id="teprlo-1-2"></a>[🔗](#teprlo-1-2)</sup></sub></sup>
+        <details><summary><code>--mode=regenerate-lockfile-if-some-platform-missed</code> (standalone)</summary>
 
         Checks that lockfile has checksums (`h1:`) for all requested platforms for all providers tracked by the lockfile, and if any are missed - tries to add them (but could fail if `terraform init` wasn't run previously).
 
@@ -791,7 +814,8 @@ To replicate functionality in `terraform_docs` hook:
 
     </details>
 
-    3. <details><summary><code>--mode=regenerate-lockfile-if-some-platform-missed</code> with <code>terraform_validate</code> hook</summary>
+    3. <sup><sub><sup><a id="teprlo-1-3"></a>[🔗](#teprlo-1-3)</sup></sub></sup>
+        <details><summary><code>--mode=regenerate-lockfile-if-some-platform-missed</code> with <code>terraform_validate</code> hook</summary>
 
         Regenerates lockfile for all required providers and checks that the lockfile tracks all required platform checksums (`h1:`) afterwards. If any are missed - adds them; superfluous providers are removed.
 
@@ -810,7 +834,8 @@ To replicate functionality in `terraform_docs` hook:
 
     </details>
 
-    4. <details><summary><code>always-regenerate-lockfile</code> - meant to be used only along with <code>terraform_validate</code> hook</summary>
+    4. <sup><sub><sup><a id="teprlo-1-4"></a>[🔗](#teprlo-1-4)</sup></sub></sup>
+        <details><summary><code>always-regenerate-lockfile</code> - meant to be used only along with <code>terraform_validate</code> hook</summary>
 
         Regenerates lockfile from the scratch. May be useful for upgrading providers in the lockfile to the latest versions.
 
@@ -827,7 +852,8 @@ To replicate functionality in `terraform_docs` hook:
 
     </details>
 
-2. `terraform_providers_lock` supports custom arguments:
+2. <sup><sub><sup><a id="teprlo-2"></a>[🔗](#teprlo-2)</sup></sub></sup>
+    `terraform_providers_lock` supports custom arguments:
 
     ```yaml
      - id: terraform_providers_lock
@@ -836,7 +862,8 @@ To replicate functionality in `terraform_docs` hook:
           - --args=-platform=darwin_amd64
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
+3. <sup><sub><sup><a id="teprlo-3"></a>[🔗](#teprlo-3)</sup></sub></sup>
+    It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can find and delete all `.terraform` directories in your repository:
 
     ```bash
     echo "
@@ -850,7 +877,8 @@ To replicate functionality in `terraform_docs` hook:
 
     `terraform_providers_lock` hook will try to reinitialize directories before running the `terraform providers lock` command.
 
-4. `terraform_providers_lock` support passing custom arguments to its `terraform init`:
+4. <sup><sub><sup><a id="teprlo-4"></a>[🔗](#teprlo-4)</sup></sub></sup>
+    `terraform_providers_lock` support passing custom arguments to its `terraform init`:
 
     > **Warning**  
     > DEPRECATION NOTICE: This is available only in `no-mode` mode, which will be removed in v2.0. Please provide this keys to [`terraform_validate`](#terraform_validate) hook, which, to take effect, should be called before `terraform_providers_lock`
@@ -864,7 +892,8 @@ To replicate functionality in `terraform_docs` hook:
 
 ### terraform_tflint
 
-1. `terraform_tflint` supports custom arguments so you can enable module inspection, enable / disable rules, etc.
+1. <sup><sub><sup><a id="tetf-1"></a>[🔗](#tetf-1)</sup></sub></sup>
+    `terraform_tflint` supports custom arguments so you can enable module inspection, enable / disable rules, etc.
 
     Example:
 
@@ -875,7 +904,8 @@ To replicate functionality in `terraform_docs` hook:
         - --args=--enable-rule=terraform_documented_variables
     ```
 
-2. By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delegate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
+2. <sup><sub><sup><a id="tetf-2"></a>[🔗](#tetf-2)</sup></sub></sup>
+    By default, pre-commit-terraform performs directory switching into the terraform modules for you. If you want to delegate the directory changing to the binary - this will allow tflint to determine the full paths for error/warning messages, rather than just module relative paths. *Note: this requires `tflint>=0.44.0`.* For example:
 
     ```yaml
     - id: terraform_tflint
@@ -887,7 +917,8 @@ To replicate functionality in `terraform_docs` hook:
 
 **DEPRECATED**. [tfsec was replaced by trivy](https://github.com/aquasecurity/tfsec/discussions/1994), so please use [`terraform_trivy`](#terraform_trivy).
 
-1. `terraform_tfsec` will consume modified files that pre-commit
+1. <sup><sub><sup><a id="tetfde-1"></a>[🔗](#tetfde-1)</sup></sub></sup>
+    `terraform_tfsec` will consume modified files that pre-commit
     passes to it, so you can perform whitelisting of directories
     or files to run against via [files](https://pre-commit.com/#config-files)
     pre-commit flag
@@ -903,7 +934,8 @@ To replicate functionality in `terraform_docs` hook:
     only such that the underlying `tfsec` tool can run against changed files in this
     directory, ignoring any other folders at the root level
 
-2. To ignore specific warnings, follow the convention from the
+2. <sup><sub><sup><a id="tetfde-2"></a>[🔗](#tetfde-2)</sup></sub></sup>
+    To ignore specific warnings, follow the convention from the
 [documentation](https://github.com/aquasecurity/tfsec#ignoring-warnings).
 
     Example:
@@ -915,7 +947,8 @@ To replicate functionality in `terraform_docs` hook:
     }
     ```
 
-3. `terraform_tfsec` supports custom arguments, so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
+3. <sup><sub><sup><a id="tetfde-3"></a>[🔗](#tetfde-3)</sup></sub></sup>
+    `terraform_tfsec` supports custom arguments, so you can pass supported `--no-color` or `--format` (output), `-e` (exclude checks) flags:
 
     ```yaml
      - id: terraform_tfsec
@@ -928,7 +961,8 @@ To replicate functionality in `terraform_docs` hook:
 
 ### terraform_trivy
 
-1. `terraform_trivy` will consume modified files that pre-commit
+1. <sup><sub><sup><a id="tetr-1"></a>[🔗](#tetr-1)</sup></sub></sup>
+    `terraform_trivy` will consume modified files that pre-commit
     passes to it, so you can perform whitelisting of directories
     or files to run against via [files](https://pre-commit.com/#config-files)
     pre-commit flag
@@ -944,7 +978,8 @@ To replicate functionality in `terraform_docs` hook:
     only such that the underlying `trivy` tool can run against changed files in this
     directory, ignoring any other folders at the root level
 
-2. To ignore specific warnings, follow the convention from the
+2. <sup><sub><sup><a id="tetr-2"></a>[🔗](#tetr-2)</sup></sub></sup>
+    To ignore specific warnings, follow the convention from the
 [documentation](https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/).
 
     Example:
@@ -958,7 +993,8 @@ To replicate functionality in `terraform_docs` hook:
     }
     ```
 
-3. `terraform_trivy` supports custom arguments, so you can pass supported `--format` (output), `--skip-dirs` (exclude directories) and other flags:
+3. <sup><sub><sup><a id="tetr-3"></a>[🔗](#tetr-3)</sup></sub></sup>
+    `terraform_trivy` supports custom arguments, so you can pass supported `--format` (output), `--skip-dirs` (exclude directories) and other flags:
 
     ```yaml
      - id: terraform_trivy
@@ -973,7 +1009,8 @@ To replicate functionality in `terraform_docs` hook:
 > If you use [`TF_PLUGIN_CACHE_DIR`](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache), we recommend enabling `--hook-config=--retry-once-with-cleanup=true` or disabling parallelism (`--hook-config=--parallelism-limit=1`) to avoid [race conditions when `terraform init` writes to it](https://github.com/hashicorp/terraform/issues/31964).  
 > This [issue was fixed in OpenTofu v1.10+](https://opentofu.org/blog/help-us-test-opentofu-1-10-0-alpha2/#global-provider-cache-locking), so it's safe to use parallelism with it.
 
-1. `terraform_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
+1. <sup><sub><sup><a id="teva-1"></a>[🔗](#teva-1)</sup></sub></sup>
+    `terraform_validate` supports custom arguments so you can pass supported `-no-color` or `-json` flags:
 
     ```yaml
      - id: terraform_validate
@@ -982,7 +1019,8 @@ To replicate functionality in `terraform_docs` hook:
          - --args=-no-color
     ```
 
-2. `terraform_validate` also supports passing custom arguments to its `terraform init`:
+2. <sup><sub><sup><a id="teva-2"></a>[🔗](#teva-2)</sup></sub></sup>
+    `terraform_validate` also supports passing custom arguments to its `terraform init`:
 
     ```yaml
     - id: terraform_validate
@@ -991,7 +1029,8 @@ To replicate functionality in `terraform_docs` hook:
         - --tf-init-args=-lockfile=readonly
     ```
 
-3. It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can delete broken `.terraform` directories in your repository:
+3. <sup><sub><sup><a id="teva-3"></a>[🔗](#teva-3)</sup></sub></sup>
+    It may happen that Terraform working directory (`.terraform`) already exists but not in the best condition (eg, not initialized modules, wrong version of Terraform, etc.). To solve this problem, you can delete broken `.terraform` directories in your repository:
 
     **Option 1**
 
@@ -1037,7 +1076,8 @@ To replicate functionality in `terraform_docs` hook:
     > **Caution**  
     > If you use Terraform workspaces, DO NOT use this option ([details](https://github.com/antonbabenko/pre-commit-terraform/issues/203#issuecomment-918791847)). Consider the first option, or wait for [`force-init`](https://github.com/antonbabenko/pre-commit-terraform/issues/224) option implementation.
 
-4. `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
+4. <sup><sub><sup><a id="teva-4"></a>[🔗](#teva-4)</sup></sub></sup>
+    `terraform_validate` in a repo with Terraform module, written using Terraform 0.15+ and which uses provider `configuration_aliases` ([Provider Aliases Within Modules](https://www.terraform.io/language/modules/develop/providers#provider-aliases-within-modules)), errors out.
 
    When running the hook against Terraform code where you have provider `configuration_aliases` defined in a `required_providers` configuration block, terraform will throw an error like:
 
@@ -1094,10 +1134,14 @@ To replicate functionality in `terraform_docs` hook:
 
 You may want to customize some of the options:
 
-1. `--module-dir=...` - Specify a single directory to process. Values: "." (means just root module), "modules/iam-user" (a single module), or empty (means include all submodules found in "modules/*").
-2. `--module-repo-org=...` - Module repository organization (e.g. "terraform-aws-modules").
-3. `--module-repo-shortname=...` - Short name of the repository (e.g. "s3-bucket").
-4. `--module-repo-provider=...` - Name of the repository provider (e.g. "aws" or "google").
+1. <sup><sub><sup><a id="tewrmofoea-1"></a>[🔗](#tewrmofoea-1)</sup></sub></sup>
+    `--module-dir=...` - Specify a single directory to process. Values: "." (means just root module), "modules/iam-user" (a single module), or empty (means include all submodules found in "modules/*").
+2. <sup><sub><sup><a id="tewrmofoea-2"></a>[🔗](#tewrmofoea-2)</sup></sub></sup>
+    `--module-repo-org=...` - Module repository organization (e.g. "terraform-aws-modules").
+3. <sup><sub><sup><a id="tewrmofoea-3"></a>[🔗](#tewrmofoea-3)</sup></sub></sup>
+    `--module-repo-shortname=...` - Short name of the repository (e.g. "s3-bucket").
+4. <sup><sub><sup><a id="tewrmofoea-4"></a>[🔗](#tewrmofoea-4)</sup></sub></sup>
+    `--module-repo-provider=...` - Name of the repository provider (e.g. "aws" or "google").
 
 Sample configuration:
 
@@ -1121,7 +1165,8 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
 ### terrascan
 
-1. `terrascan` supports custom arguments so you can pass supported flags like `--non-recursive` and `--policy-type` to disable recursive inspection and set the policy type respectively:
+1. <sup><sub><sup><a id="te-1"></a>[🔗](#te-1)</sup></sub></sup>
+    `terrascan` supports custom arguments so you can pass supported flags like `--non-recursive` and `--policy-type` to disable recursive inspection and set the policy type respectively:
 
     ```yaml
     - id: terrascan
@@ -1132,20 +1177,25 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 
     See the `terrascan run -h` command line help for available options.
 
-2. Use the `--args=--verbose` parameter to see the rule ID in the scanning output. Useful to skip validations.
-3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
-4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
+2. <sup><sub><sup><a id="te-2"></a>[🔗](#te-2)</sup></sub></sup>
+    Use the `--args=--verbose` parameter to see the rule ID in the scanning output. Useful to skip validations.
+3. <sup><sub><sup><a id="te-3"></a>[🔗](#te-3)</sup></sub></sup>
+    Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
+4. <sup><sub><sup><a id="te-4"></a>[🔗](#te-4)</sup></sub></sup>
+    Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
 
 ### tfupdate
 
-1. Out of the box `tfupdate` will pin the terraform version:
+1. <sup><sub><sup><a id="tf-1"></a>[🔗](#tf-1)</sup></sub></sup>
+    Out of the box `tfupdate` will pin the terraform version:
 
     ```yaml
     - id: tfupdate
       name: Autoupdate Terraform versions
     ```
 
-2. If you'd like to pin providers, etc., use custom arguments, i.e `provider=PROVIDER_NAME`:
+2. <sup><sub><sup><a id="tf-2"></a>[🔗](#tf-2)</sup></sub></sup>
+    If you'd like to pin providers, etc., use custom arguments, i.e `provider=PROVIDER_NAME`:
 
     ```yaml
     - id: tfupdate

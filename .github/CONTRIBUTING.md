@@ -104,9 +104,12 @@ sudo rm -rf tests/results
 
 ## Required tools and plugins to simplify review process
 
-1. [editorconfig.org](https://editorconfig.org/) (preinstalled in some IDE)
-2. [pre-commit](https://pre-commit.com/#install)
-3. (Optional) If you use VS Code - feel free to install all recommended extensions
+1. <sup><sub><sup><a id="retoanpltosirepr-1"></a>[🔗](#retoanpltosirepr-1)</sup></sub></sup>
+    [editorconfig.org](https://editorconfig.org/) (preinstalled in some IDE)
+2. <sup><sub><sup><a id="retoanpltosirepr-2"></a>[🔗](#retoanpltosirepr-2)</sup></sub></sup>
+    [pre-commit](https://pre-commit.com/#install)
+3. <sup><sub><sup><a id="retoanpltosirepr-3"></a>[🔗](#retoanpltosirepr-3)</sup></sub></sup>
+    (Optional) If you use VS Code - feel free to install all recommended extensions
 
 
 ## Add new hook
@@ -115,33 +118,46 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 ### Before write code
 
-1. Try to figure out future hook usage.
-2. Confirm the concept with [Anton Babenko](https://github.com/antonbabenko).
-3. Install [required tools and plugins](#required-tools-and-plugins-to-simplify-review-process)
+1. <sup><sub><sup><a id="bewrco-1"></a>[🔗](#bewrco-1)</sup></sub></sup>
+    Try to figure out future hook usage.
+2. <sup><sub><sup><a id="bewrco-2"></a>[🔗](#bewrco-2)</sup></sub></sup>
+    Confirm the concept with [Anton Babenko](https://github.com/antonbabenko).
+3. <sup><sub><sup><a id="bewrco-3"></a>[🔗](#bewrco-3)</sup></sub></sup>
+    Install [required tools and plugins](#required-tools-and-plugins-to-simplify-review-process)
 
 
 ### Prepare basic documentation
 
-1. Identify and describe dependencies in [Install dependencies](../README.md#1-install-dependencies) and [Available Hooks](../README.md#available-hooks) sections
+1. <sup><sub><sup><a id="prbado-1"></a>[🔗](#prbado-1)</sup></sub></sup>
+    Identify and describe dependencies in [Install dependencies](../README.md#1-install-dependencies) and [Available Hooks](../README.md#available-hooks) sections
 
 ### Add code
 
 > [!TIP]
 > Here is a screencast of [how to add new dependency in `tools/install/`](https://github.com/antonbabenko/pre-commit-terraform/assets/11096782/8fc461e9-f163-4592-9497-4a18fa89c0e8) - used in Dockerfile
 
-1. Based on prev. block, add hook dependencies installation to [Dockerfile](../Dockerfile).  
+1. <sup><sub><sup><a id="adco-1"></a>[🔗](#adco-1)</sup></sub></sup>
+    Based on prev. block, add hook dependencies installation to [Dockerfile](../Dockerfile).  
     Check that works:
     * `docker build -t pre-commit --build-arg INSTALL_ALL=true .`
     * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=latest .`
     * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=<1.2.3> .`
-2. Add Docker structure tests to [`.github/.container-structure-test-config.yaml`](.container-structure-test-config.yaml)
-3. Add new hook to [`.pre-commit-hooks.yaml`](../.pre-commit-hooks.yaml)
-4. Create hook file. Don't forget to make it executable via `chmod +x /path/to/hook/file`.
-5. Test hook. How to do it is described in [Run and debug hooks locally](#run-and-debug-hooks-locally) section.
-6. Test hook one more time.
-    1. Push commit with hook file to GitHub
-    2. Grab SHA hash of the commit
-    3. Test hook using `.pre-commit-config.yaml`:
+2. <sup><sub><sup><a id="adco-2"></a>[🔗](#adco-2)</sup></sub></sup>
+    Add Docker structure tests to [`.github/.container-structure-test-config.yaml`](.container-structure-test-config.yaml)
+3. <sup><sub><sup><a id="adco-3"></a>[🔗](#adco-3)</sup></sub></sup>
+    Add new hook to [`.pre-commit-hooks.yaml`](../.pre-commit-hooks.yaml)
+4. <sup><sub><sup><a id="adco-4"></a>[🔗](#adco-4)</sup></sub></sup>
+    Create hook file. Don't forget to make it executable via `chmod +x /path/to/hook/file`.
+5. <sup><sub><sup><a id="adco-5"></a>[🔗](#adco-5)</sup></sub></sup>
+    Test hook. How to do it is described in [Run and debug hooks locally](#run-and-debug-hooks-locally) section.
+6. <sup><sub><sup><a id="adco-6"></a>[🔗](#adco-6)</sup></sub></sup>
+    Test hook one more time.
+    1. <sup><sub><sup><a id="adco-6-1"></a>[🔗](#adco-6-1)</sup></sub></sup>
+        Push commit with hook file to GitHub
+    2. <sup><sub><sup><a id="adco-6-2"></a>[🔗](#adco-6-2)</sup></sub></sup>
+        Grab SHA hash of the commit
+    3. <sup><sub><sup><a id="adco-6-3"></a>[🔗](#adco-6-3)</sup></sub></sup>
+        Test hook using `.pre-commit-config.yaml`:
 
         ```yaml
         repos:
@@ -155,13 +171,17 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
 ### Finish with the documentation
 
-1. Add the hook description to [Available Hooks](../README.md#available-hooks).
-2. Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
+1. <sup><sub><sup><a id="fiwithdo-1"></a>[🔗](#fiwithdo-1)</sup></sub></sup>
+    Add the hook description to [Available Hooks](../README.md#available-hooks).
+2. <sup><sub><sup><a id="fiwithdo-2"></a>[🔗](#fiwithdo-2)</sup></sub></sup>
+    Create and populate a new hook section in [Hooks usage notes and examples](../README.md#hooks-usage-notes-and-examples).
 
 ## Contributing to Python code
 
-1. [Install `tox`](https://tox.wiki/en/stable/installation.html)
-2. To run tests, run:
+1. <sup><sub><sup><a id="cotopyco-1"></a>[🔗](#cotopyco-1)</sup></sub></sup>
+    [Install `tox`](https://tox.wiki/en/stable/installation.html)
+2. <sup><sub><sup><a id="cotopyco-2"></a>[🔗](#cotopyco-2)</sup></sub></sup>
+    To run tests, run:
 
     ```bash
     tox -qq
@@ -169,7 +189,8 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
     The easiest way to find out what parts of the code base are left uncovered, is to copy-paste and run the `python3 ...` command that will open the HTML report, so you can inspect it visually.
 
-3. Before committing any changes (if you do not have `pre-commit` installed locally), run:
+3. <sup><sub><sup><a id="cotopyco-3"></a>[🔗](#cotopyco-3)</sup></sub></sup>
+    Before committing any changes (if you do not have `pre-commit` installed locally), run:
 
     ```bash
     tox r -qq -e pre-commit
@@ -177,7 +198,8 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
     Make sure that all checks pass.
 
-4. (Optional): If you want to limit the checks to MyPy only, you can run:
+4. <sup><sub><sup><a id="cotopyco-4"></a>[🔗](#cotopyco-4)</sup></sub></sup>
+    (Optional): If you want to limit the checks to MyPy only, you can run:
 
     ```bash
     tox r -qq -e pre-commit -- mypy --all-files
@@ -185,7 +207,8 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
 
     Then copy-paste and run the `python3 ...` commands to inspect the strictest MyPy coverage reports visually.
 
-5. (Optional): You can find all available `tox` environments by running:
+5. <sup><sub><sup><a id="cotopyco-5"></a>[🔗](#cotopyco-5)</sup></sub></sup>
+    (Optional): You can find all available `tox` environments by running:
 
     ```bash
     tox list
