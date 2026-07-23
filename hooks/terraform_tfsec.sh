@@ -21,7 +21,9 @@ function main {
   common::colorify "yellow" "tfsec tool was deprecated, and replaced by trivy. You can check trivy hook here:"
   common::colorify "yellow" "https://github.com/antonbabenko/pre-commit-terraform/tree/master#terraform_trivy"
 
-  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  local -r tool_name="tfsec"
+
+  common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -35,7 +37,7 @@ function main {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
-#   tf_path (string) PATH to Terraform/OpenTofu binary
+#   tool_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
@@ -46,13 +48,12 @@ function per_dir_hook_unique_part {
   local -r change_dir_in_unique_part="$2"
   # shellcheck disable=SC2034 # Unused var.
   local -r parallelism_disabled="$3"
-  # shellcheck disable=SC2034 # Unused var.
-  local -r tf_path="$4"
+  local -r tool_path="$4"
   shift 4
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  tfsec "${args[@]}"
+  "$tool_path" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
@@ -63,13 +64,15 @@ function per_dir_hook_unique_part {
 # Unique part of `common::per_dir_hook`. The function is executed one time
 # in the root git repo
 # Arguments:
+#   tool_path (string) resolved path to the wrapped tool's binary
 #   args (array) arguments that configure wrapped tool behavior
 #######################################################################
 function run_hook_on_whole_repo {
+  local -r tool_path=""
+  shift
   local -a -r args=("$@")
-
   # pass the arguments to hook
-  tfsec "$(pwd)" "${args[@]}"
+  "$tool_path" "$(pwd)" "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?
