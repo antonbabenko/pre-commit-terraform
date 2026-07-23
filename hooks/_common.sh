@@ -330,7 +330,8 @@ function common::per_dir_hook {
   # despite there's only one positional ARG left
   local -a -r files=("$@")
 
-  local -r tf_path=$(common::get_tf_binary_path)
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local -r tool_path=$(common::resolve_tool_version "$tool_name" "$tool_version")
 
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
@@ -541,10 +542,182 @@ function common::detect_os_arch {
   export TARGETOS TARGETARCH
 }
 
+#######################################################################
+# Resolve a specific version of a wrapped tool's binary, downloading
+# and caching it on demand if it isn't already cached. Reuses the
+# existing `tools/install/<tool>.sh` installer script (invoked as a
+# subprocess, with its working directory redirected to the cache
+# directory) instead of re-implementing per-tool download logic.
+# The sentinel tool name "tf" means "resolve Terraform or OpenTofu,
+# decide which" - it delegates to `common::get_tf_binary_path` for the
+# extra precedence rungs that need (--tf-path, PCT_TFPATH/
+# TERRAGRUNT_TFPATH env vars, and picking between the two tools). "tf"
+# is never itself a real, installable tool - `common::get_tf_binary_path`
+# calls back into this function with the concrete decided name
+# ("terraform" or "opentofu"), which no longer matches "tf" and so
+# naturally falls through to the generic logic below instead of
+# dispatching again - no recursion guard needed. Every other tool name
+# resolves via that same generic logic directly, on its first call.
+# NOTE: Only supports tools distributed as directly downloadable
+# release binaries (i.e. tools whose `tools/install/<tool>.sh` calls
+# `common::install_from_gh_release`, or the bespoke terraform/opentofu
+# scripts). Do NOT call this for pip-distributed tools (e.g. checkov) -
+# their installer scripts assume a Docker/Alpine build environment and
+# are not safe to run at hook run-time.
+# This is the single place that decides *whether* to attempt a
+# resolution at all - callers always call this unconditionally and let
+# it decide, rather than each caller pre-checking $version/$tool itself.
+# Environment variables:
+#   PCT_TOOL_CACHE_DIR (string) if set, used as the complete cache
+#     root path as-is
+#   XDG_CACHE_HOME (string) if set (and PCT_TOOL_CACHE_DIR is not),
+#     "$XDG_CACHE_HOME/pre-commit-terraform" is used as the cache root
+#   GITHUB_TOKEN (string) forwarded automatically, since it's read
+#     directly by the invoked installer script
+# Arguments:
+#   tool (string) tool name, matching a `tools/install/<tool>.sh` file
+#     and its expected `${TOOL^^}_VERSION` environment variable name;
+#     "tf" for Terraform/OpenTofu (see above); or empty for hooks with
+#     no resolvable binary (e.g. checkov)
+#   version (string) exact version requested (e.g. "1.7.5"), or empty
+#     if no `--tool-version` was requested
+# Outputs:
+#   Prints the absolute path to the resolved binary, or the bare $tool
+#   name unchanged if no version was requested (empty string if $tool
+#   itself is also empty). If a download is attempted and fails - exit
+#   1 with an error message.
+#######################################################################
+function common::resolve_tool_version {
+  local -r tool_name="$1"
+  local -r version="$2"
+
+  #
+  # Check is configuration valid
+  #
+
+  # No resolvable tool name (e.g. checkov, which is pip-distributed);
+  # keeps "--tool-version" a documented no-op for it instead of erroring on an empty tool name.
+  [[ -z $tool_name ]] && return
+
+  # No version requested, and not the "tf" placeholder - skip resolution,
+  # use whatever's on $PATH. The "tf" placeholder is excluded here because
+  # get_tf_binary_path has its own additional precedence rungs
+  # (--tf-path, PCT_TFPATH, TERRAGRUNT_TFPATH) that must be consulted
+  # even when $version is empty, unlike every other tool.
+  if [[ -z $version && $tool_name != tf ]]; then
+    if [[ ! $(command -v "$tool_name") ]]; then
+      common::colorify "red" \
+        "ERROR: '$tool_name' is required by '$HOOK_ID' pre-commit hook but it is not discoverable in the system's PATH.\n" \
+        "Since '--hook-config=--tool-version' was not specified, no version resolution was attempted.\n\n" \
+        "Please install '$tool_name' manually or specify in .pre-commit-config.yaml a version to download and cache via:\n" \
+        "args:\n" \
+        "  - --hook-config=--tool-version=<version>"
+      exit 1
+    fi
+
+    echo "$tool_name"
+    return
+  fi
+  # And now resolve the "tf" placeholder
+  if [[ $tool_name == tf ]]; then
+    common::get_tf_binary_path "$version"
+    return
+  fi
+
+  #
+  # Choose whether to prefer the local $PATH version of a tool over a requested version, if both exist.
+  #
+  local -r tool_version_mode=$(common::get_hook_config_value "--tool-version-mode")
+
+  if command -v "$tool_name" &> /dev/null; then
+    if [[ $tool_version_mode == "prefer-local" ]]; then
+      common::colorify "green" \
+        "NOTE: version '$version' was requested for '$tool_name', but '--tool-version-mode=prefer-local' " \
+        "is set and '$tool_name' is already found on \$PATH - using that instead."
+      command -v "$tool_name"
+      return
+    fi
+
+    common::colorify "green" \
+      "NOTE: The requested '$tool_name' version '$version' will be downloaded/used instead of whatever is on \$PATH."
+  fi
+
+  #
+  # Check if the requested version is already cached
+  #
+
+  # opentofu.sh renames its binary from "opentofu" back to "tofu" after
+  # common::install_from_gh_release completes (see tools/install/opentofu.sh)
+  local resolved_bin_name="$tool_name"
+  [[ $tool_name == opentofu ]] && resolved_bin_name="tofu"
+
+  local -r cache_root="${PCT_TOOL_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/pre-commit-terraform}"
+  local -r cache_dir="$cache_root/$tool_name/$version"
+  local -r cached_bin="$cache_dir/$resolved_bin_name"
+
+  if [[ -x $cached_bin ]]; then
+    echo "$cached_bin"
+    return
+  fi
+
+  #
+  # Download and cache the requested version
+  #
+
+  local -r script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+  local -r installer_script="$script_dir/../tools/install/${tool_name}.sh"
+
+  if [[ ! -f $installer_script ]]; then
+    common::colorify "red" "ERROR: pinning a version is not supported for '$tool_name' (no installer found at '$installer_script')."
+    exit 1
+  fi
+
+  common::colorify "green" "Downloading '$tool_name' version '$version'..."
+
+  common::detect_os_arch
+
+  local env_var_name="${tool_name//-/_}"
+  env_var_name="${env_var_name^^}_VERSION"
+
+  mkdir -p "$cache_dir"
+
+  # Redirect the installer's own stdout to stderr: this function's stdout is
+  # a contract (the resolved path, captured via "$(...)" by every caller),
+  # and installers like terraform.sh/tflint.sh call bare `unzip` (no `-q`),
+  # which prints "Archive: ... inflating: ..." to stdout by default -
+  # harmless noise in a Docker build log, but it would otherwise corrupt
+  # the path this function returns.
+  if ! (
+    cd "$cache_dir" || exit 1
+    export "$env_var_name=$version"
+    bash "$installer_script" 1>&2
+  ); then
+    common::colorify "red" "ERROR: Failed to download '$tool_name' version '$version' via '$installer_script'."
+    exit 1
+  fi
+
+  if [[ ! -x $cached_bin ]]; then
+    common::colorify "red" "ERROR: '$tool_name' installer completed but expected binary was not found at '$cached_bin'."
+    exit 1
+  fi
+
+  echo "$cached_bin"
+}
 
 #######################################################################
 # Get Terraform/OpenTofu binary path
 # Allows user to set the path to custom Terraform or OpenTofu binary
+# Called from `common::resolve_tool_version`'s "tf" sentinel dispatch,
+# not directly by hooks - every hook (including
+# terraform_validate/fmt/providers_lock, which pass tool_name="tf")
+# goes through the same `common::per_dir_hook` -> `common::resolve_tool_version`
+# path. When this function calls back into `common::resolve_tool_version`
+# with the concrete decided tool ("terraform" or "opentofu") for the
+# actual pin-and-cache step, that name no longer matches "tf", so the
+# dispatch above doesn't fire a second time.
+# Arguments:
+#   tool_version (string) value of a requested `--tool-version`
+#     hook-config, or empty if none was requested
 # Globals (init and populate):
 #   HOOK_CONFIG (array) arguments that configure hook behavior
 #   PCT_TFPATH (string) user defined env var with path to Terraform/OpenTofu binary
@@ -553,33 +726,43 @@ function common::detect_os_arch {
 #   If failed - exit 1 with error message about missing Terraform/OpenTofu binary
 #######################################################################
 function common::get_tf_binary_path {
-  local hook_config_tf_path
+  local -r tool_version="$1"
 
-  for config in "${HOOK_CONFIG[@]}"; do
-    if [[ $config == --tf-path=* ]]; then
-      hook_config_tf_path=${config#*=}
-      hook_config_tf_path=${hook_config_tf_path%;}
-      break
-    fi
-  done
+  local -r hook_config_tf_path=$(common::get_hook_config_value "--tf-path")
 
-  # NOTE: deliberately a dedicated key, not the generic "--tool-version"
-  # other hooks use directly - this function is invoked unconditionally
-  # for every hook via common::per_dir_hook, so a shared key would also
-  # be seen (and misapplied to Terraform) whenever a *different* hook
-  # sets "--tool-version" for its own, unrelated tool.
-  local -r hook_config_tf_version=$(common::get_hook_config_value "--tf-version")
-
-  # direct hook config, has the highest precedence
-  if [[ $hook_config_tf_path ]]; then
+  # direct hook config, has the highest precedence - but only when NOT
+  # combined with --tool-version. When it IS also set, --tf-path is
+  # reinterpreted below as an explicit terraform/opentofu selector
+  # rather than a literal binary path.
+  if [[ $hook_config_tf_path && -z $tool_version ]]; then
     echo "$hook_config_tf_path"
     return
 
-  # --hook-config=--tf-version=X.Y.Z: download/cache a pinned Terraform
-  # version on demand. Always resolves "terraform" specifically, since
-  # there is currently no equivalent key to pin an OpenTofu version.
-  elif [[ $hook_config_tf_version ]]; then
-    common::resolve_tool_version "terraform" "$hook_config_tf_version"
+  # '--hook-config=--tool-version=X.Y.Z': download/cache a pinned
+  # Terraform/OpenTofu version on demand.
+  elif [[ $tool_version ]]; then
+    local tf_tool
+    case "$hook_config_tf_path" in
+      terraform)
+        tf_tool="terraform"
+        ;;
+      opentofu | tofu)
+        tf_tool="opentofu"
+        ;;
+      "")
+        # Terraform preferred; opentofu only if terraform isn't on $PATH but tofu is).
+        tf_tool="terraform"
+        ! command -v terraform &> /dev/null && command -v tofu &> /dev/null && tf_tool="opentofu"
+        ;;
+      *)
+        common::colorify "red" \
+          "ERROR: '--tf-path=$hook_config_tf_path' combined with '--tool-version' is not a valid value.\n" \
+          "It must be either 'terraform', 'opentofu'/'tofu', or unset (to auto-detect)."
+        exit 1
+        ;;
+    esac
+
+    common::resolve_tool_version "$tf_tool" "$tool_version"
     return
 
   # environment variable
@@ -603,7 +786,12 @@ function common::get_tf_binary_path {
     return
 
   else
-    common::colorify "red" "Neither Terraform nor OpenTofu binary could be found. Please either set the \"--tf-path\" hook configuration argument, or set the \"PCT_TFPATH\" environment variable, or set the \"TERRAGRUNT_TFPATH\" environment variable, or install Terraform or OpenTofu globally."
+    common::colorify "red" \
+      'Neither Terraform nor OpenTofu binary could be found. Please either set:\n' \
+      '- the "--tf-path" hook configuration argument, with (download and cache) or without (local installation) "--tool-version"\n' \
+      '- the "PCT_TFPATH" environment variable\n' \
+      '- the "TERRAGRUNT_TFPATH" environment variable\n' \
+      '- or install Terraform or OpenTofu globally.'
     exit 1
   fi
 }

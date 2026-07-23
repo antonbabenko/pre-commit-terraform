@@ -66,7 +66,7 @@ function per_dir_hook_unique_part {
 #   args (array) arguments that configure wrapped tool behavior
 #######################################################################
 function run_hook_on_whole_repo {
-  local -r tool_path=""
+  local -r tool_path="$1"
   shift
   local -a -r args=("$@")
   # pass the arguments to hook

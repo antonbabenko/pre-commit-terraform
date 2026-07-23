@@ -14,9 +14,14 @@ function main {
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
 
-  local -r tool_name="tflint"
-
   # JFYI: tflint color already suppressed via PRE_COMMIT_COLOR=never
+
+  local -r tool_name="tflint"
+  # Needed early for the `tflint --init` pre-flight check below, which
+  # runs once, before (and separately from) common::per_dir_hook's own
+  # resolution for the actual per-dir tflint runs.
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local -r tool_path=$(common::resolve_tool_version "$tool_name" "$tool_version")
 
   # Run `tflint --init` for check that plugins installed.
   # It should run once on whole repo.
