@@ -68,12 +68,7 @@ function terraform_docs {
   local -a -r files=("$@")
 
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
-  local -r tool_path=$([[ $tool_version ]] && common::resolve_tool_version "$tool_name" "$tool_version" || echo "$tool_name")
-
-  if [[ ! $(command -v "$tool_path") ]]; then
-    echo "ERROR: $tool_name is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
-    exit 1
-  fi
+  local -r tool_path=$(common::resolve_tool_version "$tool_name" "$tool_version")
 
   local -a paths
 

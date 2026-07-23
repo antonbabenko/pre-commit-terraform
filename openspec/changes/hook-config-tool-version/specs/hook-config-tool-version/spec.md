@@ -12,11 +12,11 @@ The system SHALL support resolving a specific version of a wrapped tool's binary
 - **THEN** the system uses the cached binary directly without making any network request
 
 ### Requirement: Backward-compatible fallback when no version is requested
-When a hook is invoked without a `--tool-version` hook-config value, the system SHALL fall back to existing tool-discovery behavior unchanged.
+When a hook is invoked without a `--tool-version` hook-config value, the system SHALL fall back to existing tool-discovery behavior unchanged, except that a tool which is neither pinned nor found is now reported with an explicit, actionable error (see "Actionable error when a requested tool is neither pinned nor found on PATH" below) instead of being deferred to the tool's own later invocation failure.
 
 #### Scenario: Existing configuration without --tool-version
-- **WHEN** a hook runs with no `--hook-config=--tool-version=` argument present
-- **THEN** the system resolves the tool exactly as it did before this change (e.g. via `PATH` lookup, or the existing `--tf-path`/environment-variable precedence for terraform/opentofu), and no download is attempted
+- **WHEN** a hook runs with no `--hook-config=--tool-version=` argument present, and the tool it wraps resolves successfully via `PATH` lookup (or the existing `--tf-path`/environment-variable precedence for terraform/opentofu)
+- **THEN** the system resolves the tool exactly as it did before this change, and no download is attempted
 
 ### Requirement: Version-keyed caching
 The system SHALL cache each downloaded tool binary in a location keyed by tool name, version, operating system, and architecture, such that multiple versions of the same tool can coexist on disk simultaneously without overwriting one another.
@@ -111,3 +111,33 @@ Because Terraform/OpenTofu binary path resolution runs unconditionally for every
 #### Scenario: A hook that consumes the Terraform binary path sets --tool-version
 - **WHEN** a hook that resolves and uses the Terraform/OpenTofu binary path (`terraform_validate`, `terraform_fmt`, or `terraform_providers_lock`) is configured with `--hook-config=--tool-version=<version>`
 - **THEN** Terraform binary path resolution downloads/caches and resolves to that pinned Terraform version
+
+### Requirement: Explicit terraform/opentofu selection via --tf-path combined with --tool-version
+When both `--hook-config=--tf-path=<value>` and `--hook-config=--tool-version=<version>` are set on a hook that consumes the Terraform/OpenTofu binary path, the system SHALL treat `<value>` as an explicit tool selector rather than a literal binary path, accepting only `terraform`, `opentofu`, or `tofu` as valid values, and SHALL reject any other value with an error.
+
+#### Scenario: --tf-path=terraform combined with --tool-version
+- **WHEN** a hook is configured with `--hook-config=--tf-path=terraform` and `--hook-config=--tool-version=<version>`
+- **THEN** the system downloads/caches and resolves to Terraform at that pinned version, regardless of what auto-detection based on `$PATH` would otherwise have picked
+
+#### Scenario: --tf-path=opentofu or --tf-path=tofu combined with --tool-version
+- **WHEN** a hook is configured with `--hook-config=--tf-path=opentofu` (or `--hook-config=--tf-path=tofu`) and `--hook-config=--tool-version=<version>`
+- **THEN** the system downloads/caches and resolves to OpenTofu at that pinned version, regardless of what auto-detection based on `$PATH` would otherwise have picked
+
+#### Scenario: --tf-path set to an actual binary path combined with --tool-version
+- **WHEN** a hook is configured with `--hook-config=--tf-path=<value>` where `<value>` is not `terraform`, `opentofu`, or `tofu` (e.g. a literal filesystem path), and `--hook-config=--tool-version=<version>` is also set
+- **THEN** the system exits with an error explaining that `--tf-path` combined with `--tool-version` must be `terraform`, `opentofu`, `tofu`, or unset
+
+#### Scenario: --tf-path set to an actual binary path without --tool-version
+- **WHEN** a hook is configured with `--hook-config=--tf-path=<value>` and no `--hook-config=--tool-version=` is set
+- **THEN** the system uses `<value>` verbatim as the binary path, exactly as before this change (unaffected by the selector behavior above)
+
+### Requirement: Actionable error when a requested tool is neither pinned nor found on PATH
+When no `--tool-version` is requested for a hook and the wrapped tool does not resolve via `$PATH`, the system SHALL exit with an error identifying the missing tool and the hook, and suggesting `--hook-config=--tool-version=<version>` as a remedy, rather than silently returning the bare tool name for the hook's own invocation to fail on later.
+
+#### Scenario: Tool not on PATH, no version pin requested
+- **WHEN** a hook is invoked with no `--hook-config=--tool-version=` set, and the tool it wraps is not found via `$PATH`
+- **THEN** the system exits with an error naming the missing tool and the hook, and suggesting `--hook-config=--tool-version=<version>` as a remedy
+
+#### Scenario: Tool found on PATH, no version pin requested
+- **WHEN** a hook is invoked with no `--hook-config=--tool-version=` set, and the tool it wraps is found via `$PATH`
+- **THEN** the system resolves to the bare tool name unchanged, exactly as before this change
