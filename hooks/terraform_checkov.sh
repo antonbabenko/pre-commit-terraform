@@ -18,8 +18,11 @@ function main {
     export ANSI_COLORS_DISABLED=true
   fi
 
+  # checkov is pip-distributed, not a GitHub release binary, so it has no
+  # resolved tool_path (see per_dir_hook_unique_part below) - pass an
+  # empty placeholder to satisfy common::per_dir_hook's signature.
   # shellcheck disable=SC2153 # ARGS is set in common::parse_cmdline
-  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -33,7 +36,7 @@ function main {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
-#   tf_path (string) PATH to Terraform/OpenTofu binary
+#   tool_path (string) unused - checkov has no resolved tool_path
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
@@ -45,10 +48,13 @@ function per_dir_hook_unique_part {
   # shellcheck disable=SC2034 # Unused var.
   local -r parallelism_disabled="$3"
   # shellcheck disable=SC2034 # Unused var.
-  local -r tf_path="$4"
+  local -r tool_path="$4"
   shift 4
   local -a -r args=("$@")
 
+  # checkov is pip-distributed, not a GitHub release binary, so
+  # "--hook-config=--tool-version=" is intentionally not supported here -
+  # pin it via `checkov==X.Y.Z` at install time instead.
   checkov -d . "${args[@]}"
 
   # return exit code to common::per_dir_hook
@@ -60,9 +66,13 @@ function per_dir_hook_unique_part {
 # Unique part of `common::per_dir_hook`. The function is executed one time
 # in the root git repo
 # Arguments:
+#   tool_path (string) unused - checkov has no resolved tool_path
 #   args (array) arguments that configure wrapped tool behavior
 #######################################################################
 function run_hook_on_whole_repo {
+  # shellcheck disable=SC2034 # Unused var.
+  local -r tool_path="$1"
+  shift
   local -a -r args=("$@")
 
   # pass the arguments to hook

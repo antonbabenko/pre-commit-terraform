@@ -12,8 +12,11 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
+
+  local -r tool_name="infracost"
+
   # shellcheck disable=SC2153 # False positive
-  infracost_breakdown_ "${HOOK_CONFIG[*]}" "${ARGS[*]}"
+  infracost_breakdown_ "$tool_name" "${HOOK_CONFIG[*]}" "${ARGS[*]}"
 }
 
 #######################################################################
@@ -22,6 +25,7 @@ function main {
 # Environment variables:
 #   PRE_COMMIT_COLOR (string) If set to `never` - do not colorize output
 # Arguments:
+#   tool_name (string) name of the wrapped tool, used to resolve its path
 #   hook_config (string with array) arguments that configure hook behavior
 #   args (string with array) arguments that configure wrapped tool behavior
 # Outputs:
@@ -29,9 +33,13 @@ function main {
 #   diff, summary about infracost check (non-supported resources etc.)
 #######################################################################
 function infracost_breakdown_ {
-  local -r hook_config="$1"
+  local -r tool_name="$1"
+  local -r hook_config="$2"
   local args
-  read -r -a args <<< "$2"
+  read -r -a args <<< "$3"
+
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local -r tool_path=$([[ $tool_version ]] && common::resolve_tool_version "$tool_name" "$tool_version" || echo "$tool_name")
 
   # Get hook settings
   IFS=";" read -r -a checks <<< "$hook_config"
@@ -41,7 +49,7 @@ function infracost_breakdown_ {
   fi
 
   local RESULTS
-  RESULTS="$(infracost breakdown "${args[@]}" --format json)"
+  RESULTS="$("$tool_path" breakdown "${args[@]}" --format json)"
   local API_VERSION
   API_VERSION="$(jq -r .version <<< "$RESULTS")"
 

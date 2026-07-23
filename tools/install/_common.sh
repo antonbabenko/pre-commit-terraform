@@ -8,8 +8,12 @@ TOOL=${0##*/}
 readonly TOOL=${TOOL%%.*}
 
 # Get "TOOL_VERSION"
-# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
-source /.env
+# /.env is created in the Dockerfile before this script runs there; when
+# this script is invoked directly (e.g. at hook run-time, outside a Docker
+# build), it won't exist and the version env var is expected to already be
+# exported by the caller instead.
+# shellcheck disable=SC1091
+[[ -f /.env ]] && source /.env
 env_var_name="${TOOL//-/_}"
 env_var_name="${env_var_name^^}_VERSION"
 # shellcheck disable=SC2034 # Used in other scripts

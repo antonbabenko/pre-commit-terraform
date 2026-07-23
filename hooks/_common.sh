@@ -309,14 +309,16 @@ function common::get_cpu_num {
 # 3. Complete hook execution and return exit code
 # Arguments:
 #   hook_id (string) hook ID, see `- id` for details in .pre-commit-hooks.yaml file
+#   tool_name (string) name of the wrapped tool, used to resolve its path
 #   args_array_length (integer) Count of arguments in args array.
 #   args (array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
 function common::per_dir_hook {
   local -r hook_id="$1"
-  local -i args_array_length=$2
-  shift 2
+  local -r tool_name="$2"
+  local -i args_array_length=$3
+  shift 3
   local -a args=()
   # Expand args to a true array.
   # Based on https://stackoverflow.com/a/10953834
@@ -334,7 +336,7 @@ function common::per_dir_hook {
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
     # check is hook run via `pre-commit run --all`
     common::is_hook_run_on_whole_repo "$hook_id" "${files[@]}"; then
-    run_hook_on_whole_repo "${args[@]}"
+    run_hook_on_whole_repo "$tool_path" "${args[@]}"
     exit 0
   fi
 
@@ -430,7 +432,7 @@ function common::per_dir_hook {
         pushd "$dir_path" > /dev/null
       fi
 
-      per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "$parallelism_disabled" "$tf_path" "${args[@]}"
+      per_dir_hook_unique_part "$dir_path" "$change_dir_in_unique_part" "$parallelism_disabled" "$tool_path" "${args[@]}"
     } &
     pids+=("$!")
 
@@ -493,6 +495,54 @@ function common::colorify {
 }
 
 #######################################################################
+# Look up a single `--hook-config=--key=value` entry's value.
+# Globals:
+#   HOOK_CONFIG (array) arguments that configure hook behavior
+# Arguments:
+#   key (string) hook-config key to look up, including its leading `--`
+#     (e.g. "--tool-version")
+# Outputs:
+#   Prints the value if the key is present in $HOOK_CONFIG, prints
+#   nothing otherwise
+#######################################################################
+function common::get_hook_config_value {
+  local -r key="$1"
+  local config value
+
+  for config in "${HOOK_CONFIG[@]}"; do
+    if [[ $config == "$key"=* ]]; then
+      value=${config#*=}
+      value=${value%;}
+      break
+    fi
+  done
+
+  echo "$value"
+}
+
+#######################################################################
+# Detect current OS/architecture using the same naming convention
+# `tools/install/*.sh` expects (normally provided automatically by
+# Docker buildx as TARGETOS/TARGETARCH build args; outside of a Docker
+# build they don't exist and must be derived here instead).
+# Globals (init and populate):
+#   TARGETOS (string)
+#   TARGETARCH (string)
+#######################################################################
+function common::detect_os_arch {
+  TARGETOS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  TARGETARCH="$(uname -m)"
+
+  case "$TARGETARCH" in
+    x86_64) TARGETARCH="amd64" ;;
+    aarch64 | arm64) TARGETARCH="arm64" ;;
+  esac
+
+  export TARGETOS TARGETARCH
+}
+
+
+#######################################################################
 # Get Terraform/OpenTofu binary path
 # Allows user to set the path to custom Terraform or OpenTofu binary
 # Globals (init and populate):
@@ -513,9 +563,23 @@ function common::get_tf_binary_path {
     fi
   done
 
+  # NOTE: deliberately a dedicated key, not the generic "--tool-version"
+  # other hooks use directly - this function is invoked unconditionally
+  # for every hook via common::per_dir_hook, so a shared key would also
+  # be seen (and misapplied to Terraform) whenever a *different* hook
+  # sets "--tool-version" for its own, unrelated tool.
+  local -r hook_config_tf_version=$(common::get_hook_config_value "--tf-version")
+
   # direct hook config, has the highest precedence
   if [[ $hook_config_tf_path ]]; then
     echo "$hook_config_tf_path"
+    return
+
+  # --hook-config=--tf-version=X.Y.Z: download/cache a pinned Terraform
+  # version on demand. Always resolves "terraform" specifically, since
+  # there is currently no equivalent key to pin an OpenTofu version.
+  elif [[ $hook_config_tf_version ]]; then
+    common::resolve_tool_version "terraform" "$hook_config_tf_version"
     return
 
   # environment variable
