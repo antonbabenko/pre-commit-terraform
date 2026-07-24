@@ -35,7 +35,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def _write_stub(path: Path, marker: str) -> None:
+def _write_stub(path: Path, marker: str) -> None:  # pragma: win32 no cover
     """Write a fake, executable binary that prints a marker and exits 0."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -46,7 +46,7 @@ def _write_stub(path: Path, marker: str) -> None:
     path.chmod(path.stat().st_mode | exec_bits)
 
 
-def _fake_path_dir(base: Path) -> Path:
+def _fake_path_dir(base: Path) -> Path:  # pragma: win32 no cover
     """Build a PATH dir with just enough coreutils for a hook to run.
 
     None of these coreutil names ever collide with a wrapped CLI tool
@@ -78,7 +78,7 @@ def _fake_path_dir(base: Path) -> Path:
 
 
 @pytest.fixture
-def tmp_repo(tmp_path: Path) -> Path:
+def tmp_repo(tmp_path: Path) -> Path:  # pragma: win32 no cover
     """Create a minimal git repo with one tracked, provider-free `.tf` file.
 
     Returns:
@@ -111,7 +111,7 @@ def tmp_repo(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def cache_dir(tmp_path: Path) -> Path:
+def cache_dir(tmp_path: Path) -> Path:  # pragma: win32 no cover
     """Create a dedicated, empty cache root for one test.
 
     Returns:
@@ -122,7 +122,7 @@ def cache_dir(tmp_path: Path) -> Path:
     return cache
 
 
-def _run_hook(
+def _run_hook(  # pragma: win32 no cover
     hook_name: str,
     args: list[str],
     *,
@@ -161,7 +161,7 @@ def _run_hook(
     )
 
 
-class TestCacheAndModeResolution:
+class TestCacheAndModeResolution:  # pragma: win32 no cover
     """Tests for cache-hit reuse and `--tool-version-mode` selection."""
 
     def test_cache_hit_no_network(
@@ -239,7 +239,7 @@ class TestCacheAndModeResolution:
         assert not (cache_dir / 'tflint').exists()
 
 
-class TestTfPathSelectorAndErrorHandling:
+class TestTfPathSelectorAndErrorHandling:  # pragma: win32 no cover
     """Tests for `--tf-path` selection, the checkov no-op, and error paths."""
 
     @pytest.mark.parametrize(
