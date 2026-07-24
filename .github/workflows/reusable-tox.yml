@@ -311,6 +311,13 @@ jobs:
       id: tox-run
       shell: bash
       env:
+        # Consumed by tools/install/_common.sh (via `pass_env = GITHUB_*`
+        # in tox.ini) to authenticate GitHub API calls made while
+        # resolving `--tool-version` pins - without it, requests are
+        # unauthenticated and share GitHub's low per-IP rate limit
+        # across every job in this workflow's matrix, which is exactly
+        # what test_real_download_on_cache_miss can hit.
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         INPUT_TOX_RUN_POSARGS: ${{ inputs.tox-run-posargs }}
       run: |-
         tox_common_args=(
