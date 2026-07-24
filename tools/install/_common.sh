@@ -15,7 +15,8 @@ readonly TOOL=${TOOL%%.*}
 # shellcheck disable=SC1091
 [[ -f /.env ]] && source /.env
 env_var_name="${TOOL//-/_}"
-env_var_name="${env_var_name^^}_VERSION"
+# `${var^^}` is bash 4+ only; macOS ships bash 3.2 by default.
+env_var_name="$(printf '%s' "$env_var_name" | tr '[:lower:]' '[:upper:]')_VERSION"
 # shellcheck disable=SC2034 # Used in other scripts
 readonly VERSION="${!env_var_name}"
 
