@@ -2,6 +2,7 @@
 include = [
   '.codecov.yml',
   '.coveragerc',
+  'hooks/',
   'src/',
   'tests/',
   'pytest.ini',
