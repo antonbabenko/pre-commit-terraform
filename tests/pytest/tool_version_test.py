@@ -127,6 +127,14 @@ def _run_hook(
     cache_dir: Path,
     path_override: tuple[Literal['prepend', 'replace'], Path] | None = None,
 ) -> subprocess.CompletedProcess[str]:
+    hook_path = HOOKS_DIR / hook_name
+    if not hook_path.is_file():
+        # Fail loudly and specifically here rather than let a generic
+        # "bash: <path>: No such file or directory" surface only as an
+        # unrelated, confusing assertion mismatch further down a test.
+        # This exact scenario previously broke CI: the sdist artifact
+        # tox/pytest run against in CI did not package `hooks/` at all.
+        pytest.fail(f'Hook script not found: {hook_path}')
     env = dict(os.environ)
     env['PCT_TOOL_CACHE_DIR'] = str(cache_dir)
     env.pop('XDG_CACHE_HOME', None)
@@ -137,7 +145,7 @@ def _run_hook(
         else:
             env['PATH'] = f'{extra_dir}{os.pathsep}{env.get("PATH", "")}'
     return subprocess.run(  # noqa: S603
-        (BASH, str(HOOKS_DIR / hook_name), *args, '--', 'a.tf'),
+        (BASH, str(hook_path), *args, '--', 'a.tf'),
         cwd=cwd,
         env=env,
         capture_output=True,
@@ -146,192 +154,214 @@ def _run_hook(
     )
 
 
-def test_cache_hit_no_network(tmp_repo: Path, cache_dir: Path) -> None:
-    """Check that a pre-populated cache entry is used, with no download."""
-    stub = cache_dir / 'tflint' / '0.50.0' / 'tflint'
-    _write_stub(stub, 'FAKE_TFLINT_INVOKED')
+class TestCacheAndModeResolution:
+    """Tests for cache-hit reuse and `--tool-version-mode` selection."""
 
-    hook_run = _run_hook(
-        'terraform_tflint.sh',
-        ['--hook-config=--tool-version=0.50.0'],
-        cwd=tmp_repo,
-        cache_dir=cache_dir,
+    def test_cache_hit_no_network(
+        self,
+        tmp_repo: Path,
+        cache_dir: Path,
+    ) -> None:
+        """Check that a pre-populated cache entry is used, with no download."""
+        stub = cache_dir / 'tflint' / '0.50.0' / 'tflint'
+        _write_stub(stub, 'FAKE_TFLINT_INVOKED')
+
+        hook_run = _run_hook(
+            'terraform_tflint.sh',
+            ['--hook-config=--tool-version=0.50.0'],
+            cwd=tmp_repo,
+            cache_dir=cache_dir,
+        )
+
+        combined = hook_run.stdout + hook_run.stderr
+        # 2 is tflint's own lint findings on the minimal fixture.
+        assert hook_run.returncode in {0, 2}, combined
+        assert 'Downloading' not in combined
+        # Cache entry untouched/still present, not re-created by a download.
+        assert stub.exists()
+
+    def test_tool_version_mode_strict_prefers_pinned(
+        self,
+        tmp_repo: Path,
+        cache_dir: Path,
+        tmp_path: Path,
+    ) -> None:
+        """Check that `strict` (default) mode prefers the pinned version."""
+        fake_path_dir = tmp_path / 'fakebin'
+        fake_path_dir.mkdir()
+        _write_stub(fake_path_dir / 'tflint', 'LOCAL_TFLINT')
+
+        pinned = cache_dir / 'tflint' / '0.50.0' / 'tflint'
+        _write_stub(pinned, 'PINNED_TFLINT')
+
+        hook_run = _run_hook(
+            'terraform_tflint.sh',
+            ['--hook-config=--tool-version=0.50.0'],
+            cwd=tmp_repo,
+            cache_dir=cache_dir,
+            path_override=('prepend', fake_path_dir),
+        )
+
+        combined = hook_run.stdout + hook_run.stderr
+        assert 'downloaded/used instead of whatever is on $PATH' in combined
+        assert pinned.exists()
+
+    def test_tool_version_mode_prefer_local(
+        self,
+        tmp_repo: Path,
+        cache_dir: Path,
+        tmp_path: Path,
+    ) -> None:
+        """Check `prefer-local` mode skips the cache/download when found."""
+        fake_path_dir = tmp_path / 'fakebin'
+        fake_path_dir.mkdir()
+        _write_stub(fake_path_dir / 'tflint', 'LOCAL_TFLINT')
+
+        hook_run = _run_hook(
+            'terraform_tflint.sh',
+            [
+                '--hook-config=--tool-version=0.50.0',
+                '--hook-config=--tool-version-mode=prefer-local',
+            ],
+            cwd=tmp_repo,
+            cache_dir=cache_dir,
+            path_override=('prepend', fake_path_dir),
+        )
+
+        assert 'prefer-local' in hook_run.stdout + hook_run.stderr
+        assert not (cache_dir / 'tflint').exists()
+
+
+class TestTfPathSelectorAndErrorHandling:
+    """Tests for `--tf-path` selection, the checkov no-op, and error paths."""
+
+    @pytest.mark.parametrize(
+        ('tf_path_value', 'expected_tool_dir', 'expected_bin_name'),
+        (
+            pytest.param(
+                'terraform',
+                'terraform',
+                'terraform',
+                id='terraform',
+            ),
+            pytest.param('opentofu', 'opentofu', 'tofu', id='opentofu'),
+            pytest.param('tofu', 'opentofu', 'tofu', id='tofu-alias'),
+        ),
     )
+    def test_tf_path_selector(
+        self,
+        tmp_repo: Path,
+        cache_dir: Path,
+        tf_path_value: str,
+        expected_tool_dir: str,
+        expected_bin_name: str,
+    ) -> None:
+        """Check that `--tf-path=terraform|opentofu|tofu` selects the tool.
 
-    assert 'Downloading' not in hook_run.stdout + hook_run.stderr
-    # Cache entry untouched/still present, not re-created by a download.
-    assert stub.exists()
+        Args:
+            tmp_repo: Temp git repo fixture.
+            cache_dir: Temp cache root fixture.
+            tf_path_value: The `--tf-path` value under test.
+            expected_tool_dir: Expected cache subdir (`terraform`/`opentofu`).
+            expected_bin_name: Expected cached binary filename.
+        """
+        stub = cache_dir / expected_tool_dir / '1.9.0' / expected_bin_name
+        _write_stub(stub, 'FAKE_TF_INVOKED')
 
+        hook_run = _run_hook(
+            'terraform_fmt.sh',
+            [
+                f'--hook-config=--tf-path={tf_path_value}',
+                '--hook-config=--tool-version=1.9.0',
+            ],
+            cwd=tmp_repo,
+            cache_dir=cache_dir,
+        )
 
-def test_tool_version_mode_strict_prefers_pinned(
-    tmp_repo: Path,
-    cache_dir: Path,
-    tmp_path: Path,
-) -> None:
-    """Check that default `strict` mode prefers the pinned/cached version."""
-    fake_path_dir = tmp_path / 'fakebin'
-    fake_path_dir.mkdir()
-    _write_stub(fake_path_dir / 'tflint', 'LOCAL_TFLINT')
+        assert hook_run.returncode == 0
+        assert stub.exists()
 
-    pinned = cache_dir / 'tflint' / '0.50.0' / 'tflint'
-    _write_stub(pinned, 'PINNED_TFLINT')
+    def test_tf_path_rejects_invalid_value(
+        self,
+        tmp_repo: Path,
+        cache_dir: Path,
+    ) -> None:
+        """Check an unrecognized `--tf-path` + `--tool-version` errors."""
+        hook_run = _run_hook(
+            'terraform_fmt.sh',
+            [
+                '--hook-config=--tf-path=/some/custom/path',
+                '--hook-config=--tool-version=1.9.0',
+            ],
+            cwd=tmp_repo,
+            cache_dir=cache_dir,
+        )
 
-    hook_run = _run_hook(
-        'terraform_tflint.sh',
-        ['--hook-config=--tool-version=0.50.0'],
-        cwd=tmp_repo,
-        cache_dir=cache_dir,
-        path_override=('prepend', fake_path_dir),
-    )
+        assert hook_run.returncode != 0
+        assert 'not a valid value' in hook_run.stdout + hook_run.stderr
 
-    combined = hook_run.stdout + hook_run.stderr
-    assert 'downloaded/used instead of whatever is on $PATH' in combined
-    assert pinned.exists()
+    def test_checkov_ignores_tool_version(
+        self,
+        tmp_repo: Path,
+        cache_dir: Path,
+    ) -> None:
+        """Check checkov (pip-distributed) ignores `--tool-version`."""
+        hook_run = _run_hook(
+            'terraform_checkov.sh',
+            ['--hook-config=--tool-version=1.2.3', '--args=--quiet'],
+            cwd=tmp_repo,
+            cache_dir=cache_dir,
+        )
 
+        combined = hook_run.stdout + hook_run.stderr
+        assert 'not a valid value' not in combined
+        assert 'no installer found' not in combined
 
-def test_tool_version_mode_prefer_local(
-    tmp_repo: Path,
-    cache_dir: Path,
-    tmp_path: Path,
-) -> None:
-    """Check that `prefer-local` mode skips the cache/download when found."""
-    fake_path_dir = tmp_path / 'fakebin'
-    fake_path_dir.mkdir()
-    _write_stub(fake_path_dir / 'tflint', 'LOCAL_TFLINT')
+    def test_actionable_error_when_tool_missing(
+        self,
+        tmp_repo: Path,
+        cache_dir: Path,
+        tmp_path: Path,
+    ) -> None:
+        """Check the actionable error when unpinned and absent from PATH."""
+        fake_path_dir = _fake_path_dir(tmp_path, hide='tflint')
 
-    hook_run = _run_hook(
-        'terraform_tflint.sh',
-        [
-            '--hook-config=--tool-version=0.50.0',
-            '--hook-config=--tool-version-mode=prefer-local',
-        ],
-        cwd=tmp_repo,
-        cache_dir=cache_dir,
-        path_override=('prepend', fake_path_dir),
-    )
+        hook_run = _run_hook(
+            'terraform_tflint.sh',
+            [],
+            cwd=tmp_repo,
+            cache_dir=cache_dir,
+            path_override=('replace', fake_path_dir),
+        )
 
-    assert 'prefer-local' in hook_run.stdout + hook_run.stderr
-    assert not (cache_dir / 'tflint').exists()
+        combined = hook_run.stdout + hook_run.stderr
+        assert hook_run.returncode != 0
+        assert 'tflint' in combined
+        assert '--hook-config=--tool-version=' in combined
 
+    def test_real_download_on_cache_miss(
+        self,
+        tmp_repo: Path,
+        cache_dir: Path,
+    ) -> None:
+        """Check a genuine end-to-end download on a cache miss (network)."""
+        hook_run = _run_hook(
+            'terraform_tflint.sh',
+            ['--hook-config=--tool-version=0.50.0'],
+            cwd=tmp_repo,
+            cache_dir=cache_dir,
+        )
 
-@pytest.mark.parametrize(
-    ('tf_path_value', 'expected_tool_dir', 'expected_bin_name'),
-    (
-        pytest.param('terraform', 'terraform', 'terraform', id='terraform'),
-        pytest.param('opentofu', 'opentofu', 'tofu', id='opentofu'),
-        pytest.param('tofu', 'opentofu', 'tofu', id='tofu-alias'),
-    ),
-)
-def test_tf_path_selector(
-    tmp_repo: Path,
-    cache_dir: Path,
-    tf_path_value: str,
-    expected_tool_dir: str,
-    expected_bin_name: str,
-) -> None:
-    """Check that `--tf-path=terraform|opentofu|tofu` selects the pinned tool.
+        cached_bin = cache_dir / 'tflint' / '0.50.0' / 'tflint'
+        assert cached_bin.exists()
+        assert os.access(cached_bin, os.X_OK)
 
-    Args:
-        tmp_repo: Temp git repo fixture.
-        cache_dir: Temp cache root fixture.
-        tf_path_value: The `--tf-path` value under test.
-        expected_tool_dir: Expected cache subdir (`terraform`/`opentofu`).
-        expected_bin_name: Expected cached binary filename.
-    """
-    stub = cache_dir / expected_tool_dir / '1.9.0' / expected_bin_name
-    _write_stub(stub, 'FAKE_TF_INVOKED')
-
-    hook_run = _run_hook(
-        'terraform_fmt.sh',
-        [
-            f'--hook-config=--tf-path={tf_path_value}',
-            '--hook-config=--tool-version=1.9.0',
-        ],
-        cwd=tmp_repo,
-        cache_dir=cache_dir,
-    )
-
-    assert hook_run.returncode == 0
-    assert stub.exists()
-
-
-def test_tf_path_rejects_invalid_value(
-    tmp_repo: Path,
-    cache_dir: Path,
-) -> None:
-    """Check an unrecognized `--tf-path` + `--tool-version` combo errors."""
-    hook_run = _run_hook(
-        'terraform_fmt.sh',
-        [
-            '--hook-config=--tf-path=/some/custom/path',
-            '--hook-config=--tool-version=1.9.0',
-        ],
-        cwd=tmp_repo,
-        cache_dir=cache_dir,
-    )
-
-    assert hook_run.returncode != 0
-    assert 'not a valid value' in hook_run.stdout + hook_run.stderr
-
-
-def test_checkov_ignores_tool_version(
-    tmp_repo: Path,
-    cache_dir: Path,
-) -> None:
-    """Check checkov (pip-distributed) ignores `--tool-version` silently."""
-    hook_run = _run_hook(
-        'terraform_checkov.sh',
-        ['--hook-config=--tool-version=1.2.3', '--args=--quiet'],
-        cwd=tmp_repo,
-        cache_dir=cache_dir,
-    )
-
-    combined = hook_run.stdout + hook_run.stderr
-    assert 'not a valid value' not in combined
-    assert 'no installer found' not in combined
-
-
-def test_actionable_error_when_tool_missing(
-    tmp_repo: Path,
-    cache_dir: Path,
-    tmp_path: Path,
-) -> None:
-    """Check the named, actionable error when unpinned and absent from PATH."""
-    fake_path_dir = _fake_path_dir(tmp_path, hide='tflint')
-
-    hook_run = _run_hook(
-        'terraform_tflint.sh',
-        [],
-        cwd=tmp_repo,
-        cache_dir=cache_dir,
-        path_override=('replace', fake_path_dir),
-    )
-
-    combined = hook_run.stdout + hook_run.stderr
-    assert hook_run.returncode != 0
-    assert 'tflint' in combined
-    assert '--hook-config=--tool-version=' in combined
-
-
-def test_real_download_on_cache_miss(tmp_repo: Path, cache_dir: Path) -> None:
-    """Check a genuine end-to-end download for a cache-miss path (network)."""
-    hook_run = _run_hook(
-        'terraform_tflint.sh',
-        ['--hook-config=--tool-version=0.50.0'],
-        cwd=tmp_repo,
-        cache_dir=cache_dir,
-    )
-
-    cached_bin = cache_dir / 'tflint' / '0.50.0' / 'tflint'
-    assert cached_bin.exists()
-    assert os.access(cached_bin, os.X_OK)
-
-    version_check = subprocess.run(  # noqa: S603
-        (str(cached_bin), '--version'),
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert '0.50.0' in version_check.stdout
-    # 2 is tflint's own lint findings on the minimal fixture; not our concern.
-    assert hook_run.returncode in {0, 2}
+        version_check = subprocess.run(  # noqa: S603
+            (str(cached_bin), '--version'),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert '0.50.0' in version_check.stdout
+        # 2 is tflint's own lint findings on the minimal fixture, not ours.
+        assert hook_run.returncode in {0, 2}
