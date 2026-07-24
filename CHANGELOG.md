@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.108.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.108.0...v1.108.1) (2026-07-24)
+
+
+### Bug Fixes
+
+* **docker:** Downloader of `opentofu` to specific version was broken, only `latest` worked ([6a72379](https://github.com/antonbabenko/pre-commit-terraform/commit/6a723791d6aa75c79ffe9bc0546de9eb4f6737a5))
+
 # [1.108.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.107.0...v1.108.0) (2026-06-20)
 
 
