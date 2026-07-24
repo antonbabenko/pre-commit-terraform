@@ -440,8 +440,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
 > All hooks, which wrapping a tool distributed as a downloadable release binary. Not supported for `checkov`/`terraform_checkov` (pip-distributed) and for deprecated `terraform_docs_replace`.
 
-1. <sup><sub><sup><a id="mhpasptv-1"></a>[🔗](#mhpasptv-1)</sup></sub></sup>
-    You can pin a specific version of the wrapped tool per-hook, independent of whatever is on `$PATH` or baked into the Docker image. If that version isn't already cached locally, it's downloaded from the tool's GitHub releases on first use, then reused (no re-download) on every subsequent run.
+1. You can pin a specific version of the wrapped tool per-hook, independent of whatever is on `$PATH` or baked into the Docker image. If that version isn't already cached locally, it's downloaded from the tool's GitHub releases on first use, then reused (no re-download) on every subsequent run.
 
     Config example:
 
@@ -451,8 +450,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
         - --hook-config=--tool-version=0.50.0
     ```
 
-2. <sup><sub><sup><a id="mhpasptv-2"></a>[🔗](#mhpasptv-2)</sup></sub></sup>
-    The same `--tool-version` key also works on `terraform_validate`, `terraform_fmt` and `terraform_providers_lock`, which resolve their Terraform/OpenTofu binary through [`--tf-path`](#11-custom-terraform-binaries-and-opentofu-support) - by default it downloads/uses whichever of `terraform`/`opentofu` the rest of that precedence chain would otherwise have picked (`terraform`, unless it's absent from `$PATH` while `tofu` is present, in which case `opentofu`). To pick explicitly instead of relying on that auto-detection, set `--tf-path` to the literal value `terraform`, `opentofu`, or `tofu`:
+2. The same `--tool-version` key also works on `terraform_validate`, `terraform_fmt` and `terraform_providers_lock`, which resolve their Terraform/OpenTofu binary through [`--tf-path`](#11-custom-terraform-binaries-and-opentofu-support) - by default it downloads/uses whichever of `terraform`/`opentofu` the rest of that precedence chain would otherwise have picked (`terraform`, unless it's absent from `$PATH` while `tofu` is present, in which case `opentofu`). To pick explicitly instead of relying on that auto-detection, set `--tf-path` to the literal value `terraform`, `opentofu`, or `tofu`:
 
     ```yaml
     - id: terraform_validate
@@ -462,7 +460,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
     ```
 
 > [!TIP]
-> 3. <sup><sub><sup><a id="mhpasptv-3"></a>[🔗](#mhpasptv-3)</sup></sub></sup> Since this resolves to a version-specific cached binary rather than mutating `$PATH`, the same hook can be listed multiple times with different pinned versions, e.g. to test compatibility across tool versions in one run:
+> 3. Since this resolves to a version-specific cached binary rather than mutating `$PATH`, the same hook can be listed multiple times with different pinned versions, e.g. to test compatibility across tool versions in one run:
 >
 > ```yaml
 > - id: terraform_tflint
@@ -473,8 +471,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 >     - --hook-config=--tool-version=0.55.0
 > ```
 
-4. <sup><sub><sup><a id="mhpasptv-4"></a>[🔗](#mhpasptv-4)</sup></sub></sup>
-    By default, if a different version of the tool is already on `$PATH`, the pinned version still wins (with a warning) - this is `--hook-config=--tool-version-mode=strict`. Set it to `prefer-local` to invert that: if the tool already resolves via `$PATH`, that local binary is used as-is and no download is attempted; the pinned version is only downloaded/used as a fallback when nothing is found locally.
+4. By default, if a different version of the tool is already on `$PATH`, the pinned version still wins (with a warning) - this is `--hook-config=--tool-version-mode=strict`. Set it to `prefer-local` to invert that: if the tool already resolves via `$PATH`, that local binary is used as-is and no download is attempted; the pinned version is only downloaded/used as a fallback when nothing is found locally.
 
     ```yaml
     - id: terraform_tflint
@@ -483,11 +480,9 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
         - --hook-config=--tool-version-mode=prefer-local
     ```
 
-5. <sup><sub><sup><a id="mhpasptv-5"></a>[🔗](#mhpasptv-5)</sup></sub></sup>
-    By default, downloaded binaries are cached under `$XDG_CACHE_HOME/pre-commit-terraform` (or `$HOME/.cache/pre-commit-terraform` if `XDG_CACHE_HOME` is unset). Override the location with the `PCT_TOOL_CACHE_DIR` environment variable - see [Mount tools cache directory](#mount-tools-cache-directory) for the Docker case.
+5. By default, downloaded binaries are cached under `$XDG_CACHE_HOME/pre-commit-terraform` (or `$HOME/.cache/pre-commit-terraform` if `XDG_CACHE_HOME` is unset). Override the location with the `PCT_TOOL_CACHE_DIR` environment variable - see [Mount tools cache directory](#mount-tools-cache-directory) for the Docker case.
 
-6. <sup><sub><sup><a id="mhpasptv-6"></a>[🔗](#mhpasptv-6)</sup></sub></sup>
-    If a `GITHUB_TOKEN` environment variable is set, it's used automatically to authenticate GitHub API requests made during version resolution, the same way it already is for [building your own Docker image](#docker-usage).
+6. If a `GITHUB_TOKEN` environment variable is set, it's used automatically to authenticate GitHub API requests made during version resolution, the same way it already is for [building your own Docker image](#docker-usage).
 
 #### Keeping pinned versions up to date with Renovate
 
@@ -1370,7 +1365,6 @@ docker run \
     ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 ```
 
-<sup><sub><sup><a id="mtcd-1"></a>[🔗](#mtcd-1)</sup></sub></sup>
 If you set `PCT_TOOL_CACHE_DIR` to a custom location, mount that path instead (and pass the same env var to the container with `-e PCT_TOOL_CACHE_DIR=...`).
 
 ## GitHub Actions
