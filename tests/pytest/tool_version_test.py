@@ -46,8 +46,13 @@ def _write_stub(path: Path, marker: str) -> None:
     path.chmod(path.stat().st_mode | exec_bits)
 
 
-def _fake_path_dir(base: Path, *, hide: str) -> Path:
-    """Build a PATH dir with coreutils symlinked in but `hide` excluded.
+def _fake_path_dir(base: Path) -> Path:
+    """Build a PATH dir with just enough coreutils for a hook to run.
+
+    None of these coreutil names ever collide with a wrapped CLI tool
+    name (tflint, terraform, ...), so the hook being tested stays
+    absent from the resulting PATH without needing an explicit
+    exclusion list.
 
     Returns:
         Path to the constructed directory, usable as a `PATH` entry.
@@ -66,11 +71,9 @@ def _fake_path_dir(base: Path, *, hide: str) -> Path:
         'git',
     )
     for tool in coreutils:
-        if tool == hide:
-            continue
         found = shutil.which(tool)
-        if found is not None:
-            (path_dir / tool).symlink_to(found)
+        assert found is not None, f'{tool!r} not found on PATH'
+        (path_dir / tool).symlink_to(found)
     return path_dir
 
 
@@ -128,12 +131,16 @@ def _run_hook(
     path_override: tuple[Literal['prepend', 'replace'], Path] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     hook_path = HOOKS_DIR / hook_name
-    if not hook_path.is_file():
+    if not hook_path.is_file():  # pragma: no cover
         # Fail loudly and specifically here rather than let a generic
         # "bash: <path>: No such file or directory" surface only as an
         # unrelated, confusing assertion mismatch further down a test.
         # This exact scenario previously broke CI: the sdist artifact
         # tox/pytest run against in CI did not package `hooks/` at all.
+        # Never hit in a passing run by definition - excluded from
+        # coverage rather than covered via a dedicated test, since
+        # it's diagnostic scaffolding for this test file, not part of
+        # the tool-version feature's own tested behavior.
         pytest.fail(f'Hook script not found: {hook_path}')
     env = dict(os.environ)
     env['PCT_TOOL_CACHE_DIR'] = str(cache_dir)
@@ -324,7 +331,7 @@ class TestTfPathSelectorAndErrorHandling:
         tmp_path: Path,
     ) -> None:
         """Check the actionable error when unpinned and absent from PATH."""
-        fake_path_dir = _fake_path_dir(tmp_path, hide='tflint')
+        fake_path_dir = _fake_path_dir(tmp_path)
 
         hook_run = _run_hook(
             'terraform_tflint.sh',
