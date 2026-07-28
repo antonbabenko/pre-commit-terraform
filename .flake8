@@ -78,6 +78,9 @@ per-file-ignores =
     WPS226,
     # WPS115: "Require snake_case for naming class attributes" -- testing legitimate case, ignored in main code
     WPS115,
+  tests/pytest/tool_version_test.py:
+    # WPS226: "Forbid the overuse of string literals" -- same legitimate test-fixture rationale as _cli_test.py above
+    WPS226,
   # We will not spend time on fixing complexity in deprecated hook
   src/pre_commit_terraform/terraform_docs_replace.py: WPS232
 
