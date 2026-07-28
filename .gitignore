@@ -178,6 +178,6 @@ pyrightconfig.json
 
 tests/results/*
 
-# Drop openspec.ai generated files to not clutter the repo but still be able to use it locally
+# Ignore OpenSpec-generated files; keep them available for local use without cluttering the repo
 .agents/commands/opsx/*
 .agents/skills/openspec-*
