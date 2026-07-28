@@ -459,6 +459,16 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
         - --hook-config=--tool-version=1.12.0
     ```
 
+    `--tf-path` and `--tool-version` either can be set on its own, or combined:
+
+    | `--tf-path`                                | `--tool-version` | Behavior                                                                                                                                     |
+    | ------------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+    | set to a literal path/binary name          | unset            | Use that local binary as-is (normal [`--tf-path`](#11-custom-terraform-binaries-and-opentofu-support) behavior); `--tool-version` is ignored |
+    | unset                                      | set              | Auto-detect `terraform`/`opentofu` as described above, then download/use that tool at the pinned version                                     |
+    | set to `terraform`, `opentofu`, or `tofu`  | set              | Download/use the pinned version of whichever of the two was selected                                                                         |
+    | set to anything else (e.g. an actual path) | set              | Error - combined with `--tool-version`, `--tf-path` only accepts `terraform`, `opentofu`, or `tofu`                                          |
+    | unset                                      | unset            | Falls back to the normal [`--tf-path`](#11-custom-terraform-binaries-and-opentofu-support) precedence chain (env vars, then `$PATH`)         |
+
 > [!TIP]
 > 3. Since this resolves to a version-specific cached binary rather than mutating `$PATH`, the same hook can be listed multiple times with different pinned versions, e.g. to test compatibility across tool versions in one run:
 >
@@ -471,7 +481,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 >     - --hook-config=--tool-version=0.55.0
 > ```
 
-4. By default, if a different version of the tool is already on `$PATH`, the pinned version still wins (with a warning message logged) based on `--hook-config=--tool-version-mode=strict`. Set it to `prefer-local` (as opposite to `strict`) to invert that: if the tool already resolves via `$PATH`, this local binary is used as-is and no download is attempted; the pinned version is only downloaded/used as a fallback when nothing is found locally.
+1. By default, if a different version of the tool is already on `$PATH`, the pinned version still wins (with a warning message logged) based on `--hook-config=--tool-version-mode=strict`. Set it to `prefer-local` (as opposite to `strict`) to invert that: if the tool already resolves via `$PATH`, this local binary is used as-is and no download is attempted; the pinned version is only downloaded/used as a fallback when nothing is found locally.
 
     ```yaml
     - id: terraform_tflint
@@ -480,9 +490,9 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
         - --hook-config=--tool-version-mode=prefer-local
     ```
 
-5. By default, downloaded binaries are cached under `$XDG_CACHE_HOME/pre-commit-terraform/` (or `$HOME/.cache/pre-commit-terraform/` if `XDG_CACHE_HOME` is unset). Override this location with the `PCT_TOOL_CACHE_DIR` environment variable - see [Mount tools cache directory](#mount-tools-cache-directory) for the Docker case.
+2. By default, downloaded binaries are cached under `$XDG_CACHE_HOME/pre-commit-terraform/` (or `$HOME/.cache/pre-commit-terraform/` if `XDG_CACHE_HOME` is unset). Override this location with the `PCT_TOOL_CACHE_DIR` environment variable - see [Mount tools cache directory](#mount-tools-cache-directory) for the Docker case.
 
-6. If a `GITHUB_TOKEN` environment variable is set, it's inherited automatically to authenticate GitHub API requests made during version resolution, the same way it already is utilized for [building your own Docker image](#docker-usage).
+3. If a `GITHUB_TOKEN` environment variable is set, it's inherited automatically to authenticate GitHub API requests made during version resolution, the same way it already is utilized for [building your own Docker image](#docker-usage).
 
 #### Keeping pinned versions up-to-date using Renovate
 
