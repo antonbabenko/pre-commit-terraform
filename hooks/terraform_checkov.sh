@@ -18,7 +18,7 @@ function main {
     export ANSI_COLORS_DISABLED=true
   fi
 
-  # checkov is pip-distributed, not a GitHub release binary, so it has no
+  # checkov is distributed via PyPi, not as GitHub release asset, so it has no
   # resolved tool_path (see per_dir_hook_unique_part below) - pass an
   # empty placeholder to satisfy common::per_dir_hook's signature.
   # shellcheck disable=SC2153 # ARGS is set in common::parse_cmdline

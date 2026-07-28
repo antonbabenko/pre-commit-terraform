@@ -592,23 +592,23 @@ function common::resolve_tool_path {
   local -r version="$2"
 
   #
-  # Check is configuration valid
+  # Check if configuration is valid
   #
 
   # No resolvable tool name (e.g. checkov, which is pip-distributed);
   # keeps "--tool-version" a documented no-op for it instead of erroring on an empty tool name.
-  [[ -z $tool_name ]] && return
+  [[ ! $tool_name ]] && return
 
   # No version requested, and not the "tf" placeholder - skip resolution,
   # use whatever's on $PATH. The "tf" placeholder is excluded here because
   # get_tf_binary_path has its own additional precedence rungs
   # (--tf-path, PCT_TFPATH, TERRAGRUNT_TFPATH) that must be consulted
   # even when $version is empty, unlike every other tool.
-  if [[ -z $version && $tool_name != tf ]]; then
-    if [[ ! $(command -v "$tool_name") ]]; then
+  if [[ ! $version && $tool_name != tf ]]; then
+    if ! command -v "$tool_name" > /dev/null; then
       common::colorify "red" \
         "ERROR: '$tool_name' is required by '$HOOK_ID' pre-commit hook but it is not discoverable in the system's PATH.\n" \
-        "Since '--hook-config=--tool-version' was not specified, no version resolution was attempted.\n\n" \
+        "Since '--hook-config=--tool-version=…' was not specified, no version resolution was attempted.\n\n" \
         "Please install '$tool_name' manually or specify in .pre-commit-config.yaml a version to download and cache via:\n" \
         "args:\n" \
         "  - --hook-config=--tool-version=<version>"
@@ -734,7 +734,7 @@ function common::get_tf_binary_path {
   # combined with --tool-version. When it IS also set, --tf-path is
   # reinterpreted below as an explicit terraform/opentofu selector
   # rather than a literal binary path.
-  if [[ $hook_config_tf_path && -z $tool_version ]]; then
+  if [[ $hook_config_tf_path && ! $tool_version ]]; then
     echo "$hook_config_tf_path"
     return
 
@@ -757,7 +757,7 @@ function common::get_tf_binary_path {
       *)
         common::colorify "red" \
           "ERROR: '--tf-path=$hook_config_tf_path' combined with '--tool-version' is not a valid value.\n" \
-          "It must be either 'terraform', 'opentofu'/'tofu', or unset (to auto-detect)."
+          "'--tf-path=' must be either 'terraform', 'opentofu'/'tofu', or unset."
         exit 1
         ;;
     esac
@@ -787,11 +787,11 @@ function common::get_tf_binary_path {
 
   else
     common::colorify "red" \
-      'Neither Terraform nor OpenTofu binary could be found. Please either set:\n' \
-      '- the "--tf-path" hook configuration argument, with (download and cache) or without (local installation) "--tool-version"\n' \
-      '- the "PCT_TFPATH" environment variable\n' \
-      '- the "TERRAGRUNT_TFPATH" environment variable\n' \
-      '- or install Terraform or OpenTofu globally.'
+      'Neither Terraform nor OpenTofu binary could be found. Please do one of the following:\n' \
+      '- set the "--tf-path" hook configuration argument, along with "--tool-version" (to download and cache) or without it (to use already installed one)\n' \
+      '- set the "PCT_TFPATH" environment variable\n' \
+      '- set the "TERRAGRUNT_TFPATH" environment variable\n' \
+      '- install Terraform or OpenTofu yourself and run "pre-commit" again'
     exit 1
   fi
 }
