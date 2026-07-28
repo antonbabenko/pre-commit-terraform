@@ -481,7 +481,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 >     - --hook-config=--tool-version=0.55.0
 > ```
 
-1. By default, if a different version of the tool is already on `$PATH`, the pinned version still wins (with a warning message logged) based on `--hook-config=--tool-version-mode=strict`. Set it to `prefer-local` (as opposite to `strict`) to invert that: if the tool already resolves via `$PATH`, this local binary is used as-is and no download is attempted; the pinned version is only downloaded/used as a fallback when nothing is found locally.
+4. By default, if a different version of the tool is already on `$PATH`, the pinned version still wins (with a warning message logged) based on `--hook-config=--tool-version-mode=strict`. Set it to `prefer-local` (as opposite to `strict`) to invert that: if the tool already resolves via `$PATH`, this local binary is used as-is and no download is attempted; the pinned version is only downloaded/used as a fallback when nothing is found locally.
 
     ```yaml
     - id: terraform_tflint
@@ -490,9 +490,9 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
         - --hook-config=--tool-version-mode=prefer-local
     ```
 
-2. By default, downloaded binaries are cached under `$XDG_CACHE_HOME/pre-commit-terraform/` (or `$HOME/.cache/pre-commit-terraform/` if `XDG_CACHE_HOME` is unset). Override this location with the `PCT_TOOL_CACHE_DIR` environment variable - see [Mount tools cache directory](#mount-tools-cache-directory) for the Docker case.
+5. By default, downloaded binaries are cached under `$XDG_CACHE_HOME/pre-commit-terraform/` (or `$HOME/.cache/pre-commit-terraform/` if `XDG_CACHE_HOME` is unset). Override this location with the `PCT_TOOL_CACHE_DIR` environment variable - see [Mount tools cache directory](#mount-tools-cache-directory) for the Docker case.
 
-3. If a `GITHUB_TOKEN` environment variable is set, it's inherited automatically to authenticate GitHub API requests made during version resolution, the same way it already is utilized for [building your own Docker image](#docker-usage).
+6. If a `GITHUB_TOKEN` environment variable is set, it's inherited automatically to authenticate GitHub API requests made during version resolution, the same way it already is utilized for [building your own Docker image](#docker-usage).
 
 #### Keeping pinned versions up-to-date using Renovate
 
