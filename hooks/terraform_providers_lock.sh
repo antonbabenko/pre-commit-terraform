@@ -15,7 +15,7 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: suppress color for `terraform providers lock` is N/A`
 
-  local -r tool_name="tf" # Will be resolved into real tool inside 'common::resolve_tool_version'
+  local -r tool_name="tf" # Will be resolved into real tool inside 'common::resolve_tool_path'
 
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"

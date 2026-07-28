@@ -39,7 +39,9 @@ function infracost_breakdown_ {
   read -r -a args <<< "$3"
 
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
-  local -r tool_path=$(common::resolve_tool_version "$tool_name" "$tool_version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
 
   # Get hook settings
   IFS=";" read -r -a checks <<< "$hook_config"
