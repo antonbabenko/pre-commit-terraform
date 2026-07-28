@@ -21,8 +21,11 @@ function main {
   if [ "$PRE_COMMIT_COLOR" = "never" ]; then
     ARGS+=("-no-color")
   fi
+
+  local -r tool_name="tf" # Will be resolved into real tool inside 'common::resolve_tool_path'
+
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -82,7 +85,7 @@ function match_validate_errors {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
-#   tf_path (string) PATH to Terraform/OpenTofu binary
+#   tool_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
@@ -91,7 +94,7 @@ function per_dir_hook_unique_part {
   # shellcheck disable=SC2034 # Unused var.
   local -r change_dir_in_unique_part="$2"
   local -r parallelism_disabled="$3"
-  local -r tf_path="$4"
+  local -r tool_path="$4"
   shift 4
   local -a -r args=("$@")
 
@@ -123,25 +126,25 @@ function per_dir_hook_unique_part {
   # First try `terraform validate` with the hope that all deps are
   # pre-installed. That is needed for cases when `.terraform/modules`
   # or `.terraform/providers` missed AND that is expected.
-  "$tf_path" validate "${args[@]}" &> /dev/null && {
+  "$tool_path" validate "${args[@]}" &> /dev/null && {
     exit_code=$?
     return $exit_code
   }
 
   # In case `terraform validate` failed to execute
   # - check is simple `terraform init` will help
-  common::terraform_init "$tf_path validate" "$dir_path" "$parallelism_disabled" "$tf_path" || {
+  common::terraform_init "$tool_path validate" "$dir_path" "$parallelism_disabled" "$tool_path" || {
     exit_code=$?
     return $exit_code
   }
 
   if [ "$retry_once_with_cleanup" != "true" ]; then
     # terraform validate only
-    validate_output=$("$tf_path" validate "${args[@]}" 2>&1)
+    validate_output=$("$tool_path" validate "${args[@]}" 2>&1)
     exit_code=$?
   else
     # terraform validate, plus capture possible errors
-    validate_output=$("$tf_path" validate -json "${args[@]}" 2>&1)
+    validate_output=$("$tool_path" validate -json "${args[@]}" 2>&1)
     exit_code=$?
 
     # Match specific validation errors
@@ -159,12 +162,12 @@ function per_dir_hook_unique_part {
 
       common::colorify "yellow" "Re-validating: $dir_path"
 
-      common::terraform_init "$tf_path validate" "$dir_path" "$parallelism_disabled" "$tf_path" || {
+      common::terraform_init "$tool_path validate" "$dir_path" "$parallelism_disabled" "$tool_path" || {
         exit_code=$?
         return $exit_code
       }
 
-      validate_output=$("$tf_path" validate "${args[@]}" 2>&1)
+      validate_output=$("$tool_path" validate "${args[@]}" 2>&1)
       exit_code=$?
     fi
   fi

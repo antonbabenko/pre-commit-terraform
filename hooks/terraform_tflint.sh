@@ -16,11 +16,20 @@ function main {
 
   # JFYI: tflint color already suppressed via PRE_COMMIT_COLOR=never
 
+  local -r tool_name="tflint"
+  # Needed early for the `tflint --init` pre-flight check below, which
+  # runs once, before (and separately from) common::per_dir_hook's own
+  # resolution for the actual per-dir tflint runs.
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
+
   # Run `tflint --init` for check that plugins installed.
   # It should run once on whole repo.
   {
     # shellcheck disable=SC2153 # ARGS is set in common::parse_cmdline
-    TFLINT_INIT=$(tflint --init "${ARGS[@]}" 2>&1) 2> /dev/null &&
+    TFLINT_INIT=$("$tool_path" --init "${ARGS[@]}" 2>&1) 2> /dev/null &&
       common::colorify "green" "Command 'tflint --init' successfully done:" &&
       echo -e "${TFLINT_INIT}\n\n\n"
   } || {
@@ -30,7 +39,7 @@ function main {
     return ${exit_code}
   }
 
-  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -44,7 +53,7 @@ function main {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
-#   tf_path (string) PATH to Terraform/OpenTofu binary
+#   tool_path (string) resolved path to the wrapped tool's binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
@@ -53,8 +62,7 @@ function per_dir_hook_unique_part {
   local -r change_dir_in_unique_part="$2"
   # shellcheck disable=SC2034 # Unused var.
   local -r parallelism_disabled="$3"
-  # shellcheck disable=SC2034 # Unused var.
-  local -r tf_path="$4"
+  local -r tool_path="$4"
   shift 4
   local -a -r args=("$@")
 
@@ -63,7 +71,7 @@ function per_dir_hook_unique_part {
   fi
 
   # shellcheck disable=SC2086 # we need to remove the arg if its unset
-  TFLINT_OUTPUT=$(tflint ${dir_args:-} "${args[@]}" 2>&1)
+  TFLINT_OUTPUT=$("$tool_path" ${dir_args:-} "${args[@]}" 2>&1)
   local exit_code=$?
 
   if [ $exit_code -ne 0 ]; then

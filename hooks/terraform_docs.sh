@@ -24,8 +24,11 @@ function main {
   for i in "${!ARGS[@]}"; do
     ARGS[i]=${ARGS[i]/--config=/--config=$(pwd)\/}
   done
+
+  local -r tool_name="terraform-docs"
+
   # shellcheck disable=SC2153 # False positive
-  terraform_docs "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
+  terraform_docs "$tool_name" "${HOOK_CONFIG[*]}" "${ARGS[*]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -52,20 +55,22 @@ function replace_old_markers {
 # (depending on provided hook_config) terraform documentation in
 # Markdown
 # Arguments:
+#   tool_name (string) name of the wrapped tool, used to resolve its path
 #   hook_config (string with array) arguments that configure hook behavior
 #   args (string with array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
 function terraform_docs {
-  local -r hook_config="$1"
-  local args="$2"
-  shift 2
+  local -r tool_name="$1"
+  local -r hook_config="$2"
+  local args="$3"
+  shift 3
   local -a -r files=("$@")
 
-  if [[ ! $(command -v terraform-docs) ]]; then
-    echo "ERROR: terraform-docs is required by terraform_docs pre-commit hook but is not installed or in the system's PATH."
-    exit 1
-  fi
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
 
   local -a paths
 
@@ -244,7 +249,7 @@ function terraform_docs {
     # shellcheck disable=SC2206
     # Need to pass $tf_docs_formatter and $args as separate arguments, not as single string
     local tfdocs_cmd=(
-      terraform-docs
+      "$tool_path"
       --output-mode="$output_mode"
       --output-file="$output_file"
       $tf_docs_formatter
