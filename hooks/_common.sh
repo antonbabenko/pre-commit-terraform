@@ -880,11 +880,15 @@ function common::export_provided_env_vars {
 }
 
 #######################################################################
-# Check if the installed Terragrunt version is >=0.78.0 or not
+# Check if the given Terragrunt binary's version is >=0.78.0 or not
 #
 # This function helps to determine which terragrunt subcomand to use
 # based on Terragrunt version
 #
+# Arguments:
+#   tool_path (string) resolved path to the terragrunt binary to check
+#     (the actually resolved/pinned binary, NOT whatever's on $PATH -
+#     those can differ once --tool-version is in play)
 # Returns:
 #   - 0 if version >= 0.78.0
 #   - 1 if version < 0.78.0
@@ -892,10 +896,11 @@ function common::export_provided_env_vars {
 #######################################################################
 # TODO: Drop after May 2027. Two years to upgrade is more than enough.
 function common::terragrunt_version_ge_0.78 {
+  local -r tool_path="$1"
   local terragrunt_version
 
   # Extract version number (e.g., "terragrunt version v0.80.4" -> "0.80")
-  terragrunt_version=$(terragrunt --version 2> /dev/null | grep -oE '[0-9]+\.[0-9]+')
+  terragrunt_version=$("$tool_path" --version 2> /dev/null | grep -oE '[0-9]+\.[0-9]+')
   # If we can't parse version, default to newer command
   [[ ! $terragrunt_version ]] && return 0
 

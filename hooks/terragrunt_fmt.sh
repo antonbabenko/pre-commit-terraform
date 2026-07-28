@@ -14,13 +14,20 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: `terragrunt hcl format` color already suppressed via PRE_COMMIT_COLOR=never
 
-  if common::terragrunt_version_ge_0.78; then
+  local -r tool_name="terragrunt"
+  # Needed early to pick the correct CLI syntax below against the actually
+  # resolved/pinned terragrunt binary, not whatever's on $PATH.
+  # common::per_dir_hook resolves it again for the per-dir runs.
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
+
+  if common::terragrunt_version_ge_0.78 "$tool_path"; then
     local -ra SUBCOMMAND=(hcl format)
   else
     local -ra SUBCOMMAND=(hclfmt)
   fi
-
-  local -r tool_name="terragrunt"
 
   # shellcheck disable=SC2153 # False positive
   common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
