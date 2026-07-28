@@ -14,14 +14,6 @@ The contributor — not the AI — is the author of the contribution. Using an L
 
 The LLM types for you. It doesn't think for you.
 
-## Recommended tooling
-
-If you're using an AI coding agent, install [OpenSpec](https://openspec.dev/) (`npm install -g @fission-ai/openspec@latest`, then `openspec init`) and use its spec-driven workflow (`/opsx:propose` → `/opsx:apply`) to scope the change into a reviewable proposal + spec + tasks *before* any code gets written. `openspec init` provisions the matching skills/commands locally — see [`AGENTS.md`](../AGENTS.md#skill-routing).
-
-These skills are not installed in this repo — `.agents/skills/openspec-*`, and `.agents/commands/opsx/` are generated on your own machine by `openspec init` and must never be committed. Provision them locally, keep them out of your diffs and PRs.
-
-Scoping the change up front makes it easier to meet the ownership expectations above: you review and understand the plan before the AI starts typing, instead of reverse-engineering intent from a pile of already-generated code.
-
 ## Disclosure
 
 You are encouraged (but not required) to disclose when AI tools contributed to your work. A short note in the PR description is enough — e.g. *"Tests were initially drafted with an LLM and then reviewed and adjusted by me."*

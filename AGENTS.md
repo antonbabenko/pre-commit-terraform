@@ -75,9 +75,3 @@ Load these skills when their triggers match.
 | --- | --- |
 | Creating a new skill: registering in AGENTS.md, choosing script vs SKILL.md | `adding-skills` |
 | Create a commit, GitHub issue, or PR | `git-workflow` |
-| Propose a new OpenSpec change (design, specs, tasks in one step) | `openspec-propose` |
-| Think through an idea/problem before or during an OpenSpec change | `openspec-explore` |
-| Implement tasks from an existing OpenSpec change | `openspec-apply-change` |
-| Revise an OpenSpec change's planning artifacts after edits/new decisions | `openspec-update-change` |
-| Sync delta specs from a change into main specs (without archiving) | `openspec-sync-specs` |
-| Archive a completed OpenSpec change | `openspec-archive-change` |
