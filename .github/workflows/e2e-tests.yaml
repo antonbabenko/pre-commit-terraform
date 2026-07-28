@@ -1,0 +1,55 @@
+name: E2E hook tests
+
+on:
+  merge_group:
+  pull_request:
+  push:
+    branches-ignore:
+    - dependabot/**  # Dependabot always creates PRs
+    - renovate/**  # Our Renovate setup always creates PRs
+    - gh-readonly-queue/**  # Temporary merge queue-related GH-made branches
+    - pre-commit-ci-update-config  # pre-commit.ci always creates a PR
+
+permissions:
+  contents: read
+
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{ github.ref_type }}-${{
+    github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Run e2e hook tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # The published image bundles every tool the hooks need (terraform,
+    # hcledit, pre-commit, git, ...). Hook and test code come from the checkout
+    # below, so the image only needs to provide tooling, not be in sync.
+    # Pinned by digest for reproducibility/supply-chain; bump via Renovate.
+    env:
+      # renovate: datasource=docker depName=ghcr.io/antonbabenko/pre-commit-terraform
+      # yamllint disable-line rule:line-length
+      IMAGE: ghcr.io/antonbabenko/pre-commit-terraform:latest@sha256:4ef4b8323b27fc263535ad88c9d2f20488fcb3b520258e5e7f0553ed5f6692b5
+
+    steps:
+    - name: Check out src from Git
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+
+    - name: Pull the multi-tool image
+      run: docker pull "${IMAGE}"
+
+    # Checkout happens on the host (needs Node for the JS action); the tests
+    # run inside the image, which the alpine-based image can't host directly.
+    - name: Run e2e tests inside the image
+      run: >-
+        docker run --rm
+        --volume "${GITHUB_WORKSPACE}:/lint"
+        --workdir /lint
+        --entrypoint bash
+        "${IMAGE}"
+        tests/e2e/run_e2e_tests.sh
