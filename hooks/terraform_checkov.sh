@@ -18,7 +18,7 @@ function main {
     export ANSI_COLORS_DISABLED=true
   fi
 
-  # checkov is pip-distributed, not a GitHub release binary, so it has no
+  # checkov is distributed via PyPi, not as GitHub release asset, so it has no
   # resolved tool_path (see per_dir_hook_unique_part below) - pass an
   # empty placeholder to satisfy common::per_dir_hook's signature.
   # shellcheck disable=SC2153 # ARGS is set in common::parse_cmdline
@@ -52,9 +52,6 @@ function per_dir_hook_unique_part {
   shift 4
   local -a -r args=("$@")
 
-  # checkov is pip-distributed, not a GitHub release binary, so
-  # "--hook-config=--tool-version=" is intentionally not supported here -
-  # pin it via `checkov==X.Y.Z` at install time instead.
   checkov -d . "${args[@]}"
 
   # return exit code to common::per_dir_hook

@@ -21,7 +21,9 @@ function main {
   # runs once, before (and separately from) common::per_dir_hook's own
   # resolution for the actual per-dir tflint runs.
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
-  local -r tool_path=$(common::resolve_tool_version "$tool_name" "$tool_version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
 
   # Run `tflint --init` for check that plugins installed.
   # It should run once on whole repo.
@@ -51,7 +53,7 @@ function main {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
-#   tool_path (string) PATH to Terraform/OpenTofu binary
+#   tool_path (string) resolved path to the wrapped tool's binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
