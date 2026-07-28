@@ -331,7 +331,9 @@ function common::per_dir_hook {
   local -a -r files=("$@")
 
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
-  local -r tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
 
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&

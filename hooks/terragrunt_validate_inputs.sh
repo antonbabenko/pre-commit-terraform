@@ -39,7 +39,7 @@ function main {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
-#   tool_path (string) PATH to Terraform/OpenTofu binary
+#   tool_path (string) resolved path to the wrapped tool's binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################

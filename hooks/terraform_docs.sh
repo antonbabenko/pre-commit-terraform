@@ -68,7 +68,9 @@ function terraform_docs {
   local -a -r files=("$@")
 
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
-  local -r tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
 
   local -a paths
 

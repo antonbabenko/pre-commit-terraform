@@ -446,7 +446,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
     ```yaml
     - id: terraform_tflint
-    args:
+      args:
         - --hook-config=--tool-version=0.50.0
     ```
 
@@ -454,7 +454,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
     ```yaml
     - id: terraform_validate
-    args:
+      args:
         - --hook-config=--tf-path=opentofu
         - --hook-config=--tool-version=1.12.0
     ```
@@ -475,7 +475,7 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
     ```yaml
     - id: terraform_tflint
-    args:
+      args:
         - --hook-config=--tool-version=0.50.0
         - --hook-config=--tool-version-mode=prefer-local
     ```
