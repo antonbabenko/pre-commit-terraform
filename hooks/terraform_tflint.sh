@@ -21,7 +21,7 @@ function main {
   # runs once, before (and separately from) common::per_dir_hook's own
   # resolution for the actual per-dir tflint runs.
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
-  local -r tool_path=$(common::resolve_tool_version "$tool_name" "$tool_version")
+  local -r tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version")
 
   # Run `tflint --init` for check that plugins installed.
   # It should run once on whole repo.

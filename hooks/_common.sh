@@ -331,7 +331,7 @@ function common::per_dir_hook {
   local -a -r files=("$@")
 
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
-  local -r tool_path=$(common::resolve_tool_version "$tool_name" "$tool_version")
+  local -r tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version")
 
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&
@@ -587,7 +587,7 @@ function common::detect_os_arch {
 #   itself is also empty). If a download is attempted and fails - exit
 #   1 with an error message.
 #######################################################################
-function common::resolve_tool_version {
+function common::resolve_tool_path {
   local -r tool_name="$1"
   local -r version="$2"
 
@@ -707,11 +707,11 @@ function common::resolve_tool_version {
 #######################################################################
 # Get Terraform/OpenTofu binary path
 # Allows user to set the path to custom Terraform or OpenTofu binary
-# Called from `common::resolve_tool_version`'s "tf" sentinel dispatch,
+# Called from `common::resolve_tool_path`'s "tf" sentinel dispatch,
 # not directly by hooks - every hook (including
 # terraform_validate/fmt/providers_lock, which pass tool_name="tf")
-# goes through the same `common::per_dir_hook` -> `common::resolve_tool_version`
-# path. When this function calls back into `common::resolve_tool_version`
+# goes through the same `common::per_dir_hook` -> `common::resolve_tool_path`
+# path. When this function calls back into `common::resolve_tool_path`
 # with the concrete decided tool ("terraform" or "opentofu") for the
 # actual pin-and-cache step, that name no longer matches "tf", so the
 # dispatch above doesn't fire a second time.
@@ -762,7 +762,7 @@ function common::get_tf_binary_path {
         ;;
     esac
 
-    common::resolve_tool_version "$tf_tool" "$tool_version"
+    common::resolve_tool_path "$tf_tool" "$tool_version"
     return
 
   # environment variable
