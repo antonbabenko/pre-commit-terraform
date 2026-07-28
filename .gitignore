@@ -177,3 +177,7 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 tests/results/*
+
+# Drop openspec.ai generated files to not clutter the repo but still be able to use it locally
+.agents/commands/opsx/*
+.agents/skills/openspec-*
