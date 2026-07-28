@@ -52,9 +52,6 @@ function per_dir_hook_unique_part {
   shift 4
   local -a -r args=("$@")
 
-  # checkov is pip-distributed, not a GitHub release binary, so
-  # "--hook-config=--tool-version=" is intentionally not supported here -
-  # pin it via `checkov==X.Y.Z` at install time instead.
   checkov -d . "${args[@]}"
 
   # return exit code to common::per_dir_hook
