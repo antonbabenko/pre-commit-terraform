@@ -694,16 +694,6 @@ function common::resolve_tool_path {
 #######################################################################
 # Get Terraform/OpenTofu binary path
 # Allows user to set the path to custom Terraform or OpenTofu binary
-# Called from `common::resolve_tool_path`'s "tf" sentinel dispatch
-# (`if [[ $tool_name == tf ]]`), not directly by hooks - every hook
-# (including terraform_validate/fmt/providers_lock, which pass
-# tool_name="tf") goes through the same
-# `common::per_dir_hook` -> `common::resolve_tool_path` path. Once this
-# function decides on the concrete tool ("terraform" or "opentofu"), it
-# invokes `common::resolve_tool_path` again for the actual pin-and-cache
-# step; that concrete name no longer matches "tf", so that same "tf"
-# sentinel dispatch doesn't fire a second time - the call falls through
-# to the generic resolution logic instead.
 # Arguments:
 #   tool_version (string) value of a requested `--tool-version`
 #     hook-config, or empty if none was requested
