@@ -53,6 +53,13 @@ function per_dir_hook_unique_part {
   shift 4
   local -a -r args=("$@")
 
+  # terragrunt validate requires a terragrunt.hcl file to be present.
+  # The hook's file pattern (\.hcl)$ matches any .hcl file, so directories
+  # without a terragrunt.hcl will cause a false failure. Skip them.
+  if [ ! -f "terragrunt.hcl" ]; then
+    return 0
+  fi
+
   # pass the arguments to hook
   terragrunt "${SUBCOMMAND[@]}" "${args[@]}"
 
