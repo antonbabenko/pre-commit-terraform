@@ -616,6 +616,19 @@ function common::resolve_tool_path {
   #
   local -r tool_version_mode=$(common::get_hook_config_value "--tool-version-mode")
 
+  # Reject unknown values instead of silently treating them as "strict":
+  # a typo like "prefer_local" would otherwise do the exact opposite of
+  # what the user asked for, with no indication of why.
+  case "$tool_version_mode" in
+    "" | strict | prefer-local) ;;
+    *)
+      common::colorify "red" \
+        "ERROR: '--tool-version-mode=$tool_version_mode' is not a valid value.\n" \
+        "'--tool-version-mode=' must be either 'strict' (default) or 'prefer-local'."
+      exit 1
+      ;;
+  esac
+
   if command -v "$tool_name" &> /dev/null; then
     if [[ $tool_version_mode == "prefer-local" ]]; then
       common::colorify "green" \
