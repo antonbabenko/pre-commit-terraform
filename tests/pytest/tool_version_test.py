@@ -151,11 +151,15 @@ def _run_hook(  # pragma: win32 no cover
             env['PATH'] = str(extra_dir)
         else:
             env['PATH'] = f'{extra_dir}{os.pathsep}{env.get("PATH", "")}'
+    # Merge stderr into stdout at the OS level (rather than concatenating
+    # `.stdout + .stderr` at each assertion site) so every caller gets one
+    # ready-to-grep string via `.stdout` alone; `.stderr` is left empty.
     return subprocess.run(  # noqa: S603
         (BASH, str(hook_path), *args, '--', 'a.tf'),
         cwd=cwd,
         env=env,
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         text=True,
         check=False,
     )
@@ -180,7 +184,7 @@ class TestCacheAndModeResolution:  # pragma: win32 no cover
             cache_dir=cache_dir,
         )
 
-        combined = hook_run.stdout + hook_run.stderr
+        combined = hook_run.stdout
         # 2 is tflint's own lint findings on the minimal fixture.
         assert hook_run.returncode in {0, 2}, combined
         assert 'Downloading' not in combined
@@ -209,7 +213,7 @@ class TestCacheAndModeResolution:  # pragma: win32 no cover
             path_override=('prepend', fake_path_dir),
         )
 
-        combined = hook_run.stdout + hook_run.stderr
+        combined = hook_run.stdout
         assert 'downloaded/used instead of whatever is on $PATH' in combined
         assert pinned.exists()
 
@@ -235,7 +239,7 @@ class TestCacheAndModeResolution:  # pragma: win32 no cover
             path_override=('prepend', fake_path_dir),
         )
 
-        assert 'prefer-local' in hook_run.stdout + hook_run.stderr
+        assert 'prefer-local' in hook_run.stdout
         assert not (cache_dir / 'tflint').exists()
 
 
@@ -305,7 +309,7 @@ class TestTfPathSelectorAndErrorHandling:  # pragma: win32 no cover
         )
 
         assert hook_run.returncode != 0
-        assert 'not a valid value' in hook_run.stdout + hook_run.stderr
+        assert 'not a valid value' in hook_run.stdout
 
     def test_checkov_ignores_tool_version(
         self,
@@ -320,7 +324,7 @@ class TestTfPathSelectorAndErrorHandling:  # pragma: win32 no cover
             cache_dir=cache_dir,
         )
 
-        combined = hook_run.stdout + hook_run.stderr
+        combined = hook_run.stdout
         assert 'not a valid value' not in combined
         assert 'no installer found' not in combined
 
@@ -341,7 +345,7 @@ class TestTfPathSelectorAndErrorHandling:  # pragma: win32 no cover
             path_override=('replace', fake_path_dir),
         )
 
-        combined = hook_run.stdout + hook_run.stderr
+        combined = hook_run.stdout
         assert hook_run.returncode != 0
         assert 'tflint' in combined
         assert '--hook-config=--tool-version=' in combined
