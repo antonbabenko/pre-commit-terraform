@@ -21,6 +21,11 @@ exclude_also =
 
 [run]
 branch = true
+# https://coverage.rtfd.io/en/latest/config.html#run-core
+# `sysmon` (default on Python 3.14+) doesn't support dynamic contexts yet,
+# but `--cov-context=test` (see pytest.ini) relies on them. Pin to `ctrace`
+# so per-test context data keeps working instead of being silently dropped.
+core = ctrace
 cover_pylib = false
 # https://coverage.rtfd.io/en/latest/contexts.html#dynamic-contexts
 # dynamic_context = test_function  # conflicts with `pytest-cov` if set here

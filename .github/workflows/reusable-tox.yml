@@ -328,8 +328,9 @@ jobs:
           --quiet
         )
         if [ -n "$INPUT_TOX_RUN_POSARGS" ]; then
+          read -ra tox_run_posargs <<< "$INPUT_TOX_RUN_POSARGS"
           python -Im tox "${tox_common_args[@]}" \
-            -- "$INPUT_TOX_RUN_POSARGS"
+            -- "${tox_run_posargs[@]}"
         else
           python -Im tox "${tox_common_args[@]}"
         fi
@@ -381,17 +382,16 @@ jobs:
       # `exit 1` makes sure that the job remains red with flaky runs
       env:
         INPUT_TOX_RERUN_POSARGS: ${{ inputs.tox-rerun-posargs }}
-      run: >-
-        python -Im
-        tox
-        --parallel auto
-        --parallel-live
-        --skip-missing-interpreters false
-        -vvvvv
-        --skip-pkg-install
-        --
-        $INPUT_TOX_RERUN_POSARGS
-        && exit 1
+      run: |-
+        read -ra tox_rerun_posargs <<< "$INPUT_TOX_RERUN_POSARGS"
+        python -Im tox \
+          --parallel auto \
+          --parallel-live \
+          --skip-missing-interpreters false \
+          -vvvvv \
+          --skip-pkg-install \
+          -- "${tox_rerun_posargs[@]}" \
+          && exit 1
       shell: bash
     - name: Send coverage data to Codecov
       if: >-
