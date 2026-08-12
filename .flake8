@@ -81,6 +81,10 @@ per-file-ignores =
   tests/pytest/tool_version_test.py:
     # WPS226: "Forbid the overuse of string literals" -- same legitimate test-fixture rationale as _cli_test.py above
     WPS226,
+    # WPS202: "Found too many module members" -- this suite covers one resolution branch per test, so the module is intentionally wide rather than deep
+    WPS202,
+    # WPS204: "Found overused expression" -- every test wires the same hermetic env/PATH sandbox and re-asserts "no download happened"; deduplicating that into helpers would hide what each test actually guarantees
+    WPS204,
   # We will not spend time on fixing complexity in deprecated hook
   src/pre_commit_terraform/terraform_docs_replace.py: WPS232
 
