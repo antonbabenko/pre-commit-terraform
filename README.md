@@ -483,8 +483,6 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
 4. By default, if a different version of the tool is already on `$PATH`, the pinned version still wins (with a warning message logged) based on `--hook-config=--tool-version-mode=strict`. Set it to `prefer-local` (as opposite to `strict`) to invert that: if the tool already resolves via `$PATH`, this local binary is used as-is and no download is attempted; the pinned version is only downloaded/used as a fallback when nothing is found locally.
 
-    `strict` and `prefer-local` are the only accepted values - any other value is rejected with an error, rather than silently falling back to `strict`.
-
     ```yaml
     - id: terraform_tflint
       args:
