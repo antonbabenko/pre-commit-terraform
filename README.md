@@ -1344,11 +1344,11 @@ This repository is managed by [Anton Babenko](https://github.com/antonbabenko) w
 </a>
 
 
-<a href="https://star-history.com/#antonbabenko/pre-commit-terraform&Date">
+<a href="https://star-history.dera.page/#antonbabenko/pre-commit-terraform&type=Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=antonbabenko/pre-commit-terraform&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
+    <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
   </picture>
 </a>
 
