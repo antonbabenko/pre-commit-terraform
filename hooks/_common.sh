@@ -309,14 +309,19 @@ function common::get_cpu_num {
 # 3. Complete hook execution and return exit code
 # Arguments:
 #   hook_id (string) hook ID, see `- id` for details in .pre-commit-hooks.yaml file
-#   tool_name (string) name of the wrapped tool, used to resolve its path
+#   tool_path (string) path to the wrapped tool's binary, already resolved
+#     by the calling hook via `common::resolve_tool_path`
+#     (empty for hooks with no resolvable binary, e.g. checkov).
+#     Deliberately NOT resolved here: each hook resolves once in `main`,
+#     because resolution logs a NOTE and downloads on a cache miss, so
+#     doing it again here would duplicate both
 #   args_array_length (integer) Count of arguments in args array.
 #   args (array) arguments that configure wrapped tool behavior
 #   files (array) filenames to check
 #######################################################################
 function common::per_dir_hook {
   local -r hook_id="$1"
-  local -r tool_name="$2"
+  local -r tool_path="$2"
   local -i args_array_length=$3
   shift 3
   local -a args=()
@@ -329,11 +334,6 @@ function common::per_dir_hook {
   # assign rest of function's positional ARGS into `files` array,
   # despite there's only one positional ARG left
   local -a -r files=("$@")
-
-  local -r tool_version=$(common::get_hook_config_value "--tool-version")
-  local tool_path
-  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
-  readonly tool_path
 
   # check is (optional) function defined
   if [ "$(type -t run_hook_on_whole_repo)" == function ] &&

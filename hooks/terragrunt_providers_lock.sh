@@ -15,9 +15,6 @@ function main {
   # JFYI: terragrunt providers lock color already suppressed via PRE_COMMIT_COLOR=never
 
   local -r tool_name="terragrunt"
-  # Needed early to pick the correct CLI syntax below against the actually
-  # resolved/pinned terragrunt binary, not whatever's on $PATH.
-  # common::per_dir_hook resolves it again for the per-dir runs.
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
   local tool_path
   tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
@@ -32,7 +29,7 @@ function main {
   fi
 
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "$tool_path" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################

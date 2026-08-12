@@ -17,9 +17,6 @@ function main {
   # JFYI: tflint color already suppressed via PRE_COMMIT_COLOR=never
 
   local -r tool_name="tflint"
-  # Needed early for the `tflint --init` pre-flight check below, which
-  # runs once, before (and separately from) common::per_dir_hook's own
-  # resolution for the actual per-dir tflint runs.
   local -r tool_version=$(common::get_hook_config_value "--tool-version")
   local tool_path
   tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
@@ -39,7 +36,7 @@ function main {
     return ${exit_code}
   }
 
-  common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "$tool_path" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
