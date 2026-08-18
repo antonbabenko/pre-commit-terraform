@@ -678,7 +678,7 @@ function common::resolve_tool_path {
 
   local env_var_name="${tool_name//-/_}"
   # `${var^^}` is bash 4+ only; macOS ships bash 3.2 by default.
-  env_var_name="$(printf '%s' "$env_var_name" | tr '[:lower:]' '[:upper:]')_VERSION"
+  env_var_name="$(tr '[:lower:]' '[:upper:]' <<< "${env_var_name}_VERSION")"
 
   mkdir -p "$cache_dir"
 
