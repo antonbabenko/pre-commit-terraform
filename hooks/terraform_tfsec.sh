@@ -23,7 +23,12 @@ function main {
 
   local -r tool_name="tfsec"
 
-  common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
+
+  common::per_dir_hook "$HOOK_ID" "$tool_path" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################

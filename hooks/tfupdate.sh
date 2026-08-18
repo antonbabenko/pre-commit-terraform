@@ -27,8 +27,13 @@ function main {
 
   local -r tool_name="tfupdate"
 
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
+
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "$HOOK_ID" "$tool_name" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "$tool_path" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 #######################################################################
 # Unique part of `common::per_dir_hook`. The function is executed in loop
