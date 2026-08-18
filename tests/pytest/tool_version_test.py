@@ -54,6 +54,7 @@ NO_INSTALLER_MSG = 'no installer found'  # :658
 MODE_INVALID_MSG = "'--tool-version-mode=prefer_local' is not a valid value"
 TOOL_MISSING_MSG = "is not discoverable in the system's PATH"  # :602
 TF_PATH_INVALID_MSG = 'not a valid value'  # :739
+PARALLELISM_CAPPED_MSG = 'Observed Parallelism limit'  # :409
 
 PINNED_TFLINT_VERSION = '0.50.0'
 PINNED_TF_VERSION = '1.9.0'
@@ -140,6 +141,10 @@ _SANDBOX_OPTIONAL_TOOLS = (
     'unzip',
     'xargs',
 )
+# Probed in this order by `common::get_cpu_num` (hooks/_common.sh:235) to
+# size parallelism. Each is absent on some platform this project supports,
+# which is why they are optional above rather than required.
+_CPU_COUNT_TOOLS = ('nproc', 'sysctl')
 
 pytestmark = pytest.mark.skipif(
     sys.platform == 'win32',
@@ -923,6 +928,56 @@ def test_actionable_error_when_tool_missing(  # pragma: win32 no cover
     assert TOOL_MISSING_MSG in combined, combined
     assert "'tflint' is required by" in combined, combined
     assert '--hook-config=--tool-version=' in combined, combined
+
+
+def test_hook_runs_without_cpu_count_tools(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check a hook still runs when no CPU-count tool is on `PATH`.
+
+    `common::get_cpu_num` ends in `nproc || sysctl -n hw.ncpu || echo 1`
+    (hooks/_common.sh:300, or :289 on a cgroup-v2 host), and
+    `common::per_dir_hook` derives `parallelism_limit` from what it
+    returns. With both probes hidden, that trailing fallback is the only
+    thing left producing a value at all, and each assertion below pins a
+    distinct way of losing it: drop the `|| echo 1` and the hook dies with
+    127 mid-run, make it yield 0 instead of 1 and `parallelism_limit` goes
+    negative, trading silent serial execution for a scary warning.
+
+    Args:
+        tmp_repo: Temp git repo fixture.
+        cache_dir: Empty cache root fixture, seeded with a stub below.
+        tmp_path: Temp dir fixture, used for the sandboxed `PATH`.
+    """
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    for cpu_count_tool in _CPU_COUNT_TOOLS:
+        # `missing_ok`: whether either got symlinked at all is exactly the
+        # host-dependent thing this test exists to make irrelevant.
+        (sandbox_path_dir / cpu_count_tool).unlink(missing_ok=True)
+
+    _write_stub(
+        _CachedTool('tflint', 'tflint').stub_path(
+            cache_dir,
+            PINNED_TFLINT_VERSION,
+        ),
+        'CACHED_TFLINT',
+    )
+
+    hook_run = _run_hook(
+        'terraform_tflint.sh',
+        [f'--hook-config=--tool-version={PINNED_TFLINT_VERSION}'],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), str(sandbox_path_dir)),
+    )
+
+    combined = hook_run.stdout
+    assert 'CACHED_TFLINT' in combined, combined
+    # `CPU` falls back to 1, which `common::per_dir_hook` treats as the
+    # documented single-core case and stays quiet about (:407).
+    assert PARALLELISM_CAPPED_MSG not in combined, combined
+    assert hook_run.returncode == 0, combined
 
 
 @pytest.mark.network
