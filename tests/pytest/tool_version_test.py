@@ -72,7 +72,11 @@ class _CachedTool(NamedTuple):
     tool_dir: str
     bin_name: str
 
-    def stub_path(self, cache_root: Path, version: str) -> Path:
+    def stub_path(  # pragma: win32 no cover
+        self,
+        cache_root: Path,
+        version: str,
+    ) -> Path:
         """Build the `<root>/<tool>/<version>/<binary>` cache path.
 
         Args:
