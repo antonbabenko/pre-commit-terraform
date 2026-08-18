@@ -181,7 +181,13 @@ def _sandbox_path_dir(base: Path) -> Path:  # pragma: win32 no cover
         (path_dir / tool).symlink_to(found)
     for optional_tool in _SANDBOX_OPTIONAL_TOOLS:
         optional_found = shutil.which(optional_tool)
-        if optional_found is not None:
+        # `no branch`: whether the False arc is ever taken depends on the
+        # host's `PATH`, not on anything a test controls - every CI runner
+        # resolves all of these, while e.g. a Linux box that keeps
+        # `/usr/sbin` off `PATH` resolves no `sysctl`. These are optional
+        # precisely because the hooks treat them as optional too, see
+        # `hooks/_common.sh:300`: `nproc || sysctl -n hw.ncpu || echo 1`.
+        if optional_found is not None:  # pragma: no branch
             (path_dir / optional_tool).symlink_to(optional_found)
     return path_dir
 
