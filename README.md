@@ -339,8 +339,8 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_trivy`                                      | [Trivy][trivy repo] static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_trivy)                                                                                                     | `trivy`                                                                              |
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                   | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt][terragrunt repo] configuration files (`*.hcl`) to a canonical format.                                                                                                                                  | `terragrunt`                                                                         |
-| `terragrunt_validate`                                  | Validates all Terraform configuration files in [Terragrunt][terragrunt repo]. [Hook notes](#terragrunt_validate).                                                                                                                | `terragrunt`                                                                         |
-| `terragrunt_validate_inputs`                           | Validates [Terragrunt][terragrunt repo] configurations, and unused and undefined inputs (`*.hcl`). [Hook notes](#terragrunt_validate_inputs).                                                                                    | `terragrunt`                                                                         |
+| `terragrunt_validate`                                  | Validates underlying Terraform/OpenTofu configurations via [Terragrunt][terragrunt repo] (runs `terraform validate`). [Hook notes](#terragrunt_validate).                                                                                                                | `terragrunt`                                                                         |
+| `terragrunt_validate_inputs`                           | Validates that [Terragrunt][terragrunt repo] configuration has no unused and undefined inputs (`*.hcl`). [Hook notes](#terragrunt_validate_inputs).                                                                                    | `terragrunt`                                                                         |
 | `terragrunt_providers_lock`                            | Generates `.terraform.lock.hcl` files using [Terragrunt][terragrunt repo].                                                                                                                                                       | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                         | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan][terrascan repo] Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                                  | `terrascan`                                                                          |
@@ -1188,7 +1188,7 @@ It invokes `terragrunt providers lock` under the hood and terragrunt [does its o
 
 ### terragrunt_validate
 
-Validates _TF_ configurations. Does not validate anything inside Terragrunt HCL files.
+Validates _Terraform_ configurations. **Does not** validate code inside Terragrunt HCL files.
 
 See Terragrunt docs for [`terragrunt run -- validate`](https://docs.terragrunt.com/reference/cli/commands/run) for more details.
 
@@ -1206,7 +1206,7 @@ Example:
 
 ### terragrunt_validate_inputs
 
-Validates Terragrunt HCL files and unused and undefined inputs. This is useful for keeping
+Validates that Terragrunt HCL files have no unused and undefined inputs. This is useful for keeping
 configs clean when module versions change or if configs are copied.
 
 See the Terragrunt docs for [`terragrunt hcl validate --inputs`](https://docs.terragrunt.com/reference/cli/commands/hcl/validate/#inputs) for more details.
