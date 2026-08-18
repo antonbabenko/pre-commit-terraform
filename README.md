@@ -73,6 +73,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [terrascan](#terrascan)
   * [tfupdate](#tfupdate)
   * [terragrunt\_providers\_lock](#terragrunt_providers_lock)
+  * [terragrunt\_validate](#terragrunt_validate)
   * [terragrunt\_validate\_inputs](#terragrunt_validate_inputs)
 * [Docker Usage](#docker-usage)
   * [About Docker image security](#about-docker-image-security)
@@ -341,8 +342,8 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_trivy`                                      | [Trivy][trivy repo] static analysis of terraform templates to spot potential security issues. [Hook notes](#terraform_trivy)                                                                                                     | `trivy`                                                                              |
 | `terraform_validate`                                   | Validates all Terraform configuration files. [Hook notes](#terraform_validate)                                                                                                                                                   | `jq`, only for `--retry-once-with-cleanup` flag                                      |
 | `terragrunt_fmt`                                       | Reformat all [Terragrunt][terragrunt repo] configuration files (`*.hcl`) to a canonical format.                                                                                                                                  | `terragrunt`                                                                         |
-| `terragrunt_validate`                                  | Validates all [Terragrunt][terragrunt repo] configuration files (`*.hcl`)                                                                                                                                                        | `terragrunt`                                                                         |
-| `terragrunt_validate_inputs`                           | Validates [Terragrunt][terragrunt repo] unused and undefined inputs (`*.hcl`)                                                                                                                                                    |                                                                                      |
+| `terragrunt_validate`                                  | Validates underlying Terraform/OpenTofu configurations via [Terragrunt][terragrunt repo] (runs `terraform validate`). [Hook notes](#terragrunt_validate).                                                                                                                | `terragrunt`                                                                         |
+| `terragrunt_validate_inputs`                           | Validates that [Terragrunt][terragrunt repo] configuration has no unused and undefined inputs (`*.hcl`). [Hook notes](#terragrunt_validate_inputs).                                                                                    | `terragrunt`                                                                         |
 | `terragrunt_providers_lock`                            | Generates `.terraform.lock.hcl` files using [Terragrunt][terragrunt repo].                                                                                                                                                       | `terragrunt`                                                                         |
 | `terraform_wrapper_module_for_each`                    | Generates Terraform wrappers with `for_each` in module. [Hook notes](#terraform_wrapper_module_for_each)                                                                                                                         | `hcledit`                                                                            |
 | `terrascan`                                            | [terrascan][terrascan repo] Detect compliance and security violations. [Hook notes](#terrascan)                                                                                                                                  | `terrascan`                                                                          |
@@ -1271,12 +1272,30 @@ It invokes `terragrunt providers lock` under the hood and terragrunt [does its o
     - --args=-platform=linux_amd64
 ```
 
+### terragrunt_validate
+
+Validates _Terraform_ configurations. **Does not** validate code inside Terragrunt HCL files.
+
+See Terragrunt docs for [`terragrunt run -- validate`](https://docs.terragrunt.com/reference/cli/commands/run) for more details.
+
+Example:
+
+```yaml
+- id: terragrunt_validate
+  name: Terragrunt validate underlying Terraform/Tofu configurations
+  args:
+    # `tf validate` options
+    - --args=-json
+    - --args=-no-color
+```
+
+
 ### terragrunt_validate_inputs
 
-Validates Terragrunt unused and undefined inputs. This is useful for keeping
+Validates that Terragrunt HCL files have no unused and undefined inputs. This is useful for keeping
 configs clean when module versions change or if configs are copied.
 
-See the [Terragrunt docs](https://terragrunt.gruntwork.io/docs/reference/cli-options/#validate-inputs) for more details.
+See the Terragrunt docs for [`terragrunt hcl validate --inputs`](https://docs.terragrunt.com/reference/cli/commands/hcl/validate/#inputs) for more details.
 
 Example:
 
@@ -1445,11 +1464,11 @@ This repository is managed by [Anton Babenko](https://github.com/antonbabenko) w
 </a>
 
 
-<a href="https://star-history.com/#antonbabenko/pre-commit-terraform&Date">
+<a href="https://star-history.dera.page/#antonbabenko/pre-commit-terraform&type=Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=antonbabenko/pre-commit-terraform&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
+    <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=antonbabenko/pre-commit-terraform&type=Date" />
   </picture>
 </a>
 
