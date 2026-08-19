@@ -546,21 +546,9 @@ function common::detect_os_arch {
 
 #######################################################################
 # Download and install one tool version into a private, per-process
-# staging directory, then atomically publish the resulting binary
-# into the shared cache.
-#
-# `tools/install/<tool>.sh` installer scripts use a fixed filename
-# relative to their CWD (e.g. `terraform.zip`), which is only safe
-# with one process per CWD at a time - true for their original
-# purpose (one `RUN` per tool, per Docker build), not for N pre-commit
-# hook processes racing the same cache miss. Without this, two such
-# processes could interleave on the same shared directory: one's
-# `rm "$PKG"` deleting the archive out from under the other's still-
-# running `unzip` ("cannot find or open ... .zip"), or `unzip` meeting
-# a binary a sibling already extracted and blocking on an interactive
-# overwrite prompt that hangs under pre-commit's non-interactive
-# stdin. Giving every caller its own staging directory removes the
-# shared CWD these scripts were never designed to share.
+# temp directory, then atomically publish the resulting binary into
+# the shared cache - concurrency-safe against other processes
+# populating the same (tool, version) entry at the same time.
 # Globals:
 #   GITHUB_TOKEN - forwarded automatically; read directly by the
 #     invoked installer script
@@ -568,19 +556,14 @@ function common::detect_os_arch {
 #   tool_name (string) tool name, matching a `tools/install/<tool>.sh`
 #     file and its expected `${TOOL^^}_VERSION` environment variable
 #   version (string) exact version to install
-#   installer_script (string) absolute path to the
-#     `tools/install/<tool>.sh` script to invoke
-#   env_var_name (string) name of the environment variable the
-#     installer script reads its requested version from (e.g.
-#     "TERRAFORM_VERSION")
-#   cache_dir (string) final, shared cache directory for this
-#     (tool, version) pair. Must already exist.
+#   installer_script (string) absolute path to the installer to invoke
+#   env_var_name (string) env var the installer reads its version from
+#   cache_dir (string) final, shared cache dir for this (tool, version).
+#     Must already exist.
 #   cached_bin (string) expected absolute path to the resolved binary
-#     inside `cache_dir` once installed
 # Outputs:
-#   Returns 0 once `cached_bin` exists - either from this process' own
-#   install, or from another process that won the race first. Returns
-#   1 with an error message if the download/install itself failed.
+#   Returns 0 once `cached_bin` exists, ours or a race winner's.
+#   Returns 1 with an error message if the install itself failed.
 #######################################################################
 function common::populate_tool_cache {
   local -r tool_name="$1"
@@ -590,12 +573,9 @@ function common::populate_tool_cache {
   local -r cache_dir="$5"
   local -r cached_bin="$6"
 
-  # `mktemp -d` guarantees a directory no other process is also using,
-  # so each process' installer run is isolated - regardless of how
-  # many processes hit the same cache miss at once.
-  local staging_dir
-  staging_dir=$(mktemp -d "${cache_dir}.XXXXXXXXXX") || {
-    common::colorify "red" "ERROR: Failed to create a staging directory for '$tool_name' version '$version'."
+  local tmp_dir
+  tmp_dir=$(mktemp -d "${cache_dir}.XXXXXXXXXX") || {
+    common::colorify "red" "ERROR: Failed to create a temp directory for '$tool_name' version '$version'."
     return 1
   }
 
@@ -606,40 +586,32 @@ function common::populate_tool_cache {
   # harmless noise in a Docker build log, but it would otherwise corrupt
   # the path this function returns.
   if ! (
-    cd "$staging_dir" || exit 1
+    cd "$tmp_dir" || exit 1
     export "$env_var_name=$version"
     "$installer_script" 1>&2
   ); then
     common::colorify "red" "ERROR: Failed to download '$tool_name' version '$version' via '$installer_script'."
-    rm -rf "$staging_dir"
+    rm -rf "$tmp_dir"
     return 1
   fi
 
-  # Another process may have already published `cached_bin` while this
-  # one was downloading its own copy - if so, prefer that result over
-  # ours (both are the same requested version) instead of racing again
-  # on the `mv` below.
+  # Someone else may have already won the race - use their result.
   if [[ -x $cached_bin ]]; then
-    rm -rf "$staging_dir"
+    rm -rf "$tmp_dir"
     return 0
   fi
 
-  # `mv` between two paths on the same filesystem is atomic (POSIX
-  # `rename(2)`), and both sides here are plain files, not
-  # directories, so a concurrent reader of `cached_bin` always sees
-  # either the previous state or the fully-written new one - never a
-  # partially-written file - on both GNU and BSD `mv`.
-  if ! mv "$staging_dir/$(basename "$cached_bin")" "$cached_bin" 2> /dev/null; then
-    rm -rf "$staging_dir"
-    # Lost the race between the check above and this `mv`: some other
-    # process' `mv` landed on `cached_bin` first. That's fine, its
-    # result is equally valid, ours is simply redundant.
+  # Atomic `rename(2)`: both sides are plain files, so a concurrent
+  # reader never sees a partial write.
+  if ! mv "$tmp_dir/$(basename "$cached_bin")" "$cached_bin" 2> /dev/null; then
+    rm -rf "$tmp_dir"
+    # Lost the race - the winner's copy is equally valid.
     [[ -x $cached_bin ]] && return 0
     common::colorify "red" "ERROR: Failed to move '$tool_name' version '$version' into place at '$cached_bin'."
     return 1
   fi
 
-  rm -rf "$staging_dir"
+  rm -rf "$tmp_dir"
 }
 
 #######################################################################
