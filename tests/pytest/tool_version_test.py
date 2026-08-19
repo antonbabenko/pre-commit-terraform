@@ -334,6 +334,44 @@ def _run_hook(  # pragma: win32 no cover
     )
 
 
+def _run_concurrent_hooks(  # pragma: win32 no cover
+    count: int,
+    hook_name: str,
+    args: list[str],
+    *,
+    cwd: Path,
+    env: dict[str, str],
+) -> list[str]:
+    """Run `count` copies of a hook concurrently, on the same `a.tf`.
+
+    Every copy is started before any of them is waited on, so all
+    `count` copies genuinely overlap instead of running one after
+    another.
+
+    Returns:
+        Each process' merged stdout/stderr, in start order.
+    """
+    hook_path = HOOKS_DIR / hook_name
+    processes = [
+        subprocess.Popen(  # noqa: S603
+            (BASH, str(hook_path), *args, '--', 'a.tf'),
+            cwd=cwd,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        for _ in range(count)
+    ]
+    outputs = [
+        proc.communicate(timeout=HOOK_TIMEOUT_SECONDS)[0] for proc in processes
+    ]
+    for output, proc in zip(outputs, processes, strict=True):
+        # 2 is tflint's own lint findings on the minimal fixture, not ours.
+        assert proc.returncode in {0, 2}, output
+    return outputs
+
+
 def test_cache_hit_uses_cached_binary(  # pragma: win32 no cover
     tmp_repo: Path,
     cache_dir: Path,
@@ -1015,3 +1053,52 @@ def test_real_download_on_cache_miss(  # pragma: win32 no cover
 
     # 2 is tflint's own lint findings on the minimal fixture, not ours.
     assert hook_run.returncode in {0, 2}, combined
+
+
+@pytest.mark.network
+def test_concurrent_cache_miss_is_race_free(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+) -> None:
+    """Check N processes racing the same cache miss don't corrupt it.
+
+    Regression test for a race in `common::populate_tool_cache`:
+    before it staged each download in a private, per-process directory
+    and atomically published only the resulting binary, N processes
+    hitting the same uncached (tool, version) at once shared one
+    `curl`/`unzip` working directory - so one process' cleanup
+    (`rm "$PKG"`) could delete the archive out from under another's
+    still-running `unzip` ("cannot find or open ... .zip"), or `unzip`
+    could meet a binary a sibling had already extracted and block on
+    an interactive overwrite prompt, hanging (then failing) under
+    pre-commit's non-interactive stdin.
+    """
+    # 2 is the minimal N that can reproduce a race at all; every
+    # process beyond that adds real-network exposure (see this
+    # function's own `@pytest.mark.network`) without proving anything
+    # a race between 2 doesn't already prove.
+    outputs = _run_concurrent_hooks(
+        2,
+        'terraform_tflint.sh',
+        [f'--hook-config=--tool-version={PINNED_TFLINT_VERSION}'],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), os.environ['PATH']),
+    )
+
+    cached_bin = cache_dir / 'tflint' / PINNED_TFLINT_VERSION / 'tflint'
+    assert os.access(cached_bin, os.X_OK), outputs
+
+    version_check = subprocess.run(  # noqa: S603
+        (str(cached_bin), '--version'),
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=VERSION_CHECK_TIMEOUT_SECONDS,
+    )
+    assert version_check.returncode == 0, version_check.stderr
+    assert PINNED_TFLINT_VERSION in version_check.stdout
+
+    # Every staging dir is cleaned up whether its process won the race
+    # or lost it - none left behind regardless of outcome.
+    leftovers = list((cache_dir / 'tflint').glob(f'{PINNED_TFLINT_VERSION}.*'))
+    assert not leftovers, outputs
