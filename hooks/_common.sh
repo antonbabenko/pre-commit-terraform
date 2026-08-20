@@ -545,6 +545,78 @@ function common::detect_os_arch {
 }
 
 #######################################################################
+# Download and install one tool version into a private, per-process
+# temp directory, then atomically publish the resulting binary into
+# the shared cache - concurrency-safe against other processes
+# populating the same (tool, version) entry at the same time.
+# Globals:
+#   GITHUB_TOKEN - forwarded automatically; read directly by the
+#     invoked installer script
+# Arguments:
+#   tool_name (string) tool name, matching a `tools/install/<tool>.sh`
+#     file and its expected `${TOOL^^}_VERSION` environment variable
+#   version (string) exact version to install
+#   installer_script (string) absolute path to the installer to invoke
+#   env_var_name (string) env var the installer reads its version from
+#   cache_dir (string) final, shared cache dir for this (tool, version).
+#     Must already exist.
+#   cached_bin (string) expected absolute path to the resolved binary
+# Outputs:
+#   Returns 0 once `cached_bin` exists, ours or a race winner's.
+#   Returns 1 with an error message if the install itself failed.
+#######################################################################
+function common::populate_tool_cache {
+  local -r tool_name="$1"
+  local -r version="$2"
+  local -r installer_script="$3"
+  local -r env_var_name="$4"
+  local -r cache_dir="$5"
+  local -r cached_bin="$6"
+
+  if [[ -x $cached_bin ]]; then
+    return 0
+  fi
+
+  local tmp_dir
+  tmp_dir=$(mktemp -d "${cache_dir}.XXXXXXXXXX") || {
+    common::colorify "red" "ERROR: Failed to create a temp directory for '$tool_name' version '$version'."
+    return 1
+  }
+
+  # Redirect the installer's own stdout to stderr: this is a plain
+  # function call, not a "$(...)" capture, so anything printed here
+  # would flow straight through to `common::resolve_tool_path`'s own
+  # stdout - the resolved path, captured via "$(...)" by every caller
+  # of *that* function - and installers like terraform.sh/tflint.sh
+  # call bare `unzip` (no `-q`), which prints "Archive: ... inflating:
+  # ..." to stdout by default.
+  if ! (
+    cd "$tmp_dir" || exit 1
+    export "$env_var_name=$version"
+    "$installer_script" 1>&2
+  ); then
+    common::colorify "red" "ERROR: Failed to download '$tool_name' version '$version' via '$installer_script'."
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+
+  # `ln` (hard link, no `-f`) fails with EEXIST instead of silently
+  # replacing an existing destination - unlike `mv`, which would
+  # clobber a binary a sibling process may already be running.
+  # `tmp_dir` is a sibling of `cache_dir` (both under the same parent),
+  # so this is guaranteed to stay on one filesystem.
+  if ! ln "$tmp_dir/$(basename "$cached_bin")" "$cached_bin" 2> /dev/null; then
+    rm -rf "$tmp_dir"
+    # Lost the race - the winner's copy is equally valid.
+    [[ -x $cached_bin ]] && return 0
+    common::colorify "red" "ERROR: Failed to update '$cached_bin' with '$tool_name' version '$version'."
+    return 1
+  fi
+
+  rm -rf "$tmp_dir"
+}
+
+#######################################################################
 # Resolve a specific version of a wrapped tool's binary, downloading
 # and caching it on demand if it isn't already cached.
 #
@@ -639,7 +711,7 @@ function common::resolve_tool_path {
     fi
 
     common::colorify "green" \
-      "NOTE: The requested '$tool_name' version '$version' will be downloaded/used instead of whatever is on \$PATH."
+      "NOTE: The requested '$tool_name' version '$version' will be used instead of whatever is on \$PATH."
   fi
 
   #
@@ -682,20 +754,7 @@ function common::resolve_tool_path {
 
   mkdir -p "$cache_dir"
 
-  # Redirect the installer's own stdout to stderr: this function's stdout is
-  # a contract (the resolved path, captured via "$(...)" by every caller),
-  # and installers like terraform.sh/tflint.sh call bare `unzip` (no `-q`),
-  # which prints "Archive: ... inflating: ..." to stdout by default -
-  # harmless noise in a Docker build log, but it would otherwise corrupt
-  # the path this function returns.
-  if ! (
-    cd "$cache_dir" || exit 1
-    export "$env_var_name=$version"
-    "$installer_script" 1>&2
-  ); then
-    common::colorify "red" "ERROR: Failed to download '$tool_name' version '$version' via '$installer_script'."
-    exit 1
-  fi
+  common::populate_tool_cache "$tool_name" "$version" "$installer_script" "$env_var_name" "$cache_dir" "$cached_bin" || exit $?
 
   if [[ ! -x $cached_bin ]]; then
     common::colorify "red" "ERROR: '$tool_name' installer completed but expected binary was not found at '$cached_bin'."
