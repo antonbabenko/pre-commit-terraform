@@ -48,7 +48,7 @@ BASH = shutil.which('bash') or 'bash'
 # `common::colorify` writes to stderr, hence the stderr/stdout merge in
 # `_run_hook` below.
 DOWNLOAD_MSG = "Downloading '"  # hooks/_common.sh:662
-STRICT_OVERRIDE_MSG = 'downloaded/used instead of whatever is on $PATH'  # :629
+STRICT_OVERRIDE_MSG = 'used instead of whatever is on $PATH'  # :629
 PREFER_LOCAL_MSG = "'--tool-version-mode=prefer-local'"  # :622
 NO_INSTALLER_MSG = 'no installer found'  # :658
 MODE_INVALID_MSG = "'--tool-version-mode=prefer_local' is not a valid value"
