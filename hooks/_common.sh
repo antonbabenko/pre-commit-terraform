@@ -607,7 +607,7 @@ function common::populate_tool_cache {
     rm -rf "$tmp_dir"
     # Lost the race - the winner's copy is equally valid.
     [[ -x $cached_bin ]] && return 0
-    common::colorify "red" "ERROR: Failed to move '$tool_name' version '$version' into place at '$cached_bin'."
+    common::colorify "red" "ERROR: Failed to update '$cached_bin' with '$tool_name' version '$version'."
     return 1
   fi
 
