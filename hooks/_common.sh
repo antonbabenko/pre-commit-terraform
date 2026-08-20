@@ -599,6 +599,14 @@ function common::populate_tool_cache {
     return 1
   fi
 
+  # A sibling may have published while we were downloading - `mv`
+  # doesn't refuse an existing destination, it just replaces it, even
+  # while something else is still executing it.
+  if [[ -x $cached_bin ]]; then
+    rm -rf "$tmp_dir"
+    return 0
+  fi
+
   # Atomic `rename(2)`: both sides are plain files, so a concurrent
   # reader never sees a partial write.
   if ! mv "$tmp_dir/$(basename "$cached_bin")" "$cached_bin" 2> /dev/null; then
