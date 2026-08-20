@@ -573,6 +573,10 @@ function common::populate_tool_cache {
   local -r cache_dir="$5"
   local -r cached_bin="$6"
 
+  if [[ -x $cached_bin ]]; then
+    return 0
+  fi
+
   local tmp_dir
   tmp_dir=$(mktemp -d "${cache_dir}.XXXXXXXXXX") || {
     common::colorify "red" "ERROR: Failed to create a temp directory for '$tool_name' version '$version'."
@@ -593,12 +597,6 @@ function common::populate_tool_cache {
     common::colorify "red" "ERROR: Failed to download '$tool_name' version '$version' via '$installer_script'."
     rm -rf "$tmp_dir"
     return 1
-  fi
-
-  # Someone else may have already won the race - use their result.
-  if [[ -x $cached_bin ]]; then
-    rm -rf "$tmp_dir"
-    return 0
   fi
 
   # Atomic `rename(2)`: both sides are plain files, so a concurrent
