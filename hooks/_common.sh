@@ -711,7 +711,7 @@ function common::resolve_tool_path {
     fi
 
     common::colorify "green" \
-      "NOTE: The requested '$tool_name' version '$version' will be downloaded/used instead of whatever is on \$PATH."
+      "NOTE: The requested '$tool_name' version '$version' will be used instead of whatever is on \$PATH."
   fi
 
   #
