@@ -583,12 +583,13 @@ function common::populate_tool_cache {
     return 1
   }
 
-  # Redirect the installer's own stdout to stderr: this function's stdout is
-  # a contract (the resolved path, captured via "$(...)" by every caller),
-  # and installers like terraform.sh/tflint.sh call bare `unzip` (no `-q`),
-  # which prints "Archive: ... inflating: ..." to stdout by default -
-  # harmless noise in a Docker build log, but it would otherwise corrupt
-  # the path this function returns.
+  # Redirect the installer's own stdout to stderr: this is a plain
+  # function call, not a "$(...)" capture, so anything printed here
+  # would flow straight through to `common::resolve_tool_path`'s own
+  # stdout - the resolved path, captured via "$(...)" by every caller
+  # of *that* function - and installers like terraform.sh/tflint.sh
+  # call bare `unzip` (no `-q`), which prints "Archive: ... inflating:
+  # ..." to stdout by default.
   if ! (
     cd "$tmp_dir" || exit 1
     export "$env_var_name=$version"
@@ -599,17 +600,12 @@ function common::populate_tool_cache {
     return 1
   fi
 
-  # A sibling may have published while we were downloading - `mv`
-  # doesn't refuse an existing destination, it just replaces it, even
-  # while something else is still executing it.
-  if [[ -x $cached_bin ]]; then
-    rm -rf "$tmp_dir"
-    return 0
-  fi
-
-  # Atomic `rename(2)`: both sides are plain files, so a concurrent
-  # reader never sees a partial write.
-  if ! mv "$tmp_dir/$(basename "$cached_bin")" "$cached_bin" 2> /dev/null; then
+  # `ln` (hard link, no `-f`) fails with EEXIST instead of silently
+  # replacing an existing destination - unlike `mv`, which would
+  # clobber a binary a sibling process may already be running.
+  # `tmp_dir` is a sibling of `cache_dir` (both under the same parent),
+  # so this is guaranteed to stay on one filesystem.
+  if ! ln "$tmp_dir/$(basename "$cached_bin")" "$cached_bin" 2> /dev/null; then
     rm -rf "$tmp_dir"
     # Lost the race - the winner's copy is equally valid.
     [[ -x $cached_bin ]] && return 0

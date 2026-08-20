@@ -352,6 +352,11 @@ def _run_concurrent_hooks(  # pragma: win32 no cover
         Each process' merged stdout/stderr, in start order.
     """
     hook_path = HOOKS_DIR / hook_name
+    if not hook_path.is_file():  # pragma: no cover
+        # `hooks/` is not part of the wheel, only of the sdist, so a
+        # packaging regression must fail with a pointed message here
+        # instead of as a confusing assertion mismatch further down.
+        pytest.fail(f'Hook script not found: {hook_path}')
     processes = [
         subprocess.Popen(  # noqa: S603
             (BASH, str(hook_path), *args, '--', 'a.tf'),
