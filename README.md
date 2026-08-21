@@ -56,6 +56,8 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
   * [All hooks: Log levels](#all-hooks-log-levels)
+  * [Most hooks: Pin a specific tool version](#most-hooks-pin-a-specific-tool-version)
+    * [Keeping pinned versions up-to-date using Renovate](#keeping-pinned-versions-up-to-date-using-renovate)
   * [Many hooks: Parallelism](#many-hooks-parallelism)
   * [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
   * [infracost\_breakdown](#infracost_breakdown)
@@ -77,6 +79,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [About Docker image security](#about-docker-image-security)
   * [File Permissions](#file-permissions)
   * [Download Terraform modules from private GitHub repositories](#download-terraform-modules-from-private-github-repositories)
+  * [Mount tools cache directory](#mount-tools-cache-directory)
 * [GitHub Actions](#github-actions)
 * [Authors](#authors)
 * [License](#license)
@@ -433,6 +436,89 @@ PCT_LOG=trace pre-commit run -a
 ```
 
 Less verbose log levels will be implemented in [#562](https://github.com/antonbabenko/pre-commit-terraform/issues/562).
+
+### Most hooks: Pin a specific tool version
+
+> All hooks, which wrap a tool distributed as a downloadable release asset. Not supported for `checkov`/`terraform_checkov` (distributed via PyPi) and for deprecated `terraform_docs_replace` hook.
+
+1. You can pin a specific version of the wrapped tool per hook, independent of whatever is on your `$PATH` or baked into the Docker image. If that version isn't already cached locally, it's downloaded from the tool's GitHub releases on first use, then reused (without re-downloading) on every subsequent run.
+
+    Config example:
+
+    ```yaml
+    - id: terraform_tflint
+      args:
+        - --hook-config=--tool-version=0.50.0
+    ```
+
+2. The same `--tool-version` key also works for `terraform_validate`, `terraform_fmt` and `terraform_providers_lock`, which resolve their Terraform/OpenTofu binary through [`--tf-path`](#11-custom-terraform-binaries-and-opentofu-support) - by default it downloads/uses whichever of `terraform`/`opentofu` binary the rest of that precedence chain would otherwise have picked (`terraform`, unless it's missing from `$PATH` while `tofu` is present, in which case `opentofu`). To pick explicitly instead of relying on the auto-detection mechanism, set `--tf-path` to the literal value of `terraform`, `opentofu` or `tofu`:
+
+    ```yaml
+    - id: terraform_validate
+      args:
+        - --hook-config=--tf-path=opentofu
+        - --hook-config=--tool-version=1.12.0
+    ```
+
+    `--tf-path` and `--tool-version` either can be set on its own, or combined:
+
+    | `--tf-path`                                | `--tool-version` | Behavior                                                                                                                                     |
+    | ------------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+    | set to a literal path/binary name          | unset            | Use that local binary as-is (normal [`--tf-path`](#11-custom-terraform-binaries-and-opentofu-support) behavior); `--tool-version` is ignored |
+    | unset                                      | set              | Auto-detect `terraform`/`opentofu` as described above, then download/use that tool at the pinned version                                     |
+    | set to `terraform`, `opentofu`, or `tofu`  | set              | Download/use the pinned version of whichever of the two was selected                                                                         |
+    | set to anything else (e.g. an actual path) | set              | Error - combined with `--tool-version`, `--tf-path` only accepts `terraform`, `opentofu`, or `tofu`                                          |
+    | unset                                      | unset            | Falls back to the normal [`--tf-path`](#11-custom-terraform-binaries-and-opentofu-support) precedence chain (env vars, then `$PATH`)         |
+
+> [!TIP]
+> 3. Since this resolves to a version-specific cached binary rather than mutating `$PATH`, the same hook can be listed multiple times with different pinned versions, e.g. to test compatibility across tool versions in one run:
+>
+> ```yaml
+> - id: terraform_tflint
+>   args:
+>     - --hook-config=--tool-version=0.50.0
+> - id: terraform_tflint
+>   args:
+>     - --hook-config=--tool-version=0.55.0
+> ```
+
+4. By default, if a different version of the tool is already on `$PATH`, the pinned version still wins (with a warning message logged) based on `--hook-config=--tool-version-mode=strict`. Set it to `prefer-local` (as opposite to `strict`) to invert that: if the tool already resolves via `$PATH`, this local binary is used as-is and no download is attempted; the pinned version is only downloaded/used as a fallback when nothing is found locally.
+
+    ```yaml
+    - id: terraform_tflint
+      args:
+        - --hook-config=--tool-version=0.50.0
+        - --hook-config=--tool-version-mode=prefer-local
+    ```
+
+5. By default, downloaded binaries are cached under `$XDG_CACHE_HOME/pre-commit-terraform/` (or `$HOME/.cache/pre-commit-terraform/` if `XDG_CACHE_HOME` is unset). Override this location with the `PCT_TOOL_CACHE_DIR` environment variable - see [Mount tools cache directory](#mount-tools-cache-directory) for the Docker case.
+
+6. If a `GITHUB_TOKEN` environment variable is set, it's inherited automatically to authenticate GitHub API requests made during version resolution, the same way it already is utilized for [building your own Docker image](#docker-usage).
+
+#### Keeping pinned versions up-to-date using Renovate
+
+Neither Renovate's built-in [`pre-commit` manager](https://docs.renovatebot.com/modules/manager/pre-commit/) (which only understands `repo:`/`rev:` and `additional_dependencies` for Go/Node/Python) nor its `dockerfileVersions` preset can "look" inside hook's `args:`, so the `--tool-version` pin needs its own [`customManagers`](https://docs.renovatebot.com/modules/manager/regex/) entry in your own `renovate.json5` config file, using the same `# renovate: datasource=... depName=...` annotation convention commonly used for Dockerfile `ARG *_VERSION` pins:
+
+```yaml
+- id: terraform_tflint
+  args:
+    # renovate: datasource=github-releases depName=terraform-linters/tflint
+    - --hook-config=--tool-version=0.50.0
+```
+
+```json5
+{
+  customManagers: [
+    {
+      customType: "regex",
+      managerFilePatterns: ["/\\.pre-commit-config\\.ya?ml$/"],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+-\\s+--hook-config=--tool-version=(?<currentValue>\\S+)",
+      ],
+    },
+  ],
+}
+```
 
 ### Many hooks: Parallelism
 
@@ -1294,6 +1380,26 @@ Finally, you can execute `docker run` with an additional volume mount so that th
 # .netrc needs to be in /root/ dir
 docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:latest run -a
 ```
+
+### Mount tools cache directory
+
+A container's own filesystem is discarded after `docker run` exits, so a version downloaded via [`--tool-version`](#most-hooks-pin-a-specific-tool-version) would otherwise be re-downloaded on every single run. Mount the cache directory as a volume to persist it across runs, the same way you would for [`TF_PLUGIN_CACHE_DIR`](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache):
+
+> [!IMPORTANT]
+> With a non-root `USERID` (the [recommended](#4-run) way to run the image), do not mount the cache under `/root/...`: the container switches to that UID/GID via `su-exec`, which neither grants it permission to traverse `/root` nor changes `$HOME`, so the mount would be unreachable and pinned-tool resolution would fail instead of using it. Point `PCT_TOOL_CACHE_DIR` at a container path any UID can write to instead (e.g. under `/tmp`), and pre-create the host directory so Docker doesn't auto-create it as `root`-owned on first mount.
+
+```bash
+TAG=latest
+mkdir -p ~/.cache/pre-commit-terraform
+docker run \
+    -e "USERID=$(id -u):$(id -g)" \
+    -e PCT_TOOL_CACHE_DIR=/tmp/pre-commit-terraform-cache \
+    -v ~/.cache/pre-commit-terraform:/tmp/pre-commit-terraform-cache \
+    -v $(pwd):/lint -w /lint \
+    ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
+```
+
+If you set `PCT_TOOL_CACHE_DIR` to a different custom location, mount the host cache directory at that same container path instead.
 
 ## GitHub Actions
 

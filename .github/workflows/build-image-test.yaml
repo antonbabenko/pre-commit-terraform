@@ -68,13 +68,12 @@ jobs:
         context: .
         build-args: |
           INSTALL_ALL=true
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
         push: false
         load: true
         tags: ${{ env.IMAGE }}
         # Fix multi-platform: https://github.com/docker/buildx/issues/1533
         provenance: false
-        secrets: |
-          "github_token=${{ secrets.GITHUB_TOKEN }}"
 
     - name: Setup Container Structure Tests
       if: steps.changed-files-specific.outputs.any_changed == 'true'
@@ -121,10 +120,9 @@ jobs:
         context: .
         build-args: |
           INSTALL_ALL=true
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
         platforms: linux/amd64,linux/arm64
         push: false
         tags: ${{ env.IMAGE }}
         # Fix multi-platform: https://github.com/docker/buildx/issues/1533
         provenance: false
-        secrets: |
-          "github_token=${{ secrets.GITHUB_TOKEN }}"

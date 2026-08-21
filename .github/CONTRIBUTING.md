@@ -134,6 +134,9 @@ You can use [this PR](https://github.com/antonbabenko/pre-commit-terraform/pull/
     * `docker build -t pre-commit --build-arg INSTALL_ALL=true .`
     * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=latest .`
     * `docker build -t pre-commit --build-arg <NEW_HOOK>_VERSION=<1.2.3> .`
+
+    > [!NOTE]
+    > `tools/install/<tool>.sh` has a second call site besides the Dockerfile: if the new tool is distributed as a GitHub (or HashiCorp) release binary, `hooks/_common.sh::common::resolve_tool_path` invokes this same script at hook run-time to support [`--hook-config=--tool-version=`](../README.md#most-hooks-pin-a-specific-tool-version). Wire your new hook to it the same way the existing binary-wrapping hooks are (look at how `terraform_tflint.sh` or `terrascan.sh` call `common::resolve_tool_path`), unless the tool has a different distribution model (e.g. pip, like `checkov`) - in that case, skip this and leave a comment explaining why, as `terraform_checkov.sh` does.
 2. Add Docker structure tests to [`.github/.container-structure-test-config.yaml`](.container-structure-test-config.yaml)
 3. Add new hook to [`.pre-commit-hooks.yaml`](../.pre-commit-hooks.yaml)
 4. Create hook file. Don't forget to make it executable via `chmod +x /path/to/hook/file`.

@@ -18,8 +18,15 @@ function main {
     ARGS+=("-no-color")
   fi
 
+  local -r tool_name="tf" # Will be resolved into real tool inside 'common::resolve_tool_path'
+
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
+
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "$tool_path" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -33,7 +40,7 @@ function main {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
-#   tf_path (string) PATH to Terraform/OpenTofu binary
+#   tool_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
@@ -44,12 +51,12 @@ function per_dir_hook_unique_part {
   local -r change_dir_in_unique_part="$2"
   # shellcheck disable=SC2034 # Unused var.
   local -r parallelism_disabled="$3"
-  local -r tf_path="$4"
+  local -r tool_path="$4"
   shift 4
   local -a -r args=("$@")
 
   # pass the arguments to hook
-  "$tf_path" fmt "${args[@]}"
+  "$tool_path" fmt "${args[@]}"
 
   # return exit code to common::per_dir_hook
   local exit_code=$?

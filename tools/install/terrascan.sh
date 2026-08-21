@@ -11,7 +11,8 @@ readonly SCRIPT_DIR
 [[ $TARGETARCH == amd64 ]] && ARCH="x86_64" || ARCH="$TARGETARCH"
 readonly ARCH
 # Convert the first letter to Uppercase
-OS="${TARGETOS^}"
+# `${var^}` is bash 4+ only; macOS ships bash 3.2 by default.
+OS="$(tr '[:lower:]' '[:upper:]' <<< "${TARGETOS:0:1}")${TARGETOS:1}"
 
 GH_ORG="tenable"
 GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?${VERSION}_${OS}_${ARCH}.tar.gz"

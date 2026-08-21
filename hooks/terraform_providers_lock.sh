@@ -15,8 +15,15 @@ function main {
   common::parse_and_export_env_vars
   # JFYI: suppress color for `terraform providers lock` is N/A`
 
+  local -r tool_name="tf" # Will be resolved into real tool inside 'common::resolve_tool_path'
+
+  local -r tool_version=$(common::get_hook_config_value "--tool-version")
+  local tool_path
+  tool_path=$(common::resolve_tool_path "$tool_name" "$tool_version") || exit $?
+  readonly tool_path
+
   # shellcheck disable=SC2153 # False positive
-  common::per_dir_hook "$HOOK_ID" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
+  common::per_dir_hook "$HOOK_ID" "$tool_path" "${#ARGS[@]}" "${ARGS[@]}" "${FILES[@]}"
 }
 
 #######################################################################
@@ -87,7 +94,7 @@ function lockfile_contains_all_needed_sha {
 #     Availability depends on hook.
 #   parallelism_disabled (bool) if true - skip lock mechanism
 #   args (array) arguments that configure wrapped tool behavior
-#   tf_path (string) PATH to Terraform/OpenTofu binary
+#   tool_path (string) PATH to Terraform/OpenTofu binary
 # Outputs:
 #   If failed - print out hook checks status
 #######################################################################
@@ -96,7 +103,7 @@ function per_dir_hook_unique_part {
   # shellcheck disable=SC2034 # Unused var.
   local -r change_dir_in_unique_part="$2"
   local -r parallelism_disabled="$3"
-  local -r tf_path="$4"
+  local -r tool_path="$4"
   shift 4
   local -a -r args=("$@")
 
@@ -161,7 +168,7 @@ Please update your configuration."
   if [ ! "$mode" ]; then
     common::colorify "yellow" "DEPRECATION NOTICE: We introduced '--mode' flag for this hook.
 Check migration instructions at https://github.com/antonbabenko/pre-commit-terraform#terraform_providers_lock"
-    common::terraform_init "$tf_path providers lock" "$dir_path" "$parallelism_disabled" "$tf_path" || {
+    common::terraform_init "$tool_path providers lock" "$dir_path" "$parallelism_disabled" "$tool_path" || {
       exit_code=$?
       return $exit_code
     }
@@ -192,7 +199,7 @@ All required platforms: ${platforms_names[*]}"
   #? Don't require `tf init` for providers, but required `tf init` for modules
   #? Mitigated by `function match_validate_errors` from terraform_validate hook
   # pass the arguments to hook
-  "$tf_path" providers lock "${args[@]}"
+  "$tool_path" providers lock "${args[@]}"
 
   exit_code=$?
   if [[ $exit_code -ne 0 ]]; then

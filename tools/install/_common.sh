@@ -8,10 +8,15 @@ TOOL=${0##*/}
 readonly TOOL=${TOOL%%.*}
 
 # Get "TOOL_VERSION"
-# shellcheck disable=SC1091 # Created in Dockerfile before execution of this script
-source /.env
+# /.env is created in the Dockerfile before this script runs there; when
+# this script is invoked directly (e.g. at hook run-time, outside a Docker
+# build), it won't exist and the version env var is expected to already be
+# exported by the caller instead.
+# shellcheck disable=SC1091
+[[ -f /.env ]] && source /.env
 env_var_name="${TOOL//-/_}"
-env_var_name="${env_var_name^^}_VERSION"
+# `${var^^}` is bash 4+ only; macOS ships bash 3.2 by default.
+env_var_name="$(tr '[:lower:]' '[:upper:]' <<< "${env_var_name}_VERSION")"
 # shellcheck disable=SC2034 # Used in other scripts
 readonly VERSION="${!env_var_name}"
 
@@ -69,7 +74,24 @@ function common::install_from_gh_release {
   if [[ $VERSION == latest ]]; then
     "${CURL_CMD[@]}" -L "$("${CURL_CMD[@]}" -s "${RELEASES}/latest" | grep -o -E -i -m 1 "$GH_RELEASE_REGEX_LATEST")" > "$PKG"
   else
-    "${CURL_CMD[@]}" -L "$("${CURL_CMD[@]}" -s "$RELEASES" | grep -o -E -i -m 1 "$GH_RELEASE_REGEX_SPECIFIC_VERSION")" > "$PKG"
+    # Unpaginated $RELEASES only has the 30 newest releases; page
+    # through (100/page) until matched or an empty page ends it.
+    local page=1
+    local -r max_pages=20 # 2000 releases; generous for any wrapped tool
+    local asset_url="" page_releases
+    while [[ -z $asset_url && $page -le $max_pages ]]; do
+      page_releases=$("${CURL_CMD[@]}" -s "${RELEASES}?per_page=100&page=${page}")
+      [[ $page_releases == "[]" ]] && break
+      asset_url=$(grep -o -E -i -m 1 "$GH_RELEASE_REGEX_SPECIFIC_VERSION" <<< "$page_releases" || true)
+      ((page++))
+    done
+
+    if [[ -z $asset_url ]]; then
+      echo "ERROR: could not find a '$TOOL' release asset matching version '$VERSION' (looked through up to $((page - 1)) page(s) of releases)." >&2
+      exit 1
+    fi
+
+    "${CURL_CMD[@]}" -L "$asset_url" > "$PKG"
   fi
 
   # Make tool ready to use
