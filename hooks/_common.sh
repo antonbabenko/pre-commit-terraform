@@ -701,12 +701,17 @@ function common::resolve_tool_path {
       ;;
   esac
 
-  if command -v "$tool_name" &> /dev/null; then
+  # opentofu.sh renames "opentofu" back to "tofu" (tools/install/opentofu.sh);
+  # $PATH lookups below must use that real binary name, not $tool_name.
+  local resolved_bin_name="$tool_name"
+  [[ $tool_name == "opentofu" ]] && resolved_bin_name="tofu"
+
+  if command -v "$resolved_bin_name" &> /dev/null; then
     if [[ $tool_version_mode == "prefer-local" ]]; then
       common::colorify "green" \
         "NOTE: version '$version' was requested for '$tool_name', but '--tool-version-mode=prefer-local' " \
-        "is set and '$tool_name' is already found on \$PATH - using that instead."
-      command -v "$tool_name"
+        "is set and '$resolved_bin_name' is already found on \$PATH - using that instead."
+      command -v "$resolved_bin_name"
       return
     fi
 
@@ -718,13 +723,12 @@ function common::resolve_tool_path {
   # Check if the requested version is already cached
   #
 
-  # opentofu.sh renames its binary from "opentofu" back to "tofu" after
-  # common::install_from_gh_release completes (see tools/install/opentofu.sh)
-  local resolved_bin_name="$tool_name"
-  [[ $tool_name == "opentofu" ]] && resolved_bin_name="tofu"
+  # Cache key needs OS/arch too - a cache dir shared across platforms
+  # (e.g. Docker volume mount) would else serve an incompatible binary.
+  common::detect_os_arch
 
   local -r cache_root="${PCT_TOOL_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/pre-commit-terraform}"
-  local -r cache_dir="$cache_root/$tool_name/$version"
+  local -r cache_dir="$cache_root/$tool_name/$version/${TARGETOS}_${TARGETARCH}"
   local -r cached_bin="$cache_dir/$resolved_bin_name"
 
   if [[ -x $cached_bin ]]; then
@@ -745,8 +749,6 @@ function common::resolve_tool_path {
   fi
 
   common::colorify "green" "Downloading '$tool_name' version '$version'..."
-
-  common::detect_os_arch
 
   local env_var_name="${tool_name//-/_}"
   # `${var^^}` is bash 4+ only; macOS ships bash 3.2 by default.

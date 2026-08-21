@@ -1385,16 +1385,21 @@ docker run --rm -e "USERID=$(id -u):$(id -g)" -v ~/.netrc:/root/.netrc -v $(pwd)
 
 A container's own filesystem is discarded after `docker run` exits, so a version downloaded via [`--tool-version`](#most-hooks-pin-a-specific-tool-version) would otherwise be re-downloaded on every single run. Mount the cache directory as a volume to persist it across runs, the same way you would for [`TF_PLUGIN_CACHE_DIR`](https://developer.hashicorp.com/terraform/cli/config/config-file#provider-plugin-cache):
 
+> [!IMPORTANT]
+> With a non-root `USERID` (the [recommended](#4-run) way to run the image), do not mount the cache under `/root/...`: the container switches to that UID/GID via `su-exec`, which neither grants it permission to traverse `/root` nor changes `$HOME`, so the mount would be unreachable and pinned-tool resolution would fail instead of using it. Point `PCT_TOOL_CACHE_DIR` at a container path any UID can write to instead (e.g. under `/tmp`), and pre-create the host directory so Docker doesn't auto-create it as `root`-owned on first mount.
+
 ```bash
 TAG=latest
+mkdir -p ~/.cache/pre-commit-terraform
 docker run \
     -e "USERID=$(id -u):$(id -g)" \
-    -v ~/.cache/pre-commit-terraform:/root/.cache/pre-commit-terraform \
+    -e PCT_TOOL_CACHE_DIR=/tmp/pre-commit-terraform-cache \
+    -v ~/.cache/pre-commit-terraform:/tmp/pre-commit-terraform-cache \
     -v $(pwd):/lint -w /lint \
     ghcr.io/antonbabenko/pre-commit-terraform:$TAG run -a
 ```
 
-If you set `PCT_TOOL_CACHE_DIR` to a custom location, mount that path instead (and pass the same env var to the container with `-e PCT_TOOL_CACHE_DIR=...`).
+If you set `PCT_TOOL_CACHE_DIR` to a different custom location, mount the host cache directory at that same container path instead.
 
 ## GitHub Actions
 

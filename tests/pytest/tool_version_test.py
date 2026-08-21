@@ -21,6 +21,7 @@ module-level `def` in this file needs a `# pragma: win32 no cover`.
 from __future__ import annotations
 
 import os
+import platform
 import shutil
 import stat
 import subprocess
@@ -34,6 +35,32 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HOOKS_DIR = REPO_ROOT / 'hooks'
+
+
+def _current_os_arch(
+    *,
+    os_name: str | None = None,
+    machine: str | None = None,
+) -> str:  # pragma: win32 no cover
+    """Build the `<os>_<arch>` cache-path segment for this host.
+
+    Mirrors `common::detect_os_arch` (hooks/_common.sh) exactly.
+
+    Args:
+        os_name: Override for `platform.system()`, for deterministic tests.
+        machine: Override for `platform.machine()`, for deterministic tests.
+
+    Returns:
+        `<os>_<arch>`, e.g. `linux_amd64` or `darwin_arm64`.
+    """
+    os_name = (os_name or platform.system()).lower()
+    arch = machine or platform.machine()
+    if arch == 'x86_64':
+        arch = 'amd64'
+    elif arch in {'aarch64', 'arm64'}:
+        arch = 'arm64'
+    return f'{os_name}_{arch}'
+
 
 # Both are resolved against *this* process' `PATH` by `execvp`, not against
 # the `PATH` handed to the subprocess - which is what keeps a sandboxed
@@ -57,6 +84,8 @@ TF_PATH_INVALID_MSG = 'not a valid value'  # :739
 PARALLELISM_CAPPED_MSG = 'Observed Parallelism limit'  # :409
 
 PINNED_TFLINT_VERSION = '0.50.0'
+# Old enough to sit past GitHub's unpaginated 30-release page.
+OLD_TFLINT_VERSION = '0.44.1'
 PINNED_TF_VERSION = '1.9.0'
 # Any tool, any version: used where the cache is seeded by the test and
 # the exact number is irrelevant to what is being asserted.
@@ -77,7 +106,7 @@ class _CachedTool(NamedTuple):
         cache_root: Path,
         version: str,
     ) -> Path:
-        """Build the `<root>/<tool>/<version>/<binary>` cache path.
+        """Build the `<root>/<tool>/<version>/<os>_<arch>/<binary>` path.
 
         Args:
             cache_root: Cache root the hook is pointed at.
@@ -86,7 +115,13 @@ class _CachedTool(NamedTuple):
         Returns:
             Path the hook must resolve the pinned tool to.
         """
-        return cache_root / self.tool_dir / version / self.bin_name
+        return (
+            cache_root
+            / self.tool_dir
+            / version
+            / _current_os_arch()
+            / self.bin_name
+        )
 
 
 class _HookWiring(NamedTuple):
@@ -377,13 +412,42 @@ def _run_concurrent_hooks(  # pragma: win32 no cover
     return outputs
 
 
+@pytest.mark.parametrize(
+    ('machine', 'expected_arch'),
+    (
+        pytest.param('x86_64', 'amd64', id='x86_64'),
+        pytest.param('aarch64', 'arm64', id='aarch64'),
+        pytest.param('arm64', 'arm64', id='arm64-native'),
+        pytest.param('armv7l', 'armv7l', id='unmapped-passthrough'),
+    ),
+)
+def test_current_os_arch_matches_bash_mapping(  # pragma: win32 no cover
+    machine: str,
+    expected_arch: str,
+) -> None:
+    """Check `_current_os_arch` mirrors `common::detect_os_arch`'s mapping.
+
+    Uses an injected `machine`, not the host's real one, so every
+    branch runs regardless of which CI arch executes this suite.
+    """
+    assert _current_os_arch(os_name='Linux', machine=machine) == (
+        f'linux_{expected_arch}'
+    )
+
+
 def test_cache_hit_uses_cached_binary(  # pragma: win32 no cover
     tmp_repo: Path,
     cache_dir: Path,
     tmp_path: Path,
 ) -> None:
     """Check a pre-populated cache entry is executed, with no download."""
-    stub = cache_dir / 'tflint' / PINNED_TFLINT_VERSION / 'tflint'
+    stub = (
+        cache_dir
+        / 'tflint'
+        / PINNED_TFLINT_VERSION
+        / _current_os_arch()
+        / 'tflint'
+    )
     _write_stub(stub, 'CACHED_TFLINT')
 
     hook_run = _run_hook(
@@ -411,7 +475,13 @@ def test_strict_mode_prefers_pinned_over_path(  # pragma: win32 no cover
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     _write_stub(sandbox_path_dir / 'tflint', 'LOCAL_TFLINT')
 
-    pinned = cache_dir / 'tflint' / PINNED_TFLINT_VERSION / 'tflint'
+    pinned = (
+        cache_dir
+        / 'tflint'
+        / PINNED_TFLINT_VERSION
+        / _current_os_arch()
+        / 'tflint'
+    )
     _write_stub(pinned, 'PINNED_TFLINT')
 
     hook_run = _run_hook(
@@ -437,7 +507,13 @@ def test_prefer_local_mode_uses_path_binary(  # pragma: win32 no cover
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     _write_stub(sandbox_path_dir / 'tflint', 'LOCAL_TFLINT')
 
-    pinned = cache_dir / 'tflint' / PINNED_TFLINT_VERSION / 'tflint'
+    pinned = (
+        cache_dir
+        / 'tflint'
+        / PINNED_TFLINT_VERSION
+        / _current_os_arch()
+        / 'tflint'
+    )
     _write_stub(pinned, 'PINNED_TFLINT')
 
     hook_run = _run_hook(
@@ -526,7 +602,13 @@ def test_rejects_invalid_tool_version_mode(  # pragma: win32 no cover
     """
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     _write_stub(sandbox_path_dir / 'tflint', 'LOCAL_TFLINT')
-    pinned = cache_dir / 'tflint' / PINNED_TFLINT_VERSION / 'tflint'
+    pinned = (
+        cache_dir
+        / 'tflint'
+        / PINNED_TFLINT_VERSION
+        / _current_os_arch()
+        / 'tflint'
+    )
     _write_stub(pinned, 'PINNED_TFLINT')
 
     hook_run = _run_hook(
@@ -780,6 +862,14 @@ _WIRED_HOOKS = (
     ),
     pytest.param(
         _HookWiring(
+            'terraform_wrapper_module_for_each.sh',
+            _CachedTool('hcledit', 'hcledit'),
+            (),
+        ),
+        id='hcledit',
+    ),
+    pytest.param(
+        _HookWiring(
             'terraform_docs.sh',
             _CachedTool('terraform-docs', 'terraform-docs'),
             (),
@@ -868,8 +958,8 @@ def test_hook_wires_its_own_tool_name(  # pragma: win32 no cover
 
     A hook passing a wrong or misspelled tool name to
     `common::resolve_tool_path` would miss the cache entry seeded at
-    `<tool>/<version>/<binary>` and try to download instead, so a cache
-    hit here is what proves the wiring.
+    `<tool>/<version>/<os>_<arch>/<binary>` and try to download instead,
+    so a cache hit here is what proves the wiring.
 
     Args:
         tmp_repo: Temp git repo fixture.
@@ -1043,7 +1133,13 @@ def test_real_download_on_cache_miss(  # pragma: win32 no cover
     combined = hook_run.stdout
     assert DOWNLOAD_MSG in combined, combined
 
-    cached_bin = cache_dir / 'tflint' / PINNED_TFLINT_VERSION / 'tflint'
+    cached_bin = (
+        cache_dir
+        / 'tflint'
+        / PINNED_TFLINT_VERSION
+        / _current_os_arch()
+        / 'tflint'
+    )
     assert os.access(cached_bin, os.X_OK), combined
 
     version_check = subprocess.run(  # noqa: S603
@@ -1055,6 +1151,49 @@ def test_real_download_on_cache_miss(  # pragma: win32 no cover
     )
     assert version_check.returncode == 0, version_check.stderr
     assert PINNED_TFLINT_VERSION in version_check.stdout
+
+    # 2 is tflint's own lint findings on the minimal fixture, not ours.
+    assert hook_run.returncode in {0, 2}, combined
+
+
+@pytest.mark.network
+def test_real_download_beyond_release_page_one(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+) -> None:
+    """Check pinning a version older than GitHub's first `/releases` page.
+
+    Regression test: unpaginated `/releases` only covers the 30 newest,
+    so an older pin used to silently fail with an empty asset URL.
+    """
+    hook_run = _run_hook(
+        'terraform_tflint.sh',
+        [f'--hook-config=--tool-version={OLD_TFLINT_VERSION}'],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), os.environ['PATH']),
+    )
+
+    combined = hook_run.stdout
+    assert DOWNLOAD_MSG in combined, combined
+
+    cached_bin = (
+        cache_dir
+        / 'tflint'
+        / OLD_TFLINT_VERSION
+        / _current_os_arch()
+        / 'tflint'
+    )
+    assert os.access(cached_bin, os.X_OK), combined
+
+    version_check = subprocess.run(  # noqa: S603
+        (str(cached_bin), '--version'),
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=VERSION_CHECK_TIMEOUT_SECONDS,
+    )
+    assert version_check.returncode == 0, version_check.stderr
+    assert OLD_TFLINT_VERSION in version_check.stdout
 
     # 2 is tflint's own lint findings on the minimal fixture, not ours.
     assert hook_run.returncode in {0, 2}, combined
@@ -1090,7 +1229,13 @@ def test_concurrent_cache_miss_is_race_free(  # pragma: win32 no cover
         env=_hook_env(_pct_cache_env(cache_dir), os.environ['PATH']),
     )
 
-    cached_bin = cache_dir / 'tflint' / PINNED_TFLINT_VERSION / 'tflint'
+    cached_bin = (
+        cache_dir
+        / 'tflint'
+        / PINNED_TFLINT_VERSION
+        / _current_os_arch()
+        / 'tflint'
+    )
     assert os.access(cached_bin, os.X_OK), outputs
 
     version_check = subprocess.run(  # noqa: S603
@@ -1104,6 +1249,11 @@ def test_concurrent_cache_miss_is_race_free(  # pragma: win32 no cover
     assert PINNED_TFLINT_VERSION in version_check.stdout
 
     # Every staging dir is cleaned up whether its process won the race
-    # or lost it - none left behind regardless of outcome.
-    leftovers = list((cache_dir / 'tflint').glob(f'{PINNED_TFLINT_VERSION}.*'))
+    # or lost it - none left behind regardless of outcome. Now a
+    # sibling inside the version dir, not the tool dir (os_arch added).
+    leftovers = list(
+        (cache_dir / 'tflint' / PINNED_TFLINT_VERSION).glob(
+            f'{_current_os_arch()}.*',
+        ),
+    )
     assert not leftovers, outputs

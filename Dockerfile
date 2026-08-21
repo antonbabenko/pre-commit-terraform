@@ -116,6 +116,8 @@ RUN apk add --no-cache \
     git=~2 \
     # All hooks deps
     bash=~5 \
+    # needed by tools/install/<tool>.sh for --tool-version downloads
+    curl=~8 \
     # pre-commit-hooks deps: https://github.com/pre-commit/pre-commit-hooks
     musl-dev=~1 \
     gcc=~14 \
