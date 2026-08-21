@@ -58,6 +58,7 @@ jobs:
         context: .
         build-args: |
           INSTALL_ALL=true
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
@@ -65,8 +66,6 @@ jobs:
           ${{ env.IMAGE_REPO }}:latest
         # Fix multi-platform: https://github.com/docker/buildx/issues/1533
         provenance: false
-        secrets: |
-          "github_token=${{ secrets.GITHUB_TOKEN }}"
 
     - name: Build and Push nightly
       if: github.event_name == 'schedule'
@@ -75,11 +74,10 @@ jobs:
         context: .
         build-args: |
           INSTALL_ALL=true
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
           ${{ env.IMAGE_REPO }}:nightly
         # Fix multi-platform: https://github.com/docker/buildx/issues/1533
         provenance: false
-        secrets: |
-          "github_token=${{ secrets.GITHUB_TOKEN }}"
