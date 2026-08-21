@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.109.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.108.1...v1.109.0) (2026-08-21)
+
+
+### Features
+
+* Add ability to download specific tool versions used by hooks. TLDR: add `--hook-config=--tool-version=1.2.3` for pinning wrapped tool version. Works for all tools (even `terraform` and `tofu`) except `checkov` ([#1002](https://github.com/antonbabenko/pre-commit-terraform/issues/1002)) ([f707bc5](https://github.com/antonbabenko/pre-commit-terraform/commit/f707bc50da53f02eda5a978a36ab49a719c2d463))
+
 ## [1.108.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.108.0...v1.108.1) (2026-07-24)
 
 
