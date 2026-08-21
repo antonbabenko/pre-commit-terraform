@@ -65,6 +65,8 @@ RUN if [ "$INSTALL_ALL" != "false" ]; then \
         echo "TRIVY_VERSION=latest"          >> /.env \
     ; fi
 
+# DL3064 - empty default; real value passed via --build-arg, never hardcoded
+# hadolint ignore=DL3064
 ARG GITHUB_TOKEN=${GITHUB_TOKEN:-""}
 
 # Docker `RUN`s shouldn't be consolidated here
@@ -154,6 +156,8 @@ COPY tools/entrypoint.sh /entrypoint.sh
 
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
+# DL3064 - empty default; real value passed via `-e` at runtime, never hardcoded
+# hadolint ignore=DL3064
 ENV INFRACOST_API_KEY=${INFRACOST_API_KEY:-}
 ENV INFRACOST_SKIP_UPDATE_CHECK=${INFRACOST_SKIP_UPDATE_CHECK:-false}
 
