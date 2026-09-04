@@ -516,7 +516,7 @@ Neither Renovate's built-in [`pre-commit` manager](https://docs.renovatebot.com/
   customManagers: [
     { // Enable https://github.com/antonbabenko/pre-commit-terraform tool updates
       customType: "regex",
-      managerFilePatterns: ["/(\\.pre-commit-config\\.ya?ml|prek\\.toml)$/"],
+      managerFilePatterns: ["^(\\.pre-commit-config\\.ya?ml|prek\\.toml)$"],
       matchStrings: [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)[\\s\\S]*?--hook-config=--tool-version=(?<currentValue>[^\\s\"']+)",
       ],
