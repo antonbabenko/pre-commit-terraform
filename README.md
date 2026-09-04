@@ -1222,6 +1222,13 @@ If the generated name is incorrect, set them by providing the `module-repo-short
 2. Use the `--args=--verbose` parameter to see the rule ID in the scanning output. Useful to skip validations.
 3. Use `--skip-rules="ruleID1,ruleID2"` parameter to skip one or more rules globally while scanning (e.g.: `--args=--skip-rules="ruleID1,ruleID2"`).
 4. Use the syntax `#ts:skip=RuleID optional_comment` inside a resource to skip the rule for that resource.
+5. To use a config file shared across multiple directories, use the `__GIT_WORKING_DIR__` placeholder (see [Usage of `__GIT_WORKING_DIR__` placeholder in `--args`](#all-hooks-usage-of-__git_working_dir__-placeholder-in---args)). This resolves the "config file doesn't exist" error some users hit when the hook runs from a subdirectory:
+
+    ```yaml
+    - id: terrascan
+      args:
+        - --args=-c __GIT_WORKING_DIR__/.terrascan.toml
+    ```
 
 ### tfupdate
 
