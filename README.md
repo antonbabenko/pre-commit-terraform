@@ -514,7 +514,7 @@ Neither Renovate's built-in [`pre-commit` manager](https://docs.renovatebot.com/
 ```json5
 {
   customManagers: [
-    { // Enable https://gihub.com/antonbabenko/pre-commit-terraform tool updates
+    { // Enable https://github.com/antonbabenko/pre-commit-terraform tool updates
       customType: "regex",
       managerFilePatterns: ["/\\.pre-commit-config\\.ya?ml$|prek\\.toml$/"],
       matchStrings: [
