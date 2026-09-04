@@ -17,6 +17,11 @@ MANIFEST_PATH = Path(__file__).resolve().parents[2] / '.pre-commit-hooks.yaml'
         pytest.param('main.tf.json', True, id='terraform-json'),
         pytest.param('main.tofu.json', True, id='opentofu-json'),
         pytest.param('values.tfvars', True, id='terraform-variables'),
+        pytest.param(
+            'values.tfvars.json',
+            True,
+            id='terraform-variables-json',
+        ),
         pytest.param('.terraform.lock.hcl', True, id='terraform-lock'),
         pytest.param('README.md', False, id='markdown'),
         pytest.param('main.txt', False, id='text'),
@@ -33,6 +38,11 @@ MANIFEST_PATH = Path(__file__).resolve().parents[2] / '.pre-commit-hooks.yaml'
             'main.tfaxjson',
             False,
             id='terraform-wildcard-near-miss',
+        ),
+        pytest.param(
+            'values.tfvarsxjson',
+            False,
+            id='terraform-variables-json-near-miss',
         ),
     ),
 )
