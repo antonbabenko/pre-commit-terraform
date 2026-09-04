@@ -497,6 +497,11 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
 #### Keeping pinned versions up-to-date using Renovate
 
+> [!TIP]
+> TL;DR: [Real-life usage example](https://github.com/pre-commit-terraform/test_renovate_updates_--tool-version).
+> Or you can just use [SpotOnInc/renovate-config](https://github.com/SpotOnInc/renovate-config).
+
+
 Neither Renovate's built-in [`pre-commit` manager](https://docs.renovatebot.com/modules/manager/pre-commit/) (which only understands `repo:`/`rev:` and `additional_dependencies` for Go/Node/Python) nor its `dockerfileVersions` preset can "look" inside hook's `args:`, so the `--tool-version` pin needs its own [`customManagers`](https://docs.renovatebot.com/modules/manager/regex/) entry in your own `renovate.json5` config file, using the same `# renovate: datasource=... depName=...` annotation convention commonly used for Dockerfile `ARG *_VERSION` pins:
 
 ```yaml
@@ -509,11 +514,11 @@ Neither Renovate's built-in [`pre-commit` manager](https://docs.renovatebot.com/
 ```json5
 {
   customManagers: [
-    {
+    { // Enable https://gihub.com/antonbabenko/pre-commit-terraform tool updates
       customType: "regex",
-      managerFilePatterns: ["/\\.pre-commit-config\\.ya?ml$/"],
+      managerFilePatterns: ["/\\.pre-commit-config\\.ya?ml$|prek\\.toml$/"],
       matchStrings: [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+-\\s+--hook-config=--tool-version=(?<currentValue>\\S+)",
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)[\\s\\S]*?--hook-config=--tool-version=(?<currentValue>[^\\s\"']+)",
       ],
     },
   ],
