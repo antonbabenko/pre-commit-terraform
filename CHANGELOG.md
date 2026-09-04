@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.109.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.109.0...v1.109.1) (2026-09-04)
+
+
+### Bug Fixes
+
+* **`terraform_validate`:** Run hook when TF configuration in `.json` files changed ([#1014](https://github.com/antonbabenko/pre-commit-terraform/issues/1014)) ([a5cfc3e](https://github.com/antonbabenko/pre-commit-terraform/commit/a5cfc3e62bb29db600a0e08a648cecb6710468df))
+
 # [1.109.0](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.108.1...v1.109.0) (2026-08-21)
 
 
