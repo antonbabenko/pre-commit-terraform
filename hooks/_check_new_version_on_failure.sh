@@ -44,10 +44,15 @@ function _check_new_version_on_failure {
   if [[ -f $time_cache_file ]]; then
     local cached_time
     cached_time=$(< "$time_cache_file")
-    local -r age_seconds=$(($(date +%s) - cached_time))
-    if [[ $age_seconds -lt 604800 ]]; then
-      cache_is_fresh=true
-      [[ -f $tags_cache_file ]] && known_tags=$(< "$tags_cache_file")
+    # A torn/partial write can leave a malformed or empty timestamp, so validate first
+    if [[ $cached_time =~ ^[0-9]+$ ]]; then
+      local -r age_seconds=$(($(date +%s) - cached_time))
+      # Negative age = a bogus future-dated timestamp (e.g. clock skew
+      # or the same corruption above) - never treat that as fresh.
+      if [[ $age_seconds -ge 0 ]] && [[ $age_seconds -lt 604800 ]]; then
+        cache_is_fresh=true
+        [[ -f $tags_cache_file ]] && known_tags=$(< "$tags_cache_file")
+      fi
     fi
   fi
 

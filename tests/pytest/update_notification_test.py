@@ -534,6 +534,88 @@ def test_pct_skip_update_check_set_skips_check(  # pragma: win32 no cover
     assert hook_run.returncode != 0, combined
 
 
+def test_corrupted_timestamp_treated_as_stale(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check a malformed cached timestamp is treated as absent, not fatal.
+
+    No file locking (see design.md) means a torn/partial write can
+    leave `.last_update_check_time` holding garbage instead of a plain
+    integer. Feeding that straight into bash arithmetic either
+    silently becomes 0 or raises an expression error depending on
+    exactly what landed there - neither of which this cache should
+    ever trust. A real attempt must still happen (and correct the
+    cache going forward), not silently break the check forever.
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    time_cache_file = cache_dir / '.last_update_check_time'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
+    time_cache_file.write_text('12345corrupted', encoding='utf-8')
+
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+
+    combined = hook_run.stdout
+    assert UNTAGGED_MSG in combined, combined
+    assert AUTOUPDATE_MSG in combined, combined
+
+    # The real attempt corrects the cache going forward - a clean,
+    # current timestamp, not the garbage that was there before.
+    new_timestamp = _read_cache_timestamp(time_cache_file)
+    assert new_timestamp > int(time.time()) - _SECONDS_PER_HOUR
+    assert hook_run.returncode != 0, combined
+
+
+def test_future_timestamp_treated_as_stale(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check a bogus future-dated timestamp is treated as stale, not fresh.
+
+    A well-formed but future timestamp (clock skew, or the same kind
+    of corruption as a malformed one) would otherwise compute a
+    negative age - satisfying `age < 7 days` and getting treated as
+    "fresh" forever, permanently suppressing real checks.
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    time_cache_file = cache_dir / '.last_update_check_time'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
+    future_time = int(time.time()) + _SECONDS_PER_DAY
+    time_cache_file.write_text(str(future_time), encoding='utf-8')
+
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+
+    combined = hook_run.stdout
+    assert UNTAGGED_MSG in combined, combined
+    assert AUTOUPDATE_MSG in combined, combined
+
+    new_timestamp = _read_cache_timestamp(time_cache_file)
+    assert new_timestamp <= int(time.time())
+    assert hook_run.returncode != 0, combined
+
+
 def test_stale_cache_outdated_tag_nag(  # pragma: win32 no cover
     tmp_repo: Path,
     cache_dir: Path,
