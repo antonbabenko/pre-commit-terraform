@@ -148,6 +148,7 @@ _SANDBOX_REQUIRED_TOOLS = (
     'mktemp',
     'rm',
     'sed',
+    'sleep',
     'sort',
     'tail',
     'tr',

@@ -38,6 +38,11 @@ BASH = shutil.which('bash') or 'bash'
 
 _SECONDS_PER_HOUR = 3600
 _SECONDS_PER_DAY = 86400
+# Generous upper bound (vs. the ~3s the watchdog itself targets): catches
+# a broken watchdog without flaking on a loaded CI box, while still being
+# far short of the hung call's real 60s / the 30s subprocess timeout
+# either would hit if the watchdog never fired at all.
+_WATCHDOG_BOUND_SECONDS = 10
 
 # Diagnostic messages emitted via `common::colorify` calls in
 # `hooks/_check_new_version_on_failure.sh`.
@@ -96,6 +101,9 @@ class _GitDispatcherStub:
             '\n'
             'if [[ "$1" == "ls-remote" ]]; then\n'
             '  # Intercept ls-remote calls\n'
+            '  if [[ -f "${0}.ls-remote-hang" ]]; then\n'
+            '    sleep 60\n'
+            '  fi\n'
             '  if [[ -f "${0}.ls-remote-output" ]]; then\n'
             '    cat "${0}.ls-remote-output"\n'
             '    if [[ -f "${0}.ls-remote-exitcode" ]]; then\n'
@@ -148,6 +156,15 @@ class _GitDispatcherStub:
             str(exit_code),
             encoding='utf-8',
         )
+
+    def set_ls_remote_hang(self) -> None:  # pragma: win32 no cover
+        """Make the canned `ls-remote` call hang instead of returning.
+
+        Used to prove the watchdog actually bounds a stalled query,
+        rather than a canned instant exit code that never exercises it.
+        """
+        stub_dir, stub_name = self.stub_path.parent, self.stub_path.name
+        (stub_dir / f'{stub_name}.ls-remote-hang').touch()
 
     def set_current_sha(self, sha: str) -> None:  # pragma: win32 no cover
         """Configure the canned sha for the hook checkout's own `HEAD`.
@@ -213,6 +230,7 @@ def _sandbox_path_dir(base: Path) -> Path:  # pragma: win32 no cover
         'mktemp',
         'rm',
         'sed',
+        'sleep',
         'sort',
         'tail',
         'tr',
@@ -730,6 +748,43 @@ def test_network_failure_preserves_cached_latest(  # pragma: win32 no cover
     assert (
         tags_cache_file.read_text(encoding='utf-8') == previously_cached_tags
     )
+
+
+def test_network_query_bounded_by_watchdog(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check a hung `ls-remote` gets killed by the watchdog within ~3s.
+
+    Proves the portable watchdog (no `timeout` dependency) actually
+    bounds a stalled query, rather than merely asserting the exit-code
+    branch it *would* take on a real timeout - a canned instant exit
+    code would never exercise the watchdog at all, exactly the gap that
+    let a missing `sleep` on the sandboxed `PATH` silently disable it.
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_hang()
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    start = time.monotonic()
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+    elapsed = time.monotonic() - start
+
+    combined = hook_run.stdout
+    assert TIMEOUT_MSG in combined, combined
+    assert SKIP_SUGGESTION_MSG in combined, combined
+    assert elapsed < _WATCHDOG_BOUND_SECONDS, (
+        f'took {elapsed:.1f}s, watchdog should bound to ~3s'
+    )
+    assert hook_run.returncode != 0, combined
 
 
 def test_fresh_cache_still_nags_when_outdated(  # pragma: win32 no cover

@@ -63,7 +63,14 @@ function _check_new_version_on_failure {
     (
       sleep 3
       kill -9 "$git_pid" 2> /dev/null || true
-    ) &
+      # Redirected above: if `sleep`'s own child process outlives the
+      # `kill` sent to this subshell below (SIGTERM to a foreground
+      # `sleep` orphans it rather than propagating), an inherited copy
+      # of the caller's stdout/stderr pipe would otherwise stay open -
+      # and callers reading that pipe until EOF (e.g. Python's
+      # `subprocess.communicate`) would block for the orphan's full
+      # remaining sleep, not just until `git` actually finishes.
+    ) > /dev/null 2>&1 &
     local watchdog_pid=$!
 
     local exit_code=0
@@ -121,5 +128,11 @@ function _check_new_version_on_failure {
   common::colorify "yellow" 'Run "pre-commit autoupdate --freeze" (or "prek update --freeze") to upgrade.'
 }
 
-# Check for update only on hooks failure
-trap '[[ $? -ne 0 ]] && _check_new_version_on_failure' EXIT
+# Check for update only on hooks failure. `errexit` is disabled around
+# the call and the original pending status is captured/re-exited
+# explicitly - otherwise any unguarded failure inside the checker
+# itself (e.g. an unwritable cache dir) would, under `set -e`, replace
+# the hook's real exit code with the checker's own failure instead of
+# just being a best-effort, non-fatal notice.
+# shellcheck disable=SC2154 # False positive: assigned inside the trap string itself
+trap '_pct_update_check_exit_code=$?; [[ $_pct_update_check_exit_code -ne 0 ]] && { set +e; _check_new_version_on_failure; set -e; }; exit $_pct_update_check_exit_code' EXIT
