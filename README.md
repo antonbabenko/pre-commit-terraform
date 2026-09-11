@@ -447,6 +447,11 @@ To skip the check set one of:
 * `CI=true` (most CI systems already export this automatically).
 * `PCT_SKIP_UPDATE_CHECK=true` to disable it everywhere, including locally.
 
+    ```bash
+    # Skip the check for this run (or export it in CI)
+    PCT_SKIP_UPDATE_CHECK=true pre-commit run -a
+    ```
+
 How it works:
 
 1. The check only runs when a hook is about to fail for its own reasons - a clean run stays completely silent, no matter how outdated your pin is.
@@ -455,11 +460,6 @@ How it works:
 4. The remote query itself - one read-only `git ls-remote` against this repo, no data about your code or repository sent anywhere - is rate-limited to once per 7 days. Within that window, a still-outdated pin keeps nagging on every failing run from the cached result, at no extra network cost.
 5. The check never fails or meaningfully slows down your commit: the remote query is capped at 3 seconds, and if it can't reach GitHub (offline, firewalled CI runner, etc.) it prints a short notice and moves on - the hook's own exit code is unaffected either way.
 6. The last-checked timestamp and the upstream tag list from that check are cached as two files, `.last_update_check_time` and `.last_update_check_tags`, under the same cache root used for [pinned tool versions](#most-hooks-pin-a-specific-tool-version) (`PCT_TOOL_CACHE_DIR`, or `$XDG_CACHE_HOME`/`$HOME/.cache` + `pre-commit-terraform`) - see [Mount tools cache directory](#mount-tools-cache-directory) if you also want this to persist across Docker runs.
-
-```bash
-# Skip the check for this run (or export it in CI)
-PCT_SKIP_UPDATE_CHECK=true pre-commit run -a
-```
 
 ### Most hooks: Pin a specific tool version
 
