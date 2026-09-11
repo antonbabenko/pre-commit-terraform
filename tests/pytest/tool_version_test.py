@@ -177,9 +177,6 @@ _SANDBOX_OPTIONAL_TOOLS = (
     'sysctl',
     'tar',
     'tee',
-    # Not on stock macOS (needs GNU coreutils); these tests always set
-    # `PCT_SKIP_UPDATE_CHECK=true` so they never actually invoke it.
-    'timeout',
     'touch',
     'uniq',
     'unzip',
