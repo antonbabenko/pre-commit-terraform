@@ -1,8 +1,8 @@
 """Black-box tests for the update notification feature.
 
-Tests the `common::maybe_notify_new_version` function added to
-`hooks/_common.sh`. Every test invokes a real hook script as a subprocess
-and asserts on its
+Tests the `_check_new_version_on_failure` function in
+`hooks/_check_new_version_on_failure.sh`. Every test invokes a real hook
+script as a subprocess and asserts on its
 output, exit code, and cache directory state - never on bash-internal
 function names.
 
@@ -39,7 +39,8 @@ BASH = shutil.which('bash') or 'bash'
 _SECONDS_PER_HOUR = 3600
 _SECONDS_PER_DAY = 86400
 
-# Diagnostic messages emitted by `common::colorify` in `hooks/_common.sh`.
+# Diagnostic messages emitted via `common::colorify` calls in
+# `hooks/_check_new_version_on_failure.sh`.
 OUTDATED_MSG = 'is outdated; latest is'
 UNTAGGED_MSG = 'pinned to a non-release commit; latest release is'
 # Quote-character-agnostic on purpose: `common::colorify` messages have
@@ -50,7 +51,9 @@ AUTOUPDATE_MSG = 'pre-commit autoupdate --freeze'
 PREK_UPDATE_MSG = 'prek update --freeze'
 TIMEOUT_MSG = 'Update check timed out.'
 FAILED_MSG = 'Update check failed'
-SKIP_SUGGESTION_MSG = 'Set CI=true or PCT_SKIP_UPDATE_CHECK=true to skip.'
+SKIP_SUGGESTION_MSG = (
+    'Set CI=true or PCT_SKIP_UPDATE_CHECK=true to never check for updates.'
+)
 
 HOOK_TIMEOUT_SECONDS = 30
 
@@ -74,7 +77,7 @@ class _GitDispatcherStub:
     tag query fully deterministic and network-free.
     """
 
-    def __init__(self, tmp_path: Path) -> None:
+    def __init__(self, tmp_path: Path) -> None:  # pragma: win32 no cover
         """Create a dispatcher stub directory.
 
         Args:
@@ -116,7 +119,11 @@ class _GitDispatcherStub:
         real_git_dir = self.stub_dir / 'real-git'
         real_git_dir.symlink_to(GIT)
 
-    def set_ls_remote_output(self, output: str, exit_code: int = 0) -> None:
+    def set_ls_remote_output(  # pragma: win32 no cover
+        self,
+        output: str,
+        exit_code: int = 0,
+    ) -> None:
         """Configure the canned `ls-remote` output and exit code.
 
         Args:
@@ -134,7 +141,7 @@ class _GitDispatcherStub:
         )
 
     @property
-    def path_entry(self) -> str:
+    def path_entry(self) -> str:  # pragma: win32 no cover
         """The directory path to prepend to `PATH`."""
         return str(self.stub_dir)
 
@@ -150,7 +157,9 @@ def _write_stub(path: Path, marker: str) -> None:  # pragma: win32 no cover
     path.chmod(path.stat().st_mode | exec_bits)
 
 
-def _create_terraform_stub(dispatcher: _GitDispatcherStub) -> None:
+def _create_terraform_stub(  # pragma: win32 no cover
+    dispatcher: _GitDispatcherStub,
+) -> None:
     """Create a terraform stub in the dispatcher directory.
 
     The stub will be found before any real terraform in PATH,
@@ -281,6 +290,17 @@ def _pct_cache_env(  # pragma: win32 no cover
     return {'PCT_TOOL_CACHE_DIR': str(cache_dir)}
 
 
+def _read_cache_timestamp(  # pragma: win32 no cover
+    time_cache_file: Path,
+) -> int:
+    """Read the cached timestamp from `.last_update_check_time`.
+
+    Returns:
+        The cached timestamp as an int.
+    """
+    return int(time_cache_file.read_text(encoding='utf-8').strip())
+
+
 @pytest.fixture
 def tmp_repo(tmp_path: Path) -> Path:  # pragma: win32 no cover
     """Create a minimal git repo with one tracked, provider-free `.tf` file.
@@ -379,12 +399,17 @@ def test_ci_set_skips_check(  # pragma: win32 no cover
     cache_dir: Path,
     tmp_path: Path,
 ) -> None:
-    """Check `$CI` set → no network attempt, cache file untouched."""
+    """Check `$CI` set → no network attempt, cache file untouched.
+
+    The check only runs at all once the hook itself is about to exit
+    non-zero (`trap ... EXIT` in `hooks/_common.sh`), so no terraform
+    stub is installed here - the hook fails on its own (missing
+    terraform/tofu), which is what arms the check in the first place;
+    `$CI` must then still suppress it from there.
+    """
     dispatcher = _GitDispatcherStub(tmp_path)
     dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
-    _create_terraform_stub(dispatcher)
 
-    # Create a sandboxed PATH with the dispatcher first
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
 
@@ -406,12 +431,19 @@ def test_ci_set_skips_check(  # pragma: win32 no cover
     assert TIMEOUT_MSG not in combined, combined
     assert FAILED_MSG not in combined, combined
 
-    # Cache file should not exist (check was skipped without attempt)
-    cache_file = cache_dir / '.last_update_check'
-    assert not cache_file.exists(), f'Cache file missing check: {cache_file}'
+    # Cache files should not exist (check was skipped without attempt)
+    time_cache_file = cache_dir / '.last_update_check_time'
+    tags_cache_file = cache_dir / '.last_update_check_tags'
+    assert not time_cache_file.exists(), (
+        f'Cache file missing check: {time_cache_file}'
+    )
+    assert not tags_cache_file.exists(), (
+        f'Cache file missing check: {tags_cache_file}'
+    )
 
-    # Hook should still run its real work
-    assert hook_run.returncode == 0, combined
+    # Hook fails on its own (no terraform/tofu) - that failure is what
+    # arms the trap; $CI must suppress the check regardless.
+    assert hook_run.returncode != 0, combined
 
 
 def test_pct_skip_update_check_set_skips_check(  # pragma: win32 no cover
@@ -419,10 +451,14 @@ def test_pct_skip_update_check_set_skips_check(  # pragma: win32 no cover
     cache_dir: Path,
     tmp_path: Path,
 ) -> None:
-    """Check `$PCT_SKIP_UPDATE_CHECK` set → no attempt, cache untouched."""
+    """Check `$PCT_SKIP_UPDATE_CHECK` set → no attempt, cache untouched.
+
+    No terraform stub: the hook must fail on its own to arm the trap in
+    the first place, and `$PCT_SKIP_UPDATE_CHECK` must then still
+    suppress the check from there.
+    """
     dispatcher = _GitDispatcherStub(tmp_path)
     dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
-    _create_terraform_stub(dispatcher)
 
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
@@ -445,47 +481,15 @@ def test_pct_skip_update_check_set_skips_check(  # pragma: win32 no cover
     assert TIMEOUT_MSG not in combined, combined
     assert FAILED_MSG not in combined, combined
 
-    cache_file = cache_dir / '.last_update_check'
-    assert not cache_file.exists(), f'Cache file missing check: {cache_file}'
-    assert hook_run.returncode == 0, combined
-
-
-def test_fresh_cache_skips_check(  # pragma: win32 no cover
-    tmp_repo: Path,
-    cache_dir: Path,
-    tmp_path: Path,
-) -> None:
-    """Check fresh cache file (< 7 days old) → no network attempt."""
-    dispatcher = _GitDispatcherStub(tmp_path)
-    dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
-    _create_terraform_stub(dispatcher)
-
-    sandbox_path_dir = _sandbox_path_dir(tmp_path)
-    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
-
-    # Create a fresh cache file (1 hour old)
-    cache_file = cache_dir / '.last_update_check'
-    cache_file.parent.mkdir(parents=True, exist_ok=True)
-    one_hour_ago = int(time.time()) - _SECONDS_PER_HOUR
-    cache_file.write_text(str(one_hour_ago), encoding='utf-8')
-
-    hook_run = _run_hook(
-        'terraform_fmt.sh',
-        [],
-        cwd=tmp_repo,
-        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    time_cache_file = cache_dir / '.last_update_check_time'
+    tags_cache_file = cache_dir / '.last_update_check_tags'
+    assert not time_cache_file.exists(), (
+        f'Cache file missing check: {time_cache_file}'
     )
-
-    combined = hook_run.stdout
-    assert OUTDATED_MSG not in combined, combined
-    assert UNTAGGED_MSG not in combined, combined
-    assert AUTOUPDATE_MSG not in combined, combined
-    assert TIMEOUT_MSG not in combined, combined
-    assert FAILED_MSG not in combined, combined
-
-    # Cache file should still contain the original timestamp (not updated)
-    assert cache_file.read_text(encoding='utf-8') == str(one_hour_ago)
-    assert hook_run.returncode == 0, combined
+    assert not tags_cache_file.exists(), (
+        f'Cache file missing check: {tags_cache_file}'
+    )
+    assert hook_run.returncode != 0, combined
 
 
 def test_stale_cache_outdated_tag_nag(  # pragma: win32 no cover
@@ -493,9 +497,12 @@ def test_stale_cache_outdated_tag_nag(  # pragma: win32 no cover
     cache_dir: Path,
     tmp_path: Path,
 ) -> None:
-    """Check stale cache + pinned tag older than latest → nag printed."""
+    """Check stale cache + pinned tag older than latest → nag printed.
+
+    No terraform stub: the check only runs once the hook is about to
+    exit non-zero, so the hook is left to fail on its own.
+    """
     dispatcher = _GitDispatcherStub(tmp_path)
-    _create_terraform_stub(dispatcher)
 
     # Create empty commit and get its SHA
     subprocess.run(  # noqa: S603
@@ -530,10 +537,10 @@ def test_stale_cache_outdated_tag_nag(  # pragma: win32 no cover
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
 
     # Create a stale cache file (8 days old)
-    cache_file = cache_dir / '.last_update_check'
-    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    time_cache_file = cache_dir / '.last_update_check_time'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
     eight_days_ago = int(time.time()) - (8 * _SECONDS_PER_DAY)
-    cache_file.write_text(str(eight_days_ago), encoding='utf-8')
+    time_cache_file.write_text(str(eight_days_ago), encoding='utf-8')
 
     hook_run = _run_hook(
         'terraform_fmt.sh',
@@ -550,9 +557,9 @@ def test_stale_cache_outdated_tag_nag(  # pragma: win32 no cover
     assert 'v1.4.0' in combined, combined
 
     # Cache file should be updated to now (or very recent)
-    new_timestamp = int(cache_file.read_text(encoding='utf-8'))
+    new_timestamp = _read_cache_timestamp(time_cache_file)
     assert new_timestamp > eight_days_ago
-    assert hook_run.returncode == 0, combined
+    assert hook_run.returncode != 0, combined
 
 
 def test_stale_cache_untagged_nag(  # pragma: win32 no cover
@@ -560,19 +567,22 @@ def test_stale_cache_untagged_nag(  # pragma: win32 no cover
     cache_dir: Path,
     tmp_path: Path,
 ) -> None:
-    """Check stale/absent cache + HEAD matches no tag → nag printed."""
+    """Check stale/absent cache + HEAD matches no tag → nag printed.
+
+    No terraform stub: the hook fails on its own, which is what arms
+    the check in the first place.
+    """
     dispatcher = _GitDispatcherStub(tmp_path)
     dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
-    _create_terraform_stub(dispatcher)
 
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
 
     # Create a stale cache file (8 days old)
-    cache_file = cache_dir / '.last_update_check'
-    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    time_cache_file = cache_dir / '.last_update_check_time'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
     eight_days_ago = int(time.time()) - (8 * _SECONDS_PER_DAY)
-    cache_file.write_text(str(eight_days_ago), encoding='utf-8')
+    time_cache_file.write_text(str(eight_days_ago), encoding='utf-8')
 
     hook_run = _run_hook(
         'terraform_fmt.sh',
@@ -588,9 +598,9 @@ def test_stale_cache_untagged_nag(  # pragma: win32 no cover
     assert 'v1.4.0' in combined, combined  # Latest tag should be mentioned
 
     # Cache file should be updated
-    new_timestamp = int(cache_file.read_text(encoding='utf-8'))
+    new_timestamp = _read_cache_timestamp(time_cache_file)
     assert new_timestamp > eight_days_ago
-    assert hook_run.returncode == 0, combined
+    assert hook_run.returncode != 0, combined
 
 
 def test_stale_cache_up_to_date_silent(  # pragma: win32 no cover
@@ -598,9 +608,13 @@ def test_stale_cache_up_to_date_silent(  # pragma: win32 no cover
     cache_dir: Path,
     tmp_path: Path,
 ) -> None:
-    """Check stale/absent cache + pinned tag equals latest → no output."""
+    """Check stale/absent cache + pinned tag equals latest → no output.
+
+    No terraform stub: the hook still fails (for its own, unrelated
+    reason), which is exactly the point - even on a failing hook, an
+    already-up-to-date pin must stay silent.
+    """
     dispatcher = _GitDispatcherStub(tmp_path)
-    _create_terraform_stub(dispatcher)
 
     # Get current HEAD sha and tag it as v1.4.0 (latest)
     current_sha = subprocess.run(  # noqa: S603
@@ -629,10 +643,10 @@ def test_stale_cache_up_to_date_silent(  # pragma: win32 no cover
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
 
     # Create a stale cache file (8 days old)
-    cache_file = cache_dir / '.last_update_check'
-    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    time_cache_file = cache_dir / '.last_update_check_time'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
     eight_days_ago = int(time.time()) - (8 * _SECONDS_PER_DAY)
-    cache_file.write_text(str(eight_days_ago), encoding='utf-8')
+    time_cache_file.write_text(str(eight_days_ago), encoding='utf-8')
 
     hook_run = _run_hook(
         'terraform_fmt.sh',
@@ -649,9 +663,9 @@ def test_stale_cache_up_to_date_silent(  # pragma: win32 no cover
     assert FAILED_MSG not in combined, combined
 
     # Cache file should still be updated (attempt was made, just silent)
-    new_timestamp = int(cache_file.read_text(encoding='utf-8'))
+    new_timestamp = _read_cache_timestamp(time_cache_file)
     assert new_timestamp > eight_days_ago
-    assert hook_run.returncode == 0, combined
+    assert hook_run.returncode != 0, combined
 
 
 def test_network_failure_warning(  # pragma: win32 no cover
@@ -659,19 +673,22 @@ def test_network_failure_warning(  # pragma: win32 no cover
     cache_dir: Path,
     tmp_path: Path,
 ) -> None:
-    """Check dispatcher stub makes `ls-remote` fail → warn notice printed."""
+    """Check dispatcher stub makes `ls-remote` fail → warn notice printed.
+
+    No terraform stub: the hook fails on its own, arming the check,
+    which then separately fails again over the (simulated) network.
+    """
     dispatcher = _GitDispatcherStub(tmp_path)
     dispatcher.set_ls_remote_output('', exit_code=1)  # Non-zero exit
-    _create_terraform_stub(dispatcher)
 
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
 
     # Create a stale cache file
-    cache_file = cache_dir / '.last_update_check'
-    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    time_cache_file = cache_dir / '.last_update_check_time'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
     eight_days_ago = int(time.time()) - (8 * _SECONDS_PER_DAY)
-    cache_file.write_text(str(eight_days_ago), encoding='utf-8')
+    time_cache_file.write_text(str(eight_days_ago), encoding='utf-8')
 
     hook_run = _run_hook(
         'terraform_fmt.sh',
@@ -686,9 +703,146 @@ def test_network_failure_warning(  # pragma: win32 no cover
     assert 'exit 1' in combined, combined
 
     # Cache file should be updated (attempt was made, even though it failed)
-    new_timestamp = int(cache_file.read_text(encoding='utf-8'))
+    new_timestamp = _read_cache_timestamp(time_cache_file)
     assert new_timestamp > eight_days_ago
-    assert hook_run.returncode == 0, combined  # Hook's own work unaffected
+    # The hook's own (unrelated) failure is what armed the check;
+    # nothing about the check itself adds to or changes that exit code.
+    assert hook_run.returncode != 0, combined
+
+
+def test_network_failure_preserves_cached_latest(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check a failed remote query keeps the previously cached tags.
+
+    Only the timestamp (line 1) advances; the previously cached tag
+    lines must survive a failed attempt untouched, so the fast path
+    can keep using them once the cache goes fresh again.
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_output('', exit_code=1)
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    time_cache_file = cache_dir / '.last_update_check_time'
+    tags_cache_file = cache_dir / '.last_update_check_tags'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
+    eight_days_ago = int(time.time()) - (8 * _SECONDS_PER_DAY)
+    previously_cached_tags = (
+        'cccccccccccccccccccccccccccccccccccccccc\trefs/tags/v1.2.0\n'
+    )
+    time_cache_file.write_text(str(eight_days_ago), encoding='utf-8')
+    tags_cache_file.write_text(previously_cached_tags, encoding='utf-8')
+
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+
+    assert FAILED_MSG in hook_run.stdout, hook_run.stdout
+    assert _read_cache_timestamp(time_cache_file) > eight_days_ago
+    assert (
+        tags_cache_file.read_text(encoding='utf-8') == previously_cached_tags
+    )
+
+
+def test_fresh_cache_still_nags_when_outdated(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check a fresh cache still nags every failing run if still outdated.
+
+    Rate-limiting only throttles the *network query*, not the nag
+    itself: the dispatcher's configured `ls-remote` output claims
+    v9.9.9 is latest, but since the cache is fresh that must never be
+    queried - if this test observes "v9.9.9" anywhere, the fast path
+    incorrectly hit the network instead of using the cached v1.2.0.
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_output(
+        'ffffffffffffffffffffffffffffffffffffffff\trefs/tags/v9.9.9\n',
+    )
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    time_cache_file = cache_dir / '.last_update_check_time'
+    tags_cache_file = cache_dir / '.last_update_check_tags'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
+    one_hour_ago = int(time.time()) - _SECONDS_PER_HOUR
+    stale_sha = 'cccccccccccccccccccccccccccccccccccccccc'
+    stale_tags_line = f'{stale_sha}\trefs/tags/v1.2.0\n'
+    time_cache_file.write_text(str(one_hour_ago), encoding='utf-8')
+    tags_cache_file.write_text(stale_tags_line, encoding='utf-8')
+
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+
+    combined = hook_run.stdout
+    assert UNTAGGED_MSG in combined, combined
+    assert 'v1.2.0' in combined, combined
+    assert 'v9.9.9' not in combined, combined
+
+    # Fast path never touches either cache file.
+    assert time_cache_file.read_text(encoding='utf-8') == str(one_hour_ago)
+    assert tags_cache_file.read_text(encoding='utf-8') == stale_tags_line
+    assert hook_run.returncode != 0, combined
+
+
+def test_fresh_cache_stays_silent_when_matching(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check a fresh cache stays silent when HEAD matches cached latest."""
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_output(
+        'ffffffffffffffffffffffffffffffffffffffff\trefs/tags/v9.9.9\n',
+    )
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    current_sha = subprocess.run(  # noqa: S603
+        (GIT, 'rev-parse', 'HEAD'),
+        cwd=tmp_repo,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+    time_cache_file = cache_dir / '.last_update_check_time'
+    tags_cache_file = cache_dir / '.last_update_check_tags'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
+    one_hour_ago = int(time.time()) - _SECONDS_PER_HOUR
+    time_cache_file.write_text(str(one_hour_ago), encoding='utf-8')
+    tags_cache_file.write_text(
+        f'{current_sha}\trefs/tags/v1.4.0\n',
+        encoding='utf-8',
+    )
+
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+
+    combined = hook_run.stdout
+    assert OUTDATED_MSG not in combined, combined
+    assert UNTAGGED_MSG not in combined, combined
+    assert 'v9.9.9' not in combined, combined
+    assert hook_run.returncode != 0, combined
 
 
 def test_check_at_most_once_per_invocation(  # pragma: win32 no cover
@@ -696,10 +850,14 @@ def test_check_at_most_once_per_invocation(  # pragma: win32 no cover
     cache_dir: Path,
     tmp_path: Path,
 ) -> None:
-    """Check hook invoked across multiple dirs attempts check at most once."""
+    """Check hook invoked across multiple dirs attempts check at most once.
+
+    No terraform stub: the hook fails on its own, which is what arms
+    the `trap ... EXIT` in `hooks/_common.sh` exactly once for the
+    whole invocation - not once per per-dir subshell.
+    """
     dispatcher = _GitDispatcherStub(tmp_path)
     dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
-    _create_terraform_stub(dispatcher)
 
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
@@ -744,10 +902,10 @@ def test_check_at_most_once_per_invocation(  # pragma: win32 no cover
     nag_count = combined.count(UNTAGGED_MSG)
     assert nag_count == 1, f'Nag appeared {nag_count} times, expected 1'
 
-    # Cache file should exist (check was attempted)
-    cache_file = cache_dir / '.last_update_check'
-    assert cache_file.exists()
-    assert multi_dir_run.returncode == 0, combined
+    # Cache files should exist (check was attempted)
+    assert (cache_dir / '.last_update_check_time').exists()
+    assert (cache_dir / '.last_update_check_tags').exists()
+    assert multi_dir_run.returncode != 0, combined
 
 
 def test_check_fires_without_per_dir_hook(  # pragma: win32 no cover
@@ -759,9 +917,10 @@ def test_check_fires_without_per_dir_hook(  # pragma: win32 no cover
 
     `terraform_wrapper_module_for_each.sh` has its own whole-repo flow and
     never calls `common::per_dir_hook` (see `hooks/_common.sh` -
-    `common::maybe_notify_new_version` must run as a top-level statement
-    in `_common.sh` itself, not from inside `common::per_dir_hook`, or
-    this exact hook silently loses coverage). The hook's own tool
+    `_check_new_version_on_failure` must be wired up regardless, via
+    `common::initialize`, not from inside
+    `common::per_dir_hook`, or this exact hook silently loses
+    coverage). The hook's own tool
     (`hcledit`) is deliberately left unstubbed and its exit code is
     deliberately not asserted: only the notice's presence, printed
     before the hook ever reaches its own tool resolution, is under test.
@@ -783,8 +942,8 @@ def test_check_fires_without_per_dir_hook(  # pragma: win32 no cover
     assert UNTAGGED_MSG in combined, combined
     assert AUTOUPDATE_MSG in combined, combined
 
-    cache_file = cache_dir / '.last_update_check'
-    assert cache_file.exists()
+    assert (cache_dir / '.last_update_check_time').exists()
+    assert (cache_dir / '.last_update_check_tags').exists()
 
 
 @pytest.mark.network
@@ -795,32 +954,86 @@ def test_real_network_sanity_check(  # pragma: win32 no cover
 ) -> None:
     """Sanity test hitting the real hardcoded URL.
 
-    Asserts only that the call succeeds and returns parseable
-    `sha<TAB>refs/tags/...` lines - no assertion on a specific version number.
-    """
-    # Create terraform stub for this test
-    # Need dispatcher for stub creation even though not used for network
-    dispatcher = _GitDispatcherStub(tmp_path)
-    _create_terraform_stub(dispatcher)
+    No dispatcher and no terraform stub, deliberately: a dispatcher
+    would intercept `ls-remote` with its own canned/empty response
+    (defeating the point of a *real*-network test) even if never
+    explicitly configured via `set_ls_remote_output`, and a terraform
+    stub would make the hook succeed - which would mean the check,
+    gated on hook failure, never runs at all. `_sandbox_path_dir` alone
+    already includes real `git` (hits real network) and no
+    terraform/tofu (hook fails, arming the check).
 
-    # Use real PATH (no dispatcher) to hit real network, but include stub dir
-    path_with_stub = f'{dispatcher.path_entry}:{os.environ["PATH"]}'
+    Asserts only that the call succeeds and returns parseable
+    `sha<TAB>refs/tags/...` lines - no assertion on a specific version
+    number, which changes over time.
+    """
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
     hook_run = _run_hook(
         'terraform_fmt.sh',
         [],
         cwd=tmp_repo,
-        env=_hook_env(_pct_cache_env(cache_dir), path_with_stub),
+        env=_hook_env(_pct_cache_env(cache_dir), str(sandbox_path_dir)),
     )
 
     combined = hook_run.stdout
 
     # Either the check succeeds (and we might see a nag if outdated/untagged)
     # or it fails with timeout/network error (and we see failure message)
-    # or it's skipped due to fresh cache (first run creates cache)
 
     # Cache file should exist (attempt was made)
-    cache_file = cache_dir / '.last_update_check'
-    assert cache_file.exists()
+    assert (cache_dir / '.last_update_check_time').exists()
+    assert (cache_dir / '.last_update_check_tags').exists()
 
-    # Hook should complete successfully regardless
+    # The hook fails on its own (no terraform/tofu) - that's what arms
+    # the check; nothing about the check itself changes this exit code.
+    assert hook_run.returncode != 0, combined
+
+
+def test_hook_success_skips_check_even_when_outdated(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check a successful hook never runs the check, however outdated.
+
+    Mirror image of every other stale-cache test above: same outdated
+    fixture and stale cache, but this time WITH a terraform stub so the
+    hook succeeds. `_check_new_version_on_failure` only
+    does anything when the hook's own exit code is non-zero, so a
+    successful hook must stay completely silent and leave the
+    cache file untouched - regardless of how outdated the
+    pin actually is.
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
+    _create_terraform_stub(dispatcher)
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    # Stale cache, so the only thing preventing an attempt is the
+    # hook's own success.
+    time_cache_file = cache_dir / '.last_update_check_time'
+    tags_cache_file = cache_dir / '.last_update_check_tags'
+    time_cache_file.parent.mkdir(parents=True, exist_ok=True)
+    eight_days_ago = int(time.time()) - (8 * _SECONDS_PER_DAY)
+    time_cache_file.write_text(str(eight_days_ago), encoding='utf-8')
+
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+
+    combined = hook_run.stdout
+    assert OUTDATED_MSG not in combined, combined
+    assert UNTAGGED_MSG not in combined, combined
+    assert AUTOUPDATE_MSG not in combined, combined
+    assert TIMEOUT_MSG not in combined, combined
+    assert FAILED_MSG not in combined, combined
+
+    # Cache untouched: the check was never even attempted.
+    assert time_cache_file.read_text(encoding='utf-8') == str(eight_days_ago)
+    assert not tags_cache_file.exists()
     assert hook_run.returncode == 0, combined

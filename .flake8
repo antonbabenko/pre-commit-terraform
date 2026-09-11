@@ -98,6 +98,8 @@ per-file-ignores =
     WPS218,
     # WPS402: "Found noqa comments overuse" -- same subprocess.run(# noqa: S603) pattern as tool_version_test.py's tmp_repo fixture, just with a couple more scenario-specific git calls (rev-parse/tag) on top
     WPS402,
+    # WPS118: "Found too long name" -- allow long test function names
+    WPS118,
   # We will not spend time on fixing complexity in deprecated hook
   src/pre_commit_terraform/terraform_docs_replace.py: WPS232
 

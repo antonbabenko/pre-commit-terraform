@@ -273,7 +273,7 @@ def _hook_env(  # pragma: win32 no cover
         # notification: without this, every hook invocation below would
         # also attempt a real `git ls-remote` against GitHub, adding
         # network flakiness/latency here and polluting the `cache_dir`
-        # fixture with an unrelated `.last_update_check` file.
+        # fixture with unrelated `.last_update_check_*` files.
         'PCT_SKIP_UPDATE_CHECK': 'true',
         **cache_env,
     }

@@ -442,14 +442,19 @@ Less verbose log levels will be implemented in [#562](https://github.com/antonba
 
 > All, except deprecated hooks: `checkov`, `terraform_docs_replace`
 
-1. Once a week hooks checks whether the `rev` pinned in your `.pre-commit-config.yaml`/`prek.toml` is behind the latest `pre-commit-terraform` release tag.
-2. The check runs once per hook invocation (not once per changed directory), and is entirely local except for one, read-only `git ls-remote` call against this repo - no data about your code or repository is sent anywhere.
-2. If you're behind, you'll see a one-line notice suggesting update. If you're already on the latest tag, nothing is printed.
-3. Skip the check, in this order of precedence:
-    1. Set `CI=true` (most CI systems already export this automatically).
-    2. Set `PCT_SKIP_UPDATE_CHECK=true` to disable it everywhere, including locally.
-4. The check never fails or meaningfully slows down your commit: the remote query is capped at 3 seconds, and if it can't reach GitHub (offline, firewalled CI runner, etc.) it prints a short notice and moves on - the hook's own exit code is unaffected either way.
-5. The last-checked timestamp is cached at `.last_update_check` under the same cache root used for [pinned tool versions](#most-hooks-pin-a-specific-tool-version) (`PCT_TOOL_CACHE_DIR`, or `$XDG_CACHE_HOME`/`$HOME/.cache` + `pre-commit-terraform`) - see [Mount tools cache directory](#mount-tools-cache-directory) if you also want this to persist across Docker runs.
+To skip the check set one of:
+
+* `CI=true` (most CI systems already export this automatically).
+* `PCT_SKIP_UPDATE_CHECK=true` to disable it everywhere, including locally.
+
+How it works:
+
+1. The check only runs when a hook is about to fail for its own reasons - a clean run stays completely silent, no matter how outdated your pin is.
+2. On a failing run, it checks whether the `rev` pinned in your `.pre-commit-config.yaml`/`prek.toml` is behind the latest `pre-commit-terraform` release tag, at most once per invocation.
+3. If you're behind, you'll see a one-line notice suggesting `pre-commit autoupdate --freeze` (or `prek update --freeze` if you use [prek](https://github.com/j178/prek))
+4. The remote query itself - one read-only `git ls-remote` against this repo, no data about your code or repository sent anywhere - is rate-limited to once per 7 days. Within that window, a still-outdated pin keeps nagging on every failing run from the cached result, at no extra network cost.
+5. The check never fails or meaningfully slows down your commit: the remote query is capped at 3 seconds, and if it can't reach GitHub (offline, firewalled CI runner, etc.) it prints a short notice and moves on - the hook's own exit code is unaffected either way.
+6. The last-checked timestamp and the upstream tag list from that check are cached as two files, `.last_update_check_time` and `.last_update_check_tags`, under the same cache root used for [pinned tool versions](#most-hooks-pin-a-specific-tool-version) (`PCT_TOOL_CACHE_DIR`, or `$XDG_CACHE_HOME`/`$HOME/.cache` + `pre-commit-terraform`) - see [Mount tools cache directory](#mount-tools-cache-directory) if you also want this to persist across Docker runs.
 
 ```bash
 # Skip the check for this run (or export it in CI)
