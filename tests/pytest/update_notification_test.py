@@ -961,7 +961,9 @@ def test_real_network_sanity_check(  # pragma: win32 no cover
     # asserting it unconditionally would flake whenever GitHub is briefly
     # unreachable from CI.
     assert (cache_dir / '.last_update_check_time').exists()
-    if TIMEOUT_MSG not in combined and FAILED_MSG not in combined:
+    if (
+        TIMEOUT_MSG not in combined and FAILED_MSG not in combined
+    ):  # pragma: no cover
         tags_cache_file = cache_dir / '.last_update_check_tags'
         assert tags_cache_file.exists()
         # Parseable `sha<TAB>refs/tags/...` lines, per this test's own

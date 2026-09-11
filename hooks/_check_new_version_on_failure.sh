@@ -50,21 +50,38 @@ function _check_new_version_on_failure {
   # No/stale cache, need to go to network
   #
   if [[ -z $known_tags ]]; then
-    local fresh_output
     # `timeout` isn't guaranteed on every platform (e.g. stock macOS
-    # without GNU coreutils) - skip wrapping with it when absent rather
-    # than failing with a misleading "exit 127" before git even runs.
-    local -a timeout_cmd=()
-    command -v timeout > /dev/null && timeout_cmd=(timeout 3)
+    # without GNU coreutils), so the 3s bound is enforced by hand: run
+    # `git ls-remote` in the background, race it against a `sleep 3`
+    # watchdog, and kill whichever loses. Output goes to a temp file
+    # since a backgrounded command can't be captured with `$(...)`.
+    local fresh_output
+    local tmp_output
+    tmp_output=$(mktemp)
+    git ls-remote --tags --refs --sort=version:refname https://github.com/antonbabenko/pre-commit-terraform > "$tmp_output" 2>&1 &
+    local git_pid=$!
+    (
+      sleep 3
+      kill -9 "$git_pid" 2> /dev/null || true
+    ) &
+    local watchdog_pid=$!
 
-    if fresh_output=$("${timeout_cmd[@]}" git ls-remote --tags --refs --sort=version:refname https://github.com/antonbabenko/pre-commit-terraform 2>&1); then
+    local exit_code=0
+    wait "$git_pid" 2> /dev/null || exit_code=$?
+    kill "$watchdog_pid" 2> /dev/null || true
+    wait "$watchdog_pid" 2> /dev/null || true
+
+    fresh_output=$(< "$tmp_output")
+    rm -f "$tmp_output"
+
+    if [[ $exit_code -eq 0 ]]; then
       known_tags=$fresh_output
       mkdir -p "$cache_root"
       date +%s > "$time_cache_file"
       echo "$known_tags" > "$tags_cache_file"
     else
-      local exit_code=$?
-      if [[ $exit_code -eq 124 ]]; then
+      # 137 = 128 + SIGKILL(9) - the watchdog fired.
+      if [[ $exit_code -eq 137 ]]; then
         common::colorify "yellow" "Update check timed out."
       else
         common::colorify "yellow" "Update check failed (exit ${exit_code})."
