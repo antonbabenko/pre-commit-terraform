@@ -229,7 +229,7 @@ Full list of dependencies and where they are used:
 <!-- (Do not remove html tags here) -->
 * [`pre-commit`](https://pre-commit.com/#install),
   <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
-  <sub><sup>[`git`](https://git-scm.com/downloads),
+  <sub><sup>[`git`](https://git-scm.com/downloads) 2.18+,
   <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
   <sub><sup>Internet connection (on first run),
   <sub><sup>x86_64 or arm64 compatible operating system,
