@@ -170,4 +170,12 @@ function _check_new_version_on_failure {
 # the hook's real exit code with the checker's own failure instead of
 # just being a best-effort, non-fatal notice.
 # shellcheck disable=SC2154 # False positive: assigned inside the trap string itself
-trap '_pct_update_check_exit_code=$?; [[ $_pct_update_check_exit_code -ne 0 ]] && { set +e; _check_new_version_on_failure; set -e; }; exit $_pct_update_check_exit_code' EXIT
+trap '
+  _pct_update_check_exit_code=$?
+  if [[ $_pct_update_check_exit_code -ne 0 ]]; then
+    set +e
+    _check_new_version_on_failure
+    set -e
+  fi
+  exit $_pct_update_check_exit_code
+' EXIT
