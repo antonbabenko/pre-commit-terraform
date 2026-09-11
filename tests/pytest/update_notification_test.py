@@ -231,63 +231,39 @@ def _create_terraform_stub(  # pragma: win32 no cover
 def _sandbox_path_dir(base: Path) -> Path:  # pragma: win32 no cover
     """Build a `PATH` dir with coreutils but no wrapped CLI tool.
 
-    Reuses the same list of required/optional tools as `tool_version_test.py`.
+    Narrower than `tool_version_test.py`'s own list: this file only ever
+    drives `terraform_fmt.sh`/`terraform_wrapper_module_for_each.sh` far
+    enough to hit `_check_new_version_on_failure.sh`, never the
+    `--tool-version` download path or `common::is_hook_run_on_whole_repo`
+    (neither hook defines `run_hook_on_whole_repo`), so this list omits
+    tools those unreached paths would need.
 
     Returns:
         Path to the constructed directory, usable as a `PATH` entry.
     """
-    # Same tool lists as tool_version_test.py
     sandbox_required_tools = (
-        'awk',
-        'basename',
+        'awk',  # _check_new_version_on_failure.sh: tag-pair parsing
         'bash',
-        'cat',
-        'cut',
+        'cat',  # common::get_cpu_num cgroup-v1 fallback
+        'cut',  # common::get_cpu_num cgroup-v2 fallback
         'dirname',
-        'env',
-        'grep',
-        'head',
         'mkdir',
         'mktemp',
-        'pgrep',
+        'pgrep',  # _pct_kill_process_tree
         'rm',
         'sed',
         'sleep',
-        'sort',
+        'sort',  # common::per_dir_hook: dir_paths_unique
         'tail',
-        'tr',
-        'uname',
-        'wc',
         'git',
     )
     sandbox_optional_tools = (
-        'chmod',
-        'cp',
-        'curl',
-        'date',
-        'find',
-        'getopt',
-        'id',
-        'ln',
-        'ls',
-        'mv',
+        'date',  # _check_new_version_on_failure.sh cache timestamps
+        # common::get_cpu_num's cgroup-less host fallback - either or
+        # both may be missing depending on the platform, hence
+        # optional rather than required.
         'nproc',
-        'printf',
-        'readlink',
-        'realpath',
-        'seq',
-        'stat',
         'sysctl',
-        'tar',
-        'tee',
-        # Not on stock macOS (needs GNU coreutils) - the hook itself
-        # already tolerates its absence (`command -v timeout` guard),
-        # so the sandbox must too, not hard-require it.
-        'timeout',
-        'touch',
-        'uniq',
-        'unzip',
-        'xargs',
     )
 
     path_dir = base / 'sandbox-path'
