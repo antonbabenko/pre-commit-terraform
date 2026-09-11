@@ -215,7 +215,6 @@ def _sandbox_path_dir(base: Path) -> Path:  # pragma: win32 no cover
         'sed',
         'sort',
         'tail',
-        'timeout',
         'tr',
         'uname',
         'wc',
@@ -241,6 +240,10 @@ def _sandbox_path_dir(base: Path) -> Path:  # pragma: win32 no cover
         'sysctl',
         'tar',
         'tee',
+        # Not on stock macOS (needs GNU coreutils) - the hook itself
+        # already tolerates its absence (`command -v timeout` guard),
+        # so the sandbox must too, not hard-require it.
+        'timeout',
         'touch',
         'uniq',
         'unzip',
@@ -952,11 +955,19 @@ def test_real_network_sanity_check(  # pragma: win32 no cover
     combined = hook_run.stdout
 
     # Either the check succeeds (and we might see a nag if outdated/untagged)
-    # or it fails with timeout/network error (and we see failure message)
-
-    # Cache file should exist (attempt was made)
+    # or it fails with timeout/network error (and we see failure message) -
+    # the timestamp advances on any real attempt either way, but the tag
+    # cache is only ever written on success (see design.md Decision 3), so
+    # asserting it unconditionally would flake whenever GitHub is briefly
+    # unreachable from CI.
     assert (cache_dir / '.last_update_check_time').exists()
-    assert (cache_dir / '.last_update_check_tags').exists()
+    if TIMEOUT_MSG not in combined and FAILED_MSG not in combined:
+        tags_cache_file = cache_dir / '.last_update_check_tags'
+        assert tags_cache_file.exists()
+        # Parseable `sha<TAB>refs/tags/...` lines, per this test's own
+        # docstring promise.
+        tags_content = tags_cache_file.read_text(encoding='utf-8')
+        assert '\trefs/tags/' in tags_content, tags_content
 
     # The hook fails on its own (no terraform/tofu) - that's what arms
     # the check; nothing about the check itself changes this exit code.
