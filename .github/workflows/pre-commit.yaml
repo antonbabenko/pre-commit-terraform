@@ -38,7 +38,7 @@ jobs:
         curl -L
         https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_amd64
         > shfmt
-        && chmod +x shfmt && mv shfmt /usr/bin/
+        && chmod +x shfmt && sudo mv shfmt /usr/bin/
 
     - name: Install shellcheck
       run: |
