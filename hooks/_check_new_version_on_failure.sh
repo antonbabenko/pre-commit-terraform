@@ -2,6 +2,25 @@
 set -eo pipefail
 
 #######################################################################
+# Kill a process and all of its descendants, children first, so none
+# get orphaned mid-kill. `git ls-remote https://...` spawns a separate
+# remote-helper child (`git remote-https`, confirmed via a real
+# invocation) to do the actual network I/O - killing only the parent
+# PID lets that helper survive and keep running after the hook itself
+# returns.
+# Arguments:
+#   pid (string) PID of the process (and its descendants) to kill
+#######################################################################
+function _pct_kill_process_tree {
+  local -r pid=$1
+  local child
+  for child in $(pgrep -P "$pid" 2> /dev/null); do
+    _pct_kill_process_tree "$child"
+  done
+  kill -9 "$pid" 2> /dev/null || true
+}
+
+#######################################################################
 # Check for newer pre-commit-terraform release and notify if outdated.
 # The remote query is rate-limited to once per 7 days; within that
 # window, an already-known-outdated pin still gets renagged every
@@ -81,7 +100,7 @@ function _check_new_version_on_failure {
     local git_pid=$!
     (
       sleep 3
-      kill -9 "$git_pid" 2> /dev/null || true
+      _pct_kill_process_tree "$git_pid"
       # Redirected above: if `sleep`'s own child process outlives the
       # `kill` sent to this subshell below (SIGTERM to a foreground
       # `sleep` orphans it rather than propagating), an inherited copy

@@ -43,6 +43,9 @@ _SECONDS_PER_DAY = 86400
 # far short of the hung call's real 60s / the 30s subprocess timeout
 # either would hit if the watchdog never fired at all.
 _WATCHDOG_BOUND_SECONDS = 10
+# Grace period for the OS to finish reaping a just-killed process
+# before a liveness check (`os.kill(pid, 0)`) is expected to be honest.
+_PROCESS_REAP_GRACE_SECONDS = 0.2
 
 # Diagnostic messages emitted via `common::colorify` calls in
 # `hooks/_check_new_version_on_failure.sh`.
@@ -102,7 +105,10 @@ class _GitDispatcherStub:
             'if [[ "$1" == "ls-remote" ]]; then\n'
             '  # Intercept ls-remote calls\n'
             '  if [[ -f "${0}.ls-remote-hang" ]]; then\n'
-            '    sleep 60\n'
+            '    # Forked child, mimicking the real remote-helper process\n'
+            '    sleep 60 &\n'
+            '    echo "$!" > "${0}.ls-remote-hang-child-pid"\n'
+            '    wait\n'
             '  fi\n'
             '  if [[ -f "${0}.ls-remote-output" ]]; then\n'
             '    cat "${0}.ls-remote-output"\n'
@@ -162,9 +168,24 @@ class _GitDispatcherStub:
 
         Used to prove the watchdog actually bounds a stalled query,
         rather than a canned instant exit code that never exercises it.
+        The stub forks a child for the hang (see `hung_helper_pid`),
+        mimicking `git`'s own separate remote-helper process.
         """
         stub_dir, stub_name = self.stub_path.parent, self.stub_path.name
         (stub_dir / f'{stub_name}.ls-remote-hang').touch()
+
+    def hung_helper_pid(self) -> int:  # pragma: win32 no cover
+        """Read back the remote-helper child PID a hung call recorded.
+
+        Only valid after `set_ls_remote_hang()` and an actual hung
+        invocation - raises `FileNotFoundError` otherwise.
+
+        Returns:
+            The child's PID.
+        """
+        stub_dir, stub_name = self.stub_path.parent, self.stub_path.name
+        pid_file = stub_dir / f'{stub_name}.ls-remote-hang-child-pid'
+        return int(pid_file.read_text(encoding='utf-8').strip())
 
     def set_current_sha(self, sha: str) -> None:  # pragma: win32 no cover
         """Configure the canned sha for the hook checkout's own `HEAD`.
@@ -228,6 +249,7 @@ def _sandbox_path_dir(base: Path) -> Path:  # pragma: win32 no cover
         'head',
         'mkdir',
         'mktemp',
+        'pgrep',
         'rm',
         'sed',
         'sleep',
@@ -955,6 +977,40 @@ def test_network_query_bounded_by_watchdog(  # pragma: win32 no cover
         f'took {elapsed:.1f}s, watchdog should bound to ~3s'
     )
     assert hook_run.returncode != 0, combined
+
+
+def test_watchdog_kills_remote_helper_child_too(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check the watchdog kills git's remote-helper child, not just git.
+
+    `git ls-remote https://...` spawns a separate remote-helper process
+    (`git remote-https`, confirmed against a real invocation) to do the
+    actual network I/O. Killing only the parent PID lets that helper
+    survive and keep running after the hook returns - the dispatcher
+    stub forks its own child on a hang to mimic this exact shape.
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_hang()
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+
+    assert TIMEOUT_MSG in hook_run.stdout, hook_run.stdout
+
+    helper_pid = dispatcher.hung_helper_pid()
+    time.sleep(_PROCESS_REAP_GRACE_SECONDS)
+    with pytest.raises(ProcessLookupError):
+        os.kill(helper_pid, 0)
 
 
 def test_fresh_cache_still_nags_when_outdated(  # pragma: win32 no cover

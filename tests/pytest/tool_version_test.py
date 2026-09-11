@@ -146,6 +146,7 @@ _SANDBOX_REQUIRED_TOOLS = (
     'head',
     'mkdir',
     'mktemp',
+    'pgrep',
     'rm',
     'sed',
     'sleep',
