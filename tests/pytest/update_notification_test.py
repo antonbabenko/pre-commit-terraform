@@ -667,6 +667,48 @@ def test_stale_cache_up_to_date_silent(  # pragma: win32 no cover
     assert hook_run.returncode != 0, combined
 
 
+def test_annotated_tag_matches_via_peeled_commit(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check an annotated tag's peeled commit OID is what gets matched.
+
+    `git ls-remote --tags` (no `--refs`) returns *two* lines for an
+    annotated tag: the tag *object* OID against the bare ref, and the
+    real commit OID against that same ref suffixed `^{}`. A checkout
+    pinned to the peeled/commit OID must be recognized as up-to-date -
+    matching only the (different) tag-object OID would report every
+    annotated-tag pin as a non-release commit, forever. Fixture values
+    are the real, verified OID pair for antonbabenko/pre-commit-terraform's
+    own `v1.50.0` tag (which is annotated upstream).
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    tag_object_sha = 'd032af694c17201cfcbd4d5ac106dd37926d39f9'
+    peeled_commit_sha = '9b84f70efef7419e53c9526dff2e4a7d6bc9c78d'
+    dispatcher.set_ls_remote_output(
+        f'{tag_object_sha}\trefs/tags/v1.50.0\n'
+        f'{peeled_commit_sha}\trefs/tags/v1.50.0^{{}}\n',
+    )
+    dispatcher.set_current_sha(peeled_commit_sha)
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+
+    hook_run = _run_hook(
+        'terraform_fmt.sh',
+        [],
+        cwd=tmp_repo,
+        env=_hook_env(_pct_cache_env(cache_dir), path_with_dispatcher),
+    )
+
+    combined = hook_run.stdout
+    assert OUTDATED_MSG not in combined, combined
+    assert UNTAGGED_MSG not in combined, combined
+    assert AUTOUPDATE_MSG not in combined, combined
+    assert hook_run.returncode != 0, combined
+
+
 def test_network_failure_warning(  # pragma: win32 no cover
     tmp_repo: Path,
     cache_dir: Path,
@@ -748,6 +790,52 @@ def test_network_failure_preserves_cached_latest(  # pragma: win32 no cover
     assert (
         tags_cache_file.read_text(encoding='utf-8') == previously_cached_tags
     )
+
+
+def test_second_failure_skips_network_without_tags(  # pragma: win32 no cover
+    tmp_repo: Path,
+    cache_dir: Path,
+    tmp_path: Path,
+) -> None:
+    """Check back-to-back failures honor the throttle without any tags.
+
+    A first failing attempt (network down) writes only the timestamp -
+    no tag cache exists yet, since one is only ever written on success.
+    A second failing run minutes later must still skip the network
+    entirely: the 7-day throttle is gated on the timestamp alone, not
+    on whether a tag cache happens to already exist.
+    """
+    dispatcher = _GitDispatcherStub(tmp_path)
+    dispatcher.set_ls_remote_output('', exit_code=1)
+
+    sandbox_path_dir = _sandbox_path_dir(tmp_path)
+    path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
+    env = _hook_env(_pct_cache_env(cache_dir), path_with_dispatcher)
+
+    first_run = _run_hook('terraform_fmt.sh', [], cwd=tmp_repo, env=env)
+    assert FAILED_MSG in first_run.stdout, first_run.stdout
+
+    time_cache_file = cache_dir / '.last_update_check_time'
+    tags_cache_file = cache_dir / '.last_update_check_tags'
+    assert time_cache_file.exists()
+    assert not tags_cache_file.exists()
+    first_timestamp = _read_cache_timestamp(time_cache_file)
+
+    # Detectably-different data: if the second run queries the network
+    # at all, this would show up in its output, proving the throttle
+    # was bypassed instead of actually skipping the attempt.
+    dispatcher.set_ls_remote_output(
+        'ffffffffffffffffffffffffffffffffffffffff\trefs/tags/v9.9.9\n',
+    )
+
+    second_run = _run_hook('terraform_fmt.sh', [], cwd=tmp_repo, env=env)
+    combined = second_run.stdout
+    assert FAILED_MSG not in combined, combined
+    assert UNTAGGED_MSG not in combined, combined
+    assert 'v9.9.9' not in combined, combined
+    assert not tags_cache_file.exists()
+    # No real attempt was made this time, so the timestamp is untouched.
+    assert _read_cache_timestamp(time_cache_file) == first_timestamp
 
 
 def test_network_query_bounded_by_watchdog(  # pragma: win32 no cover

@@ -27,7 +27,9 @@ function _check_new_version_on_failure {
   local -r cache_root="${PCT_TOOL_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/pre-commit-terraform}"
   # Holds only the last-checked timestamp
   local -r time_cache_file="$cache_root/.last_update_check_time"
-  # Hold the raw `git ls-remote --tags` output, one "<sha><TAB>refs/tags/<name>" line per tag
+  # Hold the tag list, one "<commit-sha><TAB>refs/tags/<name>" line per
+  # tag - normalized from the raw `git ls-remote --tags` output (see
+  # below), not that raw output verbatim
   local -r tags_cache_file="$cache_root/.last_update_check_tags"
   # HEAD of *this* hook's own checkout - the pinned `rev` - not of the
   # user's project repo, which is this function's actual CWD.
@@ -38,18 +40,30 @@ function _check_new_version_on_failure {
   # Try to get tags from valid cache when possible
   #
   local known_tags=""
+  local cache_is_fresh=false
   if [[ -f $time_cache_file ]]; then
     local cached_time
     cached_time=$(< "$time_cache_file")
     local -r age_seconds=$(($(date +%s) - cached_time))
-    if [[ $age_seconds -lt 604800 ]] && [[ -f $tags_cache_file ]]; then
-      known_tags=$(< "$tags_cache_file")
+    if [[ $age_seconds -lt 604800 ]]; then
+      cache_is_fresh=true
+      [[ -f $tags_cache_file ]] && known_tags=$(< "$tags_cache_file")
     fi
+  fi
+
+  if [[ $cache_is_fresh == true && -z $known_tags ]]; then
+    # Rate-limited, and no tag data has ever been cached (e.g. every
+    # attempt this week has failed) - nothing to compare against, so
+    # stay silent rather than nagging off no data. Only the timestamp,
+    # not the tag list, is what the 7-day window actually gates - a
+    # second failing run minutes after the first must not re-query
+    # just because no tags happen to exist yet.
+    return
   fi
   #
   # No/stale cache, need to go to network
   #
-  if [[ -z $known_tags ]]; then
+  if [[ $cache_is_fresh == false ]]; then
     # `timeout` isn't guaranteed on every platform (e.g. stock macOS
     # without GNU coreutils), so the 3s bound is enforced by hand: run
     # `git ls-remote` in the background, race it against a `sleep 3`
@@ -58,7 +72,7 @@ function _check_new_version_on_failure {
     local fresh_output
     local tmp_output
     tmp_output=$(mktemp)
-    git ls-remote --tags --refs --sort=version:refname https://github.com/antonbabenko/pre-commit-terraform > "$tmp_output" 2>&1 &
+    git ls-remote --tags --sort=version:refname https://github.com/antonbabenko/pre-commit-terraform > "$tmp_output" 2>&1 &
     local git_pid=$!
     (
       sleep 3
@@ -82,7 +96,28 @@ function _check_new_version_on_failure {
     rm -f "$tmp_output"
 
     if [[ $exit_code -eq 0 ]]; then
-      known_tags=$fresh_output
+      # Without `--refs`, `git ls-remote` yields *two* lines for an
+      # annotated tag: its own ref (sha = the tag *object*, never a
+      # commit) and a peeled "<ref>^{}" line (sha = the commit it
+      # actually points at). Only the peeled sha can ever match
+      # `current_sha`, so collapse each pair to one line, preferring
+      # the peeled sha whenever a tag has one; lightweight tags (single
+      # line, already a commit sha) pass through unchanged.
+      known_tags=$(awk -v OFS='\t' '
+        {
+          if (prev_ref != "" && $2 == prev_ref "^{}") {
+            print $1, prev_ref
+            prev_ref = ""
+            next
+          }
+          if (prev_ref != "") print prev_sha, prev_ref
+          prev_sha = $1
+          prev_ref = $2
+        }
+        END {
+          if (prev_ref != "") print prev_sha, prev_ref
+        }
+      ' <<< "$fresh_output")
       mkdir -p "$cache_root"
       date +%s > "$time_cache_file"
       echo "$known_tags" > "$tags_cache_file"
