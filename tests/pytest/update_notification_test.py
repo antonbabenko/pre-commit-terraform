@@ -68,13 +68,15 @@ pytestmark = pytest.mark.skipif(
 
 
 class _GitDispatcherStub:
-    """A `git` dispatcher stub that forwards all commands except `ls-remote`.
+    """A `git` dispatcher stub forwarding all commands except two.
 
     When placed ahead of the real `git` on `$PATH`, this stub intercepts
-    `git ls-remote` calls and returns canned fixture data, while forwarding
-    all other subcommands (`rev-parse`, `ls-files`, etc.) to the real `git`.
-    This keeps the hook's genuine git usage real while making the remote
-    tag query fully deterministic and network-free.
+    `git ls-remote` and the hook's own `git -C <hooks_dir> rev-parse HEAD`
+    lookup, returning canned fixture data for both, while forwarding all
+    other subcommands (`rev-parse HEAD` without `-C`, `ls-files`, etc.) to
+    the real `git`. This keeps the hook's genuine git usage real while
+    making both the remote tag query and the hook's own pinned-sha lookup
+    fully deterministic and network-free.
     """
 
     def __init__(self, tmp_path: Path) -> None:  # pragma: win32 no cover
@@ -105,6 +107,13 @@ class _GitDispatcherStub:
             '  else\n'
             '    # Default: empty tag list\n'
             '    exit 0\n'
+            '  fi\n'
+            'elif [[ "$1" == "-C" && "$3" == "rev-parse" && "$4" == "HEAD" ]]; then\n'  # noqa: E501
+            '  # Intercept the hook checkout HEAD lookup\n'
+            '  if [[ -f "${0}.current-sha" ]]; then\n'
+            '    cat "${0}.current-sha"\n'
+            '  else\n'
+            '    exec "$(dirname "$0")/real-git" "$@"\n'
             '  fi\n'
             'else\n'
             '  # Forward all other commands to the real git\n'
@@ -137,6 +146,18 @@ class _GitDispatcherStub:
         )
         (stub_dir / f'{stub_name}.ls-remote-exitcode').write_text(
             str(exit_code),
+            encoding='utf-8',
+        )
+
+    def set_current_sha(self, sha: str) -> None:  # pragma: win32 no cover
+        """Configure the canned sha for the hook checkout's own `HEAD`.
+
+        Args:
+            sha: The sha the hook should resolve its own pinned `rev` to.
+        """
+        stub_dir, stub_name = self.stub_path.parent, self.stub_path.name
+        (stub_dir / f'{stub_name}.current-sha').write_text(
+            sha,
             encoding='utf-8',
         )
 
@@ -503,35 +524,11 @@ def test_stale_cache_outdated_tag_nag(  # pragma: win32 no cover
     exit non-zero, so the hook is left to fail on its own.
     """
     dispatcher = _GitDispatcherStub(tmp_path)
-
-    # Create empty commit and get its SHA
-    subprocess.run(  # noqa: S603
-        (GIT, 'commit', '--allow-empty', '-m', 'bump', '--date=2000-01-01'),
-        cwd=tmp_repo,
-        check=True,
-    )
-    head_rev_parse = subprocess.run(  # noqa: S603
-        (GIT, 'rev-parse', 'HEAD'),
-        cwd=tmp_repo,
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    current_sha = head_rev_parse.stdout.strip()
-
-    # Tag current HEAD as v1.3.0
-    subprocess.run(  # noqa: S603
-        (GIT, 'tag', '-f', 'v1.3.0'),
-        cwd=tmp_repo,
-        check=True,
-    )
-
-    # Update ls-remote output to include current SHA as v1.3.0
-    ls_remote_output = SAMPLE_LS_REMOTE_OUTPUT.replace(
-        'dddddddddddddddddddddddddddddddddddddddd',
-        current_sha,
-    )
-    dispatcher.set_ls_remote_output(ls_remote_output)
+    dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
+    # Pin the hook's own checkout to the v1.3.0 fixture sha already in
+    # `SAMPLE_LS_REMOTE_OUTPUT` above - not a tag/commit on `tmp_repo`,
+    # which is the *linted project*, never the hook's own checkout.
+    dispatcher.set_current_sha('dddddddddddddddddddddddddddddddddddddddd')
 
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
@@ -615,29 +612,10 @@ def test_stale_cache_up_to_date_silent(  # pragma: win32 no cover
     already-up-to-date pin must stay silent.
     """
     dispatcher = _GitDispatcherStub(tmp_path)
-
-    # Get current HEAD sha and tag it as v1.4.0 (latest)
-    current_sha = subprocess.run(  # noqa: S603
-        (GIT, 'rev-parse', 'HEAD'),
-        cwd=tmp_repo,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip()
-
-    # Create ls-remote output with current HEAD as v1.4.0
-    ls_remote_output = SAMPLE_LS_REMOTE_OUTPUT.replace(
-        'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        current_sha,
-    )
-    dispatcher.set_ls_remote_output(ls_remote_output)
-
-    # Tag current HEAD as v1.4.0
-    subprocess.run(  # noqa: S603
-        (GIT, 'tag', '-f', 'v1.4.0'),
-        cwd=tmp_repo,
-        check=True,
-    )
+    dispatcher.set_ls_remote_output(SAMPLE_LS_REMOTE_OUTPUT)
+    # Pin the hook's own checkout to the v1.4.0 fixture sha (latest) -
+    # not a tag on `tmp_repo`, which is only the linted project.
+    dispatcher.set_current_sha('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
 
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
@@ -809,17 +787,13 @@ def test_fresh_cache_stays_silent_when_matching(  # pragma: win32 no cover
     dispatcher.set_ls_remote_output(
         'ffffffffffffffffffffffffffffffffffffffff\trefs/tags/v9.9.9\n',
     )
+    # Pin the hook's own checkout to the same sha cached below as
+    # latest - not a tag on `tmp_repo`, the linted project.
+    current_sha = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+    dispatcher.set_current_sha(current_sha)
 
     sandbox_path_dir = _sandbox_path_dir(tmp_path)
     path_with_dispatcher = f'{dispatcher.path_entry}:{sandbox_path_dir}'
-
-    current_sha = subprocess.run(  # noqa: S603
-        (GIT, 'rev-parse', 'HEAD'),
-        cwd=tmp_repo,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip()
 
     time_cache_file = cache_dir / '.last_update_check_time'
     tags_cache_file = cache_dir / '.last_update_check_tags'

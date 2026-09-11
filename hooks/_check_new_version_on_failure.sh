@@ -29,7 +29,11 @@ function _check_new_version_on_failure {
   local -r time_cache_file="$cache_root/.last_update_check_time"
   # Hold the raw `git ls-remote --tags` output, one "<sha><TAB>refs/tags/<name>" line per tag
   local -r tags_cache_file="$cache_root/.last_update_check_tags"
-  local -r current_sha=$(git rev-parse HEAD)
+  # HEAD of *this* hook's own checkout - the pinned `rev` - not of the
+  # user's project repo, which is this function's actual CWD.
+  local -r hooks_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+  local current_sha
+  current_sha=$(git -C "$hooks_dir" rev-parse HEAD 2> /dev/null) || current_sha=""
   #
   # Try to get tags from valid cache when possible
   #
@@ -47,8 +51,13 @@ function _check_new_version_on_failure {
   #
   if [[ -z $known_tags ]]; then
     local fresh_output
+    # `timeout` isn't guaranteed on every platform (e.g. stock macOS
+    # without GNU coreutils) - skip wrapping with it when absent rather
+    # than failing with a misleading "exit 127" before git even runs.
+    local -a timeout_cmd=()
+    command -v timeout > /dev/null && timeout_cmd=(timeout 3)
 
-    if fresh_output=$(timeout 3 git ls-remote --tags --refs --sort=version:refname https://github.com/antonbabenko/pre-commit-terraform 2>&1); then
+    if fresh_output=$("${timeout_cmd[@]}" git ls-remote --tags --refs --sort=version:refname https://github.com/antonbabenko/pre-commit-terraform 2>&1); then
       known_tags=$fresh_output
       mkdir -p "$cache_root"
       date +%s > "$time_cache_file"
