@@ -979,3 +979,107 @@ function common::terragrunt_version_ge_0.78 {
     return 1
   fi
 }
+
+#######################################################################
+# Check for newer pre-commit-terraform release and notify if outdated.
+# Rate-limited to once per 7 days, skippable via env vars.
+# Globals:
+#   CI (string) if set, skip entirely
+#   PCT_SKIP_UPDATE_CHECK (string) if set, skip entirely
+#   PCT_TOOL_CACHE_DIR (string) cache root location
+#   XDG_CACHE_HOME (string) fallback cache location
+#   HOME (string) fallback cache location
+# Arguments:
+#   None
+# Outputs:
+#   Prints a yellow notice if pinned revision is behind latest upstream tag,
+#   or if HEAD is untagged while a newer release exists. Prints nothing
+#   when already up-to-date or when check was skipped.
+#######################################################################
+function common::maybe_notify_new_version {
+  # Guard chain: skip entirely if CI is set
+  if [[ -n ${CI:-} ]]; then
+    return
+  fi
+
+  # Guard chain: skip entirely if PCT_SKIP_UPDATE_CHECK is set
+  if [[ -n ${PCT_SKIP_UPDATE_CHECK:-} ]]; then
+    return
+  fi
+
+  # Determine cache root (mirrors common::resolve_tool_path)
+  local -r cache_root="${PCT_TOOL_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/pre-commit-terraform}"
+  local -r cache_file="$cache_root/.last_update_check"
+
+  # Guard chain: skip if cache file exists and is younger than 7 days
+  if [[ -f $cache_file ]]; then
+    local -r now=$(date +%s)
+    local -r cached_time=$(< "$cache_file")
+    local -r age_seconds=$((now - cached_time))
+    # 7 days = 604800 seconds
+    if [[ $age_seconds -lt 604800 ]]; then
+      return
+    fi
+  fi
+
+  # Attempt the remote query with 3-second timeout
+  local remote_output
+  if remote_output=$(timeout 3 git ls-remote --tags --refs --sort=version:refname https://github.com/antonbabenko/pre-commit-terraform 2>&1); then
+    # Parse latest tag (last line of sorted output)
+    local latest_tag
+    latest_tag=$(echo "$remote_output" | tail -n1 | awk '{print $2}' | sed 's|^refs/tags/||')
+
+    # Get current HEAD sha
+    local current_sha
+    current_sha=$(git rev-parse HEAD)
+
+    # Find which tag, if any, matches current HEAD
+    local current_tag=""
+    while IFS=$'\t' read -r sha tag; do
+      if [[ $sha == "$current_sha" ]]; then
+        current_tag=${tag#refs/tags/}
+        break
+      fi
+    done <<< "$remote_output"
+
+    # Determine nag message
+    if [[ $latest_tag == "$current_tag" ]]; then
+      # Already up-to-date, silent
+      :
+    else
+      # Either outdated or untagged
+      if [[ -n $current_tag ]]; then
+        common::colorify "yellow" \
+          "pre-commit-terraform ${current_tag} is outdated; latest is ${latest_tag}." \
+          'Run "pre-commit autoupdate --freeze" (or "prek update --freeze") to upgrade.'
+      else
+        common::colorify "yellow" \
+          "pre-commit-terraform pinned to a non-release commit; latest release is ${latest_tag}." \
+          'Run "pre-commit autoupdate --freeze" (or "prek update --freeze") to upgrade.'
+      fi
+    fi
+  else
+    # Network failure
+    local exit_code=$?
+    if [[ $exit_code -eq 124 ]]; then
+      common::colorify "yellow" \
+        "Update check timed out. Set CI=true or PCT_SKIP_UPDATE_CHECK=true to skip."
+    else
+      common::colorify "yellow" \
+        "Update check failed (exit ${exit_code}). Set CI=true or PCT_SKIP_UPDATE_CHECK=true to skip."
+    fi
+  fi
+
+  # Stamp cache file after every real attempt (success or failure)
+  mkdir -p "$cache_root"
+  date +%s > "$cache_file"
+}
+
+# Run once per hook invocation, as early as possible: this top-level
+# statement executes the moment ANY hook sources this file - before
+# `main`, before `common::per_dir_hook`, before `run_hook_on_whole_repo`,
+# before any hook-specific logic. Placed here (not inside
+# `common::per_dir_hook`) so coverage is uniform across every bash-based
+# hook, including ones that never call `common::per_dir_hook` at all
+# (e.g. infracost_breakdown.sh, terraform_wrapper_module_for_each.sh).
+common::maybe_notify_new_version

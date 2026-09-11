@@ -56,6 +56,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
   * [All hooks: Log levels](#all-hooks-log-levels)
+  * [All hooks: Check for a newer pre-commit-terraform release](#all-hooks-check-for-a-newer-pre-commit-terraform-release)
   * [Most hooks: Pin a specific tool version](#most-hooks-pin-a-specific-tool-version)
     * [Keeping pinned versions up-to-date using Renovate](#keeping-pinned-versions-up-to-date-using-renovate)
   * [Many hooks: Parallelism](#many-hooks-parallelism)
@@ -436,6 +437,24 @@ PCT_LOG=trace pre-commit run -a
 ```
 
 Less verbose log levels will be implemented in [#562](https://github.com/antonbabenko/pre-commit-terraform/issues/562).
+
+### All hooks: Check for a newer pre-commit-terraform release
+
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+
+1. Once a week hooks checks whether the `rev` pinned in your `.pre-commit-config.yaml`/`prek.toml` is behind the latest `pre-commit-terraform` release tag.
+2. The check runs once per hook invocation (not once per changed directory), and is entirely local except for one, read-only `git ls-remote` call against this repo - no data about your code or repository is sent anywhere.
+2. If you're behind, you'll see a one-line notice suggesting update. If you're already on the latest tag, nothing is printed.
+3. Skip the check, in this order of precedence:
+    1. Set `CI=true` (most CI systems already export this automatically).
+    2. Set `PCT_SKIP_UPDATE_CHECK=true` to disable it everywhere, including locally.
+4. The check never fails or meaningfully slows down your commit: the remote query is capped at 3 seconds, and if it can't reach GitHub (offline, firewalled CI runner, etc.) it prints a short notice and moves on - the hook's own exit code is unaffected either way.
+5. The last-checked timestamp is cached at `.last_update_check` under the same cache root used for [pinned tool versions](#most-hooks-pin-a-specific-tool-version) (`PCT_TOOL_CACHE_DIR`, or `$XDG_CACHE_HOME`/`$HOME/.cache` + `pre-commit-terraform`) - see [Mount tools cache directory](#mount-tools-cache-directory) if you also want this to persist across Docker runs.
+
+```bash
+# Skip the check for this run (or export it in CI)
+PCT_SKIP_UPDATE_CHECK=true pre-commit run -a
+```
 
 ### Most hooks: Pin a specific tool version
 

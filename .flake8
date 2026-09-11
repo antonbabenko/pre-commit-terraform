@@ -85,6 +85,19 @@ per-file-ignores =
     WPS202,
     # WPS204: "Found overused expression" -- every test wires the same hermetic env/PATH sandbox and re-asserts "no download happened"; deduplicating that into helpers would hide what each test actually guarantees
     WPS204,
+  tests/pytest/update_notification_test.py:
+    # WPS226: "Forbid the overuse of string literals" -- same legitimate test-fixture rationale as tool_version_test.py above
+    WPS226,
+    # WPS202: "Found too many module members" -- same one-scenario-per-test rationale as tool_version_test.py above
+    WPS202,
+    # WPS204: "Found overused expression" -- same hermetic env/PATH sandbox wiring rationale as tool_version_test.py above
+    WPS204,
+    # WPS210: "Found too many local variables" -- black-box hook subprocess tests inherently wire many pieces (dispatcher, sandbox PATH, cache dir, cache file, hook_run/combined); splitting further would hide the full env each assertion depends on
+    WPS210,
+    # WPS218: "Found too many assert statements" -- each assertion pins a distinct, independently-meaningful guarantee (message content, cache-file state, exit code); merging them would make failures less pinpointed
+    WPS218,
+    # WPS402: "Found noqa comments overuse" -- same subprocess.run(# noqa: S603) pattern as tool_version_test.py's tmp_repo fixture, just with a couple more scenario-specific git calls (rev-parse/tag) on top
+    WPS402,
   # We will not spend time on fixing complexity in deprecated hook
   src/pre_commit_terraform/terraform_docs_replace.py: WPS232
 

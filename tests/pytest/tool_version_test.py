@@ -150,6 +150,7 @@ _SANDBOX_REQUIRED_TOOLS = (
     'sed',
     'sort',
     'tail',
+    'timeout',
     'tr',
     'uname',
     'wc',
@@ -268,6 +269,12 @@ def _hook_env(  # pragma: win32 no cover
         # Read directly by `tools/install/_common.sh`. Forwarded as an
         # empty string when absent, which that script treats as unset.
         'GITHUB_TOKEN': os.environ.get('GITHUB_TOKEN', ''),
+        # This suite is about tool-version resolution, not the update
+        # notification: without this, every hook invocation below would
+        # also attempt a real `git ls-remote` against GitHub, adding
+        # network flakiness/latency here and polluting the `cache_dir`
+        # fixture with an unrelated `.last_update_check` file.
+        'PCT_SKIP_UPDATE_CHECK': 'true',
         **cache_env,
     }
 
