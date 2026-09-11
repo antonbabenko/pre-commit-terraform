@@ -10,7 +10,7 @@ permissions:
 jobs:
   pre-commit:
     permissions:
-      contents: write  # for pre-commit/action to push back fixes to PR branch
+      contents: write  # for EndBug/add-and-commit to push back fixes to PR branch
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -61,19 +61,13 @@ jobs:
         # Needed to trigger pre-commit workflow on autofix commit. Guide:
         # https://web.archive.org/web/20210731173012/https://github.community/t/required-check-is-expected-after-automated-push/187545/
         ssh-key: ${{ secrets.GHA_AUTOFIX_COMMIT_KEY }}
-    # Skip terraform_tflint which interferes to commit pre-commit auto-fixes
-    - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
-      with:
-        python-version: '3.13'
 
     - name: Execute pre-commit
-      uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd  # v3.0.1
+      uses: j178/prek-action@4e14d07f9231acabce116ccfca13b13dd9755ece  # v3.0.0
       env:
         SKIP: no-commit-to-branch
       with:
-        extra_args: >-
-          --color=always
-          --show-diff-on-failure
+        extra-args: >-
           --files ${{ steps.file_changes.outputs.files}}
 
     # Needed to trigger pre-commit workflow on autofix commit
