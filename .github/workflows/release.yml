@@ -17,8 +17,10 @@ permissions:
   contents: read
 
 env:
+  # yamllint disable-line rule:line-length
   # renovate: datasource=github-releases depName=semantic-release lookupName=semantic-release/semantic-release
   SR_VERSION: 19.0.3
+  # yamllint disable-line rule:line-length
   # renovate: datasource=github-releases depName=semantic-release lookupName=semantic-release/changelog
   SR_CHANGELOG_VERSION: 6.0.0
   # renovate: datasource=github-releases depName=semantic-release lookupName=semantic-release/git
