@@ -56,6 +56,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
   * [All hooks: Set env vars inside hook at runtime](#all-hooks-set-env-vars-inside-hook-at-runtime)
   * [All hooks: Disable color output](#all-hooks-disable-color-output)
   * [All hooks: Log levels](#all-hooks-log-levels)
+  * [All hooks: Check for a newer pre-commit-terraform release](#all-hooks-check-for-a-newer-pre-commit-terraform-release)
   * [Most hooks: Pin a specific tool version](#most-hooks-pin-a-specific-tool-version)
     * [Keeping pinned versions up-to-date using Renovate](#keeping-pinned-versions-up-to-date-using-renovate)
   * [Many hooks: Parallelism](#many-hooks-parallelism)
@@ -228,7 +229,7 @@ Full list of dependencies and where they are used:
 <!-- (Do not remove html tags here) -->
 * [`pre-commit`](https://pre-commit.com/#install),
   <sub><sup>[`terraform`](https://www.terraform.io/downloads.html) or [`opentofu`](https://opentofu.org/docs/intro/install/),
-  <sub><sup>[`git`](https://git-scm.com/downloads),
+  <sub><sup>[`git`](https://git-scm.com/downloads) 2.18+,
   <sub><sup>[BASH `3.2.57` or newer](https://www.gnu.org/software/bash/#download),
   <sub><sup>Internet connection (on first run),
   <sub><sup>x86_64 or arm64 compatible operating system,
@@ -436,6 +437,29 @@ PCT_LOG=trace pre-commit run -a
 ```
 
 Less verbose log levels will be implemented in [#562](https://github.com/antonbabenko/pre-commit-terraform/issues/562).
+
+### All hooks: Check for a newer pre-commit-terraform release
+
+> All, except deprecated hooks: `checkov`, `terraform_docs_replace`
+
+To skip the check set one of:
+
+* `CI=true` (most CI systems already export this automatically).
+* `PCT_SKIP_UPDATE_CHECK=true` to disable it everywhere, including locally.
+
+    ```bash
+    # Skip the check for this run (or export it in CI)
+    PCT_SKIP_UPDATE_CHECK=true pre-commit run -a
+    ```
+
+How it works:
+
+1. The check only runs when a hook is about to fail for its own reasons - a clean run stays completely silent, no matter how outdated your pin is.
+2. On a failing run, it checks whether the `rev` pinned in your `.pre-commit-config.yaml`/`prek.toml` is behind the latest `pre-commit-terraform` release tag, at most once per invocation.
+3. If you're behind, you'll see a one-line notice suggesting `pre-commit autoupdate --freeze` (or `prek update --freeze` if you use [prek](https://github.com/j178/prek))
+4. The remote query itself - one read-only `git ls-remote` against this repo, no data about your code or repository sent anywhere - is rate-limited to once per 7 days. Within that window, a still-outdated pin keeps nagging on every failing run from the cached result, at no extra network cost.
+5. The check never fails or meaningfully slows down your commit: the remote query is capped at 3 seconds, and if it can't reach GitHub (offline, firewalled CI runner, etc.) it prints a short notice and moves on - the hook's own exit code is unaffected either way.
+6. The last-checked timestamp and the upstream tag list from that check are cached as two files, `.last_update_check_time` and `.last_update_check_tags`, under the same cache root used for [pinned tool versions](#most-hooks-pin-a-specific-tool-version) (`PCT_TOOL_CACHE_DIR`, or `$XDG_CACHE_HOME`/`$HOME/.cache` + `pre-commit-terraform`) - see [Mount tools cache directory](#mount-tools-cache-directory) if you also want this to persist across Docker runs.
 
 ### Most hooks: Pin a specific tool version
 

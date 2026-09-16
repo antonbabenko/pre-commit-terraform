@@ -24,15 +24,17 @@ HOOK_ID=${0##*/}
 readonly HOOK_ID=${HOOK_ID%%.*}
 
 #######################################################################
-# Init arguments parser
+# Initialize common functions and environment for hooks
 # Arguments:
 #   script_dir - absolute path to hook dir location
 #######################################################################
 function common::initialize {
   local -r script_dir=$1
-  # source getopt function
+  # Init arguments parser (getopt function)
   # shellcheck source=../lib_getopt
   . "$script_dir/../lib_getopt"
+  # Initialize update check on failure
+  . "$script_dir/_check_new_version_on_failure.sh"
 }
 
 #######################################################################

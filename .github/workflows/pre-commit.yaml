@@ -31,11 +31,12 @@ jobs:
         echo "files=$( echo "$DIFF" | xargs echo )" >> $GITHUB_OUTPUT
 
     - name: Install shfmt
+      env:
+        # renovate: datasource=github-releases depName=shfmt lookupName=mvdan/sh
+        SHFMT_VERSION: 3.14.0
       run: >-
-        curl -L "$(
-        curl -s https://api.github.com/repos/mvdan/sh/releases/latest
-        | grep -o -E -m 1 "https://.+?linux_amd64"
-        )"
+        curl -L
+        https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_amd64
         > shfmt
         && chmod +x shfmt && sudo mv shfmt /usr/bin/
 
