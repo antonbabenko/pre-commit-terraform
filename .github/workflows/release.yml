@@ -16,6 +16,16 @@ on:
 permissions:
   contents: read
 
+env:
+  # yamllint disable-line rule:line-length
+  # renovate: datasource=github-releases depName=semantic-release lookupName=semantic-release/semantic-release
+  SR_VERSION: 19.0.3
+  # yamllint disable-line rule:line-length
+  # renovate: datasource=github-releases depName=semantic-release lookupName=semantic-release/changelog
+  SR_CHANGELOG_VERSION: 6.0.0
+  # renovate: datasource=github-releases depName=semantic-release lookupName=semantic-release/git
+  SR_GIT_VERSION: 10.0.0
+
 jobs:
   release:
     permissions:
@@ -38,10 +48,10 @@ jobs:
     - name: Release
       uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90  # v6.0.0
       with:
-        semantic_version: 19.0.3
+        semantic_version: ${{ env.SR_VERSION }}
         extra_plugins: |
-          @semantic-release/changelog@6.0.0
-          @semantic-release/git@10.0.0
+          @semantic-release/changelog@${{ env.SR_CHANGELOG_VERSION }}
+          @semantic-release/git@${{ env.SR_GIT_VERSION }}
       env:
         # Custom token for triggering Docker image build GH Workflow on release
         # created by cycjimmy/semantic-release-action. Events created by
