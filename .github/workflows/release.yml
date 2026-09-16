@@ -22,7 +22,7 @@ env:
   # renovate: datasource=github-releases depName=semantic-release lookupName=semantic-release/changelog
   SR_CHANGELOG_VERSION: 6.0.0
   # renovate: datasource=github-releases depName=semantic-release lookupName=semantic-release/git
-  SR_GIT_VERSION: 19.0.3
+  SR_GIT_VERSION: 10.0.0
 
 jobs:
   release:
