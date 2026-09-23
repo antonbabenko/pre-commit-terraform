@@ -28,9 +28,10 @@ fi
 
 #######################################################################
 # Fetch a GitHub API URL and print its body to stdout.
-# Fails fast (exit 1) on transport errors, rate limiting and any
-# non-200 status, so callers never mistake an API error payload for
-# release data (issue #1023).
+# Fails fast (exit 1) on transport errors, rate limiting (HTTP 429, or
+# HTTP 403 whose body confirms rate limiting) and any non-200 status,
+# so callers never mistake an API error payload for release data
+# (issue #1023).
 # Globals:
 #   CURL_CMD - curl command array with auth options; this function is
 #     only meant to be called from common::install_from_gh_release,
@@ -55,14 +56,19 @@ function common::gh_api_get {
   http_code=${response##*$'\n'}
   body=${response%$'\n'*}
 
-  if [[ $http_code == 403 || $http_code == 429 ]]; then
+  if [[ $http_code == 429 ]] ||
+    { [[ $http_code == 403 ]] && grep -Fqi 'rate limit' <<< "$body"; }; then
     echo "ERROR: GitHub API rate limit exceeded while querying '$TOOL' releases (HTTP $http_code)." >&2
     echo "Set GITHUB_TOKEN to authenticate (already supported by this script) or retry later. See https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting" >&2
     exit 1
   fi
 
   if [[ $http_code != 200 ]]; then
-    echo "ERROR: GitHub API request to '$url' failed with HTTP $http_code." >&2
+    if [[ $http_code == 403 ]]; then
+      echo "ERROR: GitHub API request to '$url' failed with HTTP 403 (access denied)." >&2
+    else
+      echo "ERROR: GitHub API request to '$url' failed with HTTP $http_code." >&2
+    fi
     exit 1
   fi
 
