@@ -27,6 +27,39 @@ if [[ $VERSION == false ]]; then
 fi
 
 #######################################################################
+# Colorize provided string and print it out to stdout
+# Environment variables:
+#   PRE_COMMIT_COLOR (string) If set to `never` - do not colorize output
+# Arguments:
+#   COLOR (string) Color name that will be used to colorize
+#   TEXT (string)
+# Outputs:
+#   Print out provided text to stdout
+#######################################################################
+function common::colorify {
+  # shellcheck disable=SC2034
+  local -r red="\x1b[0m\x1b[31m"
+  # shellcheck disable=SC2034
+  local -r green="\x1b[0m\x1b[32m"
+  # shellcheck disable=SC2034
+  local -r yellow="\x1b[0m\x1b[33m"
+  # Color reset
+  local -r RESET="\x1b[0m"
+
+  # Params start #
+  local COLOR="${!1}"
+  shift
+  local -r TEXT="$*"
+  # Params end #
+
+  if [ "$PRE_COMMIT_COLOR" = "never" ]; then
+    COLOR=$RESET
+  fi
+
+  echo -e "${COLOR}${TEXT}${RESET}" >&2
+}
+
+#######################################################################
 # Fetch a GitHub API URL and print its body to stdout.
 # Fails fast (exit 1) on transport errors, rate limiting (HTTP 429, or
 # HTTP 403 whose body confirms rate limiting) and any non-200 status,
@@ -49,25 +82,25 @@ function common::gh_api_get {
   local response http_code body
 
   if ! response=$("${CURL_CMD[@]}" -sS -L -w $'\n%{http_code}' "$url"); then
-    echo "ERROR: failed to contact GitHub API at '$url'." >&2
+    common::colorify "red" "ERROR: failed to contact GitHub API at '$url'."
     exit 1
   fi
 
   http_code=${response##*$'\n'}
   body=${response%$'\n'*}
 
-  if [[ $http_code == 429 ]] ||
-    { [[ $http_code == 403 ]] && grep -Fqi 'rate limit' <<< "$body"; }; then
-    echo "ERROR: GitHub API rate limit exceeded while querying '$TOOL' releases (HTTP $http_code)." >&2
-    echo "Set GITHUB_TOKEN to authenticate (already supported by this script) or retry later. See https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting" >&2
+  if [[ $http_code -eq 429 ||
+    ($http_code -eq 403 && $(tr '[:upper:]' '[:lower:]' <<< "$body") =~ "rate limit") ]]; then
+    common::colorify "red" "ERROR: GitHub API rate limit exceeded while querying '$TOOL' releases (HTTP $http_code)."
+    common::colorify "yellow" 'Pass your GitHub access token by means of exporting "GITHUB_TOKEN" environment variable to send authenticated calls or retry later. See https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting'
     exit 1
   fi
 
-  if [[ $http_code != 200 ]]; then
-    if [[ $http_code == 403 ]]; then
-      echo "ERROR: GitHub API request to '$url' failed with HTTP 403 (access denied)." >&2
+  if [[ $http_code -ne 200 ]]; then
+    if [[ $http_code -eq 403 ]]; then
+      common::colorify "red" "ERROR: GitHub API request to '$url' failed with HTTP $http_code (Forbidden)."
     else
-      echo "ERROR: GitHub API request to '$url' failed with HTTP $http_code." >&2
+      common::colorify "red" "ERROR: GitHub API request to '$url' failed with HTTP $http_code."
     fi
     exit 1
   fi
@@ -127,7 +160,7 @@ function common::install_from_gh_release {
     asset_url=$(grep -o -E -i -m 1 "$GH_RELEASE_REGEX_LATEST" <<< "$latest_releases" || true)
 
     if [[ -z $asset_url ]]; then
-      echo "ERROR: could not find a release asset for '$TOOL' in its latest release (regex '$GH_RELEASE_REGEX_LATEST' matched nothing)." >&2
+      common::colorify "red" "ERROR: Failed to find '$TOOL' latest release asset matching the '$GH_RELEASE_REGEX_LATEST' regex."
       exit 1
     fi
   else
@@ -135,15 +168,12 @@ function common::install_from_gh_release {
     # through (100/page) until matched or an empty page ends it.
     local page=1
     local -r max_pages=20 # 2000 releases; generous for any wrapped tool
-    # Equivalent to stripping whitespace and comparing to "[]", but as an
-    # anchored regex: ${var//[[:space:]]/} pattern substitution is
-    # pathologically slow on multi-MB pretty-printed API bodies.
-    local -r empty_page_re='^[[:space:]]*\[[[:space:]]*\][[:space:]]*$'
     while [[ -z $asset_url && $page -le $max_pages ]]; do
       page_releases=$(common::gh_api_get "${RELEASES}?per_page=100&page=${page}")
-      # GitHub may pretty-print an empty array as "[\n\n]" (4 bytes),
-      # not "[]" - allow whitespace inside and around the brackets.
-      [[ $page_releases =~ $empty_page_re ]] && break
+      # GitHub may pretty-print an empty array as "[\n\n]", not "[]" - match
+      # an empty JSON array allowing whitespace (anchored regex; ${var//...}
+      # pattern substitution is pathologically slow on multi-MB API bodies).
+      [[ $page_releases =~ ^[[:space:]]*\[[[:space:]]*\][[:space:]]*$ ]] && break
       asset_url=$(grep -o -E -i -m 1 "$GH_RELEASE_REGEX_SPECIFIC_VERSION" <<< "$page_releases" || true)
       ((page++))
     done
@@ -155,7 +185,7 @@ function common::install_from_gh_release {
   fi
 
   if ! "${CURL_CMD[@]}" -sS -f -L "$asset_url" > "$PKG"; then
-    echo "ERROR: failed to download '$TOOL' release asset from '$asset_url'." >&2
+    common::colorify "red" "ERROR: Failed to download '$TOOL' release asset from '$asset_url'."
     exit 1
   fi
 
