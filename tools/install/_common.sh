@@ -28,27 +28,23 @@ fi
 
 #######################################################################
 # Fetch a GitHub API URL and print its body to stdout.
-# Fails fast (exit 1) on transport errors, rate limiting (HTTP 429, or
-# HTTP 403 whose body confirms rate limiting) and any non-200 status,
-# so callers never mistake an API error payload for release data
-# (issue #1023).
+# Exits 1 on transport errors, rate limiting (429 or rate-limited 403)
+# and any non-200 status, so API errors are never mistaken for release
+# data (issue #1023).
 # Globals:
-#   CURL_CMD - curl command array with auth options; this function is
-#     only meant to be called from common::install_from_gh_release,
-#     which defines it (bash dynamic scoping).
 #   TOOL - Name of the tool (used in error messages)
 # Arguments:
 #   url - GitHub API URL to GET
+#   curl command and its options - e.g. "${CURL_CMD[@]}"
 # Outputs:
-#   Response body on stdout (only when HTTP 200)
-# Errors:
-#   Diagnostic on stderr; exits 1 on failure
+#   Response body on stdout (HTTP 200 only); diagnostics on stderr
 #######################################################################
 function common::gh_api_get {
   local -r url=$1
+  shift
   local response http_code body
 
-  if ! response=$("${CURL_CMD[@]}" -sS -L -w $'\n%{http_code}' "$url"); then
+  if ! response=$("$@" -sS -L -w $'\n%{http_code}' "$url"); then
     echo "ERROR: failed to contact GitHub API at '$url'." >&2
     exit 1
   fi
@@ -123,7 +119,7 @@ function common::install_from_gh_release {
   local asset_url="" latest_releases page_releases
 
   if [[ $VERSION == latest ]]; then
-    latest_releases=$(common::gh_api_get "${RELEASES}/latest")
+    latest_releases=$(common::gh_api_get "${RELEASES}/latest" "${CURL_CMD[@]}")
     asset_url=$(grep -o -E -i -m 1 "$GH_RELEASE_REGEX_LATEST" <<< "$latest_releases") || true
 
     if [[ ! $asset_url ]]; then
@@ -136,7 +132,7 @@ function common::install_from_gh_release {
     local page=1
     local -r max_pages=20 # 2000 releases; generous for any wrapped tool
     while [[ -z $asset_url && $page -le $max_pages ]]; do
-      page_releases=$(common::gh_api_get "${RELEASES}?per_page=100&page=${page}")
+      page_releases=$(common::gh_api_get "${RELEASES}?per_page=100&page=${page}" "${CURL_CMD[@]}")
       # GitHub may pretty-print an empty array as "[\n\n]", not "[]" - match
       # an empty JSON array allowing whitespace (anchored regex; ${var//...}
       # pattern substitution is pathologically slow on multi-MB API bodies).
