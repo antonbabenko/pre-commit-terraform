@@ -27,6 +27,51 @@ if [[ $VERSION == false ]]; then
 fi
 
 #######################################################################
+# Fetch a GitHub API URL and print its body to stdout.
+# Exits 1 on transport errors, rate limiting (429 or rate-limited 403)
+# and any non-200 status, so API errors are never mistaken for release
+# data (issue #1023).
+# Globals:
+#   TOOL - Name of the tool (used in error messages)
+# Arguments:
+#   url - GitHub API URL to GET
+#   curl command and its options - e.g. "${CURL_CMD[@]}"
+# Outputs:
+#   Response body on stdout (HTTP 200 only); diagnostics on stderr
+#######################################################################
+function common::gh_api_get {
+  local -r url=$1
+  shift
+  local response http_code body
+
+  if ! response=$("$@" -sS -L -w $'\n%{http_code}' "$url"); then
+    echo "ERROR: failed to contact GitHub API at '$url'." >&2
+    exit 1
+  fi
+
+  http_code=${response##*$'\n'}
+  body=${response%$'\n'*}
+
+  if [[ $http_code -eq 429 ||
+    ($http_code -eq 403 && $(tr '[:upper:]' '[:lower:]' <<< "$body") =~ "rate limit") ]]; then
+    echo "ERROR: GitHub API rate limit exceeded while querying '$TOOL' releases (HTTP $http_code)." >&2
+    echo 'Pass your GitHub access token by means of exporting "GITHUB_TOKEN" environment variable to send authenticated calls or retry later. See https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting' >&2
+    exit 1
+  fi
+
+  if [[ $http_code -ne 200 ]]; then
+    if [[ $http_code -eq 403 ]]; then
+      echo "ERROR: GitHub API request to '$url' failed with HTTP $http_code (Forbidden)." >&2
+    else
+      echo "ERROR: GitHub API request to '$url' failed with HTTP $http_code." >&2
+    fi
+    exit 1
+  fi
+
+  printf '%s' "$body"
+}
+
+#######################################################################
 # Install the latest or specific version of the tool from GitHub release
 # Globals:
 #   TOOL - Name of the tool
@@ -71,27 +116,40 @@ function common::install_from_gh_release {
 
   local -r CURL_CMD=("curl" "${CURL_OPTS[@]}")
 
+  local asset_url="" latest_releases page_releases
+
   if [[ $VERSION == latest ]]; then
-    "${CURL_CMD[@]}" -L "$("${CURL_CMD[@]}" -s "${RELEASES}/latest" | grep -o -E -i -m 1 "$GH_RELEASE_REGEX_LATEST")" > "$PKG"
+    latest_releases=$(common::gh_api_get "${RELEASES}/latest" "${CURL_CMD[@]}")
+    asset_url=$(grep -o -E -i -m 1 "$GH_RELEASE_REGEX_LATEST" <<< "$latest_releases") || true
+
+    if [[ ! $asset_url ]]; then
+      echo "ERROR: Failed to find '$TOOL' latest release asset matching the '$GH_RELEASE_REGEX_LATEST' regex." >&2
+      exit 1
+    fi
   else
     # Unpaginated $RELEASES only has the 30 newest releases; page
     # through (100/page) until matched or an empty page ends it.
     local page=1
     local -r max_pages=20 # 2000 releases; generous for any wrapped tool
-    local asset_url="" page_releases
     while [[ -z $asset_url && $page -le $max_pages ]]; do
-      page_releases=$("${CURL_CMD[@]}" -s "${RELEASES}?per_page=100&page=${page}")
-      [[ $page_releases == "[]" ]] && break
-      asset_url=$(grep -o -E -i -m 1 "$GH_RELEASE_REGEX_SPECIFIC_VERSION" <<< "$page_releases" || true)
+      page_releases=$(common::gh_api_get "${RELEASES}?per_page=100&page=${page}" "${CURL_CMD[@]}")
+      # GitHub may pretty-print an empty array as "[\n\n]", not "[]" - match
+      # an empty JSON array allowing whitespace (anchored regex; ${var//...}
+      # pattern substitution is pathologically slow on multi-MB API bodies).
+      [[ $page_releases =~ ^[[:space:]]*\[[[:space:]]*\][[:space:]]*$ ]] && break
+      asset_url=$(grep -o -E -i -m 1 "$GH_RELEASE_REGEX_SPECIFIC_VERSION" <<< "$page_releases") || true
       ((page++))
     done
 
-    if [[ -z $asset_url ]]; then
+    if [[ ! $asset_url ]]; then
       echo "ERROR: could not find a '$TOOL' release asset matching version '$VERSION' (looked through up to $((page - 1)) page(s) of releases)." >&2
       exit 1
     fi
+  fi
 
-    "${CURL_CMD[@]}" -L "$asset_url" > "$PKG"
+  if ! "${CURL_CMD[@]}" -sS -f -L "$asset_url" > "$PKG"; then
+    echo "ERROR: Failed to download '$TOOL' release asset from '$asset_url'." >&2
+    exit 1
   fi
 
   # Make tool ready to use
