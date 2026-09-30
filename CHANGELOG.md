@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.109.2](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.109.1...v1.109.2) (2026-09-30)
+
+
+### Bug Fixes
+
+* **`terraform_trivy`:** Add support for running hook in git worktree ([#1028](https://github.com/antonbabenko/pre-commit-terraform/issues/1028)) ([fb34283](https://github.com/antonbabenko/pre-commit-terraform/commit/fb3428345fca90aa061d5451e5994b7fb8a7be17))
+
 ## [1.109.1](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.109.0...v1.109.1) (2026-09-04)
 
 
