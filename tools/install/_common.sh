@@ -2,6 +2,22 @@
 
 set -eo pipefail
 
+# Shared logging helper (common::colorify). Resolved relative to this file
+# in a full checkout; in the Docker builder only tools/install/ is copied
+# to /install/, so Dockerfile also copies hooks/_logging.sh to /hooks/.
+_COMMON_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly _COMMON_DIR
+if [[ -f "$_COMMON_DIR/../../hooks/_logging.sh" ]]; then
+  # shellcheck disable=SC1091 # Dynamic path guarded by -f check above
+  . "$_COMMON_DIR/../../hooks/_logging.sh"
+elif [[ -f /hooks/_logging.sh ]]; then
+  # shellcheck disable=SC1091 # Docker-builder path, guarded by -f check above
+  . /hooks/_logging.sh
+else
+  echo "ERROR: common::colorify helper not found." >&2
+  exit 1
+fi
+
 # Tool name, based on filename.
 # Tool filename MUST BE same as in package manager/binary name
 TOOL=${0##*/}
@@ -45,7 +61,7 @@ function common::gh_api_get {
   local response http_code body
 
   if ! response=$("$@" -sS -L -w $'\n%{http_code}' "$url"); then
-    echo "ERROR: failed to contact GitHub API at '$url'." >&2
+    common::colorify "red" "ERROR: failed to contact GitHub API at '$url'."
     exit 1
   fi
 
@@ -54,17 +70,13 @@ function common::gh_api_get {
 
   if [[ $http_code -eq 429 ||
     ($http_code -eq 403 && $(tr '[:upper:]' '[:lower:]' <<< "$body") =~ "rate limit") ]]; then
-    echo "ERROR: GitHub API rate limit exceeded while querying '$TOOL' releases (HTTP $http_code)." >&2
-    echo 'Pass your GitHub access token by means of exporting "GITHUB_TOKEN" environment variable to send authenticated calls or retry later. See https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting' >&2
+    common::colorify "red" "ERROR: GitHub API rate limit exceeded while querying '$TOOL' releases (HTTP $http_code)."
+    common::colorify "yellow" 'Pass your GitHub access token by means of exporting "GITHUB_TOKEN" environment variable to send authenticated calls or retry later. See https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting'
     exit 1
   fi
 
   if [[ $http_code -ne 200 ]]; then
-    if [[ $http_code -eq 403 ]]; then
-      echo "ERROR: GitHub API request to '$url' failed with HTTP $http_code (Forbidden)." >&2
-    else
-      echo "ERROR: GitHub API request to '$url' failed with HTTP $http_code." >&2
-    fi
+    common::colorify "red" "ERROR: GitHub API request to '$url' failed with HTTP $http_code."
     exit 1
   fi
 
@@ -103,7 +115,7 @@ function common::install_from_gh_release {
       local -r PKG="$TOOL"
       ;;
     *)
-      echo "Unknown DISTRIBUTED_AS: '$DISTRIBUTED_AS'. Should be one of: 'tar.gz', 'zip' or 'binary'." >&2
+      common::colorify "red" "Unknown DISTRIBUTED_AS: '$DISTRIBUTED_AS'. Should be one of: 'tar.gz', 'zip' or 'binary'."
       exit 1
       ;;
   esac
@@ -123,7 +135,7 @@ function common::install_from_gh_release {
     asset_url=$(grep -o -E -i -m 1 "$GH_RELEASE_REGEX_LATEST" <<< "$latest_releases") || true
 
     if [[ ! $asset_url ]]; then
-      echo "ERROR: Failed to find '$TOOL' latest release asset matching the '$GH_RELEASE_REGEX_LATEST' regex." >&2
+      common::colorify "red" "ERROR: Failed to find '$TOOL' latest release asset matching the '$GH_RELEASE_REGEX_LATEST' regex."
       exit 1
     fi
   else
@@ -142,13 +154,13 @@ function common::install_from_gh_release {
     done
 
     if [[ ! $asset_url ]]; then
-      echo "ERROR: could not find a '$TOOL' release asset matching version '$VERSION' (looked through up to $((page - 1)) page(s) of releases)." >&2
+      common::colorify "red" "ERROR: could not find a '$TOOL' release asset matching version '$VERSION' (looked through up to $((page - 1)) page(s) of releases)."
       exit 1
     fi
   fi
 
   if ! "${CURL_CMD[@]}" -sS -f -L "$asset_url" > "$PKG"; then
-    echo "ERROR: Failed to download '$TOOL' release asset from '$asset_url'." >&2
+    common::colorify "red" "ERROR: Failed to download '$TOOL' release asset from '$asset_url'."
     exit 1
   fi
 
