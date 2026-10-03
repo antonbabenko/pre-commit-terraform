@@ -2,16 +2,18 @@
 
 set -eo pipefail
 
-# Shared logging helper (common::colorify). Resolved relative to this file:
-# a full checkout uses <repo>/hooks/_logging.sh; in the Docker builder
-# /install/../../hooks normalizes to /hooks, where the Dockerfile copies it.
 _COMMON_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly _COMMON_DIR
-if [[ -f "$_COMMON_DIR/../../hooks/_logging.sh" ]]; then
-  # shellcheck disable=SC1091 # Dynamic path guarded by -f check above
-  . "$_COMMON_DIR/../../hooks/_logging.sh"
+# Shared logging helper (common::colorify). The repo-relative path resolves
+# to <repo>/hooks/_logging.sh in a checkout and to /hooks/_logging.sh in the
+# Docker builder, where the Dockerfile copies the helper.
+_LOGGING_HELPER="$_COMMON_DIR/../../hooks/_logging.sh"
+readonly _LOGGING_HELPER
+if [[ -f "$_LOGGING_HELPER" ]]; then
+  # shellcheck disable=SC1090,SC1091 # Dynamic path via variable, guarded by -f check above
+  . "$_LOGGING_HELPER"
 else
-  echo "ERROR: common::colorify helper not found." >&2
+  echo "ERROR: common::colorify helper '${_LOGGING_HELPER##*/}' not found." >&2
   exit 1
 fi
 
