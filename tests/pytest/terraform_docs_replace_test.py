@@ -124,4 +124,4 @@ def test_control_flow_negative(
     assert invoke_cli_app(parsed_cli_args) == ReturnCode.ERROR
     # S604 - 'shell=True' is insecure, but this hook is deprecated and we don't
     # want to spent time on testing fixes for it
-    check_call_mock.assert_called_once_with(expected_cmd, shell=True)  # noqa: S604
+    check_call_mock.assert_called_once_with(expected_cmd, shell=True)  # ruff: ignore[call-with-shell-equals-true]
