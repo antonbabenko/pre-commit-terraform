@@ -616,6 +616,42 @@ For deprecated hook you need to specify each argument separately:
   ]
 ```
 
+#### Verify a declared repair (optional)
+
+Checkov's `--baseline` option reports new failures, which is useful when a
+project has accepted existing findings. A zero exit with a baseline does not
+prove that one of those existing findings was fixed. For that question, a
+project can compare full JSON reports from before and after scans and require
+the same check and resource to fail before and pass after. The comparison also
+needs to handle skipped checks, parsing errors, and missing results.
+
+For teams that want the paired comparison packaged as a released tool,
+[IaC-Guard-V 1.0's repo-local recipe](https://github.com/lokesh0186/iac-guard-v/blob/main/adoption/pre-commit-terraform-v1/README.md)
+checks one declared repair using Checkov 3.3.0. It keeps a canonical report and
+returns nonzero when the selected result is failed or inconclusive. It requires
+separate Python environments for IaC-Guard-V and Checkov. The recipe shows how
+to set the before and after paths, exact target, and executable paths. It
+includes the script for this optional hook:
+
+```yaml
+- repo: local
+  hooks:
+    - id: iac-guard-v-verify-repair
+      name: Verify declared Terraform repair
+      entry: scripts/verify-iac-repair.sh
+      language: script
+      pass_filenames: false
+      always_run: true
+      require_serial: true
+```
+
+Use this with a trusted, project-owned before/after pair and an exact target.
+It checks that target under Checkov's rule; it does not validate every resource
+or the rule itself. Trivy also supports [passing results](https://trivy.dev/docs/latest/references/configuration/cli/trivy_config/)
+and [custom checks](https://www.trivy.dev/docs/latest/guide/scanner/misconfiguration/config/config/)
+for projects that want to build their own workflow around its scans. This
+local hook is not part of pre-commit-terraform's hook manifest.
+
 ### infracost_breakdown
 
 `infracost_breakdown` executes `infracost breakdown` command and compare the estimated costs with those specified in the hook-config. `infracost breakdown` parses Terraform HCL code, and calls Infracost Cloud Pricing API (remote version or [self-hosted version](https://www.infracost.io/docs/cloud_pricing_api/self_hosted)).
