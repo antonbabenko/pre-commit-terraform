@@ -1,9 +1,14 @@
-"""Network-free tests for the GitHub API handling of `tools/install/*.sh`.
+"""Network-free tests for the GitHub release lookup in `terragrunt.sh`.
 
-Each test runs the real `tools/install/terragrunt.sh` (any installer would
-do) as a subprocess, with a stub `curl` in front of `PATH` replaying canned
-GitHub API replies, and asserts on its exit code, its output and the
-requests the stub recorded - never on a bash-internal function name.
+Each test runs the real `tools/install/terragrunt.sh` as a subprocess, with
+a stub `curl` in front of `PATH` replaying canned GitHub API replies, and
+asserts on its exit code, its output and the requests the stub recorded -
+never on a bash-internal function name.
+
+The logic under test (`common::gh_api_get` error handling and pagination)
+lives in the shared `tools/install/_common.sh`; `terragrunt.sh` is used as
+the representative installer because it is the paginated, pure-binary case
+from issue #1023.
 
 NOTE: the module-level `pytestmark` skip leaves every function body below
 unexecuted on Windows, and `covdefaults` gates coverage at 100%, so every
@@ -24,25 +29,42 @@ from typing import NamedTuple
 import pytest
 
 
-INSTALLER = Path(__file__).resolve().parents[2] / 'tools/install/terragrunt.sh'
-BASH = shutil.which('bash') or 'bash'
 INSTALLER_TIMEOUT_SECONDS = 60
 
 LATEST = 'latest'
 PINNED_VERSION = '0.50.0'
+OLD_PINNED_VERSION = '0.49.0'
 HTTP_OK = '200'
 
-API_URL = 'https://api.github.com/repos/gruntwork-io/terragrunt/releases'
+GITHUB_HOST = 'github.com'
+API_HOST = 'api.github.com'
+OWNER = 'gruntwork-io'
+TOOL = 'terragrunt'
+PER_PAGE = 100
+TARGET_OS = 'linux'
+TARGET_ARCH = 'amd64'
+
+RELEASES_PATH = f'{OWNER}/{TOOL}/releases'
+INSTALLER = Path(__file__).resolve().parents[2] / f'tools/install/{TOOL}.sh'
+API_URL = f'https://{API_HOST}/repos/{RELEASES_PATH}'
 LATEST_URL = f'{API_URL}/latest'
-FIRST_PAGE_URL = f'{API_URL}?per_page=100&page=1'
-SECOND_PAGE_URL = f'{API_URL}?per_page=100&page=2'
-DOWNLOAD_URL = 'https://github.com/gruntwork-io/terragrunt/releases/download'
-ASSET_URL = f'{DOWNLOAD_URL}/v{PINNED_VERSION}/terragrunt_linux_amd64'
-OLD_ASSET_URL = f'{DOWNLOAD_URL}/v0.49.0/terragrunt_linux_amd64'
-ASSET_TEXT = 'terragrunt binary'
+FIRST_PAGE_URL = f'{API_URL}?per_page={PER_PAGE}&page=1'
+SECOND_PAGE_URL = f'{API_URL}?per_page={PER_PAGE}&page=2'
+DOWNLOAD_URL = f'https://{GITHUB_HOST}/{RELEASES_PATH}/download'
+ASSET_NAME = f'{TOOL}_{TARGET_OS}_{TARGET_ARCH}'
+ASSET_URL = f'{DOWNLOAD_URL}/v{PINNED_VERSION}/{ASSET_NAME}'
+OLD_ASSET_URL = f'{DOWNLOAD_URL}/v{OLD_PINNED_VERSION}/{ASSET_NAME}'
+ASSET_TEXT = f'{TOOL} binary'
+# Installers are bash scripts; no fallback - a missing `bash` skips the tests.
+BASH = shutil.which('bash')
+
 # GitHub pretty-prints its JSON: every asset URL sits on a line of its own.
 HIT_BODY = json.dumps([{'browser_download_url': ASSET_URL}], indent=2)
 MISS_BODY = json.dumps([{'browser_download_url': OLD_ASSET_URL}], indent=2)
+# GitHub's rate-limit message embeds the caller's IP. 203.0.113.7 is from
+# RFC 5737's TEST-NET-3 documentation block, so it is never a real host; the
+# last octet (`7`) is arbitrary - only the message wording matters here.
+RATE_LIMIT_BODY = 'API rate limit exceeded for 203.0.113.7.'
 
 # Diagnostics of `common::gh_api_get` and its callers in
 # `tools/install/_common.sh` (`common::colorify` writes them to stderr).
@@ -51,8 +73,8 @@ RATE_LIMIT_MSG = 'rate limit exceeded'
 AUTH_HINT = 'GITHUB_TOKEN'
 HTTP_ERROR_MSG = 'failed with HTTP'
 TRANSPORT_MSG = 'failed to contact GitHub API'
-NOT_FOUND_MSG = "could not find a 'terragrunt' release asset"
-DOWNLOAD_FAILED_MSG = "Failed to download 'terragrunt' release asset"
+NOT_FOUND_MSG = f"could not find a '{TOOL}' release asset"
+DOWNLOAD_FAILED_MSG = f"Failed to download '{TOOL}' release asset"
 
 # Replays the next canned reply from `$STUB_CURL_DIR` and records the URL it
 # was asked for. A reply file `<n>` holds the HTTP status (or `exit:<code>`
@@ -63,7 +85,7 @@ STUB_CURL = r"""#!/usr/bin/env bash
 dir=$STUB_CURL_DIR
 tag='%{http_code}'
 printf '%s\n' "${!#}" >> "$dir/requests"
-reply=$dir/$(grep -c '' "$dir/requests")
+reply="$dir/$(grep -c '' "$dir/requests")"
 [[ -f $reply ]] || exit 99
 read -r status < "$reply"
 [[ $status == exit:* ]] && exit "${status#exit:}"
@@ -76,14 +98,20 @@ tail -n +2 "$reply"
 printf '%s' "${format//$tag/$status}"
 """
 
-pytestmark = pytest.mark.skipif(
-    sys.platform == 'win32',
-    reason=(
-        'Hook-subprocess tests are skipped on Windows: this repository '
-        'does not fully support/guarantee Windows hook execution '
-        '(see README.md / .github/CONTRIBUTING.md).'
+pytestmark = [
+    pytest.mark.skipif(
+        sys.platform == 'win32',
+        reason=(
+            'Hook-subprocess tests are skipped on Windows: this repository '
+            'does not fully support/guarantee Windows hook execution '
+            '(see README.md / .github/CONTRIBUTING.md).'
+        ),
     ),
-)
+    pytest.mark.skipif(
+        BASH is None,
+        reason='bash was not found on PATH.',
+    ),
+]
 
 
 class _Run(NamedTuple):
@@ -104,7 +132,7 @@ def _run_installer(  # pragma: win32 no cover
 
     Args:
         tmp_path: Temp dir fixture, holding the stub and the workdir.
-        version: Value for the installer's `TERRAGRUNT_VERSION`.
+        version: Value for the installer's version environment variable.
         replies: `(status, body)` per expected `curl` call, in order; a
             status of `exit:<code>` makes that call fail like a
             transport error.
@@ -113,6 +141,7 @@ def _run_installer(  # pragma: win32 no cover
         Exit code, merged stdout/stderr, URLs requested in order and the
         directory the installer downloads into.
     """
+    assert BASH is not None  # Guaranteed by the module-level skipif.
     stub_dir = tmp_path / 'stub'
     work_dir = tmp_path / 'work'
     stub_dir.mkdir()
@@ -133,9 +162,9 @@ def _run_installer(  # pragma: win32 no cover
             'LC_ALL': 'C',
             'PRE_COMMIT_COLOR': 'never',
             'STUB_CURL_DIR': str(stub_dir),
-            'TARGETARCH': 'amd64',
-            'TARGETOS': 'linux',
-            'TERRAGRUNT_VERSION': version,
+            'TARGETARCH': TARGET_ARCH,
+            'TARGETOS': TARGET_OS,
+            f'{TOOL.upper()}_VERSION': version,
         },
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -158,11 +187,14 @@ def _run_installer(  # pragma: win32 no cover
         pytest.param(PINNED_VERSION, FIRST_PAGE_URL, id='pinned'),
     ),
 )
+# Param IDs: a bare HTTP code where the status alone decides the diagnostic,
+# and a body-qualified name where several cases share one status (the three
+# 403s) and differ only in the response body / resulting diagnostic.
 @pytest.mark.parametrize(
     ('reply', 'diagnostic'),
     (
         pytest.param(
-            ('403', 'API rate limit exceeded for 203.0.113.7.'),
+            ('403', RATE_LIMIT_BODY),
             RATE_LIMIT_MSG,
             id='403-rate-limit',
         ),
@@ -278,7 +310,7 @@ def test_installs_asset_listed_in_api_body(  # pragma: win32 no cover
 
     assert run.returncode == 0
     assert run.requests == [*api_urls, ASSET_URL]
-    assert (run.workdir / 'terragrunt').read_bytes() == ASSET_TEXT.encode()
+    assert (run.workdir / TOOL).read_bytes() == ASSET_TEXT.encode()
 
 
 def test_asset_download_failure_aborts_install(  # pragma: win32 no cover
