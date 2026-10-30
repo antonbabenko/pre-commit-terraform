@@ -13,6 +13,7 @@ function main {
   common::parse_cmdline "$@"
   common::export_provided_env_vars "${ENV_VARS[@]}"
   common::parse_and_export_env_vars
+  common::scrub_git_env
   # JFYI: suppress color for `terraform providers lock` is N/A`
 
   local -r tool_name="tf" # Will be resolved into real tool inside 'common::resolve_tool_path'
