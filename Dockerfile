@@ -16,6 +16,7 @@ RUN apk add --no-cache \
         setuptools~=75.8
 
 COPY tools/install/ /install/
+COPY hooks/_logging.sh /hooks/_logging.sh
 
 #
 # Install required tools
