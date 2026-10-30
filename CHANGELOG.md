@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.109.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.109.3...v1.109.4) (2026-10-30)
+
+
+### Bug Fixes
+
+* **`terraform_providers_lock`:** Make hook in legacy mode work in Git worktrees ([#1035](https://github.com/antonbabenko/pre-commit-terraform/issues/1035)) ([fb0b593](https://github.com/antonbabenko/pre-commit-terraform/commit/fb0b5936c8846e037b57a72ca6a060ca41f2f8a3))
+
 ## [1.109.3](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.109.2...v1.109.3) (2026-10-20)
 
 
