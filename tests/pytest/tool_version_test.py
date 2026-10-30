@@ -296,17 +296,17 @@ def tmp_repo(tmp_path: Path) -> Path:  # pragma: win32 no cover
     # README tells users to set `init.templateDir` to a directory with
     # pre-commit installed, which would otherwise install a real
     # pre-commit hook into this throwaway repo and run it on commit.
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
         (GIT, 'init', '--quiet', '--template=', '--initial-branch=main'),
         cwd=repo,
         check=True,
     )
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
         (GIT, 'config', 'user.email', 't@t.com'),
         cwd=repo,
         check=True,
     )
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
         (GIT, 'config', 'user.name', 't'),
         cwd=repo,
         check=True,
@@ -315,8 +315,8 @@ def tmp_repo(tmp_path: Path) -> Path:  # pragma: win32 no cover
         'variable "x" { default = 1 }\n',
         encoding='utf-8',
     )
-    subprocess.run((GIT, 'add', 'a.tf'), cwd=repo, check=True)  # noqa: S603
-    subprocess.run(  # noqa: S603
+    subprocess.run((GIT, 'add', 'a.tf'), cwd=repo, check=True)  # ruff: ignore[subprocess-without-shell-equals-true]
+    subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
         (GIT, 'commit', '--quiet', '--no-verify', '-m', 'init'),
         cwd=repo,
         check=True,
@@ -357,7 +357,7 @@ def _run_hook(  # pragma: win32 no cover
     # `common::colorify` writes every diagnostic to stderr while a wrapped
     # tool's own output goes to stdout, so the two are merged at the OS
     # level to give each caller one ready-to-grep string.
-    return subprocess.run(  # noqa: S603
+    return subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
         (BASH, str(hook_path), *args, '--', 'a.tf'),
         cwd=cwd,
         env=env,
@@ -393,7 +393,7 @@ def _run_concurrent_hooks(  # pragma: win32 no cover
         # instead of as a confusing assertion mismatch further down.
         pytest.fail(f'Hook script not found: {hook_path}')
     processes = [
-        subprocess.Popen(  # noqa: S603
+        subprocess.Popen(  # ruff: ignore[subprocess-without-shell-equals-true]
             (BASH, str(hook_path), *args, '--', 'a.tf'),
             cwd=cwd,
             env=env,
@@ -1142,7 +1142,7 @@ def test_real_download_on_cache_miss(  # pragma: win32 no cover
     )
     assert os.access(cached_bin, os.X_OK), combined
 
-    version_check = subprocess.run(  # noqa: S603
+    version_check = subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
         (str(cached_bin), '--version'),
         capture_output=True,
         text=True,
@@ -1185,7 +1185,7 @@ def test_real_download_beyond_release_page_one(  # pragma: win32 no cover
     )
     assert os.access(cached_bin, os.X_OK), combined
 
-    version_check = subprocess.run(  # noqa: S603
+    version_check = subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
         (str(cached_bin), '--version'),
         capture_output=True,
         text=True,
@@ -1238,7 +1238,7 @@ def test_concurrent_cache_miss_is_race_free(  # pragma: win32 no cover
     )
     assert os.access(cached_bin, os.X_OK), outputs
 
-    version_check = subprocess.run(  # noqa: S603
+    version_check = subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
         (str(cached_bin), '--version'),
         capture_output=True,
         text=True,
