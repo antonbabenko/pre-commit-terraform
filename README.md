@@ -22,7 +22,8 @@ It can be run:
 * For the entire repository or just for change-related files (e.g., local git stash, last commit, or all changes in a Pull Request)
 
 Want to contribute?
-Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc)
+Check [open issues](https://github.com/antonbabenko/pre-commit-terraform/issues?q=label%3A%22good+first+issue%22+is%3Aopen+sort%3Aupdated-desc),
+[project structure](docs/project_structure.md),
 and [contributing notes](/.github/CONTRIBUTING.md).
 
 [Latest Github tag]: https://img.shields.io/github/tag/antonbabenko/pre-commit-terraform.svg
@@ -42,6 +43,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
 
 * [Sponsors](#sponsors)
 * [Table of content](#table-of-content)
+* [Project structure](#project-structure)
 * [How to install](#how-to-install)
   * [1. Install dependencies](#1-install-dependencies)
     * [1.1 Custom Terraform binaries and OpenTofu support](#11-custom-terraform-binaries-and-opentofu-support)
@@ -84,6 +86,10 @@ If you want to support the development of `pre-commit-terraform` and [many other
 * [Authors](#authors)
 * [License](#license)
   * [Additional information for users from Russia and Belarus](#additional-information-for-users-from-russia-and-belarus)
+
+## Project structure
+
+See [docs/project_structure.md](docs/project_structure.md) for the directory layout, the two hook types (shell vs Python), and where tests live.
 
 ## How to install
 
