@@ -16,6 +16,7 @@ import subprocess  # noqa: S404
 import tempfile
 from argparse import Namespace
 from pathlib import Path
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Final, cast
 
 
@@ -26,7 +27,10 @@ if TYPE_CHECKING:
 # Eight small module members keep parser, process and Git concerns explicit.
 # flake8: noqa: WPS202
 CLI_SUBCOMMAND_NAME: Final[str] = 'iac-guard-v'
-VERSION: Final[str] = '1.0.2'
+# Exact reviewed product/protocol pairs; future releases never self-promote.
+SUPPORTED_PROTOCOLS: Final = MappingProxyType(
+    {'1.0.2': 'report-v1', '1.0.3': 'report-v1'},
+)
 TIMEOUT: Final[int] = 600
 PRIVATE_DIRECTORY_MODE: Final[int] = 0o700
 LOGGER = logging.getLogger(__name__)
@@ -199,11 +203,14 @@ class HookRun:
             ],
             'runtime',
         )
+        product_version = (
+            (self.directory / 'runtime.stdout.log').read_text().strip()
+        )
+        protocol = SUPPORTED_PROTOCOLS.get(product_version)
         _require(
-            'Runtime requires published iac-guard-v==1.0.2; see runtime logs.',
-            condition=runtime == 0
-            and (self.directory / 'runtime.stdout.log').read_text().strip()
-            == VERSION,
+            'Runtime requires iac-guard-v 1.0.2 or 1.0.3 with report-v1; '
+            'see runtime logs.',
+            condition=runtime == 0 and protocol is not None,
         )
         code = self._process(command, 'verification')
         LOGGER.warning('IaC-Guard-V process exit: %s', code)
@@ -228,7 +235,8 @@ class HookRun:
         # The schema validates headers/types; compare transport consistency.
         _require(
             'Canonical verdict/exit does not match the product process.',
-            condition=payload.get('result_kind')
+            condition=payload.get('schema_version') == protocol
+            and payload.get('result_kind')
             in {'verification', 'operational_uncertainty'}
             and payload['exit_code'] == code
             and payload.get('verdict')

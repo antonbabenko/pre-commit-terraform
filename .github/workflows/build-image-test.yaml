@@ -20,6 +20,7 @@ jobs:
         checkov-version:
         - 3.3.0
         - 3.3.30
+        - 3.4.3
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
@@ -47,7 +48,7 @@ jobs:
       run: >-
         docker build --tag iac-guard-v-test
         --build-arg CHECKOV_VERSION="$CHECKOV_VERSION"
-        --build-arg IAC_GUARD_V_VERSION=1.0.2 .
+        --build-arg IAC_GUARD_V_VERSION=1.0.3 .
 
     - name: Exercise released verifier and real pre-commit hook
       if: steps.changes.outputs.any_changed == 'true'

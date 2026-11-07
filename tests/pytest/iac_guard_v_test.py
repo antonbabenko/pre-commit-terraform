@@ -34,6 +34,7 @@ class Transport(Protocol):
         code: int,
         report: str | None = None,
         schema: int = 0,
+        version: str = '1.0.2',
     ) -> None:
         """Select product and report outcomes."""
         ...
@@ -98,9 +99,14 @@ def transport(
         Callable: Configure product exit, report bytes and schema process exit.
     """
 
-    def install(code: int, report: str | None = None, schema: int = 0) -> None:  # noqa: WPS430 — bind fixture state
+    def install(
+        code: int,
+        report: str | None = None,
+        schema: int = 0,
+        version: str = '1.0.2',
+    ) -> None:  # noqa: WPS430 — bind fixture state
         def process(run: hook.HookRun, _command: list[str], label: str) -> int:  # noqa: WPS430 — isolated subprocess double
-            (run.directory / f'{label}.stdout.log').write_text('1.0.2\n')
+            (run.directory / f'{label}.stdout.log').write_text(version + '\n')
             if label == 'schema':
                 return schema
             if label == 'verification':
@@ -250,16 +256,52 @@ class TestResults:
     """Require fresh, consistent reports and preserve product errors."""
 
     @pytest.mark.parametrize('code', (0, 1, 3, 2, 4, 17, -9))
+    @pytest.mark.parametrize('version', ('1.0.2', '1.0.3'))
     def test_exit(
         self,
         repair: Namespace,
         transport: Transport,
         code: int,
+        version: str,
     ) -> None:
         """Keep errors distinct; a killed child cannot establish success."""
-        transport(code)
+        transport(code, version=version)
         expected = hook.INCONCLUSIVE if code < 0 else code
         assert hook.invoke_cli_app(repair) == expected
+
+    @pytest.mark.parametrize(
+        'version',
+        ('1.0.1', '1.0.3rc1', '1.0.4', '2.0.0', ''),
+    )
+    def test_unreviewed_version(
+        self,
+        repair: Namespace,
+        transport: Transport,
+        version: str,
+    ) -> None:
+        """No version range or prerelease can inherit protocol authority."""
+        transport(0, version=version)
+        assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
+
+    def test_unreviewed_protocol(
+        self,
+        repair: Namespace,
+        transport: Transport,
+    ) -> None:
+        """Reject an unreviewed protocol even if schema validation succeeds."""
+        transport(
+            0,
+            json.dumps(
+                {
+                    'schema_version': 'report-v2',
+                    'result_kind': 'verification',
+                    'exit_code': 0,
+                    'verdict': 'VERIFIED',
+                },
+            ),
+            version='1.0.3',
+        )
+        assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
 
     @pytest.mark.parametrize(
         REPORT,
