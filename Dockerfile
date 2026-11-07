@@ -154,6 +154,17 @@ RUN if [ "$(grep -o '^terraform-docs SKIPPED$' /usr/bin/tools_versions_info)" = 
 
 COPY tools/entrypoint.sh /entrypoint.sh
 
+# IaC-Guard-V must bind the FINAL relocated Checkov installation. Keep this
+# opt-in product environment separate from the global scanner and pre-commit.
+ARG IAC_GUARD_V_VERSION=${IAC_GUARD_V_VERSION:-false}
+ARG INSTALL_ALL=${INSTALL_ALL:-false}
+RUN --mount=type=bind,source=tools/install,target=/install \
+    if [ "$INSTALL_ALL" != "false" ]; then export IAC_GUARD_V_VERSION=latest; fi && \
+    /install/iac-guard-v.sh && \
+    if [ "$IAC_GUARD_V_VERSION" != "false" ]; then \
+        /opt/iac-guard-v/bin/python -IBm iac_guard_v.cli --version >> /usr/bin/tools_versions_info; \
+    else echo "iac-guard-v SKIPPED" >> /usr/bin/tools_versions_info; fi
+
 ENV PRE_COMMIT_COLOR=${PRE_COMMIT_COLOR:-always}
 
 # DL3064 - empty default; real value passed via `-e` at runtime, never hardcoded
