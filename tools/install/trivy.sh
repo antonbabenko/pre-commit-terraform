@@ -11,9 +11,12 @@ readonly SCRIPT_DIR
 [[ $TARGETARCH == amd64 ]] && ARCH="64bit" || ARCH="$TARGETARCH"
 readonly ARCH
 
+[[ $TARGETOS == darwin ]] && OS="macOS" || OS="$TARGETOS"
+readonly OS
+
 GH_ORG="aquasecurity"
-GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?/v${VERSION}/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"
-GH_RELEASE_REGEX_LATEST="https://.+?/${TOOL}_.+?_${TARGETOS}-${ARCH}.tar.gz"
+GH_RELEASE_REGEX_SPECIFIC_VERSION="https://.+?/v${VERSION}/${TOOL}_.+?_${OS}-${ARCH}.tar.gz"
+GH_RELEASE_REGEX_LATEST="https://.+?/${TOOL}_.+?_${OS}-${ARCH}.tar.gz"
 DISTRIBUTED_AS="tar.gz"
 
 common::install_from_gh_release "$GH_ORG" "$DISTRIBUTED_AS" \
