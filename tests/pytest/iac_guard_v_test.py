@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import sys
 from argparse import ArgumentParser, Namespace
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -47,7 +48,11 @@ def repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     Returns:
         Path: Repository root.
     """
-    root = tmp_path / 'repo with spaces '
+    # Windows strips trailing spaces from directory names; POSIX retains them.
+    name = (
+        'repo with spaces' if sys.platform == 'win32' else 'repo with spaces '
+    )
+    root = tmp_path / name
     root.mkdir()
     git = shutil.which('git')
     assert git is not None
