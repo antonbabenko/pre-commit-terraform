@@ -19,7 +19,7 @@ import sys
 import threading
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Final, Protocol, cast
 
 import pytest
 
@@ -27,7 +27,20 @@ from pre_commit_terraform import terraform_iac_guard_v as hook
 
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from pre_commit_terraform.terraform_iac_guard_v import _Arguments
+
+
+class ControllerFactory(Protocol):
+    """Only the keyword-only Thread constructor subset used by this fixture."""
+
+    def __call__(self, *, target: Callable[[], None]) -> threading.Thread:
+        """Construct a controller with no untyped argument forwarding."""
+        ...
+
+
+CONTROLLER: Final[ControllerFactory] = threading.Thread
 
 POSIX_ONLY = pytest.mark.skipif(
     sys.platform == 'win32',
@@ -123,7 +136,11 @@ def test_cooperative_cleanup(  # noqa: WPS210,WPS218 — keep process identities
         ],
     )
     input_hashes = _snapshot_bytes(repository)
-    controller = threading.Thread(target=_interrupt_fixture, args=(mode, pids))
+
+    def interrupt() -> None:  # noqa: WPS430 — precisely typed controller closure
+        _interrupt_fixture(mode, pids)
+
+    controller = CONTROLLER(target=interrupt)
     try:  # noqa: WPS229 — keep interruption assertions next to guaranteed cleanup
         with run.signals():
             controller.start()
