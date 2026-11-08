@@ -53,6 +53,7 @@ SUPERVISOR = """
 import json, os, signal, subprocess, sys, time
 from pathlib import Path
 pids, report, token = sys.argv[1:]
+while not Path(pids).with_suffix(".start").exists(): time.sleep(.01)
 child = subprocess.Popen(
     [sys.executable, '-c', 'import time; time.sleep(30)', token],
     start_new_session=True,
@@ -127,6 +128,20 @@ def test_cooperative_cleanup(  # noqa: WPS210,WPS218 — keep process identities
     ]
     if mode == 'timeout':
         monkeypatch.setattr(hook, 'TIMEOUT', 1)
+    wait = run._wait  # noqa: SLF001 — preserve the real timeout loop
+
+    def wait_when_ready(  # noqa: WPS430 — synchronize before the real deadline starts
+        process: subprocess.Popen[str],
+        arguments: list[str],
+    ) -> int:
+        pids.with_suffix('.start').touch()
+        supervisor, descendant = _ready(pids)
+        assert supervisor == process.pid
+        assert _alive(supervisor, token)
+        assert _alive(descendant, token)
+        return wait(process, arguments)
+
+    monkeypatch.setattr(run, '_wait', wait_when_ready)
     unrelated = subprocess.Popen(  # noqa: S603 — trusted interpreter, literal isolation fixture
         [
             sys.executable,
@@ -144,7 +159,12 @@ def test_cooperative_cleanup(  # noqa: WPS210,WPS218 — keep process identities
     try:  # noqa: WPS229 — keep interruption assertions next to guaranteed cleanup
         with run.signals():
             controller.start()
-            with pytest.raises((KeyboardInterrupt, subprocess.TimeoutExpired)):
+            expected = (
+                subprocess.TimeoutExpired
+                if mode == 'timeout'
+                else KeyboardInterrupt
+            )
+            with pytest.raises(expected):
                 run._process(command, 'cancellation')  # noqa: SLF001 — transport ownership boundary
             controller.join(timeout=WAIT_LIMIT)
         identities = _ready(pids)
