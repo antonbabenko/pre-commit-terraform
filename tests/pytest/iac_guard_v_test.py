@@ -9,14 +9,19 @@ import json
 import shutil
 import subprocess
 import sys
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Final, Protocol
 
 import pytest
 from pre_commit_terraform import _cli
 from pre_commit_terraform import terraform_iac_guard_v as hook
+from pre_commit_terraform.terraform_iac_guard_v import _Arguments
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 BEFORE = 'before'
@@ -25,6 +30,7 @@ REPORT = 'report'
 USAGE_ERROR = 2
 EXECUTION_ERROR = 4
 REPEATED_RUNS = 2
+JSON_DUMPS: Final[Callable[[object], str]] = json.dumps
 
 
 class Transport(Protocol):
@@ -62,11 +68,11 @@ def repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 
 @pytest.fixture
-def repair(repository: Path) -> Namespace:
+def repair(repository: Path) -> _Arguments:
     """Parse a benign explicit repair request.
 
     Returns:
-        Namespace: Parsed operator-controlled arguments.
+        _Arguments: Parsed operator-controlled arguments.
     """
     executable = repository / 'python'
     executable.write_text('#!/bin/sh\nexit 0\n')
@@ -75,7 +81,8 @@ def repair(repository: Path) -> Namespace:
         (repository / name).mkdir()
     parser = ArgumentParser()
     hook.populate_argument_parser(parser)
-    return parser.parse_args(
+    parsed = _Arguments()
+    parser.parse_args(
         [
             '--iacgv-python',
             str(executable),
@@ -91,7 +98,9 @@ def repair(repository: Path) -> Namespace:
             '--checkov-executable',
             str(executable),
         ],
+        namespace=parsed,
     )
+    return parsed
 
 
 @pytest.fixture
@@ -126,7 +135,7 @@ def transport(
                     }.get(code),
                 }
                 run.report.write_text(
-                    json.dumps(payload) if report is None else report,
+                    JSON_DUMPS(payload) if report is None else report,
                 )
                 return code
             return 0
@@ -139,7 +148,7 @@ def transport(
 class TestConfiguration:
     """Exercise parsing and exact argument transport."""
 
-    def test_command(self, repair: Namespace, repository: Path) -> None:
+    def test_command(self, repair: _Arguments, repository: Path) -> None:
         """Preserve literal selectors and resolve paths against Git root."""
         repair.target.append('CKV_AWS_3=name with spaces;$(literal)@a=b.tf')
         report = repository / '.git/report.json'
@@ -160,7 +169,7 @@ class TestConfiguration:
     @pytest.mark.parametrize('field', (BEFORE, AFTER))
     def test_missing_snapshot(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         repository: Path,
         field: str,
     ) -> None:
@@ -180,7 +189,7 @@ class TestConfiguration:
     )
     def test_candidate_runtime(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         repository: Path,
         field: str,
         alias: str,
@@ -205,7 +214,7 @@ class TestConfiguration:
         assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
         assert not (repository / '.git/iac-guard-v').exists()
 
-    def test_same_snapshot(self, repair: Namespace, repository: Path) -> None:
+    def test_same_snapshot(self, repair: _Arguments, repository: Path) -> None:
         """Reject a symlink alias of the same snapshot."""
         alias = repository / 'alias'
         alias.symlink_to(repository / BEFORE, target_is_directory=True)
@@ -219,7 +228,7 @@ class TestConfiguration:
 
     def test_output_in_snapshot(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         repository: Path,
     ) -> None:
         """Do not place reports in protected input trees."""
@@ -233,7 +242,7 @@ class TestConfiguration:
     @pytest.mark.parametrize('path', ('relative', '/absent/runtime'))
     def test_invalid_executable(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         repository: Path,
         path: str,
     ) -> None:
@@ -264,7 +273,7 @@ class TestResults:
     @pytest.mark.parametrize('version', ('1.0.2', '1.0.3'))
     def test_exit(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         transport: Transport,
         code: int,
         version: str,
@@ -280,7 +289,7 @@ class TestResults:
     )
     def test_unreviewed_version(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         transport: Transport,
         version: str,
     ) -> None:
@@ -290,13 +299,13 @@ class TestResults:
 
     def test_unreviewed_protocol(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         transport: Transport,
     ) -> None:
         """Reject an unreviewed protocol even if schema validation succeeds."""
         transport(
             0,
-            json.dumps(
+            JSON_DUMPS(
                 {
                     'schema_version': 'report-v2',
                     'result_kind': 'verification',
@@ -321,7 +330,7 @@ class TestResults:
     )
     def test_invalid_report(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         transport: Transport,
         report: str,
     ) -> None:
@@ -331,13 +340,13 @@ class TestResults:
 
     def test_inconsistent_exit(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         transport: Transport,
     ) -> None:
         """Even a schema-valid report must match this process exit."""
         transport(
             0,
-            json.dumps(
+            JSON_DUMPS(
                 {
                     'schema_version': 'report-v1',
                     'result_kind': 'verification',
@@ -350,7 +359,7 @@ class TestResults:
 
     def test_operational_uncertainty(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         transport: Transport,
     ) -> None:
         """Keep the released operational uncertainty classification."""
@@ -360,12 +369,12 @@ class TestResults:
             'verdict': 'INCONCLUSIVE',
             'exit_code': hook.INCONCLUSIVE,
         }
-        transport(hook.INCONCLUSIVE, json.dumps(payload))
+        transport(hook.INCONCLUSIVE, JSON_DUMPS(payload))
         assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
 
     def test_invalid_json_after_validation(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         transport: Transport,
     ) -> None:
         """A changed/malformed report cannot fail open after validation."""
@@ -374,16 +383,18 @@ class TestResults:
 
     def test_retention(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         repository: Path,
         transport: Transport,
     ) -> None:
         """Repeated and concurrent requests never overwrite evidence."""
         transport(0)
         with ThreadPoolExecutor(max_workers=2) as executor:
-            assert list(
-                executor.map(hook.invoke_cli_app, (repair, repair)),
-            ) == [0, 0]
+            futures = [
+                executor.submit(hook.invoke_cli_app, repair)
+                for _ in range(REPEATED_RUNS)
+            ]
+            assert [future.result() for future in futures] == [0, 0]
         reports = list(repository.glob('.git/iac-guard-v/runs/*/report.json'))
         original = {path: path.read_bytes() for path in reports}
         assert len(reports) == REPEATED_RUNS
@@ -395,7 +406,7 @@ class TestResults:
 
     def test_nested(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         repository: Path,
         monkeypatch: pytest.MonkeyPatch,
         transport: Transport,
@@ -419,7 +430,7 @@ class TestErrors:
     )
     def test_execution(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         monkeypatch: pytest.MonkeyPatch,
         error: BaseException,
     ) -> None:
@@ -433,7 +444,7 @@ class TestErrors:
 
     def test_missing_git(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Explain an absent Git runtime without traceback."""
@@ -442,7 +453,7 @@ class TestErrors:
 
     def test_symlink_reports(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         repository: Path,
     ) -> None:
         """Reject candidate-selected report directory redirection."""
@@ -455,7 +466,7 @@ class TestErrors:
 
     def test_missing_report(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """A zero exit with no new report cannot establish a result."""
@@ -469,7 +480,7 @@ class TestErrors:
 
     def test_no_input_mutation(
         self,
-        repair: Namespace,
+        repair: _Arguments,
         repository: Path,
     ) -> None:
         """Reject overlap before creating any report directories."""
@@ -477,11 +488,11 @@ class TestErrors:
         assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
         assert not (repository / '.git/iac-guard-v').exists()
 
-    def test_wrong_version(self, repair: Namespace) -> None:
+    def test_wrong_version(self, repair: _Arguments) -> None:
         """An executable without the released product fails before verify."""
         assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
 
-    def test_real_process(self, repair: Namespace) -> None:
+    def test_real_process(self, repair: _Arguments) -> None:
         """Exercise log creation with literal argv and the real process API."""
         run = hook.HookRun(repair)
         shell = shutil.which('sh')

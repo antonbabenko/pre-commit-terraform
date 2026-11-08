@@ -22,9 +22,10 @@ from typing import TYPE_CHECKING, Final, cast
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
+    from collections.abc import Callable
 
 
-# Eight small module members keep parser, process and Git concerns explicit.
+# Keep parser, process and Git concerns explicit.
 # flake8: noqa: WPS202
 CLI_SUBCOMMAND_NAME: Final[str] = 'iac-guard-v'
 # Exact reviewed product/protocol pairs; future releases never self-promote.
@@ -42,6 +43,8 @@ REPORT_VALIDATOR: Final[str] = (
     'schema = files("iac_guard_v").joinpath("schemas/report-v1.schema.json"); '
     'validate(json.load(open(sys.argv[1])), json.loads(schema.read_text()))'
 )
+# JSON values enter as objects; the released schema establishes report shape.
+JSON_LOADS: Final[Callable[[str], object]] = json.loads
 
 
 def _require(message: str, *, condition: bool) -> None:
@@ -56,7 +59,12 @@ def populate_argument_parser(parser: ArgumentParser) -> None:
     parser.add_argument('--local-trusted', action='store_true', required=True)
     parser.add_argument('--before', type=Path, required=True)
     parser.add_argument('--after', type=Path, required=True)
-    parser.add_argument('--framework', choices=('terraform',), required=True)
+    parser.add_argument(
+        '--framework',
+        type=str,
+        choices=('terraform',),
+        required=True,
+    )
     parser.add_argument('--target', action='append', required=True)
     parser.add_argument('--checkov-executable', type=Path, required=True)
 
@@ -104,7 +112,7 @@ def verification_command(
     Returns:
         list[str]: The published verify invocation, without shell expansion.
     """
-    args = _Arguments(**cast('dict[str, object]', parsed.__dict__))
+    args = cast('_Arguments', parsed)
     before, after = (
         (root / args.before).resolve(),
         (root / args.after).resolve(),
@@ -230,7 +238,7 @@ class HookRun:
         )
         payload = cast(
             'dict[str, object]',
-            json.loads(self.report.read_text()),
+            JSON_LOADS(self.report.read_text()),
         )
         # The schema validates headers/types; compare transport consistency.
         _require(
