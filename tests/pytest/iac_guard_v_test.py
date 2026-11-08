@@ -545,6 +545,19 @@ class _ProcessDouble:
         return outcome
 
 
+class _ProcessPlatform:
+    """Precisely typed POSIX operations, without sending real OS signals."""
+
+    name = 'posix'
+
+    def __init__(self, signals: list[tuple[int, int]]) -> None:
+        self.environ = dict(os.environ)
+        self.signals = signals
+
+    def killpg(self, pid: int, signum: int) -> None:
+        self.signals.append((pid, signum))
+
+
 @pytest.mark.parametrize(
     'mode',
     ('completed', 'cancelled', 'deadline', 'escalation'),
@@ -565,16 +578,15 @@ def test_process_contract(
     process = _ProcessDouble(responses)
     signals: list[tuple[int, int]] = []
     monkeypatch.setattr(hook, 'signal', SimpleNamespace(SIGKILL=9))
-    monkeypatch.setattr(
-        hook,
-        'os',
-        SimpleNamespace(
-            name='posix',
-            environ=os.environ,
-            killpg=lambda pid, sig: signals.append((pid, sig)),
-        ),
-    )
-    monkeypatch.setattr(subprocess, 'Popen', lambda *_args, **_kwargs: process)
+    monkeypatch.setattr(hook, 'os', _ProcessPlatform(signals))
+
+    def spawn(command: list[str], **options: object) -> _ProcessDouble:  # noqa: WPS430 — trusted argv/session transport contract
+        assert command == ['literal']
+        assert options['start_new_session'] is True
+        assert options['cwd'] == run.root
+        return process
+
+    monkeypatch.setattr(subprocess, 'Popen', spawn)
     expected: type[BaseException]
     if mode == 'completed':
         assert run._process(['literal'], 'completed') == EXECUTION_ERROR  # noqa: SLF001 — transport contract

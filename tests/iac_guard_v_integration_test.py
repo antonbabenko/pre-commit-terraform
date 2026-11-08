@@ -17,6 +17,7 @@ import os
 import subprocess
 import unittest
 from pathlib import Path
+from typing import TypeAlias
 
 
 BAD = (
@@ -33,6 +34,13 @@ HOOK_ID = 'terraform_iac_guard_v'
 CONFIG_FILE = '.pre-commit-config.yaml'
 RUN_COMMAND = 'run'
 RUN_PATTERN = 'run-*'
+
+
+PrecommitConfiguration: TypeAlias = tuple[
+    dict[str, object],
+    list[str],
+    dict[str, object],
+]
 
 
 class ReleasedProductTests(unittest.TestCase):
@@ -169,34 +177,7 @@ class ReleasedProductTests(unittest.TestCase):
 
     def test_precommit(self) -> None:  # noqa: WPS210 — retain request, reports and process evidence
         """Exercise manifest metadata and different pre-commit selections."""
-        revision = self.command(
-            [GIT, '-C', str(self.source), 'rev-parse', 'HEAD'],
-        ).stdout.strip()
-        arguments = [
-            f'--iacgv-python={self.product}',
-            '--local-trusted',
-            '--before=before',
-            '--after=after',
-            '--framework=terraform',
-            f'--target={TARGET}',
-            f'--checkov-executable={self.scanner}',
-        ]
-        config = {
-            'repos': [
-                {
-                    'repo': str(self.source),
-                    'rev': revision,
-                    'hooks': [
-                        {
-                            'id': HOOK_ID,
-                            'args': arguments,
-                        },
-                    ],
-                },
-            ],
-        }
-        (self.root / CONFIG_FILE).write_text(json.dumps(config))
-        self.command([GIT, 'add', '.'])
+        self.configure_precommit()
         for files in (
             [CONFIG_FILE],
             ['after/main.tf', 'after/second.tf'],
@@ -219,8 +200,10 @@ class ReleasedProductTests(unittest.TestCase):
                 self.assertEqual(completed.returncode, 0, completed.stdout)
                 fresh = set(reports.glob(RUN_PATTERN)) - before
                 self.assertEqual(len(fresh), 1)
-        hook_definition = config['repos'][0]['hooks'][0]
-        self.check_manual_stage(config, hook_definition)
+
+    def test_precommit_failure(self) -> None:
+        """A real FAILED/1 verifier must fail the outer pre-commit process."""
+        config, arguments, _hook = self.configure_precommit()
         arguments[arguments.index('--after=after')] = '--after=unchanged'
         (self.root / CONFIG_FILE).write_text(json.dumps(config))
         self.command([GIT, 'add', '.'])
@@ -229,12 +212,9 @@ class ReleasedProductTests(unittest.TestCase):
         )
         self.assertEqual(failed.returncode, 1, failed.stdout)
 
-    def check_manual_stage(
-        self,
-        config: dict[str, object],
-        hook_definition: dict[str, object],
-    ) -> None:
+    def test_manual_stage(self) -> None:  # noqa: WPS210 — explicit stage, request and report evidence
         """Test deliberate commit-stage omission and manual verification."""
+        config, _arguments, hook_definition = self.configure_precommit()
         hook_definition['stages'] = ['manual']
         (self.root / CONFIG_FILE).write_text(json.dumps(config))
         self.command([GIT, 'add', '.'])
@@ -244,7 +224,6 @@ class ReleasedProductTests(unittest.TestCase):
             [
                 self.precommit,
                 RUN_COMMAND,
-                HOOK_ID,
                 '--all-files',
             ],
         )
@@ -264,6 +243,43 @@ class ReleasedProductTests(unittest.TestCase):
         fresh = set(reports.glob(RUN_PATTERN)) - existing
         self.assertEqual(len(fresh), 1)
         hook_definition.pop('stages')
+
+    def configure_precommit(
+        self,
+    ) -> PrecommitConfiguration:
+        """Write the tested hook configuration and return its trusted fields.
+
+        Returns:
+            tuple: Configuration, product arguments and hook definition.
+        """
+        revision = self.command(
+            [GIT, '-C', str(self.source), 'rev-parse', 'HEAD'],
+        ).stdout.strip()
+        arguments = [
+            f'--iacgv-python={self.product}',
+            '--local-trusted',
+            '--before=before',
+            '--after=after',
+            '--framework=terraform',
+            f'--target={TARGET}',
+            f'--checkov-executable={self.scanner}',
+        ]
+        hook_definition: dict[str, object] = {
+            'id': HOOK_ID,
+            'args': arguments,
+        }
+        config: dict[str, object] = {
+            'repos': [
+                {
+                    'repo': str(self.source),
+                    'rev': revision,
+                    'hooks': [hook_definition],
+                },
+            ],
+        }
+        (self.root / CONFIG_FILE).write_text(json.dumps(config))
+        self.command([GIT, 'add', '.'])
+        return config, arguments, hook_definition
 
 
 if __name__ == '__main__':
