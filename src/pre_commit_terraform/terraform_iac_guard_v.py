@@ -10,11 +10,15 @@ import json
 import logging
 import os
 import shutil
+import signal
 
 # Only explicit operator-provisioned executables and argv; never a shell.
 import subprocess  # noqa: S404
 import tempfile
+import threading
+import time
 from argparse import Namespace
+from contextlib import contextmanager
 from pathlib import Path
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Final, cast
@@ -22,7 +26,8 @@ from typing import TYPE_CHECKING, Final, cast
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
+    from types import FrameType
 
 
 # Keep parser, process and Git concerns explicit.
@@ -30,9 +35,11 @@ if TYPE_CHECKING:
 CLI_SUBCOMMAND_NAME: Final[str] = 'iac-guard-v'
 # Exact reviewed product/protocol pairs; future releases never self-promote.
 SUPPORTED_PROTOCOLS: Final = MappingProxyType(
-    {'1.0.2': 'report-v1', '1.0.3': 'report-v1'},
+    {'1.0.4': 'report-v1'},
 )
 TIMEOUT: Final[int] = 600
+CLEANUP_TIMEOUT: Final[int] = 15
+POLL_INTERVAL: Final[float] = 0.1
 PRIVATE_DIRECTORY_MODE: Final[int] = 0o700
 LOGGER = logging.getLogger(__name__)
 INCONCLUSIVE: Final[int] = 3
@@ -190,6 +197,7 @@ class HookRun:
             reports.mkdir(mode=PRIVATE_DIRECTORY_MODE, exist_ok=True)
         self.directory = Path(tempfile.mkdtemp(prefix='run-', dir=reports))
         self.report = self.directory / 'report.json'
+        self.cancelled = False
 
     def verify(self, parsed: Namespace) -> int:
         """Invoke the product once, preserving its classifications and exits.
@@ -216,13 +224,15 @@ class HookRun:
         )
         protocol = SUPPORTED_PROTOCOLS.get(product_version)
         _require(
-            'Runtime requires iac-guard-v 1.0.2 or 1.0.3 with report-v1; '
+            'Runtime requires iac-guard-v 1.0.4 with report-v1 '
+            'and cooperative cancellation; '
             'see runtime logs.',
             condition=runtime == 0 and protocol is not None,
         )
         code = self._process(command, 'verification')
         LOGGER.warning('IaC-Guard-V process exit: %s', code)
         if code not in {0, 1, INCONCLUSIVE}:
+            self.invalidate_report()
             return code if code > 0 else INCONCLUSIVE
         _require(
             'Canonical report missing or symlinked; see verification logs.',
@@ -257,21 +267,112 @@ class HookRun:
         )
         return code
 
+    def _interrupt(self, _signum: int, _frame: FrameType | None) -> None:
+        # Latch rather than raise inside Popen: ownership must be established
+        # before cleanup can run. Repeated signals never interrupt cleanup.
+        self.cancelled = True
+
+    @contextmanager
+    def signals(self) -> Iterator[None]:
+        """Handle CLI signals temporarily; keep threaded callers unchanged."""
+        if threading.current_thread() is not threading.main_thread():
+            yield
+            return
+        previous = {
+            sig: signal.getsignal(sig)
+            for sig in (signal.SIGINT, signal.SIGTERM)
+        }
+        try:
+            for sig in previous:
+                signal.signal(sig, self._interrupt)
+            yield
+        finally:
+            for sig, handler in previous.items():
+                signal.signal(sig, handler)
+
+    def invalidate_report(self) -> None:
+        """Retain rejected evidence outside the canonical report path."""
+        if self.report.exists() or self.report.is_symlink():
+            try:
+                self.report.rename(self.directory / 'unaccepted-report.json')
+            except OSError as error:
+                LOGGER.warning(
+                    'Could not quarantine rejected report: %s',
+                    error,
+                )
+
+    @staticmethod
+    def _stop(process: subprocess.Popen[str]) -> None:
+        # The qualified product cleans its separately owned scanner session.
+        # Keep the verifier alive long enough to complete that bounded cleanup.
+        process.terminate()
+        try:
+            process.wait(timeout=CLEANUP_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            LOGGER.warning(
+                'Verifier did not acknowledge cancellation; '
+                'scanner cleanup unconfirmed.',
+            )
+            # The unreaped session leader reserves this process group identity.
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=CLEANUP_TIMEOUT)
+
     def _process(self, command: list[str], label: str) -> int:
+        _require(
+            'Native verification requires POSIX cleanup; '
+            'use Linux Docker on Windows.',
+            condition=os.name == 'posix',
+        )
         with (
             (self.directory / f'{label}.stdout.log').open('x') as stdout,
             (self.directory / f'{label}.stderr.log').open('x') as stderr,
         ):
-            completed = subprocess.run(  # noqa: S603 — explicit trusted executable, literal argv
+            process = subprocess.Popen(  # noqa: S603 — explicit trusted executable, literal argv
                 command,
                 cwd=self.root,
                 env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'),
                 stdout=stdout,
                 stderr=stderr,
-                check=False,
-                timeout=TIMEOUT,
+                text=True,
+                start_new_session=True,
             )
-        return completed.returncode
+            try:
+                return self._wait(process, command)
+            except BaseException:
+                try:
+                    self._stop(process)
+                finally:
+                    self.invalidate_report()
+                raise
+
+    def _check_cancellation(self) -> None:
+        if self.cancelled:
+            raise KeyboardInterrupt
+
+    def _wait(self, process: subprocess.Popen[str], command: list[str]) -> int:
+        deadline = time.monotonic() + TIMEOUT
+        while True:
+            self._check_cancellation()
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired(command, TIMEOUT)
+            try:
+                code = process.wait(timeout=min(POLL_INTERVAL, remaining))
+            except subprocess.TimeoutExpired:
+                continue
+            self._check_cancellation()
+            return code
+
+    def execute(self, args: Namespace) -> int:
+        """Reject cancellation even after the verifier has written its report.
+
+        Returns:
+            int: Product classification when no cancellation was observed.
+        """
+        with self.signals():
+            code = self.verify(args)
+        self._check_cancellation()
+        return code
 
 
 def invoke_cli_app(args: Namespace) -> int:
@@ -281,14 +382,19 @@ def invoke_cli_app(args: Namespace) -> int:
         int: Product exit or inconclusive transport failure. pre-commit itself
         normalizes nonzero hook statuses to 1.
     """
+    invocation: HookRun | None = None
     try:  # noqa: WPS229 — allocation, diagnostics and verification share one boundary
         invocation = HookRun(args)
         LOGGER.warning('IaC-Guard-V evidence: %s', invocation.directory)
-        return invocation.verify(args)
+        return invocation.execute(args)
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         LOGGER.warning('IaC-Guard-V setup/transport error: %s', error)
+        if invocation is not None:
+            invocation.invalidate_report()
         return INCONCLUSIVE
     except KeyboardInterrupt:
+        if invocation is not None:
+            invocation.invalidate_report()
         LOGGER.warning(
             'IaC-Guard-V execution interrupted; no verified result.',
         )

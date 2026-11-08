@@ -6,22 +6,24 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import signal
 import subprocess
-import sys
-from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, Protocol
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, Final, Protocol, cast
 
 import pytest
 from pre_commit_terraform import _cli
 from pre_commit_terraform import terraform_iac_guard_v as hook
-from pre_commit_terraform.terraform_iac_guard_v import _Arguments
 
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from pre_commit_terraform.terraform_iac_guard_v import _Arguments
 
 
 BEFORE = 'before'
@@ -41,66 +43,10 @@ class Transport(Protocol):
         code: int,
         report: str | None = None,
         schema: int = 0,
-        version: str = '1.0.2',
+        version: str = '1.0.4',
     ) -> None:
         """Select product and report outcomes."""
         ...
-
-
-@pytest.fixture
-def repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """Create a disposable repository, retaining spaces in its path.
-
-    Returns:
-        Path: Repository root.
-    """
-    # Windows strips trailing spaces from directory names; POSIX retains them.
-    name = (
-        'repo with spaces' if sys.platform == 'win32' else 'repo with spaces '
-    )
-    root = tmp_path / name
-    root.mkdir()
-    git = shutil.which('git')
-    assert git is not None
-    subprocess.run([git, 'init', '-q', str(root)], check=True)  # noqa: S603 — resolved executable and fixed argv
-    monkeypatch.chdir(root)
-    return root
-
-
-@pytest.fixture
-def repair(repository: Path) -> _Arguments:
-    """Parse a benign explicit repair request.
-
-    Returns:
-        _Arguments: Parsed operator-controlled arguments.
-    """
-    executable = repository / 'python'
-    executable.write_text('#!/bin/sh\nexit 0\n')
-    executable.chmod(hook.PRIVATE_DIRECTORY_MODE)
-    for name in (BEFORE, AFTER):
-        (repository / name).mkdir()
-    parser = ArgumentParser()
-    hook.populate_argument_parser(parser)
-    parsed = _Arguments()
-    parser.parse_args(
-        [
-            '--iacgv-python',
-            str(executable),
-            '--local-trusted',
-            '--before',
-            BEFORE,
-            '--after',
-            AFTER,
-            '--framework',
-            'terraform',
-            '--target',
-            'CKV_AWS_3=aws_ebs_volume.target',
-            '--checkov-executable',
-            str(executable),
-        ],
-        namespace=parsed,
-    )
-    return parsed
 
 
 @pytest.fixture
@@ -117,7 +63,7 @@ def transport(
         code: int,
         report: str | None = None,
         schema: int = 0,
-        version: str = '1.0.2',
+        version: str = '1.0.4',
     ) -> None:  # noqa: WPS430 — bind fixture state
         def process(run: hook.HookRun, _command: list[str], label: str) -> int:  # noqa: WPS430 — isolated subprocess double
             (run.directory / f'{label}.stdout.log').write_text(version + '\n')
@@ -270,7 +216,7 @@ class TestResults:
     """Require fresh, consistent reports and preserve product errors."""
 
     @pytest.mark.parametrize('code', (0, 1, 3, 2, 4, 17, -9))
-    @pytest.mark.parametrize('version', ('1.0.2', '1.0.3'))
+    @pytest.mark.parametrize('version', ('1.0.4',))
     def test_exit(
         self,
         repair: _Arguments,
@@ -285,7 +231,7 @@ class TestResults:
 
     @pytest.mark.parametrize(
         'version',
-        ('1.0.1', '1.0.3rc1', '1.0.4', '2.0.0', ''),
+        ('1.0.1', '1.0.2', '1.0.3', '1.0.4rc1', '1.0.5', '2.0.0', ''),
     )
     def test_unreviewed_version(
         self,
@@ -313,7 +259,7 @@ class TestResults:
                     'verdict': 'VERIFIED',
                 },
             ),
-            version='1.0.3',
+            version='1.0.4',
         )
         assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
 
@@ -472,7 +418,7 @@ class TestErrors:
         """A zero exit with no new report cannot establish a result."""
 
         def process(run: hook.HookRun, _command: list[str], label: str) -> int:  # noqa: WPS430 — missing report injection
-            (run.directory / f'{label}.stdout.log').write_text('1.0.2\n')
+            (run.directory / f'{label}.stdout.log').write_text('1.0.4\n')
             return 0
 
         monkeypatch.setattr(hook.HookRun, '_process', process)
@@ -492,10 +438,155 @@ class TestErrors:
         """An executable without the released product fails before verify."""
         assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
 
-    def test_real_process(self, repair: _Arguments) -> None:
-        """Exercise log creation with literal argv and the real process API."""
-        run = hook.HookRun(repair)
-        shell = shutil.which('sh')
-        assert shell is not None
-        assert run._process([shell, '-c', 'exit 4'], 'test') == EXECUTION_ERROR  # noqa: SLF001 — exercise transport boundary
-        assert (run.directory / 'test.stderr.log').is_file()
+
+def test_post_wait_cancellation(
+    repair: _Arguments,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A signal arriving as wait returns cannot become success."""
+    run = hook.HookRun(repair)
+
+    def completed(_self: _ProcessDouble, **_kwargs: object) -> int:  # noqa: WPS430 — signal/exit race injection
+        run.cancelled = True
+        return 0
+
+    process = cast('subprocess.Popen[str]', _ProcessDouble([0]))
+    monkeypatch.setattr(_ProcessDouble, 'wait', completed)
+    with pytest.raises(KeyboardInterrupt):
+        run._wait(process, ['fixture'])  # noqa: SLF001 — race boundary
+
+
+def test_native_windows_rejected(
+    repair: _Arguments,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unsupported native cleanup fails before runtime or scanner startup."""
+    run = hook.HookRun(repair)
+    monkeypatch.setattr(hook, 'os', SimpleNamespace(name='nt'))
+    with pytest.raises(ValueError, match='POSIX'):
+        run._process(['unreachable'], 'windows')  # noqa: SLF001 — platform boundary
+
+
+def test_quarantine_error_is_diagnostic(
+    repair: _Arguments,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A retention failure cannot replace cancellation with a false success."""
+    run = hook.HookRun(repair)
+    run.report.write_text('{}')
+
+    def denied(_path: Path, _target: Path) -> Path:  # noqa: WPS430 — filesystem error injection
+        message = 'retention blocked'
+        raise OSError(message)
+
+    monkeypatch.setattr(Path, 'rename', denied)
+    run.invalidate_report()
+    assert 'retention blocked' in caplog.text
+
+
+def test_cancellation_before_allocation(
+    repair: _Arguments,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Fail closed on interruption during Git discovery."""
+
+    def interrupted(_self: hook.HookRun, _args: _Arguments) -> None:  # noqa: WPS430 — allocation interruption
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(hook.HookRun, '__init__', interrupted)
+    assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
+
+
+def test_cancelled_after_report(
+    repair: _Arguments,
+    monkeypatch: pytest.MonkeyPatch,
+    repository: Path,
+) -> None:
+    """Reject cancellation after product completion/report creation."""
+
+    def completed(run: hook.HookRun, _args: _Arguments) -> int:  # noqa: WPS430 — finalization race
+        run.report.write_text('{"verdict":"VERIFIED","exit_code":0}')
+        run.cancelled = True
+        return 0
+
+    monkeypatch.setattr(hook.HookRun, 'verify', completed)
+    assert hook.invoke_cli_app(repair) == hook.INCONCLUSIVE
+    assert not list(repository.glob('.git/iac-guard-v/runs/*/report.json'))
+    assert (
+        len(
+            list(
+                repository.glob(
+                    '.git/iac-guard-v/runs/*/unaccepted-report.json',
+                ),
+            ),
+        )
+        == 1
+    )
+
+
+class _ProcessDouble:
+    """Only the Popen ownership contract consumed by this transport."""
+
+    def __init__(self, responses: list[int | BaseException]) -> None:
+        self.responses = responses
+        self.pid = 12345
+        self.returncode: int | None = None
+        self.terminated = False
+
+    def terminate(self) -> None:
+        self.terminated = True
+
+    def wait(self, *, timeout: float) -> int:
+        outcome = self.responses.pop(0)
+        if isinstance(outcome, BaseException):
+            raise outcome
+        self.returncode = outcome
+        return outcome
+
+
+@pytest.mark.parametrize(
+    'mode',
+    ('completed', 'cancelled', 'deadline', 'escalation'),
+)
+def test_process_contract(
+    repair: _Arguments,
+    monkeypatch: pytest.MonkeyPatch,
+    mode: str,
+) -> None:
+    """Test transport exits and bounded cleanup on every unit-test platform."""
+    run = hook.HookRun(repair)
+    timeout = subprocess.TimeoutExpired('fixture', 1)
+    responses: list[int | BaseException] = [EXECUTION_ERROR]
+    if mode == 'completed':
+        responses = [timeout, EXECUTION_ERROR]
+    elif mode == 'escalation':
+        responses = [timeout, -9]
+    process = _ProcessDouble(responses)
+    signals: list[tuple[int, int]] = []
+    monkeypatch.setattr(hook, 'signal', SimpleNamespace(SIGKILL=9))
+    monkeypatch.setattr(
+        hook,
+        'os',
+        SimpleNamespace(
+            name='posix',
+            environ=os.environ,
+            killpg=lambda pid, sig: signals.append((pid, sig)),
+        ),
+    )
+    monkeypatch.setattr(subprocess, 'Popen', lambda *_args, **_kwargs: process)
+    expected: type[BaseException]
+    if mode == 'completed':
+        assert run._process(['literal'], 'completed') == EXECUTION_ERROR  # noqa: SLF001 — transport contract
+        assert (run.directory / 'completed.stderr.log').is_file()
+    else:
+        if mode == 'deadline':
+            monkeypatch.setattr(hook, 'TIMEOUT', 0)
+            expected = subprocess.TimeoutExpired
+        else:
+            run._interrupt(signal.SIGTERM, None)  # noqa: SLF001 — signal latch contract
+            expected = KeyboardInterrupt
+        with pytest.raises(expected):
+            run._process(['literal'], mode)  # noqa: SLF001 — cleanup ownership contract
+        assert process.terminated
+        assert signals == ([(process.pid, 9)] if mode == 'escalation' else [])

@@ -29,6 +29,10 @@ TARGET = 'CKV_AWS_3=aws_ebs_volume.target'
 TIMEOUT = 900
 GIT = 'git'
 AFTER = 'after'
+HOOK_ID = 'terraform_iac_guard_v'
+CONFIG_FILE = '.pre-commit-config.yaml'
+RUN_COMMAND = 'run'
+RUN_PATTERN = 'run-*'
 
 
 class ReleasedProductTests(unittest.TestCase):
@@ -184,28 +188,28 @@ class ReleasedProductTests(unittest.TestCase):
                     'rev': revision,
                     'hooks': [
                         {
-                            'id': 'terraform_iac_guard_v',
+                            'id': HOOK_ID,
                             'args': arguments,
                         },
                     ],
                 },
             ],
         }
-        (self.root / '.pre-commit-config.yaml').write_text(json.dumps(config))
+        (self.root / CONFIG_FILE).write_text(json.dumps(config))
         self.command([GIT, 'add', '.'])
         for files in (
-            ['.pre-commit-config.yaml'],
+            [CONFIG_FILE],
             ['after/main.tf', 'after/second.tf'],
             [],
         ):
             with self.subTest(files=files):
                 reports = self.root / '.git/iac-guard-v/runs'
-                before = set(reports.glob('run-*'))
+                before = set(reports.glob(RUN_PATTERN))
                 completed = self.command(
                     [
                         self.precommit,
-                        'run',
-                        'terraform_iac_guard_v',
+                        RUN_COMMAND,
+                        HOOK_ID,
                         '--verbose',
                         '--files',
                         *files,
@@ -213,15 +217,53 @@ class ReleasedProductTests(unittest.TestCase):
                     cwd=self.root / AFTER,
                 )
                 self.assertEqual(completed.returncode, 0, completed.stdout)
-                fresh = set(reports.glob('run-*')) - before
+                fresh = set(reports.glob(RUN_PATTERN)) - before
                 self.assertEqual(len(fresh), 1)
+        hook_definition = config['repos'][0]['hooks'][0]
+        self.check_manual_stage(config, hook_definition)
         arguments[arguments.index('--after=after')] = '--after=unchanged'
-        (self.root / '.pre-commit-config.yaml').write_text(json.dumps(config))
+        (self.root / CONFIG_FILE).write_text(json.dumps(config))
         self.command([GIT, 'add', '.'])
         failed = self.command(
-            [self.precommit, 'run', 'terraform_iac_guard_v', '--all-files'],
+            [self.precommit, RUN_COMMAND, HOOK_ID, '--all-files'],
         )
         self.assertEqual(failed.returncode, 1, failed.stdout)
+
+    def check_manual_stage(
+        self,
+        config: dict[str, object],
+        hook_definition: dict[str, object],
+    ) -> None:
+        """Test deliberate commit-stage omission and manual verification."""
+        hook_definition['stages'] = ['manual']
+        (self.root / CONFIG_FILE).write_text(json.dumps(config))
+        self.command([GIT, 'add', '.'])
+        reports = self.root / '.git/iac-guard-v/runs'
+        existing = set(reports.glob(RUN_PATTERN))
+        omitted = self.command(
+            [
+                self.precommit,
+                RUN_COMMAND,
+                HOOK_ID,
+                '--all-files',
+            ],
+        )
+        self.assertEqual(omitted.returncode, 0, omitted.stdout)
+        self.assertEqual(set(reports.glob(RUN_PATTERN)), existing)
+        manual = self.command(
+            [
+                self.precommit,
+                RUN_COMMAND,
+                HOOK_ID,
+                '--hook-stage',
+                'manual',
+                '--all-files',
+            ],
+        )
+        self.assertEqual(manual.returncode, 0, manual.stdout)
+        fresh = set(reports.glob(RUN_PATTERN)) - existing
+        self.assertEqual(len(fresh), 1)
+        hook_definition.pop('stages')
 
 
 if __name__ == '__main__':
