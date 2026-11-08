@@ -52,8 +52,12 @@ WAIT_LIMIT = 5
 SUPERVISOR = """
 import json, os, signal, subprocess, sys, time
 from pathlib import Path
-pids, report, token = sys.argv[1:]
-while not Path(pids).with_suffix(".start").exists(): time.sleep(.01)
+pids, report, token, startup_timeout = sys.argv[1:]
+deadline = time.monotonic() + float(startup_timeout)
+while not Path(pids).with_suffix(".start").exists():
+    if time.monotonic() >= deadline:
+        raise SystemExit(3)
+    time.sleep(.01)
 child = subprocess.Popen(
     [sys.executable, '-c', 'import time; time.sleep(30)', token],
     start_new_session=True,
@@ -125,6 +129,7 @@ def test_cooperative_cleanup(  # noqa: WPS210,WPS218 — keep process identities
         str(pids),
         str(run.report),
         token,
+        str(WAIT_LIMIT),
     ]
     if mode == 'timeout':
         monkeypatch.setattr(hook, 'TIMEOUT', 1)
@@ -180,6 +185,29 @@ def test_cooperative_cleanup(  # noqa: WPS210,WPS218 — keep process identities
         )
     finally:
         _finish_fixture(unrelated, controller, pids, token)
+
+
+@POSIX_ONLY
+def test_supervisor_startup_deadline(tmp_path: Path) -> None:
+    """An unacknowledged fixture exits before creating a scanner or report."""
+    pids = tmp_path / 'pids.json'
+    report = tmp_path / 'report.json'
+    completed = subprocess.run(  # noqa: S603 — current interpreter and literal fixture argv
+        [
+            sys.executable,
+            PYTHON_CODE,
+            SUPERVISOR,
+            str(pids),
+            str(report),
+            tmp_path.name,
+            str(POLL_INTERVAL),
+        ],
+        check=False,
+        timeout=WAIT_LIMIT,
+    )
+    assert completed.returncode == hook.INCONCLUSIVE
+    assert not pids.exists()
+    assert not report.exists()
 
 
 @POSIX_ONLY
