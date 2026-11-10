@@ -239,7 +239,7 @@ Full list of dependencies and where they are used:
   </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`][checkov repo] required for `terraform_checkov` hook
 * [`terraform-docs`][terraform-docs repo] 0.12.0+ required for `terraform_docs` hook
-* [`terragrunt`][terragrunt repo] required for `terragrunt_validate` and `terragrunt_valid_inputs` hooks
+* [`terragrunt`][terragrunt repo] required for `terragrunt_fmt`, `terragrunt_validate`, `terragrunt_validate_inputs` and `terragrunt_providers_lock` hooks
 * [`terrascan`][terrascan repo] required for `terrascan` hook
 * [`TFLint`][tflint repo] required for `terraform_tflint` hook
 * [`TFSec`][tfsec repo] required for `terraform_tfsec` hook
