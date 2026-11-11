@@ -15,5 +15,5 @@ class PreCommitTerraformRuntimeError(
 # N818 - The name mimics the built-in SystemExit and is meant to have exactly
 # the same semantics. For this reason, it shouldn't have Error in the name to
 # maintain resemblance.
-class PreCommitTerraformExit(PreCommitTerraformBaseError, SystemExit):  # noqa: N818
+class PreCommitTerraformExit(PreCommitTerraformBaseError, SystemExit):  # ruff: ignore[error-suffix-on-exception-name]
     """An exception for terminating execution from deep app layers."""
