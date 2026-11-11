@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.109.5](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.109.4...v1.109.5) (2026-11-11)
+
+
+### Bug Fixes
+
+* Handle GitHub API rate limiting when downloading tools ([#1024](https://github.com/antonbabenko/pre-commit-terraform/issues/1024)) ([a0e1443](https://github.com/antonbabenko/pre-commit-terraform/commit/a0e144327b7d4cfd0e89aa8abf61a1599c86d954))
+
 ## [1.109.4](https://github.com/antonbabenko/pre-commit-terraform/compare/v1.109.3...v1.109.4) (2026-10-30)
 
 
