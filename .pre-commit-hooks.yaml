@@ -149,6 +149,15 @@
   exclude: \.terraform/.*$
   require_serial: true
 
+- id: terraform_iac_guard_v
+  name: IaC-Guard-V declared repair verification
+  description: Verify an explicit trusted before/after Terraform repair.
+  entry: python -Im pre_commit_terraform iac-guard-v
+  language: python
+  pass_filenames: false
+  require_serial: true
+  always_run: true
+
 - id: terraform_wrapper_module_for_each
   name: Terraform wrapper with for_each in module
   description: Generate Terraform wrappers with for_each in module.

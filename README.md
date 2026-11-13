@@ -60,6 +60,7 @@ If you want to support the development of `pre-commit-terraform` and [many other
     * [Keeping pinned versions up-to-date using Renovate](#keeping-pinned-versions-up-to-date-using-renovate)
   * [Many hooks: Parallelism](#many-hooks-parallelism)
   * [checkov (deprecated) and terraform\_checkov](#checkov-deprecated-and-terraform_checkov)
+  * [terraform\_iac\_guard\_v](#terraform_iac_guard_v)
   * [infracost\_breakdown](#infracost_breakdown)
   * [terraform\_docs](#terraform_docs)
   * [terraform\_docs\_replace (deprecated)](#terraform_docs_replace-deprecated)
@@ -238,6 +239,7 @@ Full list of dependencies and where they are used:
   <sub><sup>Hope that it all will work.
   </sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub></sup></sub><br><br>
 * [`checkov`][checkov repo] required for `terraform_checkov` hook
+* [`iac-guard-v==1.0.4`](https://pypi.org/project/iac-guard-v/1.0.4/) and a qualified Checkov installation required for `terraform_iac_guard_v`; see its [separate installation instructions](#terraform_iac_guard_v)
 * [`terraform-docs`][terraform-docs repo] 0.12.0+ required for `terraform_docs` hook
 * [`terragrunt`][terragrunt repo] required for `terragrunt_fmt`, `terragrunt_validate`, `terragrunt_validate_inputs` and `terragrunt_providers_lock` hooks
 * [`terrascan`][terrascan repo] required for `terrascan` hook
@@ -336,6 +338,7 @@ There are several [pre-commit](https://pre-commit.com/) hooks to keep Terraform 
 | `terraform_docs_replace`                               | Runs `terraform-docs` and pipes the output directly to README.md. **DEPRECATED**, see [#248](https://github.com/antonbabenko/pre-commit-terraform/issues/248). [Hook notes](#terraform_docs_replace-deprecated)                  | `python3`, `terraform-docs`                                                          |
 | `terraform_docs_without_`<br>`aggregate_type_defaults` | Inserts input and output documentation into `README.md` without aggregate type defaults. Hook notes same as for [terraform_docs](#terraform_docs)                                                                                | `terraform-docs`                                                                     |
 | `terraform_fmt`                                        | Reformat all Terraform configuration files to a canonical format. [Hook notes](#terraform_fmt)                                                                                                                                   | -                                                                                    |
+| `terraform_iac_guard_v` | Verify a declared trusted before/after Terraform repair with [IaC-Guard-V](https://github.com/lokesh0186/iac-guard-v). [Hook notes](#terraform_iac_guard_v) | Python 3.10+, separately installed `iac-guard-v==1.0.4` (Python 3.10–3.13), qualified Checkov |
 | `terraform_providers_lock`                             | Updates provider signatures in [dependency lock files](https://www.terraform.io/docs/cli/commands/providers/lock.html). [Hook notes](#terraform_providers_lock)                                                                  | -                                                                                    |
 | `terraform_tflint`                                     | Validates all Terraform configuration files with [TFLint][tflint repo]. [Available TFLint rules](https://github.com/terraform-linters/tflint-ruleset-terraform/blob/main/docs/rules/README.md). [Hook notes](#terraform_tflint). | `tflint`                                                                             |
 | `terraform_tfsec`                                      | [TFSec][tfsec repo] static analysis of terraform templates to spot potential security issues. **DEPRECATED**, use `terraform_trivy`. [Hook notes](#terraform_tfsec-deprecated)                                                   | `tfsec`                                                                              |
@@ -354,6 +357,10 @@ Check the [source file](https://github.com/antonbabenko/pre-commit-terraform/blo
 ## Hooks usage notes and examples
 
 ### Known limitations
+
+`terraform_iac_guard_v` uses its own explicit arguments and repository-level
+execution; the generic argument/environment and parallelism options below do
+not apply. See its [usage notes](#terraform_iac_guard_v).
 
 Terraform operates on a per-dir basis, while `pre-commit` framework only supports files and files that exist. This means if you only remove the TF-related file without any other changes in the same dir, checks will be skipped. Example and details [here](https://github.com/pre-commit/pre-commit/issues/3048).
 
@@ -615,6 +622,212 @@ For deprecated hook you need to specify each argument separately:
     "--skip-check", "CKV2_AWS_8",
   ]
 ```
+
+#### Verify a declared repair (optional)
+
+Checkov's `--baseline` option reports new failures, which is useful when a
+project has accepted existing findings. A zero exit with a baseline does not
+prove that one of those existing findings was fixed. For that question, a
+project can compare full JSON reports from before and after scans and require
+the same check and resource to fail before and pass after. The comparison also
+needs to handle skipped checks, parsing errors, and missing results.
+
+The optional [terraform_iac_guard_v](#terraform_iac_guard_v) hook packages that
+bounded verification through IaC-Guard-V. Trivy's
+[passing results](https://trivy.dev/docs/latest/references/configuration/cli/trivy_config/)
+and [custom checks](https://trivy.dev/docs/latest/guide/scanner/misconfiguration/config/config/)
+are other building blocks for project-owned comparisons.
+
+### terraform_iac_guard_v
+
+Verifies a particular declared Terraform repair using **iac-guard-v==1.0.4**.
+The operator supplies trusted before/after directories and an exact
+`CHECK_ID=RESOURCE_ADDRESS[@FILE]` target. The product requires legitimate
+before-fail/after-pass evidence for that same target, including scanner authority,
+coverage, suppression, provenance and dependency integrity. A zero scanner exit
+alone cannot establish a repair. This hook does not scan arbitrary staged files.
+
+#### Install on a host
+
+Use Python 3.10–3.13 for the product (3.12 is recommended and tested). The
+pre-commit adapter requires Python 3.10+ and has no product/scanner dependencies
+in its own environment. Provision the product and one scanner outside both
+snapshots and outside candidate control. For example, from an operator-owned
+location, using a current pip with `--python` support:
+
+```bash
+IACGV_ROOT="$HOME/.local/share/iac-guard-v-1.0.4"
+python3.12 -m venv --copies --without-pip "$IACGV_ROOT/product"
+python3.12 -m venv --copies --without-pip "$IACGV_ROOT/checkov"
+PYTHONDONTWRITEBYTECODE=1 python3.12 -m pip --python "$IACGV_ROOT/product/bin/python" install --no-compile 'iac-guard-v==1.0.4'
+PYTHONDONTWRITEBYTECODE=1 python3.12 -m pip --python "$IACGV_ROOT/checkov/bin/python" install --no-compile 'checkov==3.4.3'
+"$IACGV_ROOT/product/bin/python" -IBm iac_guard_v.cli doctor --mode local-trusted --checkov-executable "$IACGV_ROOT/checkov/bin/checkov" --format json
+```
+
+Require **both** `validator_registry.status` and `checkov.status` to be `PASS`;
+doctor's process exit alone is insufficient. Keep a strict scanner environment
+bytecode-free; do not run unrelated Python tools in it. This provisions one
+scanner explicitly; the hook never downloads or installs tools. An existing
+installation can be used only if it passes the released integrity contract.
+Cached pipx/venv installations are not automatically qualified.
+
+#### Configure one repair request
+
+For an EBS encryption example, put this in `verification/before/main.tf`:
+
+```hcl
+resource "aws_ebs_volume" "target" {
+  availability_zone = "us-east-1a"
+  size              = 1
+  encrypted         = false
+}
+```
+
+Copy it to `verification/after/main.tf` and change `encrypted` to `true`.
+Keep the original snapshot, hook configuration and declared target operator
+controlled. Candidate content must not choose the original defect, property,
+expected target, verifier, scanner or policy.
+
+Use a release/commit containing this hook for `rev` below. Substitute the two
+absolute executable paths from installation; args do not expand shell variables,
+`~`, `--args`, `--env-vars` or `__GIT_WORKING_DIR__` placeholders.
+
+```yaml
+repos:
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: <VERSION>  # Release/commit containing terraform_iac_guard_v
+  hooks:
+  - id: terraform_iac_guard_v
+    args:
+    - --iacgv-python=/absolute/operator/iac-guard-v-1.0.4/product/bin/python
+    - --local-trusted
+    - --before=verification/before
+    - --after=verification/after
+    - --framework=terraform
+    - --target=CKV_AWS_3=aws_ebs_volume.target
+    - --checkov-executable=/absolute/operator/iac-guard-v-1.0.4/checkov/bin/checkov
+```
+
+Run `pre-commit run terraform_iac_guard_v --all-files`. Paths to snapshots are
+relative to Git root, including when invoked from a nested directory; absolute
+paths and paths containing spaces are supported. Repeat `--target` to declare
+multiple exact targets. The released product validates selector syntax.
+
+The hook runs once per invocation (`pass_filenames: false`, `require_serial: true`)
+and uses `always_run: true`, including config-only changes or an empty file
+selection. This trades recurring verification cost for avoiding silently skipped
+requests. It evaluates the explicit pair, not necessarily the staged working tree.
+Disabling `always_run` can skip verification on configuration-only changes.
+Each child process has a ten-minute limit. SIGINT, SIGTERM and timeouts trigger
+cooperative verifier cleanup, with up to 15 seconds before forced termination.
+When storage permits, interrupted reports are retained as
+`unaccepted-report.json`; they are never accepted as canonical success. A forcibly killed or unresponsive verifier cannot confirm its
+separate scanner cleanup; inspect diagnostics. Native execution supports Linux
+and macOS; use Linux Docker on Windows. SIGKILL and host failure are outside the
+cooperative guarantee. Verification includes full integrity checks and can be
+costly (approximately seven to eight minutes in the tested strict host setup).
+
+For on-demand verification, add `stages: [manual]` beside this hook's `args` and
+run `pre-commit run terraform_iac_guard_v --hook-stage manual --all-files`.
+The commit stage then omits this hook deliberately; each manual invocation still
+runs once and enforces the same fail-closed verification.
+
+Each invocation retains stdout/stderr and a canonical `report.json` in a fresh
+mode-0700 directory under `<actual Git metadata>/iac-guard-v/runs/`. Linked Git
+worktrees use their own metadata. Reports must remain outside both snapshots;
+symlinked report directories and candidate-owned runtimes are rejected. Existing
+reports are never overwritten or deleted; operators manage retention. The hook
+prints the evidence path. A typical successful run reports:
+
+```text
+IaC-Guard-V process exit: 0
+VERIFIED; canonical report: .../report.json
+```
+
+A changed snapshot that retains the defective target reports `FAILED` and exits
+1. Missing/ambiguous/deleted targets, incomplete evidence, scanner integrity
+failures or unsupported profiles cannot produce success. Published verification
+outcomes are `VERIFIED/0`, `FAILED/1`, `INCONCLUSIVE/3`; other product errors retain
+their nonzero codes. For example byte-identical role snapshots are rejected as
+`INVALID_REQUEST/2`, rather than treated as a successful repair. The outer
+pre-commit process normalizes unsuccessful hook exits to 1; verbose output and
+retained product reports distinguish the underlying outcomes.
+
+#### Docker installation and Checkov selection
+
+Build from this checkout with explicit versions:
+
+```bash
+docker build -t pre-commit-iacgv \
+  --build-arg CHECKOV_VERSION=3.4.3 \
+  --build-arg IAC_GUARD_V_VERSION=1.0.4 .
+```
+
+In the configuration above use `/opt/iac-guard-v/bin/python` for `--iacgv-python`
+and `/opt/iac-guard-v/scanner/checkov` for `--checkov-executable`. Run with the
+normal [Docker usage](#docker-usage), mounting the consumer repository at `/lint`.
+Keep its Git metadata writable to retain reports. The image does not contain
+the pre-commit hook checkout; pre-commit installs the configured hook revision.
+
+`IAC_GUARD_V_VERSION=false` is the default and installs no product environment.
+An explicit pin or `latest` enables it. `INSTALL_ALL=true` selects `latest`,
+overriding individual version arguments just like the existing tools. The tested
+product is exactly 1.0.4 using `report-v1`. Earlier products are rejected before
+verification because they lack cooperative scanner cancellation. Future versions
+and prereleases require explicit adapter review; they are rejected.
+Enabling the product without Checkov is a build-time setup error.
+
+The final image creates a separate `--system-site-packages` product venv and
+uses the released controlled shared-installation launcher. Only small product
+parser dependencies are copied locally at compatible versions; no second Checkov
+or scanner dependency tree is installed. The ordinary `/usr/bin/checkov`, global
+packages and `terraform_checkov` hook remain authoritative for ordinary scanning.
+The launcher is prepared after final-image relocation and binds package, RECORD,
+interpreter, dependency and policy identities. Rebuild after changing the trusted
+installation; never edit the generated manifest to silence drift failures.
+
+**Checkov 3.4.3 supports only Terraform CKV_AWS_3.** Other properties on 3.4.3
+remain unqualified. IaC-Guard-V 1.0.4 preserves the property-specific
+**3.3.0–3.3.30** profiles introduced in 1.0.2 and the exact 3.4.3 qualification
+introduced in 1.0.3. Using `latest` or `INSTALL_ALL=true` does not
+guarantee authority for every check: a future scanner/product selection may
+fail closed until reviewed. The integration respects `CHECKOV_VERSION`,
+including `latest`; it never substitutes 3.3.0. Unknown versions and unqualified
+check/version combinations fail closed at verification time. Such a profile
+failure does not prevent building an image for unrelated hooks. CKV_K8S_40's
+manifest semantics are excluded from 3.3.8 onward; this is not blanket support
+for every check or a Kubernetes hook. See the released
+[compatibility contract](https://github.com/lokesh0186/iac-guard-v/blob/v1.0.3/docs/CHECKOV_COMPATIBILITY.md)
+for the qualified properties and exact limits.
+
+#### Troubleshooting and scope
+
+- Missing product or Python environment mismatch: set `--iacgv-python` to the
+  absolute provisioned product Python, not pre-commit's Python. Check its version
+  with `-IBm iac_guard_v.cli --version`; inspect retained `runtime.*.log` files.
+- Missing Checkov: install it explicitly before running the hook and supply its
+  absolute path. In Docker, enable `CHECKOV_VERSION` alongside the product.
+- Unsupported version/property: inspect the canonical report for
+  `CHECKOV_VERSION_UNSUPPORTED_FOR_REQUESTED_PROPERTY`; select an explicitly
+  qualified pair. Do not replace the scanner silently or infer compatibility
+  from a recognizable check ID.
+- Provenance/integrity mismatch: inspect doctor JSON and verification logs.
+  Recreate the operator-owned installation from published packages, preserving
+  RECORD and other validations. Do not delete or rewrite scanner files to pass.
+- Malformed arguments or invalid inputs: provide every required option, distinct
+  snapshots and the exact resource/check selector; inspect request diagnostics.
+- Inconclusive results: inspect `report.json` and scanner diagnostics for missing,
+  suppressed, ambiguous or incomplete evidence. Uncertainty blocks the commit.
+- Report/setup errors: Git metadata must be writable, outside both snapshots,
+  without symlinked report parents. Existing evidence is retained on failure.
+
+Verification is read-only with respect to IaC; only private report/log directories
+are written. It does not run init/apply, remediate code, deploy infrastructure or
+prove universal infrastructure safety, cloud behavior or scanner equivalence.
+This is the product's **trusted local, reduced-isolation** workflow, not a sandbox
+for hostile code. Protect configuration, installations, environment and the
+before state independently of candidate content. Ordinary scanning remains a
+separate `terraform_checkov` hook.
 
 ### infracost_breakdown
 

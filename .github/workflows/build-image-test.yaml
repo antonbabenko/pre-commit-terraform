@@ -11,6 +11,83 @@ env:
   IMAGE_TAG: pr-test
 
 jobs:
+  iac-guard-v-process:
+    name: IaC-Guard-V cancellation / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-15]
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+    - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: '3.12'
+    - name: Install test orchestrator
+      run: >-
+        python -Im pip install tox
+        --constraint=dependencies/lock-files/dist-build-constraints.txt
+    - name: Exercise actual child and grandchild cleanup
+      run: tox -qq -e iacgv-process
+
+  iac-guard-v:
+    name: IaC-Guard-V / Checkov ${{ matrix.checkov-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        checkov-version:
+        - 3.3.0
+        - 3.3.30
+        - 3.4.3
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+
+    - name: Detect verification changes
+      id: changes
+      uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96  # v47.0.6
+      with:
+        files: |
+          .github/workflows/build-image-test.yaml
+          .pre-commit-hooks.yaml
+          Dockerfile
+          pyproject.toml
+          hatch.toml
+          src/pre_commit_terraform/**
+          tools/install/**
+          tests/iac_guard_v_integration_test.py
+
+    - name: Build qualified released-product image
+      if: steps.changes.outputs.any_changed == 'true'
+      env:
+        CHECKOV_VERSION: ${{ matrix.checkov-version }}
+      run: >-
+        docker build --tag iac-guard-v-test
+        --build-arg CHECKOV_VERSION="$CHECKOV_VERSION"
+        --build-arg IAC_GUARD_V_VERSION=1.0.4 .
+
+    - name: Exercise released verifier and real pre-commit hook
+      if: steps.changes.outputs.any_changed == 'true'
+      run: |
+        mkdir -p .iacgv-test-results
+        docker run --rm \
+          -v "$PWD:/source:ro" -v "$PWD/.iacgv-test-results:/evidence" \
+          -e IACGV_TEST_PRODUCT=/opt/iac-guard-v/bin/python \
+          -e IACGV_TEST_SCANNER=/opt/iac-guard-v/scanner/checkov \
+          -e IACGV_TEST_HOOK_REPO=/source \
+          -e IACGV_TEST_PRE_COMMIT=/usr/bin/pre-commit \
+          -e IACGV_TEST_DIRECTORY=/evidence \
+          --entrypoint /bin/sh iac-guard-v-test -c \
+          '
+            git config --global --add safe.directory /source
+            exec python3 -IB /source/tests/iac_guard_v_integration_test.py -v
+          '
+
   build:
     permissions:
       # for MaxymVlasov/dive-action to write comments to PRs
