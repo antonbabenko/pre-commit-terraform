@@ -128,7 +128,10 @@ function per_dir_hook_unique_part {
   for c in "${configs[@]}"; do
 
     IFS="=" read -r -a config <<< "$c"
-    key=${config[0]}
+    # $hook_config receives string like '--foo=bar; --baz=4;' etc.
+    # It gets split by `;` into array, which we're parsing here ('--foo=bar' ' --baz=4')
+    # Next line removes leading spaces, to support >1 `--hook-config` args
+    key="${config[0]## }"
     value=${config[1]}
 
     case "$key" in

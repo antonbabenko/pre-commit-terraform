@@ -482,6 +482,9 @@ function common::get_hook_config_value {
   local config value
 
   for config in "${HOOK_CONFIG[@]}"; do
+    # Args after the first `--hook-config` are prefixed with a space
+    # (entries are joined by `;` before being split), so strip it first
+    config="${config## }"
     if [[ $config == "$key"=* ]]; then
       value=${config#*=}
       value=${value%;}
