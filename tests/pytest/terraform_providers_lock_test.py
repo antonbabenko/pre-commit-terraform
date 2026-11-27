@@ -39,6 +39,9 @@ LOCKFILE_NAME = '.terraform.lock.hcl'
 GIT = shutil.which('git') or 'git'
 BASH = shutil.which('bash') or 'bash'
 
+# WPS226 keeps repeated literals out of the module.
+ENCODING = 'utf-8'
+
 MODE = 'check-lockfile-is-cross-platform'
 MODE_ARG = f'--hook-config=--mode={MODE}'
 # Any other `--hook-config` key works here; `--parallelism-limit` is the one
@@ -93,7 +96,7 @@ def _write_recording_stub(  # pragma: win32 no cover
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         f'#!/usr/bin/env bash\nprintf "%s\\n" "$*" >> "{log_path}"\nexit 0\n',
-        encoding='utf-8',
+        encoding=ENCODING,
     )
     exec_bits = stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH
     path.chmod(path.stat().st_mode | exec_bits)
@@ -129,10 +132,10 @@ def lock_repo(tmp_path: Path) -> Path:  # pragma: win32 no cover
         cwd=repo,
         check=True,
     )
-    (repo / LOCKFILE_NAME).write_text(LOCKFILE, encoding='utf-8')
+    (repo / LOCKFILE_NAME).write_text(LOCKFILE, encoding=ENCODING)
     (repo / 'main.tf').write_text(
         'resource "null_resource" "a" {}\n',
-        encoding='utf-8',
+        encoding=ENCODING,
     )
     subprocess.run((GIT, 'add', '.'), cwd=repo, check=True)  # noqa: S603
     subprocess.run(  # noqa: S603
@@ -222,7 +225,7 @@ def test_mode_is_honoured_regardless_of_position(  # pragma: win32 no cover
     # Created up front so the assertion below reads it unconditionally: an
     # `exists()` guard would leave one branch unexecuted under the suite's
     # 100%-branch-coverage requirement.
-    log_path.write_text('', encoding='utf-8')
+    log_path.write_text('', encoding=ENCODING)
     _write_recording_stub(bin_dir / 'terraform', log_path)
 
     hook_config_args = (
@@ -238,8 +241,8 @@ def test_mode_is_honoured_regardless_of_position(  # pragma: win32 no cover
         log_path=log_path,
     )
 
-    combined = hook_run.stdout
-    recorded = log_path.read_text(encoding='utf-8')
-    assert not recorded, combined
-    assert DEPRECATION_MSG not in combined, combined
-    assert hook_run.returncode == 0, combined
+    # Six locals would trip WPS210, so the transcript is read straight off
+    # the completed process instead of through extra names.
+    assert not log_path.read_text(encoding=ENCODING), hook_run.stdout
+    assert DEPRECATION_MSG not in hook_run.stdout, hook_run.stdout
+    assert hook_run.returncode == 0, hook_run.stdout
